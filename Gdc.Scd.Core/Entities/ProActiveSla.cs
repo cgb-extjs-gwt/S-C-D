@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("ProActiveSla", Schema = MetaConstants.DependencySchema)]
+    [Table(MetaConstants.ProActiveSlaTableName, Schema = MetaConstants.DependencySchema)]
     public class ProActiveSla : ExternalEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

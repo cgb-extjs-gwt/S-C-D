@@ -496,7 +496,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
-        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IDeactivatable, new()
+        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IModifiable, new()
         {
             var nowTime = DateTime.UtcNow;
 
@@ -2157,6 +2157,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "wghardware" , MultiSelect = false },
 
                 new ReportFilterType { Name = "wg" , MultiSelect = true },
+                new ReportFilterType { Name = "wgall" , MultiSelect = true },
                 new ReportFilterType { Name = "country" , MultiSelect = true },
                 new ReportFilterType { Name = "availability" , MultiSelect = true },
                 new ReportFilterType { Name = "duration" , MultiSelect = true },

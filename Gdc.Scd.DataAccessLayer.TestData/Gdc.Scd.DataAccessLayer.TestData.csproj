@@ -57,9 +57,13 @@
     <None Remove="Scripts\report-SW-Service-Price-List-detail.sql" />
     <None Remove="Scripts\report-SW-Service-Price-List.sql" />
     <None Remove="Scripts\reports.sql" />
+    <None Remove="Scripts\Report\report-afr.sql" />
     <None Remove="Scripts\Report\report-calc-parameter-hw-not-approved.sql" />
     <None Remove="Scripts\Report\report-calc-parameter-hw.sql" />
     <None Remove="Scripts\Report\report-hdd-retention-calc-result.sql" />
+    <None Remove="Scripts\Report\report-locap-approved.sql" />
+    <None Remove="Scripts\Report\report-locap-detailed-approved.sql" />
+    <None Remove="Scripts\Report\report-locap-support-pack-approved.sql" />
     <None Remove="Scripts\Report\report-locap-support-pack.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-country.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-input-country.sql" />
@@ -96,6 +100,10 @@
     <EmbeddedResource Include="Scripts\archive_report\SwProActiveCosts.sql" />
     <EmbeddedResource Include="Scripts\archive_report\SwSpMaintenance.sql" />
     <EmbeddedResource Include="Scripts\archive_report\TaxAndDuties.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-afr.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-locap-approved.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-locap-detailed-approved.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-locap-support-pack-approved.sql" />
     <EmbeddedResource Include="Scripts\Report\report-po-standard-warranty.sql" />
     <EmbeddedResource Include="Scripts\Report\report-SW-param-overview.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

@@ -15,9 +15,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.origin = wgRepo;
         }
 
+        public override IQueryable<Wg> GetAll()
+        {
+            return base.GetAll().Include(wg => wg.Sog);
+        }
+
         public IQueryable<Wg> GetStandards()
         {
-            return origin.GetStandards();
+            return origin.GetStandards().Include(wg => wg.Sog);
         }
 
         public IQueryable<Wg> GetHardware()

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.Portfolio
 {
-    [Table(MetaConstants.LocalPortfolioTableName, Schema = MetaConstants.PortfolioSchema)]
+    [Table("LocalPortfolio", Schema = MetaConstants.PortfolioSchema)]
     public class LocalPortfolio: Portfolio
     {
         [Required]

@@ -1,3 +1,20 @@
+IF OBJECT_ID('Hardware.StandardWarrantyManualCost', 'U') IS NOT NULL
+  DROP TABLE Hardware.StandardWarrantyManualCost;
+go
+
+CREATE TABLE Hardware.StandardWarrantyManualCost (
+    [Id] [bigint] primary key IDENTITY(1,1) NOT NULL,
+    [CountryId] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
+    [WgId] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [ChangeUserId] [bigint] NOT NULL foreign key references dbo.[User](Id),
+    [ChangeDate] [datetime] NOT NULL,
+    [StandardWarranty] [float] NULL
+)
+GO
+
+CREATE UNIQUE INDEX [ix_StandardWarrantyManualCost_Country_Wg] ON [Hardware].[StandardWarrantyManualCost]([CountryId] ASC, [WgId] ASC)
+GO
+
 ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKit_Approved;
 go
 ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKitJapanBuy_Approved;
@@ -314,34 +331,6 @@ CREATE TABLE Hardware.AfrYear(
 )
 GO
 
-IF OBJECT_ID('Hardware.ReinsuranceYear', 'U') IS NOT NULL
-  DROP TABLE Hardware.ReinsuranceYear;
-go
-
-CREATE TABLE [Hardware].[ReinsuranceYear](
-    [Wg] bigint PRIMARY KEY FOREIGN KEY REFERENCES InputAtoms.Wg(Id),
-    [ReinsuranceFlatfee1] [float] NULL,
-    [ReinsuranceFlatfee2] [float] NULL,
-    [ReinsuranceFlatfee3] [float] NULL,
-    [ReinsuranceFlatfee4] [float] NULL,
-    [ReinsuranceFlatfee5] [float] NULL,
-    [ReinsuranceFlatfeeP1] [float] NULL,
-    [ReinsuranceFlatfee1_Approved] [float] NULL,
-    [ReinsuranceFlatfee2_Approved] [float] NULL,
-    [ReinsuranceFlatfee3_Approved] [float] NULL,
-    [ReinsuranceFlatfee4_Approved] [float] NULL,
-    [ReinsuranceFlatfee5_Approved] [float] NULL,
-    [ReinsuranceFlatfeeP1_Approved] [float] NULL,
-    [ReinsuranceUpliftFactor_NBD_9x5] [float] NULL,
-    [ReinsuranceUpliftFactor_4h_9x5] [float] NULL,
-    [ReinsuranceUpliftFactor_4h_24x7] [float] NULL,
-    [ReinsuranceUpliftFactor_NBD_9x5_Approved] [float] NULL,
-    [ReinsuranceUpliftFactor_4h_9x5_Approved] [float] NULL,
-    [ReinsuranceUpliftFactor_4h_24x7_Approved] [float] NULL
-)
-
-GO
-
 alter table Hardware.Reinsurance
     add ReinsuranceFlatfee_norm          as (ReinsuranceFlatfee * coalesce(ReinsuranceUpliftFactor / 100, 1))
       , ReinsuranceFlatfee_norm_Approved as (ReinsuranceFlatfee_Approved * coalesce(ReinsuranceUpliftFactor_Approved / 100, 1))
@@ -362,105 +351,6 @@ GO
 
 CREATE NONCLUSTERED INDEX ix_Hardware_Reinsurance_Sla ON [Hardware].[Reinsurance] ([Wg],[Duration],[ReactionTimeAvailability])
 GO
-
-IF OBJECT_ID('Hardware.Reinsurance_Updated', 'TR') IS NOT NULL
-  DROP TRIGGER Hardware.Reinsurance_Updated;
-go
-
-CREATE TRIGGER [Hardware].[Reinsurance_Updated]
-ON [Hardware].[Reinsurance]
-After INSERT, UPDATE
-AS BEGIN
-
-    declare @NBD_9x5 bigint;
-    declare @4h_9x5 bigint;
-    declare @4h_24x7 bigint;
-
-    select @NBD_9x5 = id 
-    from Dependencies.ReactionTime_Avalability
-    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = 'NBD')
-       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '9X5')
-
-    select @4h_9x5 = id 
-    from Dependencies.ReactionTime_Avalability
-    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = '4H')
-       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '9X5')
-
-    select @4h_24x7 = id 
-    from Dependencies.ReactionTime_Avalability
-    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = '4H')
-       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '24X7')
-
-    TRUNCATE TABLE Hardware.ReinsuranceYear;
-
-    -- Disable all table constraints
-    ALTER TABLE Hardware.ReinsuranceYear NOCHECK CONSTRAINT ALL;
-
-    INSERT INTO Hardware.ReinsuranceYear(
-                      Wg
-                
-                    , ReinsuranceFlatfee1                     
-                    , ReinsuranceFlatfee2                     
-                    , ReinsuranceFlatfee3                     
-                    , ReinsuranceFlatfee4                     
-                    , ReinsuranceFlatfee5                     
-                    , ReinsuranceFlatfeeP1                    
-                
-                    , ReinsuranceFlatfee1_Approved            
-                    , ReinsuranceFlatfee2_Approved            
-                    , ReinsuranceFlatfee3_Approved            
-                    , ReinsuranceFlatfee4_Approved            
-                    , ReinsuranceFlatfee5_Approved            
-                    , ReinsuranceFlatfeeP1_Approved           
-                
-                    , ReinsuranceUpliftFactor_NBD_9x5         
-                    , ReinsuranceUpliftFactor_4h_9x5          
-                    , ReinsuranceUpliftFactor_4h_24x7         
-                
-                    , ReinsuranceUpliftFactor_NBD_9x5_Approved
-                    , ReinsuranceUpliftFactor_4h_9x5_Approved 
-                    , ReinsuranceUpliftFactor_4h_24x7_Approved
-                )
-    select   r.Wg
-
-           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee end) 
-
-           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
-
-           , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor end) 
-           , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor end) 
-           , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor end) 
-
-           , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor_Approved end) 
-           , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor_Approved end) 
-           , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor_Approved end) 
-
-    from Hardware.Reinsurance r
-    join Dependencies.Duration d on d.Id = r.Duration
-
-    where r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
-      and r.DeactivatedDateTime is null
-    group by r.Wg;
-
-    -- Enable all table constraints
-    ALTER TABLE Hardware.ReinsuranceYear CHECK CONSTRAINT ALL;
-
-END
-GO
-
-update Hardware.Reinsurance set ReinsuranceFlatfee = ReinsuranceFlatfee + 0;
-
-go
 
 IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
   DROP FUNCTION Hardware.GetReinsurance;
@@ -869,11 +759,11 @@ RETURNS float
 AS
 BEGIN
 
-    if @markupFactor > 0
+    if @markupFactor is not null
         begin
             set @value = @value * @markupFactor;
         end
-    else if @markup > 0
+    else if @markup is not null
         begin
             set @value = @value + @markup;
         end
@@ -892,11 +782,11 @@ RETURNS float
 AS
 BEGIN
 
-    if @markupFactor > 0
+    if @markupFactor is not null
         begin
             return @value * @markupFactor;
         end
-    else if @fixed > 0
+    else if @fixed is not null
         begin
             return @fixed;
         end
@@ -1848,6 +1738,7 @@ RETURNS @tbl TABLE  (
         , AFRP1                        float
 
         , OnsiteHourlyRates            float
+		, CanOverrideTransferCostAndPrice	bit
 
         --####### PROACTIVE COST ###################
         , LocalRemoteAccessSetup       float
@@ -1904,6 +1795,7 @@ RETURNS @tbl TABLE  (
 
         , ServiceSupportPerYear        float
         , LocalServiceStandardWarranty float
+        , LocalServiceStandardWarrantyManual float
         
         , Credit1                      float
         , Credit2                      float
@@ -1944,6 +1836,7 @@ BEGIN
              , c.CurrencyId
              , cur.Name as Currency
              , c.ClusterRegionId
+			 , c.CanOverrideTransferCostAndPrice
              , er.Value as ExchangeRate 
              , case when @approved = 0 then tax.TaxAndDuties_norm              else tax.TaxAndDuties_norm_Approved          end as TaxAndDuties
 
@@ -2020,6 +1913,8 @@ BEGIN
               , case when @approved = 0 then lcStd.ReturnDeliveryFactory        else lcStd.ReturnDeliveryFactory_Approved    end / m.ExchangeRate as StdReturnDeliveryFactory   
               , case when @approved = 0 then lcStd.TaxiCourierDelivery          else lcStd.TaxiCourierDelivery_Approved      end / m.ExchangeRate as StdTaxiCourierDelivery     
 
+              , man.StandardWarranty / m.ExchangeRate as ManualStandardWarranty
+
         from WgCnt m
 
         LEFT JOIN Hardware.RoleCodeHourlyRates hr ON hr.Country = m.CountryId and hr.RoleCode = m.RoleCodeId and hr.DeactivatedDateTime is null
@@ -2041,6 +1936,8 @@ BEGIN
         LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType 
 
         LEFT JOIN Hardware.LogisticsCosts lcStd        ON lcStd.Country  = stdw.Country AND lcStd.Wg = stdw.Wg  AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType and lcStd.DeactivatedDateTime is null
+
+        LEFT JOIN Hardware.StandardWarrantyManualCost man on man.CountryId = m.CountryId and man.WgId = m.WgId
     )
     , CostCte as (
         select    m.*
@@ -2148,6 +2045,8 @@ BEGIN
 
                , OnsiteHourlyRates
 
+			   , CanOverrideTransferCostAndPrice
+
                , LocalRemoteAccessSetup     
                , LocalRegularUpdate         
                , LocalPreparation           
@@ -2202,6 +2101,7 @@ BEGIN
 
                , ServiceSupportPerYear
                , LocalServiceStandardWarranty 
+               , LocalServiceStandardWarrantyManual
                
                , Credit1                      
                , Credit2                      
@@ -2237,6 +2137,7 @@ BEGIN
             , m.AFRP1
 
             , m.OnsiteHourlyRates
+			, m.CanOverrideTransferCostAndPrice
 
             , m.LocalRemoteAccessSetup     
             , m.LocalRegularUpdate         
@@ -2293,6 +2194,7 @@ BEGIN
             , m.ServiceSupportPerYear
 
             , m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5 as LocalServiceStandardWarranty
+            , m.ManualStandardWarranty as LocalServiceStandardWarrantyManual
 
             , m.mat1 + m.LocalServiceStandardWarranty1 as Credit1
             , m.mat2 + m.LocalServiceStandardWarranty2 as Credit2
@@ -2446,6 +2348,7 @@ RETURN
             , std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition           as CentralExecutionReport
 
             , std.LocalServiceStandardWarranty
+            , std.LocalServiceStandardWarrantyManual
             , std.Credit1
             , std.Credit2
             , std.Credit3
@@ -2457,10 +2360,11 @@ RETURN
             , man.ListPrice          / std.ExchangeRate as ListPrice                   
             , man.DealerDiscount                        as DealerDiscount              
             , man.DealerPrice        / std.ExchangeRate as DealerPrice                 
-            , man.ServiceTC          / std.ExchangeRate as ServiceTCManual                   
-            , man.ServiceTP          / std.ExchangeRate as ServiceTPManual                   
+            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTC     / std.ExchangeRate) end as ServiceTCManual                   
+            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTP     / std.ExchangeRate) end as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
-            , man.ChangeDate                            as ChangeDate
+            , man.ReleaseDate                           as ReleaseDate
+            , man.ChangeDate                            
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
@@ -2496,6 +2400,7 @@ RETURN
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 )
 go
+
 
 IF OBJECT_ID('[Hardware].[GetCosts]') IS NOT NULL
     DROP FUNCTION [Hardware].[GetCosts]
@@ -2647,11 +2552,12 @@ RETURN
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
        
          , m.LocalServiceStandardWarranty
+         , m.LocalServiceStandardWarrantyManual
        
          , m.Credits
 
-         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTC
-         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTP
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
 
          , m.ServiceTC1
          , m.ServiceTC2
@@ -2672,8 +2578,11 @@ RETURN
          , m.DealerPrice
          , m.ServiceTCManual
          , m.ServiceTPManual
+		 , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
+		 , coalesce(m.ServiceTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTPResult
          , m.ServiceTP_Released
 
+         , m.ReleaseDate
          , m.ChangeDate
          , m.ChangeUserName
          , m.ChangeUserEmail
@@ -2745,6 +2654,7 @@ BEGIN
              , Logistic                      * ExchangeRate  as Logistic
              , OtherDirect                   * ExchangeRate  as OtherDirect
              , LocalServiceStandardWarranty  * ExchangeRate  as LocalServiceStandardWarranty
+             , LocalServiceStandardWarrantyManual  * ExchangeRate  as LocalServiceStandardWarrantyManual
              , Credits                       * ExchangeRate  as Credits
              , ServiceTC                     * ExchangeRate  as ServiceTC
              , ServiceTP                     * ExchangeRate  as ServiceTP
@@ -2758,7 +2668,7 @@ BEGIN
              , DealerPrice                   * ExchangeRate  as DealerPrice
              , DealerDiscount                                as DealerDiscount
                                                        
-             , ChangeDate                                    as ChangeDate
+             , ReleaseDate                                    
              , ChangeUserName                                as ChangeUserName
              , ChangeUserEmail                               as ChangeUserEmail
 
@@ -2802,6 +2712,7 @@ BEGIN
              , Logistic                      
              , OtherDirect                   
              , LocalServiceStandardWarranty  
+             , LocalServiceStandardWarrantyManual
              , Credits                       
              , ServiceTC                     
              , ServiceTP                     
@@ -2815,7 +2726,7 @@ BEGIN
              , DealerPrice                   
              , DealerDiscount                
                                              
-             , ChangeDate                                    
+             , ReleaseDate                                    
              , ChangeUserName                
              , ChangeUserEmail               
 
@@ -2945,19 +2856,22 @@ RETURN
              , m.FieldServiceCost
              , m.Logistic
              , m.OtherDirect
-             , m.LocalServiceStandardWarranty
+             , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
              , m.Credits
 
              , ib.InstalledBaseCountryNorm
 
-             , (sum(m.ServiceTC * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
-             , (sum(case when m.ServiceTC > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
+             , (sum(m.ServiceTCResult * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
+             , (sum(case when m.ServiceTCResult <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
 
-             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
-             , (sum(case when m.ServiceTP_Released > 0 then ib.InstalledBaseCountryNorm end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
+             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_Released
+             , (sum(case when m.ServiceTP_Released <> 0 then ib.InstalledBaseCountryNorm end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_Released
 
-             , (sum(m.ServiceTP * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
-             , (sum(case when m.ServiceTP > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
+             , (sum(m.ServiceTPResult * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
+             , (sum(case when m.ServiceTPResult <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
+
+             , (sum(m.ProActive * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
+             , (sum(case when m.ProActive <> 0 then ib.InstalledBaseCountryNorm end)         over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
 
              , (max(m.ReleaseDate)                                                           over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as ReleaseDate
 
@@ -3022,9 +2936,12 @@ RETURN
             , m.LocalServiceStandardWarranty
             , m.Credits
 
-            , case when m.sum_ib_x_tc > 0 and m.sum_ib_by_tc > 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
-            , case when m.sum_ib_x_tp > 0 and m.sum_ib_by_tp > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
-            , case when m.sum_ib_x_tp_approved > 0 and m.sum_ib_by_tp_approved > 0 then m.sum_ib_x_tp_approved / m.sum_ib_by_tp_approved else 0 end as ServiceTpSog_Approved
+            , case when m.sum_ib_x_tc <> 0 and m.sum_ib_by_tc <> 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
+            , case when m.sum_ib_x_tp <> 0 and m.sum_ib_by_tp <> 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
+            , case when m.sum_ib_x_tp_Released <> 0 and m.sum_ib_by_tp_Released <> 0 then m.sum_ib_x_tp_Released / m.sum_ib_by_tp_Released 
+                   when m.ReleaseDate is not null then 0 end as ServiceTpSog_Released
+
+            , case when m.sum_ib_x_pro <> 0 and m.sum_ib_by_pro <> 0 then m.sum_ib_x_pro / m.sum_ib_by_pro else 0 end as ProActiveSog
 
             , m.ReleaseDate
 
@@ -3034,7 +2951,7 @@ RETURN
 
     from cte m
 )
-go
+GO
 
 IF OBJECT_ID('Hardware.GetReleaseCosts') IS NOT NULL
   DROP FUNCTION Hardware.GetReleaseCosts;
@@ -3198,8 +3115,8 @@ RETURN
        
          , m.Credits
 
-         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTC
-         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTP
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
 
          , m.ServiceTC1
          , m.ServiceTC2
@@ -3250,46 +3167,107 @@ BEGIN
 
     SET NOCOUNT ON;
     
+    declare @now datetime = getdate();
 
-	SELECT * INTO #temp 
-	FROM Hardware.GetReleaseCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0) costs
+    SELECT   
+              case when costs.Year >= 1 and costs.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / costs.Year, costs.ServiceTP1) end * costs.ExchangeRate as TP1_Released
+            , case when costs.Year >= 2 and costs.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / costs.Year, costs.ServiceTP2) end * costs.ExchangeRate as TP2_Released
+            , case when costs.Year >= 3 and costs.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / costs.Year, costs.ServiceTP3) end * costs.ExchangeRate as TP3_Released
+            , case when costs.Year >= 4 and costs.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / costs.Year, costs.ServiceTP4) end * costs.ExchangeRate as TP4_Released
+            , case when costs.Year >= 5 and costs.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / costs.Year, costs.ServiceTP5) end * costs.ExchangeRate as TP5_Released
+            , case when costs.IsProlongation = 1                     then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)             end * costs.ExchangeRate as TP1P_Released
+
+            , COALESCE(costs.ServiceTPManual, costs.ServiceTP) * costs.ExchangeRate as TP_Released
+
+            , costs.*
+    INTO #temp 
+	FROM Hardware.GetReleaseCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 100) costs
 	WHERE (not exists(select 1 from @portfolioIds) or costs.Id in (select Id from @portfolioIds))   
 	--TODO: @portfolioIds case to be fixed in a future release 
 
-	UPDATE mc
-	SET [ServiceTP1_Released]  = case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) end,
-		[ServiceTP2_Released]  = case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) end,
-		[ServiceTP3_Released]  = case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) end,
-		[ServiceTP4_Released]  = case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) end,
-		[ServiceTP5_Released]  = case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) end,
-		[ServiceTP1P_Released] = case when dur.IsProlongation = 1                    then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)            end,
-		[ChangeUserId] = @usr,
-        [ReleaseDate] = getdate()
-	FROM [Hardware].[ManualCost] mc
-	JOIN #temp costs on mc.PortfolioId = costs.Id
-	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
-	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
+    UPDATE mc
+    SET   [ServiceTP1_Released]  = TP1_Released
+        , [ServiceTP2_Released]  = TP2_Released
+        , [ServiceTP3_Released]  = TP3_Released
+        , [ServiceTP4_Released]  = TP4_Released
+        , [ServiceTP5_Released]  = TP5_Released
+        , [ServiceTP1P_Released] = TP1P_Released
+        , [ServiceTP_Released]   = TP_Released
+    
+        , [ChangeUserId] = @usr
+        , [ReleaseDate] = @now
+
+    FROM [Hardware].[ManualCost] mc
+    JOIN #temp costs on mc.PortfolioId = costs.Id
+    where costs.ServiceTPManual is not null or costs.ServiceTP is not null
 
 	INSERT INTO [Hardware].[ManualCost] 
 				([PortfolioId], 
 				[ChangeUserId], 
                 [ReleaseDate],
-				[ServiceTP1_Released], [ServiceTP2_Released], [ServiceTP3_Released], [ServiceTP4_Released], [ServiceTP5_Released], [ServiceTP1P_Released])
-	SELECT  costs.Id, 
-			@usr, 
-            getdate(),
-			case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) end,
-			case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) end,
-			case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) end,
-			case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) end,
-			case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) end,
-			case when dur.IsProlongation = 1                    then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)            end
-	FROM [Hardware].[ManualCost] mc
-	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
-	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
-	where mc.PortfolioId is null and (costs.ServiceTPManual is not null or costs.ServiceTP is not null)
+				[ServiceTP1_Released], [ServiceTP2_Released], [ServiceTP3_Released], [ServiceTP4_Released], [ServiceTP5_Released], [ServiceTP1P_Released], ServiceTP_Released)
+	SELECT    costs.Id
+            , @usr
+            , @now
+            , TP1_Released
+            , TP2_Released
+            , TP3_Released
+            , TP4_Released
+            , TP5_Released
+            , TP1P_Released
+            , TP_Released
+    FROM [Hardware].[ManualCost] mc
+    RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
+    where mc.PortfolioId is null and (costs.ServiceTPManual is not null or costs.ServiceTP is not null)
 
-	DROP table #temp
+    DROP table #temp
    
 END
 GO
+
+if OBJECT_ID('Hardware.SpUpdateStandardWarrantyManualCost') is not null
+    drop procedure Hardware.SpUpdateStandardWarrantyManualCost;
+go
+
+IF type_id('Hardware.StdwCost') IS NOT NULL
+    DROP TYPE Hardware.StdwCost;
+go
+
+CREATE TYPE Hardware.StdwCost AS TABLE(
+    [Country]          nvarchar(255) NOT NULL,
+    [Wg]               nvarchar(255) NOT NULL,
+    [StandardWarranty] float         NULL
+)
+GO
+
+CREATE PROCEDURE [Hardware].[SpUpdateStandardWarrantyManualCost]
+    @usr          int, 
+    @cost         Hardware.StdwCost readonly
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    declare @now datetime = GETDATE();
+
+    select cnt.Id as CountryId, wg.Id as WgId, max(c.StandardWarranty) as StandardWarranty
+    into #temp
+    from @cost c 
+    join InputAtoms.Country cnt on UPPER(cnt.Name) = UPPER(c.Country) and cnt.CanOverrideTransferCostAndPrice = 1
+    join InputAtoms.Wg wg on UPPER(wg.Name) = UPPER(c.Wg)
+    group by cnt.Id, wg.Id;
+
+    update stdw set StandardWarranty = c.StandardWarranty, ChangeUserId = @usr, ChangeDate = @now
+    from Hardware.StandardWarrantyManualCost stdw 
+    join #temp c on c.CountryId = stdw.CountryId and c.WgId = stdw.WgId;
+
+    insert into Hardware.StandardWarrantyManualCost(CountryId, WgId, StandardWarranty, ChangeUserId, ChangeDate)
+    select c.CountryId, c.WgId, c.StandardWarranty, @usr, @now
+    from #temp c
+    left join Hardware.StandardWarrantyManualCost stdw on stdw.CountryId = c.CountryId and stdw.WgId = c.WgId
+    where stdw.Id is null;
+
+    DROP table #temp;
+
+END
+go

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -16,11 +19,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private readonly DomainEnitiesMeta domainEnitiesMeta;
         private readonly ISqlRepository sqlRepository;
         public SmtpClient Client { get; set; }
-        public EmailService(DomainMeta domainMeta, DomainEnitiesMeta domainEnitiesMeta, ISqlRepository sqlRepository)
+
+        public EmailService()
         {
-            this.domainMeta = domainMeta;
-            this.domainEnitiesMeta = domainEnitiesMeta;
-            this.sqlRepository = sqlRepository;
             Client = new SmtpClient
             {
                 Port = 25,
@@ -28,6 +29,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 Timeout = 10000,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
             };
+        }
+
+        public EmailService(DomainMeta domainMeta, DomainEnitiesMeta domainEnitiesMeta, ISqlRepository sqlRepository)
+         : this()
+        {
+            this.domainMeta = domainMeta;
+            this.domainEnitiesMeta = domainEnitiesMeta;
+            this.sqlRepository = sqlRepository;
         }
 
         public async Task SendApprovalMailAsync(CostBlockHistory history)
@@ -56,6 +65,27 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             mailMessage.To.Add(history.EditUser.Email);
             Client.Send(mailMessage);
         }
+
+        public void SendArchiveResultEmail(IList<ArchiveFolderDto> archiveFolderData,
+            string emailTo,
+            string emailFrom,
+            string periodStart, string periodEnd)
+        {
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(emailFrom),
+                IsBodyHtml = true,
+                Subject = $"SCD: Result of Archiving {periodStart}/{periodEnd}"
+            };
+
+            var body = GenerateArchiveEmailResult(archiveFolderData, periodStart, periodEnd);
+            mailMessage.Body = body;
+            var toAddresses = emailTo.Split(";,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            foreach (var emailAddress in toAddresses)
+                mailMessage.To.Add(emailAddress.Trim());
+            Client.Send(mailMessage);
+        }
+
         private async Task<string> GenerateDetailedBodyAsync(CostBlockHistory history)
         {
             var costBlock = domainMeta.CostBlocks[history.Context.CostBlockId];
@@ -95,6 +125,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var ids = new List<long> {regionId};
             var regions = await sqlRepository.GetNameIdItems(entityMeta, entityMeta.IdField.Name, entityMeta.NameField.Name, ids.AsEnumerable());
             return regions.FirstOrDefault().Name;
+        }
+
+        private string GenerateArchiveEmailResult(IList<ArchiveFolderDto> archiveFolderData, string periodStart, string periodEnd)
+        {
+            var resultSb = new StringBuilder();
+            resultSb = resultSb.Append($"<span style='{StyleConstants.BODY_STYLE}'>Hello team,<br/> Please find below summary archiving report for period <b>{periodStart}</b> - <b>{periodEnd}</b><span><br><br>");
+            resultSb = resultSb.Append(
+                $"<table cellpadding='5' style='{StyleConstants.TABLE_STYLE}'><thead><tr><th style='{StyleConstants.TABLE_TH_STYLE}'>Folder Name</th><th style='{StyleConstants.TABLE_TH_STYLE}'>Total File Count</th><th style='{StyleConstants.TABLE_TH_STYLE}'>Total File Size</th></tr></thead><tbody>");
+
+            for (int rowIndex = 0; rowIndex < archiveFolderData.Count; rowIndex++)
+            {
+                resultSb.Append($"<tr style='{GetStyleForTableRow(rowIndex)}'><td style='{StyleConstants.TABLE_TD_STYLE}'>{archiveFolderData[rowIndex].Name}</td><td style='{StyleConstants.TABLE_TD_STYLE_CENTER}'>{archiveFolderData[rowIndex].FileCount}</td><td style='{StyleConstants.TABLE_TD_STYLE}'>{archiveFolderData[rowIndex].TotalFolderSize} MB</td></tr>");
+            }
+
+            resultSb.Append("</tbody></table><br/><br/>");
+            resultSb.Append($"<span style='{StyleConstants.SIGN_STYLE}'>Kind Regards,<br /> SCD Team<span>");
+            return resultSb.ToString();
+        }
+
+        private string GetStyleForTableRow(int rowIndex)
+        {
+            return rowIndex % 2 == 0 ? String.Empty : StyleConstants.TABLE_ODD_ROW_STYLE;
         }
     }
 }

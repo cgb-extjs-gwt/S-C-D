@@ -18,7 +18,7 @@ namespace Gdc.Scd.DataAccessLayer
     {
         public override void Load()
         {
-            Bind(typeof(IRepository<>)).To(typeof(DeactivateDecoratorRepository<>)).When(this.IsDeactivatable).InScdRequestScope();
+            Bind(typeof(IRepository<>)).To(typeof(ModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InScdRequestScope();
             Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InScdRequestScope();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InScdRequestScope();
@@ -41,8 +41,11 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IApprovalRepository>().To<ApprovalRepository>().InScdRequestScope();
             Bind<IRepository<HardwareManualCost>>().To<HardwareManualCostRepository>().InScdRequestScope();
             Bind<IRepository<HddRetentionManualCost>>().To<HddRetentionManualCostRepository>().InScdRequestScope();
+            Bind<IRepository<StandardWarrantyManualCost>>().To<StandardWarrantyManualCostRepository>().InScdRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InScdRequestScope();
             Bind<ICostBlockQueryBuilder>().To<CostBlockQueryBuilder>().InScdRequestScope();
+            Bind<IPivotGridRepository>().To<PivotGridRepository>().InScdRequestScope();
+            Bind<IPortfolioPivotGridQueryBuilder>().To<PortfolioPivotGridQueryBuilder>().InSingletonScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
@@ -62,10 +65,10 @@ namespace Gdc.Scd.DataAccessLayer
             Kernel.RegisterEntity<RolePermission>();
         }
 
-        private bool IsDeactivatable(IRequest arg)
+        private bool IsModifiable(IRequest arg)
         {
             var type = arg.Service.GetGenericArguments();
-            var deactivatable = typeof(IDeactivatable);
+            var deactivatable = typeof(IModifiable);
             return Array.Exists(type, x => deactivatable.IsAssignableFrom(x));
         }
     }

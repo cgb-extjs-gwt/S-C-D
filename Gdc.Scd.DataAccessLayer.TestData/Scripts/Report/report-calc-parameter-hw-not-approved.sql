@@ -4,13 +4,14 @@ go
 
 CREATE FUNCTION [Report].[CalcParameterHwNotApproved]
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @duration     bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint
 )
 RETURNS TABLE 
 AS
@@ -95,7 +96,7 @@ RETURN (
          
               , m.LogisticTransportcost
 
-    from Report.GetParameterHw(0, @cnt, @wg, @av, @reactiontime, @reactiontype, @loc, @pro) m
+    from Report.GetParameterHw(0, @cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
 )
 go
 
@@ -242,6 +243,8 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wghardware', 0), 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('duration', 0), 'duration', 'Duration');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontime', 0), 'reactiontime', 'Reaction time');
 set @index = @index + 1;

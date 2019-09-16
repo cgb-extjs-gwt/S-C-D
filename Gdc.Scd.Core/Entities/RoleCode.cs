@@ -6,7 +6,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table(MetaConstants.RoleCodeInputLevel, Schema = MetaConstants.InputLevelSchema)]
-    public class RoleCode : NamedId, IDeactivatable
+    public class RoleCode : NamedId, IModifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

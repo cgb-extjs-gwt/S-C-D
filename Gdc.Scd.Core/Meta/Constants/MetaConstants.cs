@@ -54,8 +54,6 @@
 
         public const string PortfolioSchema = "Portfolio";
 
-        public const string LocalPortfolioTableName = "LocalPortfolio";
-
         public const string ClusterRegionInputLevel = "ClusterRegion";
         
         public const string SpoolerSchema = "Spooler";
@@ -79,5 +77,7 @@
         public const string CurrencyTable = "Currency";
 
         public const string ExchangeRateTable = "ExchangeRate";
+
+        public const string ProActiveSlaTableName = "ProActiveSla";
     }
 }

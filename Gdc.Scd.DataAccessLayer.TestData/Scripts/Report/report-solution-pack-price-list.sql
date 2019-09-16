@@ -30,6 +30,11 @@ begin
     declare @emptyAv dbo.ListId;
     declare @emptyYear dbo.ListId;
 
+    with cte as (
+        select    sw.*
+        from SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @emptyYear, -1, -1) sw
+        where sw.SwDigit not in (select DigitId from SoftwareSolution.ProActiveDigits)
+    )
     insert into @tbl
     select    lic.Name as License
             , sog.Description as SogDescription
@@ -40,19 +45,19 @@ begin
 
             , fsp.Name as Fsp
             , fsp.ServiceDescription as SpDescription
-            , null as Sp
+            , fsp.ShortDescription as Sp
 
             , sw.TransferPrice as TP
             , sw.DealerPrice as DealerPrice
             , sw.MaintenanceListPrice as ListPrice
 
-    from SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @emptyYear, -1, -1) sw
+    from cte sw
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 1
     join Dependencies.Availability av on av.id = sw.Availability
     join Dependencies.Year y on y.Id = sw.Year
 
-    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
+    join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
                                           and fsp.AvailabilityId = sw.Availability
                                           and fsp.DurationId = sw.Year
 

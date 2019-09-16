@@ -78,3 +78,32 @@ export const buildComponentUrl = (componentPath: string) => {
 
     return url;
 }   
+
+export const downloadFile = <TData>(controller: string, action: string, data?: TData, params?: { [key: string]: any }) => {
+    const FORM_ID = 'downloadFileForm';
+    
+    let input;
+    let form = document.getElementById(FORM_ID) as any;
+    
+    if (form) {
+        input = form.elements.data;
+    } else {
+        form = document.createElement('form');
+        form.setAttribute('id', FORM_ID);
+
+        document.body.appendChild(form);
+
+        input = document.createElement('input');
+        input.setAttribute('type', 'hidden');
+        input.setAttribute('name', 'data');
+
+        form.appendChild(input);
+    }
+
+    input.setAttribute('value', data == null ? undefined : JSON.stringify(data));
+
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', buildMvcUrl(controller, action, params));
+    
+    form.submit();
+}

@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gdc.Scd.Import.Core.DataAccess;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -22,7 +23,9 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<MaterialCostWarrantyEmeia> _repositoryMaterialCost;
         private readonly ILogger<LogLevel> _logger;
 
-        public EbisMaterialCostUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public EbisMaterialCostUploader(IRepositorySet repositorySet,
+            ImportRepository<MaterialCostWarrantyEmeia> mcRepo,
+            ILogger<LogLevel> logger)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -32,7 +35,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
             this._repositorySet = repositorySet;
             this._repositoryWg = this._repositorySet.GetRepository<Wg>();
-            this._repositoryMaterialCost = this._repositorySet.GetRepository<MaterialCostWarrantyEmeia>();
+            this._repositoryMaterialCost = mcRepo;
             this._logger = logger;
         }
 

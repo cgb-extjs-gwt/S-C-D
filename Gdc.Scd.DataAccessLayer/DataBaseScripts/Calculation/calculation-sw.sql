@@ -1,4 +1,144 @@
-﻿IF OBJECT_ID('SoftwareSolution.SpGetProActiveCosts') IS NOT NULL
+﻿
+/****** Object:  Table [SoftwareSolution].[SwSpMaintenance]    Script Date: 31.07.2019 16:26:22 ******/
+DROP TABLE [SoftwareSolution].[SwSpMaintenance]
+GO
+
+CREATE TABLE [SoftwareSolution].[SwSpMaintenance](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[Pla] [bigint] NOT NULL,
+	[Sfab] [bigint] NOT NULL,
+	[Sog] [bigint] NOT NULL,
+	[SwDigit] [bigint] NOT NULL,
+	[DurationAvailability] [bigint] NOT NULL,
+	[Availability] [bigint] NOT NULL,
+	[2ndLevelSupportCosts] [float] NULL,
+	[InstalledBaseSog] [float] NULL,
+	[ReinsuranceFlatfee] [float] NULL,
+	[CurrencyReinsurance] [bigint] NULL,
+	[RecommendedSwSpMaintenanceListPrice] [float] NULL,
+	[MarkupForProductMarginSwLicenseListPrice] [float] NULL,
+	[ShareSwSpMaintenanceListPrice] [float] NULL,
+	[DiscountDealerPrice] [float] NULL,
+	[2ndLevelSupportCosts_Approved] [float] NULL,
+	[InstalledBaseSog_Approved] [float] NULL,
+	[ReinsuranceFlatfee_Approved] [float] NULL,
+	[CurrencyReinsurance_Approved] [bigint] NULL,
+	[RecommendedSwSpMaintenanceListPrice_Approved] [float] NULL,
+	[MarkupForProductMarginSwLicenseListPrice_Approved] [float] NULL,
+	[ShareSwSpMaintenanceListPrice_Approved] [float] NULL,
+	[DiscountDealerPrice_Approved] [float] NULL,
+	[CreatedDateTime] [datetime] NOT NULL,
+	[DeactivatedDateTime] [datetime] NULL,
+	[TotalIB] [int] NULL,
+	[TotalIB_Approved] [int] NULL,
+ CONSTRAINT [PK_SoftwareSolution_SwSpMaintenance_Id] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] ADD  DEFAULT (getutcdate()) FOR [CreatedDateTime]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceAvailability_DependenciesAvailability] FOREIGN KEY([Availability])
+REFERENCES [Dependencies].[Availability] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceAvailability_DependenciesAvailability]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceCurrencyReinsurance_Approved_ReferencesCurrency] FOREIGN KEY([CurrencyReinsurance_Approved])
+REFERENCES [References].[Currency] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceCurrencyReinsurance_Approved_ReferencesCurrency]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceCurrencyReinsurance_ReferencesCurrency] FOREIGN KEY([CurrencyReinsurance])
+REFERENCES [References].[Currency] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceCurrencyReinsurance_ReferencesCurrency]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceDurationAvailability_DependenciesDuration_Availability] FOREIGN KEY([DurationAvailability])
+REFERENCES [Dependencies].[Duration_Availability] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceDurationAvailability_DependenciesDuration_Availability]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenancePla_InputAtomsPla] FOREIGN KEY([Pla])
+REFERENCES [InputAtoms].[Pla] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenancePla_InputAtomsPla]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceSfab_InputAtomsSfab] FOREIGN KEY([Sfab])
+REFERENCES [InputAtoms].[Sfab] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceSfab_InputAtomsSfab]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceSog_InputAtomsSog] FOREIGN KEY([Sog])
+REFERENCES [InputAtoms].[Sog] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceSog_InputAtomsSog]
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance]  WITH CHECK ADD  CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceSwDigit_InputAtomsSwDigit] FOREIGN KEY([SwDigit])
+REFERENCES [InputAtoms].[SwDigit] ([Id])
+GO
+
+ALTER TABLE [SoftwareSolution].[SwSpMaintenance] CHECK CONSTRAINT [FK_SoftwareSolutionSwSpMaintenanceSwDigit_InputAtomsSwDigit]
+GO
+
+IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER SoftwareSolution.SwSpMaintenanceUpdated;
+go
+
+CREATE TRIGGER SoftwareSolution.SwSpMaintenanceUpdated
+ON SoftwareSolution.SwSpMaintenance
+After INSERT, UPDATE
+AS BEGIN
+
+    declare @tbl table (
+            SwDigit bigint primary key
+        , TotalIB int
+        , TotalIB_Approved int
+    );
+
+    with cte as (
+        select  m.Sog 
+                , m.SwDigit
+                , max(m.InstalledBaseSog) as Total_InstalledBaseSog
+                , max(m.InstalledBaseSog_Approved) as Total_InstalledBaseSog_Approved
+        from SoftwareSolution.SwSpMaintenance m
+        where m.DeactivatedDateTime is null 
+        group by m.Sog, m.SwDigit
+    )
+    insert into @tbl(SwDigit, TotalIB, TotalIB_Approved)
+    select  m.SwDigit
+            , sum(m.Total_InstalledBaseSog) over (partition by m.Sog) as Total_InstalledBaseSog
+            , sum(m.Total_InstalledBaseSog_Approved) over (partition by m.Sog) as Total_InstalledBaseSog_Approved
+    from cte m;
+
+    update m set TotalIB = t.TotalIB, TotalIB_Approved = t.TotalIB_Approved
+    from SoftwareSolution.SwSpMaintenance m 
+    join @tbl t on t.SwDigit = m.SwDigit and m.DeactivatedDateTime is null;
+
+END
+GO
+
+update SoftwareSolution.SwSpMaintenance set InstalledBaseSog = InstalledBaseSog + 0;
+go
+
+IF OBJECT_ID('SoftwareSolution.SpGetProActiveCosts') IS NOT NULL
   DROP PROCEDURE SoftwareSolution.SpGetProActiveCosts;
 go
 
@@ -116,6 +256,7 @@ RETURNS @tbl TABLE
             [Year] [bigint] NOT NULL,
             [2ndLevelSupportCosts] [float] NULL,
             [InstalledBaseSog] [float] NULL,
+            [TotalInstalledBaseSog] [float] NULL,
             [ReinsuranceFlatfee] [float] NULL,
             [CurrencyReinsurance] [bigint] NULL,
             [RecommendedSwSpMaintenanceListPrice] [float] NULL,
@@ -125,9 +266,9 @@ RETURNS @tbl TABLE
         )
 AS
 BEGIN
-		declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
-		declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
-		declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+        declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+        declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+        declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
 
         if @limit > 0
         begin
@@ -143,8 +284,9 @@ BEGIN
                 FROM SoftwareSolution.SwSpMaintenance ssm
                 JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
                 WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
-					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
-					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                    AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
+                    AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                    and ssm.DeactivatedDateTime is null
             )
             insert @tbl
             select top(@limit)
@@ -159,6 +301,8 @@ BEGIN
               
                   , case when @approved = 0 then ssm.[2ndLevelSupportCosts] else ssm.[2ndLevelSupportCosts_Approved] end
                   , case when @approved = 0 then ssm.InstalledBaseSog else ssm.InstalledBaseSog_Approved end
+                  , case when @approved = 0 then ssm.TotalIB else ssm.TotalIB_Approved end
+
                   , case when @approved = 0 then ssm.ReinsuranceFlatfee else ssm.ReinsuranceFlatfee_Approved end
                   , case when @approved = 0 then ssm.CurrencyReinsurance else ssm.CurrencyReinsurance_Approved end
                   , case when @approved = 0 then ssm.RecommendedSwSpMaintenanceListPrice else ssm.RecommendedSwSpMaintenanceListPrice_Approved end
@@ -182,6 +326,8 @@ BEGIN
 
                   , case when @approved = 0 then ssm.[2ndLevelSupportCosts] else ssm.[2ndLevelSupportCosts_Approved] end
                   , case when @approved = 0 then ssm.InstalledBaseSog else ssm.InstalledBaseSog_Approved end
+                  , case when @approved = 0 then ssm.TotalIB else ssm.TotalIB_Approved end
+
                   , case when @approved = 0 then ssm.ReinsuranceFlatfee else ssm.ReinsuranceFlatfee_Approved end
                   , case when @approved = 0 then ssm.CurrencyReinsurance else ssm.CurrencyReinsurance_Approved end
                   , case when @approved = 0 then ssm.RecommendedSwSpMaintenanceListPrice else ssm.RecommendedSwSpMaintenanceListPrice_Approved end
@@ -193,8 +339,9 @@ BEGIN
             JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
 
             WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
-					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
-					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
+                AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                and ssm.DeactivatedDateTime is null
 
         end
 
@@ -237,6 +384,7 @@ RETURN
 
                     , ssm.[2ndLevelSupportCosts]
                     , ssm.InstalledBaseSog
+                    , ssm.TotalInstalledBaseSog
            
                     , case when ssm.ReinsuranceFlatfee is null 
                             then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
@@ -284,8 +432,9 @@ RETURN
                 , m.Year
                 , m.[1stLevelSupportCosts]
                 , m.[2ndLevelSupportCosts]
-                , m.TotalIb as InstalledBaseCountry
                 , m.InstalledBaseSog
+                , m.TotalIb as InstalledBaseCountry
+                , m.TotalInstalledBaseSog
                 , m.Reinsurance
                 , m.ShareSwSpMaintenance
                 , m.DiscountDealerPrice
@@ -527,7 +676,7 @@ RETURN
 GO
 
 CREATE PROCEDURE [SoftwareSolution].[SpGetCosts]
-     @approved bit,
+    @approved bit,
     @digit dbo.ListID readonly,
     @av dbo.ListID readonly,
     @year dbo.ListID readonly,
@@ -562,6 +711,7 @@ BEGIN
           , m.[2ndLevelSupportCosts]
           , m.InstalledBaseCountry
           , m.InstalledBaseSog
+          , m.TotalInstalledBaseSog
           , m.Reinsurance
           , m.ServiceSupport
           , m.TransferPrice
@@ -577,7 +727,6 @@ BEGIN
     order by m.SwDigit, m.Availability, m.Year
 
 END
-
 GO
 
 CREATE PROCEDURE [SoftwareSolution].[SpGetProActiveCosts]

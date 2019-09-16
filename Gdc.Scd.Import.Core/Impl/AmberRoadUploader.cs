@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gdc.Scd.Import.Core.DataAccess;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -20,7 +21,9 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Country> _repositoryCountry;
         private readonly ILogger<LogLevel> _logger;
 
-        public AmberRoadUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public AmberRoadUploader(IRepositorySet repositorySet,
+            ImportRepository<TaxAndDutiesEntity> taxAndDutiesRepo,
+            ILogger<LogLevel> logger)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -29,7 +32,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 throw new ArgumentNullException(nameof(logger));
 
             this._repositorySet = repositorySet;
-            this._repositoryTaxAndDuties = this._repositorySet.GetRepository<TaxAndDutiesEntity>();
+            this._repositoryTaxAndDuties = taxAndDutiesRepo;
             this._repositoryCountry = this._repositorySet.GetRepository<Country>();
             this._logger = logger;
         }

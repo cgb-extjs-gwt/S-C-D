@@ -25,6 +25,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
     //        }
     //    }
     //}
+
     public class InstallBaseJob
     {
         public OperationResult<bool> Output()

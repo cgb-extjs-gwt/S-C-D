@@ -4,8 +4,8 @@
 ('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.spLocapDetailed'),
 ('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs(released)', 1,  1, 'Report.spLocapGlobalSupportReleased'),
 ('Locap-Global-Support-approved', 'Maintenance Service Costs and List Price Output - Global Support Packs(approved)', 0, 0, 'Report.spLocapGlobalSupportApproved'),
-('locap-approved', 'LOCAP reports(approved)', 'Report.spLocapApproved', 0, 0),
-('locap-detailed-approved', 'LOCAP reports detailed(approved)', 'Report.spLocapDetailedApproved', 0, 0),
+('locap-approved', 'LOCAP reports(approved)', 0, 0, 'Report.spLocapApproved'),
+('locap-detailed-approved', 'LOCAP reports detailed(approved)', 0, 0, 'Report.spLocapDetailedApproved'),
 
 ('Contract', 'Contract reports', 1,  1, 'Report.Contract'),
 ('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),

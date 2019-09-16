@@ -1,4 +1,4 @@
-﻿import { Container, List, Panel, SearchField, CheckBoxField } from "@extjs/ext-react";
+﻿import { CheckBoxField, Container, List, Panel, SearchField } from "@extjs/ext-react";
 import * as React from "react";
 import { MultiSelect } from "./MultiSelect";
 
@@ -9,6 +9,8 @@ const W200 = '200px';
 export class MultiSelectField extends MultiSelect {
 
     private panelProps: any;
+
+    protected txtSearch: SearchField & any;
 
     public render() {
 
@@ -30,7 +32,7 @@ export class MultiSelectField extends MultiSelect {
                     bodyAlign="left"
                     onChange={this.onTopSelectionChange}
                 />
-                <SearchField placeholder="Search..." onChange={this.onSearch} />
+                <SearchField ref={x => this.txtSearch = x} placeholder="Search..." onChange={this.onSearch} onClearIconTap={this.onSearch} />
             </Container>
             <div onClick={this.onListClick}>
                 <Container>
@@ -85,7 +87,7 @@ export class MultiSelectField extends MultiSelect {
         };
     }
 
-    private onSearch(view: any, newValue: string, oldValue: string) {
-        this.filter(this.nameField, newValue);
+    protected onSearch() {
+        this.filter(this.nameField, this.txtSearch.getValue());
     }
 }

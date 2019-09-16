@@ -69,6 +69,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 record.WgRoleCodeId = wg.RoleCodeId;
                 record.WgResponsiblePerson = wg.ResponsiblePerson;
+                record.WgPsmRelease = wg.PsmRelease;
             }
 
             return records;
@@ -94,10 +95,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var record = recordDictionary[wg.Id];
 
                 if (wg.RoleCodeId != record.WgRoleCodeId ||
-                    wg.ResponsiblePerson != record.WgResponsiblePerson)
+                    wg.ResponsiblePerson != record.WgResponsiblePerson ||
+                    wg.PsmRelease != record.WgPsmRelease)
                 {
                     wg.RoleCodeId = record.WgRoleCodeId;
                     wg.ResponsiblePerson = record.WgResponsiblePerson;
+                    wg.PsmRelease = record.WgPsmRelease;
 
                     updatedWgs.Add(wg);
                 }

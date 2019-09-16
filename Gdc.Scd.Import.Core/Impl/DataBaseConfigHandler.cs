@@ -1,21 +1,16 @@
 ﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Interfaces;
-using NLog;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
     public class DataBaseConfigHandler : IConfigHandler
     {
-        private readonly IRepositorySet _repositorySet;
-        private readonly IRepository<ImportConfiguration> _repository;
+        protected readonly IRepositorySet _repositorySet;
+        protected readonly IRepository<ImportConfiguration> _repository;
 
         public DataBaseConfigHandler(IRepositorySet repositorySet)
         {
@@ -33,7 +28,7 @@ namespace Gdc.Scd.Import.Core.Impl
             return configuration;
         }
 
-        public void UpdateImportResult(ImportConfiguration recordToUpdate, 
+        public virtual void UpdateImportResult(ImportConfiguration recordToUpdate, 
             DateTime processedDateTime)
         {
             recordToUpdate.ProcessedDateTime = processedDateTime;

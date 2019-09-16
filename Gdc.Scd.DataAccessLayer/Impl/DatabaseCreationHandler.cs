@@ -82,7 +82,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             foreach (var entityMeta in entityMetas)
             {
-                if (entityMeta.StoreType == StoreType.Table)
+                if (entityMeta.AllFields.Any() && entityMeta.StoreType == StoreType.Table)
                 {
                     var tableBuilder = new CreateTableMetaSqlBuilder(this.serviceProvider)
                     {
@@ -110,14 +110,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 if (typeof(IDeactivatable).IsAssignableFrom(entity))
                 {
-                    var tableAttr =
-                    entity.GetCustomAttributes(false)
-                              .Select(attr => attr as TableAttribute)
-                              .FirstOrDefault(attr => attr != null);
+                    var tableAttr = GetTableAttribute(entity);
 
                     yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.CreatedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToQueryData().Sql;
-                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.ModifiedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToQueryData().Sql;
+                    
                 }
+
+                if (typeof(IModifiable).IsAssignableFrom(entity))
+                {
+                    var tableAttr = GetTableAttribute(entity);
+
+                    yield return Sql.AddDefault(tableAttr.Name, nameof(IModifiable.ModifiedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToQueryData().Sql;
+                }
+            }
+
+            TableAttribute GetTableAttribute(Type entity)
+            {
+                return entity.GetCustomAttributes(false).Select(attr => attr as TableAttribute).FirstOrDefault(attr => attr != null);
             }
         }
 

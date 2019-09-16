@@ -38,64 +38,70 @@ RETURN (
         where    pro.Country = @cnt 
              and pro.DeactivatedDateTime is null
     )
-    select   c.Name as Country
-           , sog.Description as SogDescription
-           , sog.Name as Sog
-           , dig.Name as Digit
-           , l.Name as SwProduct
-           , dig.Description as DigitDescription
+    , cte as (
+        select   c.Name as Country
+               , sog.Description as SogDescription
+               , sog.Name as Sog
+               , dig.Name as Digit
+               , l.Name as SwProduct
+               , dig.Description as DigitDescription
 
-           , av.Name as Availability
-           , case when dur.IsProlongation = 0 then CAST(dur.Value as nvarchar(16)) else 'prolongation' end as Duration
+               , av.Name as Availability
+               , case when dur.IsProlongation = 0 then CAST(dur.Value as nvarchar(16)) else 'prolongation' end as Duration
 
-           , fsp.Name as Fsp
-           , fsp.ShortDescription FspDescription
+               , fsp.Name as Fsp
+               , fsp.ShortDescription FspDescription
 
-           , (select [1stLevelSupportCosts] from GermanyServiceCte) as [1stLevelSupportCosts]
-           , m.[2ndLevelSupportCosts_Approved] as [2ndLevelSupportCosts]
+               , (select [1stLevelSupportCosts] from GermanyServiceCte) as [1stLevelSupportCosts]
+               , m.[2ndLevelSupportCosts_Approved] as [2ndLevelSupportCosts]
        
-           , (select TotalIb from GermanyServiceCte) as TotalIb
-           , sum(m.InstalledBaseSog_Approved) over(partition by m.Sfab) as IB_SFAB
+               , (select TotalIb from GermanyServiceCte) as TotalIb
+               , m.InstalledBaseSog as IbDigit
 
-           , cur.Name as CurrencyReinsurance
-           , m.ReinsuranceFlatfee_Approved as ReinsuranceFlatfee
+               , cur.Name as CurrencyReinsurance
+               , m.ReinsuranceFlatfee_Approved as ReinsuranceFlatfee
 
-           , m.ShareSwSpMaintenanceListPrice_Approved as ShareSwSpMaintenanceListPrice
-           , m.RecommendedSwSpMaintenanceListPrice_Approved as RecommendedSwSpMaintenanceListPrice
-           , m.DiscountDealerPrice_Approved as DiscountDealerPrice
-           , m.MarkupForProductMarginSwLicenseListPrice_Approved as MarkupForProductMarginSwLicenseListPrice
+               , m.ShareSwSpMaintenanceListPrice_Approved as ShareSwSpMaintenanceListPrice
+               , m.RecommendedSwSpMaintenanceListPrice_Approved as RecommendedSwSpMaintenanceListPrice
+               , m.DiscountDealerPrice_Approved as DiscountDealerPrice
+               , m.MarkupForProductMarginSwLicenseListPrice_Approved as MarkupForProductMarginSwLicenseListPrice
 
-           , pro.LocalRemoteAccessSetupPreparationEffort
-           , pro.LocalRegularUpdateReadyEffort
-           , pro.LocalPreparationShcEffort
-           , pro.CentralExecutionShcReportCost
-           , pro.LocalRemoteShcCustomerBriefingEffort
-           , pro.LocalOnSiteShcCustomerBriefingEffort
-           , pro.TravellingTime
-           , pro.OnSiteHourlyRate
+               , pro.LocalRemoteAccessSetupPreparationEffort
+               , pro.LocalRegularUpdateReadyEffort
+               , pro.LocalPreparationShcEffort
+               , pro.CentralExecutionShcReportCost
+               , pro.LocalRemoteShcCustomerBriefingEffort
+               , pro.LocalOnSiteShcCustomerBriefingEffort
+               , pro.TravellingTime
+               , pro.OnSiteHourlyRate
 
-    from SoftwareSolution.SwSpMaintenance m
-    join ProCte pro on pro.SwDigit = m.SwDigit
+        from SoftwareSolution.SwSpMaintenance m
+        join ProCte pro on pro.SwDigit = m.SwDigit
 
-    join InputAtoms.Pla pla on pla.Id = m.Pla
+        join InputAtoms.Pla pla on pla.Id = m.Pla
 
-    join InputAtoms.Country c on c.id = pro.Country
-    join InputAtoms.Sog sog on sog.Id = m.Sog
-    join InputAtoms.SwDigit dig on dig.id = m.SwDigit
-    join Dependencies.Duration_Availability da on da.id = m.DurationAvailability
-    join Dependencies.Availability av on av.id = da.AvailabilityId
-    join Dependencies.Duration dur on dur.id = da.YearId
+        join InputAtoms.Country c on c.id = pro.Country
+        join InputAtoms.Sog sog on sog.Id = m.Sog
+        join InputAtoms.SwDigit dig on dig.id = m.SwDigit
+        join Dependencies.Duration_Availability da on da.id = m.DurationAvailability
+        join Dependencies.Availability av on av.id = da.AvailabilityId
+        join Dependencies.Duration dur on dur.id = da.YearId
 
-    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = m.SwDigit and fsp.AvailabilityId = av.Id and fsp.DurationId = dur.Id 
+        left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = m.SwDigit and fsp.AvailabilityId = av.Id and fsp.DurationId = dur.Id 
 
-    left join [References].Currency cur on cur.id = m.CurrencyReinsurance_Approved
-	left join InputAtoms.SwLicense l on fsp.SwLicenseId = l.Id
+        left join [References].Currency cur on cur.id = m.CurrencyReinsurance_Approved
+        left join InputAtoms.SwLicense l on fsp.SwLicenseId = l.Id
 
-    WHERE   (@sog is null or m.Sog = @sog)
-        AND (not exists(select 1 from @digit) or exists(select 1 from @digit where id = m.SwDigit     ))
-        AND (not exists(select 1 from @av   ) or exists(select 1 from @av    where id = m.Availability))
-        AND (not exists(select 1 from @year ) or exists(select 1 from @year  where id = dur.Id        ))
-		AND m.DeactivatedDateTime is null
+        WHERE   (@sog is null or m.Sog = @sog)
+            AND (not exists(select 1 from @digit) or exists(select 1 from @digit where id = m.SwDigit     ))
+            AND (not exists(select 1 from @av   ) or exists(select 1 from @av    where id = m.Availability))
+            AND (not exists(select 1 from @year ) or exists(select 1 from @year  where id = dur.Id        ))
+            AND m.DeactivatedDateTime is null
+    )
+    select *
+           , case when TotalIb > 0 then [1stLevelSupportCosts] / TotalIb end as [1stLevelSupportCosts_Calc]
+           , case when IbDigit > 0 then [2ndLevelSupportCosts] / IbDigit end as [2ndLevelSupportCosts_Calc]
+    from cte
 )
 GO
 
@@ -131,7 +137,11 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'TotalIb', 'Installed base country', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'IB_SFAB', 'Installed base SFAB', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'IbDigit', 'Installed base Digit', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), '1stLevelSupportCosts_Calc', 'Calculated 1st level support costs', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), '2ndLevelSupportCosts_Calc', 'Calculated 2nd level support costs', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'CurrencyReinsurance', 'Currency Reinsurance', 1, 1);
 set @index = @index + 1;

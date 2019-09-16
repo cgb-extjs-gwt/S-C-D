@@ -78,7 +78,7 @@ BEGIN
              , m.StdWarrantyLocation
 
              , m.ServiceTcSog * m.ExchangeRate as ServiceTC
-             , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
+             , m.ServiceTpSog_Released * m.ExchangeRate as ServiceTP_Released
 
              , m.ReleaseDate
 

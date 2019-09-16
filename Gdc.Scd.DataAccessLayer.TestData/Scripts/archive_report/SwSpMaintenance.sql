@@ -2,10 +2,10 @@ if OBJECT_ID('Archive.spGetSwSpMaintenance') is not null
     drop procedure Archive.spGetSwSpMaintenance;
 go
 
-create procedure Archive.spGetSwSpMaintenance
+create procedure [Archive].[spGetSwSpMaintenance]
 AS
 begin
-    select   dig.Name
+    select   dig.Name as Digit
            , dig.Description
            , dig.ClusterPla
            , dig.Pla
@@ -33,4 +33,4 @@ begin
 
     order by dig.Name, da.Duration
 end
-go
+GO

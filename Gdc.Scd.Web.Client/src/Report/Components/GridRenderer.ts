@@ -39,7 +39,7 @@ export function localToEuroMoneyRendererFactory(exchangeRateField: string): IRen
 }
 
 export function currencyRenderer(value: any, currency: string): string {
-    return value >= 0 ? Ext.util.Format.number(value, '0.00') + ' ' + currency : N_A;
+    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00') + ' ' + currency;
 }
 
 export function percentRenderer(value: any, row: any): string {

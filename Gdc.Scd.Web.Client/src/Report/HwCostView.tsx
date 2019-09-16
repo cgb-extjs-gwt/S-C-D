@@ -92,7 +92,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             paramsAsJson: true
         },
         listeners: {
-            update: (store, record, operation, modifiedFieldNames, details) => {
+            update: (store, record, operation, modifiedFieldNames: string[], details) => {
+
+                if (modifiedFieldNames && modifiedFieldNames.indexOf('LocalServiceStandardWarrantyManual') !== -1) {
+                    this.updateStdw(store, record);
+                }
+
                 const changed = this.store.getUpdatedRecords().length;
                 if (modifiedFieldNames && modifiedFieldNames.length > 0 && modifiedFieldNames[0] == SELECTED_FIELD) {
                     this.onCheckChange();
@@ -100,13 +105,27 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 else {
                     this.toggleToolbar(changed == 0);
                 }
+
+                store.fixNullValue(record, 'ServiceTCManual');
+                store.fixNullValue(record, 'ServiceTPManual');
+                store.fixNullValue(record, 'ListPrice');
+                store.fixNullValue(record, 'DealerDiscount');
+                store.fixNullValue(record, 'LocalServiceStandardWarrantyManual');
             }
+        },
+        fixNullValue: function (record, field) {
+            var d = record.data;
+            //
+            //stub, for correct null imput
+            var v = typeof d[field] === 'number' ? d[field] : '';
+            record.set(field, v); 
         }
     });
 
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
+        disableSearchButton: true,
         selectedCountry: null,
         showInLocalCurrency: true,
         hideReleaseButton: true,
@@ -151,9 +170,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 <Panel {...this.props} docked="right" scrollable={true} >
                     <HwCostFilter
                         ref={x => this.filter = x}
-                        onSearch={this.onSearch}
                         onChange={this.onFilterChange}
-                        onDownload={this.onDownload}
                         checkAccess={!this.props.approved} />
 
                     <HwReleasePanel
@@ -225,7 +242,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Release date" dataIndex="ReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
-                        <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
+                        <NumberColumn text="Local service standard warranty(calc)" dataIndex="LocalServiceStandardWarranty" />
+                        <NumberColumn text="Local service standard warranty(manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
                         <NumberColumn text="Credits" dataIndex="Credits" />
 
                     </Column>
@@ -374,19 +392,22 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.reload();
     }
 
-    private onDownload(filter: HwCostFilterModel & any) {
-        filter = filter || {};
+    private onDownload() {
+        let filter: any = this.filter.getModel() || {};
         filter.local = filter.currency;
         ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
     }
 
     private onFilterChange(filter: HwCostFilterModel) {
-        this.setState({ showInLocalCurrency: filter.currency === CurrencyType.Local });
+        this.setState({
+            showInLocalCurrency: filter.currency === CurrencyType.Local,
+            disableSearchButton: !(filter.country && filter.country.length > 0)
+        });
         this.grid.refresh();
     }
 
     private reload() {
-        this.store.load();     
+        this.store.load();
     }
 
     private onBeforeLoad(s, operation) {
@@ -485,22 +506,39 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private toolbar() {
-        if (this.canEdit()) {
-            return <Toolbar docked="top">
+
+        let invalid = this.state.disableSearchButton;
+        let canedit = this.canEdit();
+
+        return <Toolbar docked="top">
+            <Button
+                text="Search"
+                disabled={invalid}
+                handler={this.onSearch} />
+            <Button
+                text="Download"
+                iconCls="x-fa fa-download"
+                disabled={invalid}
+                handler={this.onDownload} />
+            {
+                canedit &&
                 <Button
                     text="Cancel"
                     iconCls="x-fa fa-trash"
                     handler={this.cancelChanges}
                     disabled={this.state.disableCancelButton}
                 />
+            }
+            {
+                canedit &&
                 <Button
                     text="Save"
                     iconCls="x-fa fa-save"
                     handler={this.saveRecords}
                     disabled={this.state.disableSaveButton}
                 />
-            </Toolbar>;
-        }
+            }
+        </Toolbar>;
     }
 
     private reset() {
@@ -518,4 +556,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private onCheckChange = () => {
         this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] === true));
     };
+
+    private updateStdw = (store: any, record: any) => {
+        let items = store.getData();
+        let cnt = record.get('Country');
+        let wg = record.get('Wg');
+        for (let i = 0, len = items.count(); i < len; i++) {
+            let row = items.getAt(i);
+            if (row.get('Country') === cnt && row.get('Wg') === wg) {
+                row.set('LocalServiceStandardWarrantyManual', record.get('LocalServiceStandardWarrantyManual'));
+            }
+        }
+    }
 }
