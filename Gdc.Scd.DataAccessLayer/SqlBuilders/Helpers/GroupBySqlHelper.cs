@@ -1,24 +1,32 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+﻿using System.Linq;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class GroupBySqlHelper : OrderBySqlHelper, IGroupBySqlHelper<OrderBySqlHelper>
+    public class GroupBySqlHelper : HavingSqlHelper, IGroupBySqlHelper<HavingSqlHelper>
     {
         public GroupBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public OrderBySqlHelper GroupBy(params ColumnInfo[] columns)
+        public HavingSqlHelper GroupBy(params string[] columnNames)
+        {
+            var columns = columnNames.Select(columnName => new ColumnInfo(columnName)).ToArray();
+
+            return this.GroupBy(columns);
+        }
+
+        public HavingSqlHelper GroupBy(params ColumnInfo[] columns)
         {
             return this.GroupBy(GroupByType.Simple, columns);
         }
 
-        public OrderBySqlHelper GroupBy(GroupByType type, params ColumnInfo[] columns)
+        public HavingSqlHelper GroupBy(GroupByType type, params ColumnInfo[] columns)
         {
-            return new OrderBySqlHelper(new GroupBySqlBuilder
+            return new HavingSqlHelper(new GroupBySqlBuilder
             {
                 Query = this.ToSqlBuilder(),
                 Columns = columns,

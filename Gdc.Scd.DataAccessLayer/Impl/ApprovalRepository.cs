@@ -50,7 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 OldValue = true
             };
 
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
+            return await this.repositorySet.ReadBySqlAsync(query, mapper.Map);
 
             SqlHelper BuildQuery()
             {
@@ -175,7 +175,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
+            return await this.repositorySet.ReadBySqlAsync(query, mapper.Map);
         }
 
         private string GetMaxInputLevelId(CostBlockHistory history, long? historyValueId)

@@ -3,6 +3,7 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
+using System.Linq;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 
@@ -17,24 +18,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public Task<T> Get<T>(long id) where T : class, IIdentifiable, new()
+        public T Get<T>(long id) where T : class, IIdentifiable, new()
         {
-            return GetItems<T>().ContinueWith(x => Array.Find(x.Result, y => y.Id == id));
+            return Array.Find(GetItems<T>(), y => y.Id == id);
         }
 
-        public Task<T[]> GetAll<T>() where T : class, IIdentifiable, new()
-        {
-            return GetItems<T>();
-        }
-
-        public async Task<string[]> GetNames<T>(long[] ids) where T : NamedId, new()
+        public string[] GetNames<T>(long[] ids) where T : NamedId, new()
         {
             var len = ids == null ? 0 : ids.Length;
             var result = new string[len];
 
             for (var i = 0; i < len; i++)
             {
-                var item = await Get<T>(ids[i]);
+                var item = this.Get<T>(ids[i]);
                 if (item != null)
                 {
                     result[i] = item.Name;
@@ -44,14 +40,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        public async Task<string[]> GetExtNames<T>(long[] ids) where T : ExternalEntity, new()
+        public string[] GetExtNames<T>(long[] ids) where T : ExternalEntity, new()
         {
             var len = ids == null ? 0 : ids.Length;
             var result = new string[len];
 
             for (var i = 0; i < len; i++)
             {
-                var item = await Get<T>(ids[i]);
+                var item = this.Get<T>(ids[i]);
                 if (item != null)
                 {
                     result[i] = item.ExternalName;
@@ -61,13 +57,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        public async Task<string> GetName<T>(long id) where T : NamedId, new()
+        public string GetName<T>(long id) where T : NamedId, new()
         {
-            var item = await Get<Country>(id);
+            var item = this.Get<Country>(id);
             return item == null ? null : item.Name;
         }
 
-        private async Task<T[]> GetItems<T>() where T : class, IIdentifiable, new()
+        private T[] GetItems<T>() where T : class, IIdentifiable, new()
         {
             string key = "__CacheDomainService__" + typeof(T).FullName;
 
@@ -77,7 +73,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 //load and save to cache 1hour only...
 
-                items = await repositorySet.GetRepository<T>().GetAll().GetAsync();
+                items = repositorySet.GetRepository<T>().GetAll().ToArray();
 
                 MemoryCache.Default.Set(key, items, DateTime.Now.AddHours(1));
             }

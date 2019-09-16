@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
 {
@@ -17,5 +18,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             return filter.Convert<long[], long>();
         }
-    }
+
+        public static IDictionary<string, long[]> Convert(this IDictionary<string, long> filter)
+        {
+            return filter.ToDictionary(keyValuePair => keyValuePair.Key, 
+                keyValuePair => new long[] { keyValuePair.Value});
+        }
+     }
 }

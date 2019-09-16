@@ -20,7 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             this.repositorySet = repositorySet;
         }
 
-        public Task UpdateAsync(PortfolioRuleSetDto dto, bool deny)
+        public void Update(PortfolioRuleSetDto dto, bool deny)
         {
             if (!dto.IsLocalPortfolio())
             {
@@ -29,7 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             var proc = deny ? PROC_DENY_PORTFOLIO : PROC_ALLOW_PORTFOLIO;
 
-            return repositorySet.ExecuteProcAsync(proc, Prepare(dto));
+            repositorySet.ExecuteProc(proc, Prepare(dto));
         }
 
         public Task DenyAsync(long[] ids)

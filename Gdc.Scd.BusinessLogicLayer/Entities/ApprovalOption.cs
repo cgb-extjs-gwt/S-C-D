@@ -7,5 +7,7 @@
         public bool HasQualityGateErrors { get; set; }
 
         public string QualityGateErrorExplanation { get; set; }
+
+        public bool TurnOffNotification { get; set; }
     }
 }

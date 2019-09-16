@@ -50,7 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var queryInfo = this.BuildQueryInfo(costElementInfos, coordinateMetas, dependencyItems);
             var recordsQuery = this.BuildGetRecordsQuery(queryInfo);
 
-            return await this.repositorySet.ReadBySql(recordsQuery, reader =>
+            return await this.repositorySet.ReadBySqlAsync(recordsQuery, reader =>
             {
                 var record = new Record();
 
