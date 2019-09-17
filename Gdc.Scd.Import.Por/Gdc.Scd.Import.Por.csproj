@@ -77,10 +77,10 @@
     <Compile Include="Config.cs" />
     <Compile Include="FormatDataHelper.cs" />
     <Compile Include="ImportConstantMessages.cs" />
+    <Compile Include="ImportPorJob.cs" />
     <Compile Include="Models\SwHelperModel.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="PorService.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
