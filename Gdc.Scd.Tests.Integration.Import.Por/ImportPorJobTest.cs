@@ -16,8 +16,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         public void Setup()
         {
             error = null;
-            log = new FakeLog();
-            notify = new FakeLog();
+            log = null;
+            notify = null;
         }
 
         [TestCase]
@@ -88,14 +88,12 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
 
         protected override void Notify(string msg, Exception ex)
         {
-            this.notify.Msg = msg;
-            this.notify.Error = ex;
+            this.notify = new FakeLog() { Msg = msg, Error = ex };
         }
 
         protected override void Log(string msg, Exception ex)
         {
-            this.log.Msg = msg;
-            this.log.Error = ex;
+            this.log = new FakeLog() { Msg = msg, Error = ex };
         }
     }
 
