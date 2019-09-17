@@ -265,7 +265,7 @@ BEGIN
 
     with WgCte as (
         select Id from InputAtoms.Wg 
-        where WgType = 1 and DeactivatedDateTime is null and (@isEmptyWG = 1 or Id in (select id from @wg))
+        where WgType = 1 and IsSoftware = 0 and DeactivatedDateTime is null and (@isEmptyWG = 1 or Id in (select id from @wg))
     )
     , AvCte as (
         select Id from Dependencies.Availability where (@isEmptyAv = 1 or Id in (select id from @av))

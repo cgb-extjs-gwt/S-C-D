@@ -1535,8 +1535,12 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
 GO
 
 alter table Hardware.MarkupOtherCosts
-    add MarkupFactor_norm          as (MarkupFactor / 100)
-      , MarkupFactor_norm_Approved as (MarkupFactor_Approved / 100)
+    add
+      [MarkupFactor_norm]  AS ([MarkupFactor]/(100)) PERSISTED
+    , [MarkupFactor_norm_Approved]  AS ([MarkupFactor_Approved]/(100)) PERSISTED
+    , [ProlongationMarkupFactor_norm]  AS ([ProlongationMarkupFactor]/(100)) PERSISTED
+    , [ProlongationMarkupFactor_norm_Approved]  AS ([ProlongationMarkupFactor_Approved]/(100)) PERSISTED
+    , Deactivated as cast(case when DeactivatedDateTime is null then 0 else 1 end as bit) PERSISTED not null;
 go
 
 alter table Hardware.MarkupStandardWaranty
