@@ -15,12 +15,12 @@ namespace Gdc.Scd.Import.Por
         {
             try
             {
-                Process();
+                Run();
                 return Result(true);
             }
             catch (Exception ex)
             {
-                PorService.Logger.Log(LogLevel.Fatal, ex, ImportConstantMessages.UNEXPECTED_ERROR);
+                Log(ImportConstantMessages.UNEXPECTED_ERROR, ex);
                 Notify(ImportConstantMessages.UNEXPECTED_ERROR, ex);
                 return Result(false);
             }
@@ -31,7 +31,7 @@ namespace Gdc.Scd.Import.Por
             return "PorJob";
         }
 
-        protected virtual void Process()
+        protected virtual void Run()
         {
             //CONFIGURATION
             PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
@@ -225,6 +225,11 @@ namespace Gdc.Scd.Import.Por
             PorService.Update2ndLevelSupportCosts(step);
 
             PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
+        }
+
+        protected virtual void Log(string msg, Exception ex)
+        {
+            PorService.Logger.Log(LogLevel.Fatal, ex, msg);
         }
 
         protected virtual void Notify(string msg, Exception ex)
