@@ -8,16 +8,16 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
     {
         private Exception error;
 
-        Action<string, Exception> onLog;
+        private FakeLog log;
 
-        Action<string, Exception> onNotify;
+        private FakeLog notify;
 
         [SetUp]
         public void Setup()
         {
             error = null;
-            onLog = (m, e) => { };
-            onNotify = (m, e) => { };
+            log = new FakeLog();
+            notify = new FakeLog();
         }
 
         [TestCase]
@@ -61,19 +61,10 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         {
             this.error = new Exception("Error here");
 
-            string log = null;
-            Exception err = null;
-
-            onNotify = (m, e) =>
-            {
-                log = m;
-                err = e;
-            };
-
             Output();
 
-            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", log);
-            Assert.AreEqual("Error here", err.Message);
+            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", notify.Msg);
+            Assert.AreEqual("Error here", notify.Error.Message);
         }
 
         [TestCase]
@@ -81,19 +72,10 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         {
             this.error = new Exception("Error here");
 
-            string log = null;
-            Exception err = null;
-
-            onLog = (m, e) =>
-            {
-                log = m;
-                err = e;
-            };
-
             Output();
 
-            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", log);
-            Assert.AreEqual("Error here", err.Message);
+            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", log.Msg);
+            Assert.AreEqual("Error here", log.Error.Message);
         }
 
         protected override void Run()
@@ -106,12 +88,20 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
 
         protected override void Notify(string msg, Exception ex)
         {
-            onNotify(msg, ex);
+            this.notify.Msg = msg;
+            this.notify.Error = ex;
         }
 
         protected override void Log(string msg, Exception ex)
         {
-            onLog(msg, ex);
+            this.log.Msg = msg;
+            this.log.Error = ex;
         }
+    }
+
+    class FakeLog
+    {
+        public string Msg;
+        public Exception Error;
     }
 }
