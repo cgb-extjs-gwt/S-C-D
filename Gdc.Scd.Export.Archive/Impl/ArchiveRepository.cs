@@ -37,7 +37,6 @@ namespace Gdc.Scd.Export.Archive.Impl
                 new CostBlockDto { TableName = "MaterialCostWarrantyEmeia", Procedure = "Archive.spGetMaterialCostWarrantyEmeia" },
                 new CostBlockDto { TableName = "ProActive"                , Procedure = "Archive.spGetProActive"                 },
                 new CostBlockDto { TableName = "ProActiveSw"              , Procedure = "Archive.spGetProActiveSw"               },
-                new CostBlockDto { TableName = "ProlongationMarkup"       , Procedure = "Archive.spGetProlongationMarkup"        },
                 new CostBlockDto { TableName = "Reinsurance"              , Procedure = "Archive.spGetReinsurance"               },
                 new CostBlockDto { TableName = "RoleCodeHourlyRates"      , Procedure = "Archive.spGetRoleCodeHourlyRates"       },
                 new CostBlockDto { TableName = "ServiceSupportCost"       , Procedure = "Archive.spGetServiceSupportCost"        },
