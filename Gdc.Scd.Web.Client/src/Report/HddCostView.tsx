@@ -78,9 +78,11 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                 const changed = this.store.getUpdatedRecords().length;
                 this.toggleToolbar(changed == 0);
 
+                store.suspendEvents(false);
                 store.fixNullValue(record, 'transferPrice');
                 store.fixNullValue(record, 'listPrice');
                 store.fixNullValue(record, 'dealerDiscount');
+                store.resumeEvents();
             }
         },
         fixNullValue: function (record, field) {
