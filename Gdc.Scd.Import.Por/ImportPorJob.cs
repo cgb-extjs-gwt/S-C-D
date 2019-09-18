@@ -12,7 +12,7 @@ namespace Gdc.Scd.Import.Por
 
         public ImportPorJob()
         {
-            log = PorService.ILogger;
+            log = PorService.Logger;
             por = new ImportPor(log);
         }
 

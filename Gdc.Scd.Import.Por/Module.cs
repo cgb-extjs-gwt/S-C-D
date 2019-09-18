@@ -21,7 +21,7 @@ namespace Gdc.Scd.Import.Por
         {
             Bind<IRepository<SwDigit>>().To<SwDigitRepository>().InSingletonScope();
             Bind<FrieseEntities>().ToSelf().InSingletonScope();
-            Bind<ILogger<LogLevel>>().To<Import.Core.Impl.Logger>().InSingletonScope();
+            Bind<ILogger<LogLevel>, Gdc.Scd.Core.Interfaces.ILogger>().To<Import.Core.Impl.Logger>().InSingletonScope();
 
             Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope();
 
