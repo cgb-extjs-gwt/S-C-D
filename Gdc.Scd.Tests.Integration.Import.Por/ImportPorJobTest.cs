@@ -20,22 +20,6 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             notify = null;
         }
 
-        [TestCase]
-        public void TrueResultTest()
-        {
-            var r = this.Result(true);
-            Assert.True(r.Result);
-            Assert.True(r.IsSuccess);
-        }
-
-        [TestCase]
-        public void FalseResultTest()
-        {
-            var r = this.Result(false);
-            Assert.True(r.Result);
-            Assert.False(r.IsSuccess);
-        }
-
         [TestCase(TestName = "Check WhoAmI returns 'PorJob' name of job")]
         public void WhoAmI_Should_Return_PorJob_String_Test()
         {
@@ -46,14 +30,18 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         public void OutputShouldReturnTrueResultIfAllOkTest()
         {
             error = null;
-            Assert.True(Output().IsSuccess);
+            var r = Output();
+            Assert.True(r.Result);
+            Assert.True(r.IsSuccess);
         }
 
         [TestCase]
         public void OutputShouldReturnFalseResultIfErrorOccuredTest()
         {
             error = new Exception();
-            Assert.False(Output().IsSuccess);
+            var r = Output();
+            Assert.True(r.Result);
+            Assert.False(r.IsSuccess);
         }
 
         [TestCase]
