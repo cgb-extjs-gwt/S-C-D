@@ -8,18 +8,28 @@ namespace Gdc.Scd.Import.Por
     {
         protected ILogger log;
 
-        protected ImportPor importer;
+        protected ImportPor por;
 
         public ImportPorJob()
         {
-            Init();
+            log = PorService.ILogger;
+            por = new ImportPor(log);
+        }
+
+        /// <summary>
+        /// for testing only
+        /// </summary>
+        protected ImportPorJob(ImportPor por, ILogger log)
+        {
+            this.por = por;
+            this.log = log;
         }
 
         public OperationResult<bool> Output()
         {
             try
             {
-                importer.Run();
+                por.Run();
                 return Result(true);
             }
             catch (Exception ex)
@@ -33,15 +43,6 @@ namespace Gdc.Scd.Import.Por
         public string WhoAmI()
         {
             return "PorJob";
-        }
-
-        /// <summary>
-        /// for testing only
-        /// </summary>
-        protected virtual void Init()
-        {
-            log = PorService.ILogger;
-            importer = new ImportPor(log);
         }
 
         protected virtual void Notify(string msg, Exception ex)

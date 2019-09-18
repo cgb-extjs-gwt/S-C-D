@@ -14,6 +14,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
 
         private FakeImportPor fakeImport;
 
+        public ImportPorJobTest() : base(null, null) { }
+
         [SetUp]
         public void Setup()
         {
@@ -23,7 +25,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             fakeImport = new FakeImportPor(fakeLogger) { error = null };
 
             log = fakeLogger;
-            importer = fakeImport;
+            por = fakeImport;
         }
 
         [TestCase(TestName = "Check WhoAmI returns 'PorJob' name of job")]
@@ -76,8 +78,6 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         {
             this.notify = new FakeNotify() { Msg = msg, Error = ex };
         }
-
-        protected override void Init() { }
     }
 
     class FakeNotify
