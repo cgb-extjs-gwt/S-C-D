@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Import.Por;
+using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
 
@@ -8,9 +9,9 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
     {
         private Exception error;
 
-        private FakeLog log;
-
         private FakeLog notify;
+
+        private FakeLogger fakeLogger;
 
         [SetUp]
         public void Setup()
@@ -18,6 +19,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             error = null;
             log = null;
             notify = null;
+            fakeLogger = new FakeLogger();
+            log = fakeLogger;
         }
 
         [TestCase(TestName = "Check WhoAmI returns 'PorJob' name of job")]
@@ -62,8 +65,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
 
             Output();
 
-            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", log.Msg);
-            Assert.AreEqual("Error here", log.Error.Message);
+            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", fakeLogger.Message);
+            Assert.AreEqual("Error here", fakeLogger.Exception.Message);
         }
 
         protected override void Run()
@@ -79,10 +82,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             this.notify = new FakeLog() { Msg = msg, Error = ex };
         }
 
-        protected override void Log(string msg, Exception ex)
-        {
-            this.log = new FakeLog() { Msg = msg, Error = ex };
-        }
+        protected override void Init() { }
     }
 
     class FakeLog

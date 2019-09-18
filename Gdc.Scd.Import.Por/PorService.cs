@@ -21,6 +21,7 @@ namespace Gdc.Scd.Import.Por
     {
         public static IDataImporter<SCD2_ServiceOfferingGroups> SogImporter { get; private set; }
         public static ILogger<LogLevel> Logger { get; private set; }
+        public static Gdc.Scd.Core.Interfaces.ILogger ILogger { get { return (Gdc.Scd.Core.Interfaces.ILogger)Logger; } }
         public static IDataImporter<SCD2_WarrantyGroups> WgImporter { get; private set; }
         public static IDataImporter<SCD2_SW_Overview> SoftwareImporter { get; private set; }
         public static IDataImporter<SCD2_v_SAR_new_codes> FspCodesImporter { get; private set; }
@@ -85,7 +86,7 @@ namespace Gdc.Scd.Import.Por
             WgDomainService = kernel.Get<ImportService<Wg>>();
             DigitService = kernel.Get<ImportService<SwDigit>>();
             LicenseService = kernel.Get<ImportService<SwLicense>>();
-            
+
 
             //SERVICES
             SogService = kernel.Get<IPorSogService>();
@@ -104,11 +105,11 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static void UploadSogs(List<Pla> plas, int step, 
+        public static void UploadSogs(List<Pla> plas, int step,
             List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes, string solutionIdentifier)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes, 
+            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes,
                 UpdateQueryOptions, solutionIdentifier);
             if (success)
                 success = SogService.DeactivateSogs(sogs, DateTime.Now);
@@ -127,7 +128,7 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static bool UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs, 
+        public static bool UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs,
             SwHelperModel swInfo,
             int step)
         {
@@ -212,7 +213,7 @@ namespace Gdc.Scd.Import.Por
                 CostBlockService.UpdateByCoordinates(updateOptions);
                 Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_END);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log(LogLevel.Error, ex, ImportConstantMessages.UNEXPECTED_ERROR);
             }
