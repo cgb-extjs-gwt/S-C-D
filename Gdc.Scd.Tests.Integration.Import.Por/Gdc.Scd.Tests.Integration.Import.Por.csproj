@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="ImportPorJobTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Testings\FakeImportPor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

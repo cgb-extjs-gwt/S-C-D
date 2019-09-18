@@ -1,13 +1,14 @@
-﻿using Gdc.Scd.OperationResult;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.OperationResult;
 using System;
 
 namespace Gdc.Scd.Import.Por
 {
     public class ImportPorJob
     {
-        protected Scd.Core.Interfaces.ILogger log;
+        protected ILogger log;
 
-        protected ImportPor srv;
+        protected ImportPor importer;
 
         public ImportPorJob()
         {
@@ -18,7 +19,7 @@ namespace Gdc.Scd.Import.Por
         {
             try
             {
-                Run();
+                importer.Run();
                 return Result(true);
             }
             catch (Exception ex)
@@ -39,13 +40,8 @@ namespace Gdc.Scd.Import.Por
         /// </summary>
         protected virtual void Init()
         {
-            this.log = PorService.ILogger;
-            this.srv = new ImportPor(this.log);
-        }
-
-        protected virtual void Run()
-        {
-            srv.Run();
+            log = PorService.ILogger;
+            importer = new ImportPor(log);
         }
 
         protected virtual void Notify(string msg, Exception ex)
