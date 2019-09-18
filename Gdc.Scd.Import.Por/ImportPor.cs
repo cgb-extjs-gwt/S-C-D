@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using System;
@@ -9,9 +10,9 @@ namespace Gdc.Scd.Import.Por
 {
     public class ImportPor
     {
-        protected Scd.Core.Interfaces.ILogger log;
+        protected ILogger log;
 
-        public ImportPor(Gdc.Scd.Core.Interfaces.ILogger log)
+        public ImportPor(ILogger log)
         {
             this.log = log;
         }
