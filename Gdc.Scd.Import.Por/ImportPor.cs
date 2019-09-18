@@ -10,7 +10,7 @@ namespace Gdc.Scd.Import.Por
 {
     public class ImportPor
     {
-        protected ILogger log;
+        private ILogger log;
 
         public ImportPor(ILogger log)
         {
