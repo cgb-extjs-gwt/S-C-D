@@ -441,14 +441,6 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-            </Elements>
-        </Block>
-
-        <Block Name="ProlongationMarkup" Caption="Prolongation markup">
-            <Applications>
-                <Application>Hardware</Application>
-            </Applications>
-            <Elements>
                 <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
