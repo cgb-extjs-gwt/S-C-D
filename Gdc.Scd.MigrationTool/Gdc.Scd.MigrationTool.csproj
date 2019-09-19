@@ -551,7 +551,9 @@
     <Content Include="MigrationScripts\2019-09-12-14-14.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-09-16-11-32.sql" />
+    <Content Include="MigrationScripts\2019-09-16-11-32.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
