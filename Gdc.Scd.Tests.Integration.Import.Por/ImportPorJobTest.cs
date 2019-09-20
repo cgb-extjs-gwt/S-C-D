@@ -71,7 +71,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             Output();
 
             Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", fakeLogger.Message);
-            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", fakeLogger.Exception.Message);
+            Assert.AreEqual("Error here", fakeLogger.Exception.Message);
         }
 
         protected override void Notify(string msg, Exception ex)

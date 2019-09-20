@@ -34,7 +34,7 @@ namespace Gdc.Scd.Import.Por
             }
             catch (Exception ex)
             {
-                log.Fatal(ImportConstantMessages.UNEXPECTED_ERROR, ex);
+                log.Fatal(ex, ImportConstantMessages.UNEXPECTED_ERROR);
                 Notify(ImportConstantMessages.UNEXPECTED_ERROR, ex);
                 return Result(false);
             }
