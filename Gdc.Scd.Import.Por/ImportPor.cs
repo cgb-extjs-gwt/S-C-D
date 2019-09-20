@@ -92,7 +92,8 @@ namespace Gdc.Scd.Import.Por
                                            .Where(fsp => (fsp.VStatus == "50" &&
                                                          allowedServiceTypes.Contains(fsp.SCD_ServiceType)) ||
                                                          (standardWarrantiesServiceTypes.Contains(fsp.SCD_ServiceType)
-                                                         && fsp.Service_Code.Substring(11, 4).ToUpper().Equals("STDW")))
+                                                         && (fsp.Service_Code.Substring(11, 4).ToUpper().Equals("STDW") ||
+                                                             fsp.Service_Code.Substring(11, 4).ToUpper().Equals("SMDW"))))
                                            .ToList();
 
             log.Info(ImportConstantMessages.FETCH_INFO_ENDS, "FSP codes Translation", fspcodes.Count);
