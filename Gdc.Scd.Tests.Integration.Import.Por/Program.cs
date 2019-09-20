@@ -1,4 +1,6 @@
-﻿namespace Gdc.Scd.Import.Por.Runner
+﻿using Gdc.Scd.Import.Por;
+
+namespace Gdc.Scd.Tests.Integration.Import.Por
 {
     class Program
     {

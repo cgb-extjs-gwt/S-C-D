@@ -1,4 +1,6 @@
 ﻿using Gdc.Scd.Import.Por;
+using Gdc.Scd.Tests.Integration.Import.Por.Testings;
+using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
 
@@ -6,34 +8,24 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
 {
     public class ImportPorJobTest : ImportPorJob
     {
-        private Exception error;
+        private FakeNotify notify;
 
-        Action<string, Exception> onLog;
+        private FakeLogger fakeLogger;
 
-        Action<string, Exception> onNotify;
+        private FakeImportPor fakeImport;
+
+        public ImportPorJobTest() : base(null, null) { }
 
         [SetUp]
         public void Setup()
         {
-            error = null;
-            onLog = (m, e) => { };
-            onNotify = (m, e) => { };
-        }
+            log = null;
+            notify = null;
+            fakeLogger = new FakeLogger();
+            fakeImport = new FakeImportPor(fakeLogger) { error = null };
 
-        [TestCase]
-        public void TrueResultTest()
-        {
-            var r = this.Result(true);
-            Assert.True(r.Result);
-            Assert.True(r.IsSuccess);
-        }
-
-        [TestCase]
-        public void FalseResultTest()
-        {
-            var r = this.Result(false);
-            Assert.True(r.Result);
-            Assert.False(r.IsSuccess);
+            log = fakeLogger;
+            por = fakeImport;
         }
 
         [TestCase(TestName = "Check WhoAmI returns 'PorJob' name of job")]
@@ -45,73 +37,52 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void OutputShouldReturnTrueResultIfAllOkTest()
         {
-            error = null;
-            Assert.True(Output().IsSuccess);
+            fakeImport.error = null;
+            var r = Output();
+            Assert.True(r.Result);
+            Assert.True(r.IsSuccess);
         }
 
         [TestCase]
         public void OutputShouldReturnFalseResultIfErrorOccuredTest()
         {
-            error = new Exception();
-            Assert.False(Output().IsSuccess);
+            fakeImport.error = new Exception();
+            var r = Output();
+            Assert.True(r.Result);
+            Assert.False(r.IsSuccess);
         }
 
         [TestCase]
         public void OutputShouldNotifyIfErrorOccured()
         {
-            this.error = new Exception("Error here");
-
-            string log = null;
-            Exception err = null;
-
-            onNotify = (m, e) =>
-            {
-                log = m;
-                err = e;
-            };
+            fakeImport.error = new Exception("Error here");
 
             Output();
 
-            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", log);
-            Assert.AreEqual("Error here", err.Message);
+            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", notify.Msg);
+            Assert.AreEqual("Error here", notify.Error.Message);
         }
 
         [TestCase]
         public void OutputShouldLogErrorIfErrorOccured()
         {
-            this.error = new Exception("Error here");
-
-            string log = null;
-            Exception err = null;
-
-            onLog = (m, e) =>
-            {
-                log = m;
-                err = e;
-            };
+            fakeImport.error = new Exception("Error here");
 
             Output();
 
-            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", log);
-            Assert.AreEqual("Error here", err.Message);
-        }
-
-        protected override void Run()
-        {
-            if (error != null)
-            {
-                throw error;
-            }
+            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", fakeLogger.Message);
+            Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", fakeLogger.Exception.Message);
         }
 
         protected override void Notify(string msg, Exception ex)
         {
-            onNotify(msg, ex);
+            this.notify = new FakeNotify() { Msg = msg, Error = ex };
         }
+    }
 
-        protected override void Log(string msg, Exception ex)
-        {
-            onLog(msg, ex);
-        }
+    class FakeNotify
+    {
+        public string Msg;
+        public Exception Error;
     }
 }
