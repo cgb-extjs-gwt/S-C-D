@@ -103,29 +103,24 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public override void Save(IEnumerable<T> items)
         {
-            using (var transaction = this.repositorySet.GetTransaction())
+            try
             {
-                try
+                int count = 0;
+                foreach (var item in items)
                 {
-                    int count = 0;
-                    foreach (var item in items)
+                    count++;
+                    this.InnerSave(item);
+                    if (count % BATCH_NUMBER == 0 && count > 0)
                     {
-                        count++;
-                        this.InnerSave(item);
-                        if ( count % BATCH_NUMBER == 0 && count > 0)
-                        {
-                            this.repositorySet.Sync();
-                        }
+                        this.repositorySet.Sync();
                     }
-                    this.repositorySet.Sync();
-                    transaction.Commit();
-                }
-                catch(Exception ex)
-                {
-                    transaction.Rollback();
-                    throw ex;
                 }
 
+                this.repositorySet.Sync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
