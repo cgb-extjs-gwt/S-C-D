@@ -16,7 +16,7 @@ create table [InputAtoms].[Company](
     , Name nvarchar(255) not null
 );
 go
-insert into InputAtoms.Company(name) values (('Fake company')), (('Fake company2'));
+insert into InputAtoms.Company(name) values (('Fujitsu FBTA')), (('Fujitsu Group Companies FGC'));
 go
 
 alter table InputAtoms.Pla
@@ -27,19 +27,19 @@ ALTER TABLE InputAtoms.Pla WITH CHECK ADD  CONSTRAINT [FK_Pla_Company_Company] F
 REFERENCES [InputAtoms].[Company](Id)
 go
 
-update InputAtoms.Pla set CompanyId = (select id from InputAtoms.Company where UPPER(name) = 'FAKE COMPANY')
+update InputAtoms.Pla set CompanyId = (select id from InputAtoms.Company where UPPER(name) = 'Fujitsu FBTA')
     where UPPER(Name) in (
               'DESKTOP AND WORKSTATION'
             , 'NOTEBOOK AND TABLET'
+            , 'RETAIL PRODUCTS'
             , 'PERIPHERALS'
-            , 'STORAGE PRODUCTS'
-            , 'X86 / IA SERVER'
         );
 
-update InputAtoms.Pla set CompanyId = (select id from InputAtoms.Company where UPPER(name) = 'FAKE COMPANY2')
+update InputAtoms.Pla set CompanyId = (select id from InputAtoms.Company where UPPER(name) = 'Fujitsu Group Companies FGC')
     where UPPER(Name) in (
-              'EPS MAINFRAME PRODUCTS'
-            , 'RETAIL PRODUCTS'
+              'STORAGE PRODUCTS'
+            , 'X86 / IA SERVER'
+            , 'EPS MAINFRAME PRODUCTS'
             , 'UNIX SERVER'
             , 'UNASSIGNED'
         );
