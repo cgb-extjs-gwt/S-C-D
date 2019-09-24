@@ -4,6 +4,7 @@
         <InputLevel Name="NonEmeiaCountry" Caption="Country" Type="View"/>
         <InputLevel Name="ClusterRegion" Caption="Region"/>
         <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
+        <InputLevel Name="Company" Caption="Company"/>
         <InputLevel Name="Pla" Caption="PLA"/>
         <InputLevel Name="CentralContractGroup" Caption="Central Contract Group" HideFilter = "true"/>
         <InputLevel Name="Sfab" Caption="SFAB"/>
@@ -289,6 +290,7 @@
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -303,6 +305,7 @@
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -317,6 +320,7 @@
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -330,6 +334,7 @@
                 <Element Name="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>

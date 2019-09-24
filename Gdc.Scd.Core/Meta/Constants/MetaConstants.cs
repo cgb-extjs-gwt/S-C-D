@@ -30,6 +30,8 @@
 
         public const string PlaInputLevelName = "Pla";
 
+        public const string CompanyInputLevelName = "Company";
+
         public const string WgInputLevelName = "Wg";
 
         public const string ManualCostTable = "ManualCost";

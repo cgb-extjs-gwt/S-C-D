@@ -45,6 +45,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
+            Kernel.RegisterEntity<Company>();
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Wg>();

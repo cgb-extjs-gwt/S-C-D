@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.Core.Meta.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
@@ -19,6 +19,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         public IEnumerable<NamedEntityMeta> GetCoordinateEntityMetas()
         {
+            var companyMeta = new NamedEntityMeta(MetaConstants.CompanyInputLevelName, MetaConstants.InputLevelSchema);
             var plaMeta = new NamedEntityMeta(MetaConstants.PlaInputLevelName, MetaConstants.InputLevelSchema);
             var centralContractGroupMeta = new NamedEntityMeta(MetaConstants.CentralContractGroupInputLevel, MetaConstants.InputLevelSchema);
             var sfabMeta = new SFabEntityMeta(plaMeta);
@@ -40,6 +41,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 swDigitMeta,
                 sogMeta,
                 sfabMeta,
+                companyMeta,
                 plaMeta,
                 centralContractGroupMeta,
                 wgMeta,
