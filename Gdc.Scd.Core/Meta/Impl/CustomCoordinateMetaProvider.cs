@@ -34,7 +34,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 RealMeta = countryMeta
             };
             var roleCode = new DeactivatableEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
-            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCode);
+            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCode, companyMeta);
 
             var customMetas = new[]
             {

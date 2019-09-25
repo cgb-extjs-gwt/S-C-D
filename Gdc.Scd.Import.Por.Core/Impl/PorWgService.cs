@@ -111,7 +111,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         ExistsInLogisticsDb = false,
                         IsDeactivatedInLogistic = false,
                         SCD_ServiceType = porWg.SCD_ServiceType,
-                        IsSoftware = ImportHelper.IsSoftware(porWg.SCD_ServiceType, softwareServiceTypes)
+                        IsSoftware = ImportHelper.IsSoftware(porWg.SCD_ServiceType, softwareServiceTypes),
+                        CompanyId = pla.CompanyId
                     });
                 }
 
