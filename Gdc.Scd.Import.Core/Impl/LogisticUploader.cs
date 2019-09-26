@@ -92,6 +92,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                 CreatedDateTime = DateTime.Now,
                                 Description = item.WgDescription,
                                 PlaId = item.PlaId.Value,
+                                CompanyId = pla.CompanyId,
                                 CentralContractGroupId = defaultCentralContractGroup?.Id,
                                 Name = item.WgCode,
                                 ExistsInLogisticsDb = true,
@@ -117,6 +118,7 @@ namespace Gdc.Scd.Import.Core.Impl
                             {
                                 wg.PlaId = pla.Id;
                                 wg.Description = item.WgDescription;
+                                wg.CompanyId = pla.CompanyId;
                             }
                             _logger.Log(LogLevel.Debug, ImportConstants.UPDATE_WG, item.WgCode);
                             batchUpdate.Add(wg);

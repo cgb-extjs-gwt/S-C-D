@@ -89,3 +89,16 @@ go
 
 ALTER TABLE [Hardware].[AvailabilityFee] ALTER COLUMN Company bigint NOT NULL
 go
+
+EXEC spDropColumn '[InputAtoms].[Wg]', 'CompanyId';
+go
+
+ALTER TABLE [InputAtoms].[Wg] ADD CompanyId bigint;
+go
+
+UPDATE wg
+SET CompanyId = pla.CompanyId
+FROM [InputAtoms].[Wg] wg
+INNER JOIN [InputAtoms].[Pla] pla ON
+wg.PlaId = pla.Id
+go
