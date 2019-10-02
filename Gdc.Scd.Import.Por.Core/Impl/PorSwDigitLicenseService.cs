@@ -56,11 +56,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             this._logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_LICENSE, nameof(SwDigitLicense), swCombination.Software_Lizenz);
                             continue;
                         }
-                        var newCombination = combinations.FirstOrDefault(swd => swd.SwDigitId == digit.Id && swd.SwLicenseId == license.Id);
+                        var newCombination = combinations.FirstOrDefault(swd => swd.SwDigitId == digit.Id && swd.SwLicenseId == license.Id && swd.SwFspCode == swCombination.Service_Code);
                         if (newCombination == null)
                         {
                             _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDING_SWDIGIT_SWLICENSE, license.Name, digit.Name);
-                            combinations.Add(new SwDigitLicense { SwDigitId = digit.Id, SwLicenseId = license.Id, CreatedDateTime = created });
+                            combinations.Add(new SwDigitLicense { SwDigitId = digit.Id, SwLicenseId = license.Id, CreatedDateTime = created, SwFspCode = swCombination.Service_Code });
                         }
                     }
 
