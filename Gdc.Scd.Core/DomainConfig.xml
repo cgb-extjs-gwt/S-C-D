@@ -421,7 +421,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -431,7 +431,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -441,7 +441,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -451,7 +451,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
