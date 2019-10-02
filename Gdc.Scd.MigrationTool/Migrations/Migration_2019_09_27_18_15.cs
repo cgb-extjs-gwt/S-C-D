@@ -16,7 +16,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public string Description => "Add relation between license and fsp";
 
-        public Migration_2019_09_27_18_15()
+        public Migration_2019_09_27_18_15(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
         }
