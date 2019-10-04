@@ -1,15 +1,16 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Extensions;
+using Gdc.Scd.Import.Por.Core.Import;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Import.Por.Core.Dto;
-using Gdc.Scd.Import.Por.Core.Import;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
@@ -55,8 +56,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
 
 
-                var stdwResult = UploadStdws(model.StandardWarranties, 
-                                                GetCountryFunc(model), 
+                var stdwResult = UploadStdws(model.StandardWarranties,
+                                                GetCountryFunc(model),
                                                 model.HwSla, model.Sla,
                                                 model.CreationDate);
 
@@ -66,7 +67,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 var result = hwResult && proActiveResult && stdwResult;
 
                 if (result)
-                    _repositorySet.ExecuteProc("Temp.CopyHwFspCodeTranslations");
+                {
+                    new CopyHwFspCodeTranslations(_repositorySet).Execute();
+                }
 
                 return result;
             }
@@ -79,7 +82,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
         private bool UploadStdws(IEnumerable<SCD2_v_SAR_new_codes> stdwCodes,
-            Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode, 
+            Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode,
             HwSlaDto stdwSla,
             SlaDictsDto slaDto,
             DateTime createdDateTime)
@@ -139,14 +142,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     {
                         continue;
                     }
-     
+
                     foreach (var countryCode in countryCodes)
                     {
                         //if Country Group is unknown or empty than skip it
                         if (String.IsNullOrEmpty(countryCode) ||
                             !stdwSla.Countries.ContainsKey(countryCode))
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, 
+                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT,
                                 code.Service_Code, countryCode);
                         }
 
@@ -173,14 +176,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 return result;
             }
 
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 return false;
             }
         }
 
-        private bool UploadCodes (IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
+        private bool UploadCodes(IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
             Func<SCD2_v_SAR_new_codes, string> getCountryCode,
             HwSlaDto hwSla,
             SlaDictsDto slaDto,
@@ -269,8 +272,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
 
-        private TempHwFspCodeTranslation AddStdwCode(SlaDto sla, long? country, 
-            long wg, SCD2_v_SAR_new_codes code, 
+        private TempHwFspCodeTranslation AddStdwCode(SlaDto sla, long? country,
+            long wg, SCD2_v_SAR_new_codes code,
             DateTime createdDateTime, string lutCode)
         {
             var dbcode = new TempHwFspCodeTranslation
@@ -316,6 +319,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             };
         }
 
-        
+
     }
 }
