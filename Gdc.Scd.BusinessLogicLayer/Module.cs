@@ -68,6 +68,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<SwLicense>();
             Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<TempHwFspCodeTranslation>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<HwHddFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
