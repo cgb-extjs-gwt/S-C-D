@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("HwFspCodeTranslation", Schema = MetaConstants.FspCodeTranslationSchema)]
-    public class HwFspCodeTranslation : FspCodeTranslation
+    [Table(MetaConstants.HwFspCodeTranslation, Schema = MetaConstants.TempSchema)]
+    public class TempHwFspCodeTranslation : FspCodeTranslation
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

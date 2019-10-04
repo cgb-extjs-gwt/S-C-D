@@ -170,7 +170,7 @@ namespace Gdc.Scd.Import.Por
 
         public static void UploadHwFspCodes(HwFspCodeDto model, int step)
         {
-            Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(HwFspCodeTranslation));
+            Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(TempHwFspCodeTranslation));
 
             var success = HardwareService.UploadHardware(model);
 
@@ -183,7 +183,8 @@ namespace Gdc.Scd.Import.Por
                 HwSla = model.HwSla
             };
 
-            success = success && HardwareHddService.UploadHardware(hwHddDto);
+            var uploadHddSuccess = HardwareHddService.UploadHardware(hwHddDto);
+            success =  uploadHddSuccess && success;
 
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
         }
