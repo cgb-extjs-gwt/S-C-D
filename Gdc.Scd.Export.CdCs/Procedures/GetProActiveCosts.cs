@@ -9,7 +9,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 {
     public class GetProActiveCosts
     {
-        private const string GET_PROACTIVE_BY_COUNTRY_AND_WG = "Report.GetProActiveByCountryAndWg";
+        private const string PROC = "Report.GetProActiveByCountryAndWg";
 
         private readonly CommonService _service;
 
@@ -20,7 +20,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public List<ProActiveDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(GET_PROACTIVE_BY_COUNTRY_AND_WG, FillParameters(country));
+            var data = _service.ExecuteAsTable(PROC, FillParameters(country));
             return GetProActiveCost(data);
         }
 
