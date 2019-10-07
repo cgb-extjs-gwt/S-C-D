@@ -1,18 +1,15 @@
-﻿using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using Gdc.Scd.Export.CdCs.Dto;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.Export.CdCs.Dto;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
     class GetServiceCostsBySla
     {
+        private const string GET_SERVICE_COSTS_BY_SLA = "Report.GetServiceCostsBySla";
+
         private readonly CommonService _repository;
 
         public GetServiceCostsBySla(CommonService repository)
@@ -23,39 +20,28 @@ namespace Gdc.Scd.Export.CdCs.Procedures
         public List<ServiceCostDto> Execute(string country, List<SlaDto> slaList)
         {
             var result = new List<ServiceCostDto>();
-            var procName = Enums.Enums.Functions.GetServiceCostsBySla;
 
             foreach (var sla in slaList)
             {
-                var data = _repository.ExecuteAsTable(procName, FillParameters(country, sla));
+                var data = _repository.ExecuteAsTable(GET_SERVICE_COSTS_BY_SLA, FillParameters(country, sla));
                 var row = data != null && data.Rows.Count > 0 ? data.Rows[0] : null;
                 result.Add(GetServiceCost(sla, row));
             }
-           
+
             return result;
         }
 
         private DbParameter[] FillParameters(string country, SlaDto sla)
         {
-            var cnt = new DbParameterBuilder().WithName("cnt").WithValue(country);
-            var loc = new DbParameterBuilder().WithName("loc").WithValue(sla.ServiceLocation);
-            var av = new DbParameterBuilder().WithName("av").WithValue(sla.Availability);
-            var reactionTime = new DbParameterBuilder().WithName("reactiontime").WithValue(sla.ReactionTime);
-            var reactionType = new DbParameterBuilder().WithName("reactiontype").WithValue(sla.ReactionType);
-            var wg = new DbParameterBuilder().WithName("wg").WithValue(sla.WarrantyGroup);
-            var dur = new DbParameterBuilder().WithName("dur").WithValue(sla.Duration);
-
-            var result = new[] {
-                cnt.Build(),
-                loc.Build(),
-                av.Build(),
-                reactionTime.Build(),
-                reactionType.Build(),
-                wg.Build(),
-                dur.Build()
+            return new[] {
+                 new DbParameterBuilder().WithName("cnt").WithValue(country).Build(),
+                 new DbParameterBuilder().WithName("loc").WithValue(sla.ServiceLocation).Build(),
+                 new DbParameterBuilder().WithName("av").WithValue(sla.Availability).Build(),
+                 new DbParameterBuilder().WithName("reactiontime").WithValue(sla.ReactionTime).Build(),
+                 new DbParameterBuilder().WithName("reactiontype").WithValue(sla.ReactionType).Build(),
+                 new DbParameterBuilder().WithName("wg").WithValue(sla.WarrantyGroup).Build(),
+                 new DbParameterBuilder().WithName("dur").WithValue(sla.Duration).Build()
             };
-
-            return result;
         }
 
         private ServiceCostDto GetServiceCost(SlaDto sla, DataRow row)
@@ -73,6 +59,6 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
             };
             return serviceCost;
-        }     
+        }
     }
 }

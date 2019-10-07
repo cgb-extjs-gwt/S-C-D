@@ -1,16 +1,17 @@
-﻿using Gdc.Scd.Export.CdCs.Dto;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using Gdc.Scd.Export.CdCs.Dto;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
     class GetHddRetentionCosts
     {
+        private const string HDD_RETENTION = "Report.HddRetention";
+
         private readonly CommonService _service;
 
         public GetHddRetentionCosts(CommonService service)
@@ -20,17 +21,15 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public List<HddRetentionDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(Enums.Enums.Functions.HddRetention, FillParameters(country));
+            var data = _service.ExecuteAsTable(HDD_RETENTION, FillParameters(country));
             return GetHddRetentionCost(data);
         }
 
         private DbParameter[] FillParameters(string country)
         {
-            var result = new DbParameter[] {
-                _service.FillParameter("cnt", country)
+            return new DbParameter[] {
+                new DbParameterBuilder().WithName("cnt").WithValue(country).Build()
             };
-
-            return result;
         }
 
         private List<HddRetentionDto> GetHddRetentionCost(DataTable table)

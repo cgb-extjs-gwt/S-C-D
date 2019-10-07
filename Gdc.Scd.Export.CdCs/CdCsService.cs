@@ -1,87 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using ClosedXML.Excel;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Export.CdCs.Dto;
+using Gdc.Scd.Export.CdCs.Enums;
+using Gdc.Scd.Export.CdCs.Procedures;
 using Microsoft.SharePoint.Client;
 using Ninject;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using static Gdc.Scd.Export.CdCs.Enums.Enums;
-using File = Microsoft.SharePoint.Client.File;
-using ClosedXML.Excel;
-using Gdc.Scd.Export.CdCs.Dto;
-using System.Diagnostics;
-using Gdc.Scd.Export.CdCs.Procedures;
 using System.Linq;
-using NLog;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.OperationResult;
+using System.Net;
+using SharePointFile = Microsoft.SharePoint.Client.File;
 
-namespace Gdc.Scd.Export.CdCs.Impl
+namespace Gdc.Scd.Export.CdCs
 {
-    public static class CdCsService
+    public class CdCsService
     {
-        public static IKernel Kernel  { get; }
-        public static NetworkCredential NetworkCredential { get; }
-        public static SpFileDownloader Downloader { get; }
-        public static ILogger<LogLevel> Logger { get;  }
+        public IKernel Kernel { get; }
 
-        static CdCsService()
+        public NetworkCredential NetworkCredential { get; }
+
+        public SpFileDownloader Downloader { get; }
+
+        public ILogger Logger { get; }
+
+        private CdCsService()
         {
             Kernel = new StandardKernel(new Module());
             NetworkCredential = new NetworkCredential(Config.SpServiceAccount, Config.SpServicePassword, Config.SpServiceDomain);
             Downloader = new SpFileDownloader(NetworkCredential);
-            Logger = Kernel.Get<ILogger<LogLevel>>();
+            Logger = Kernel.Get<ILogger>();
         }
 
-        public static OperationResult<bool> DoThings()
+        public CdCsService(
+                NetworkCredential NetworkCredential,
+                SpFileDownloader Downloader,
+                ILogger log
+            )
         {
 
-            try
+        }
+
+        public virtual void Run()
+        {
+            Logger.Info(CdCsMessages.START_PROCESS);
+
+            Logger.Info(CdCsMessages.READ_TEMPLATE);
+            var cdCsFile = new SpFileDto
             {
-                Logger.Log(LogLevel.Info, CdCsMessages.START_PROCESS);
+                WebUrl = Config.CalculationToolWeb,
+                ListName = Config.CalculationToolList,
+                FolderServerRelativeUrl = Config.CalculationToolFolder,
+                FileName = Config.CalculationToolFileName
+            };
+            var downloadedCdCsFile = Downloader.DownloadData(cdCsFile);
+            var masterFileStream = new MemoryStream();
+            CopyStream(downloadedCdCsFile, masterFileStream);
 
-                Logger.Log(LogLevel.Info, CdCsMessages.READ_TEMPLATE);
-                var cdCsFile = new SpFileDto
-                {
-                    WebUrl = Config.CalculationToolWeb,
-                    ListName = Config.CalculationToolList,
-                    FolderServerRelativeUrl = Config.CalculationToolFolder,
-                    FileName = Config.CalculationToolFileName
-                };
-                var downloadedCdCsFile = Downloader.DownloadData(cdCsFile);
-                var masterFileStream = new MemoryStream();
-                CopyStream(downloadedCdCsFile, masterFileStream);
+            Logger.Info(CdCsMessages.PARSE_SLA_SHEET);
+            var slaList = GetSlasFromFile(masterFileStream);
 
-                Logger.Log(LogLevel.Info, CdCsMessages.PARSE_SLA_SHEET);
-                var slaList = GetSlasFromFile(masterFileStream);           
-                
-                Logger.Log(LogLevel.Info, CdCsMessages.WRITE_COUNTRY_COSTS);
-                FillCdCsAsync(masterFileStream, slaList);
+            Logger.Info(CdCsMessages.WRITE_COUNTRY_COSTS);
+            FillCdCsAsync(masterFileStream, slaList);
 
-                Logger.Log(LogLevel.Info, CdCsMessages.END_PROCESS);
-
-                var result = new OperationResult<bool>
-                {
-                    IsSuccess = true,
-                    Result = true
-                };
-
-                return result;
-            }
-            catch(Exception ex)
-            {
-                Logger.Log(LogLevel.Fatal, ex, CdCsMessages.UNEXPECTED_ERROR);
-                Fujitsu.GDC.ErrorNotification.Logger.Error(CdCsMessages.UNEXPECTED_ERROR, ex, null, null);
-
-                var result = new OperationResult<bool>
-                {
-                    IsSuccess = false,
-                    Result = true
-                };
-
-                return result;
-            }
-            
+            Logger.Info(CdCsMessages.END_PROCESS);
         }
 
         private static List<SlaDto> GetSlasFromFile(Stream masterFileStream)
@@ -108,16 +90,16 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 }
                 masterFileStream.Seek(0, SeekOrigin.Begin);
             }
-            
+
             return slaList;
         }
 
-        private static void FillCdCsAsync(Stream masterFileStream,  List<SlaDto> slaList)
+        private void FillCdCsAsync(Stream masterFileStream, List<SlaDto> slaList)
         {
-            Logger.Log(LogLevel.Info, CdCsMessages.READ_CONFIGURATION);
+            Logger.Info(CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
             var configList = configHandler.ReadAllConfiguration().Take(3);
-          
+
             var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
             var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
             var getHddRetentionCosts = Kernel.Get<GetHddRetentionCosts>();
@@ -126,15 +108,15 @@ namespace Gdc.Scd.Export.CdCs.Impl
             {
                 var country = config.Country.Name;
                 var currency = config.Country.Currency.Name;
-                Logger.Log(LogLevel.Info, CdCsMessages.READ_COUNTRY_COSTS, country);
-                           
-                Logger.Log(LogLevel.Info, CdCsMessages.READ_SERVICE);
+                Logger.Info(CdCsMessages.READ_COUNTRY_COSTS, country);
+
+                Logger.Info(CdCsMessages.READ_SERVICE);
                 var costsList = getServiceCostsBySla.Execute(country, slaList);
 
-                Logger.Log(LogLevel.Info, CdCsMessages.READ_PROACTIVE);
+                Logger.Info(CdCsMessages.READ_PROACTIVE);
                 var proActiveList = getProActiveCosts.Execute(country);
 
-                Logger.Log(LogLevel.Info, CdCsMessages.READ_HDD_RETENTION);
+                Logger.Info(CdCsMessages.READ_HDD_RETENTION);
                 var hddRetention = getHddRetentionCosts.Execute(country);
 
                 using (var workbook = new XLWorkbook(masterFileStream))
@@ -148,7 +130,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         range.Row(row).Clear();
                     }
-                    Logger.Log(LogLevel.Info, CdCsMessages.WRITE_SERVICE);
+                    Logger.Info(CdCsMessages.WRITE_SERVICE);
                     var rowNum = 2;
                     foreach (var cost in costsList)
                     {
@@ -170,7 +152,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     }
 
                     //PROACTIVE COSTS
-                    Logger.Log(LogLevel.Info, CdCsMessages.WRITE_PROACTIVE);
+                    Logger.Info(CdCsMessages.WRITE_PROACTIVE);
                     rowNum = 8;
                     foreach (var pro in proActiveList)
                     {
@@ -186,7 +168,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     }
 
                     //HDD RETENTION
-                    Logger.Log(LogLevel.Info, CdCsMessages.WRITE_HDD_RETENTION);
+                    Logger.Info(CdCsMessages.WRITE_HDD_RETENTION);
                     range = hddRetentionSheet.RangeUsed();
                     for (var row = 4; row < range.RowCount(); row++)
                     {
@@ -210,14 +192,14 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     }
 
                     //UPLOAD
-                    Logger.Log(LogLevel.Info, CdCsMessages.UPLOAD_FILE);
+                    Logger.Info(CdCsMessages.UPLOAD_FILE);
                     workbook.SaveAs(masterFileStream);
-                    masterFileStream.Seek(0, SeekOrigin.Begin);                  
+                    masterFileStream.Seek(0, SeekOrigin.Begin);
                     using (var ctx = new ClientContext(config.FileWebUrl))
                     {
                         ctx.Credentials = NetworkCredential;
 
-                        File.SaveBinaryDirect(ctx, $"{config.FileFolderUrl}/{country} {Config.CalculationToolFileName}",
+                        SharePointFile.SaveBinaryDirect(ctx, $"{config.FileFolderUrl}/{country} {Config.CalculationToolFileName}",
                             masterFileStream, true);
                     }
                 }

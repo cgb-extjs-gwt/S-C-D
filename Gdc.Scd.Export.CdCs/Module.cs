@@ -1,16 +1,11 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Impl;
-using Gdc.Scd.Core.Comparators;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.CdCs;
-using Gdc.Scd.Export.CdCs.Impl;
 using Gdc.Scd.Export.CdCs.Procedures;
+using Ninject;
 using Ninject.Modules;
-using NLog;
-using System.Collections.Generic;
 
 namespace Gdc.Scd.Export.CdCs
 {
@@ -20,7 +15,7 @@ namespace Gdc.Scd.Export.CdCs
         {
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
-            Bind<ILogger<LogLevel>>().To<Import.Core.Impl.Logger>().InSingletonScope();
+            Bind<ILogger>().To<Import.Core.Impl.Logger>().InSingletonScope();
 
 
             Bind(typeof(GetServiceCostsBySla)).ToSelf();
@@ -31,6 +26,11 @@ namespace Gdc.Scd.Export.CdCs
 
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CdCsConfiguration>();
+        }
+
+        public static StandardKernel CreateKernel()
+        {
+            return new StandardKernel(new Module());
         }
     }
 }

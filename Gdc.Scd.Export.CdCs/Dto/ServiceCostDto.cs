@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.Export.CdCs.Dto
 {
-    internal class ServiceCostDto
+    public class ServiceCostDto
     {
         public SlaDto Sla { get; set; }
         public double ServiceTC { get; set; }

@@ -1,9 +1,9 @@
-﻿using System.IO;
-using System.Net;
-using Gdc.Scd.Export.CdCs.Dto;
+﻿using Gdc.Scd.Export.CdCs.Dto;
 using Microsoft.SharePoint.Client;
+using System.IO;
+using System.Net;
 
-namespace Gdc.Scd.Export.CdCs.Impl
+namespace Gdc.Scd.Export.CdCs
 {
     public class SpFileDownloader
     {

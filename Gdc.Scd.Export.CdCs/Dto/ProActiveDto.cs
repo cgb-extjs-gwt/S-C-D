@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Gdc.Scd.Export.CdCs.Dto
+﻿namespace Gdc.Scd.Export.CdCs.Dto
 {
-    class ProActiveDto
+    public class ProActiveDto
     {
         public string Wg { get; set; }
         public double ProActive6 { get; set; }
