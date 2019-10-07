@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data;
 using System.Data.Common;
 

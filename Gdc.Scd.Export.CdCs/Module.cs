@@ -17,12 +17,10 @@ namespace Gdc.Scd.Export.CdCs
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ILogger>().To<Import.Core.Impl.Logger>().InSingletonScope();
 
-
             Bind(typeof(GetServiceCostsBySla)).ToSelf();
             Bind(typeof(GetProActiveCosts)).ToSelf();
             Bind(typeof(GetHddRetentionCosts)).ToSelf();
             Bind(typeof(ConfigHandler)).ToSelf();
-            Bind(typeof(SpFileDownloader)).ToSelf();
 
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CdCsConfiguration>();

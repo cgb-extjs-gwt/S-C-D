@@ -4,14 +4,11 @@ using Gdc.Scd.Export.CdCs.Dto;
 using Gdc.Scd.Export.CdCs.Enums;
 using Gdc.Scd.Export.CdCs.Helpers;
 using Gdc.Scd.Export.CdCs.Procedures;
-using Microsoft.SharePoint.Client;
 using Ninject;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using SharePointFile = Microsoft.SharePoint.Client.File;
 
 namespace Gdc.Scd.Export.CdCs
 {
@@ -19,21 +16,18 @@ namespace Gdc.Scd.Export.CdCs
     {
         private IKernel Kernel;
 
-        private NetworkCredential NetworkCredential;
-
-        private SpFileDownloader Downloader;
+        private SharePointClient spClient;
 
         private ILogger Logger;
 
         public CdCsService(
                 IKernel kernel,
-                NetworkCredential NetworkCredential,
+                SharePointClient spClient,
                 ILogger log
             )
         {
             this.Kernel = kernel;
-            this.NetworkCredential = NetworkCredential;
-            this.Downloader = new SpFileDownloader(NetworkCredential);
+            this.spClient = spClient;
             this.Logger = log;
         }
 
@@ -42,7 +36,7 @@ namespace Gdc.Scd.Export.CdCs
             Logger.Info(CdCsMessages.START_PROCESS);
             Logger.Info(CdCsMessages.READ_TEMPLATE);
 
-            var excel = Downloader.DownloadData(GetNetworkCfg());
+            var excel = spClient.Load(Config.SpFile);
 
             Logger.Info(CdCsMessages.PARSE_SLA_SHEET);
             var slaList = ReadSla(excel);
@@ -53,22 +47,11 @@ namespace Gdc.Scd.Export.CdCs
             Logger.Info(CdCsMessages.END_PROCESS);
         }
 
-        protected virtual SpFileDto GetNetworkCfg()
-        {
-            return new SpFileDto
-            {
-                WebUrl = Config.CalculationToolWeb,
-                ListName = Config.CalculationToolList,
-                FolderServerRelativeUrl = Config.CalculationToolFolder,
-                FileName = Config.CalculationToolFileName
-            };
-        }
-
-        protected virtual List<SlaDto> ReadSla(Stream masterFileStream)
+        protected virtual List<SlaDto> ReadSla(Stream excel)
         {
             var slaList = new List<SlaDto>();
 
-            using (var workbook = new XLWorkbook(masterFileStream))
+            using (var workbook = new XLWorkbook(excel))
             using (var inputSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
             {
                 var range = inputSheet.RangeUsed();
@@ -86,13 +69,13 @@ namespace Gdc.Scd.Export.CdCs
                         Duration = inputSheet.Cell(row, InputMctCdCsWGsColumns.Duration).Value.ToString(),
                     });
                 }
-                masterFileStream.Seek(0, SeekOrigin.Begin);
+                excel.Seek(0, SeekOrigin.Begin);
             }
 
             return slaList;
         }
 
-        protected void FillCdCs(Stream masterFileStream, List<SlaDto> slaList)
+        protected void FillCdCs(Stream excel, List<SlaDto> slaList)
         {
             Logger.Info(CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
@@ -117,7 +100,7 @@ namespace Gdc.Scd.Export.CdCs
                 Logger.Info(CdCsMessages.READ_HDD_RETENTION);
                 var hddRetention = getHddRetentionCosts.Execute(country);
 
-                using (var workbook = new XLWorkbook(masterFileStream))
+                using (var workbook = new XLWorkbook(excel))
                 using (var inputMctSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
                 using (var proActiveSheet = workbook.Worksheet(InputSheets.ProActiveOutput))
                 using (var hddRetentionSheet = workbook.Worksheet(InputSheets.HddRetention))
@@ -191,28 +174,13 @@ namespace Gdc.Scd.Export.CdCs
 
                     //UPLOAD
                     Logger.Info(CdCsMessages.UPLOAD_FILE);
-                    workbook.SaveAs(masterFileStream);
-                    Send(masterFileStream, config, country);
+                    workbook.SaveAs(excel);
+                    //
+                    spClient.Send(excel, config);
                 }
             }
 
-            masterFileStream.Dispose();
-        }
-
-        private void Send(Stream masterFileStream, Core.Entities.CdCsConfiguration config, string country)
-        {
-            masterFileStream.Seek(0, SeekOrigin.Begin);
-            using (var ctx = new ClientContext(config.FileWebUrl))
-            {
-                ctx.Credentials = NetworkCredential;
-
-                SharePointFile.SaveBinaryDirect(
-                        ctx,
-                        $"{config.FileFolderUrl}/{country} {Config.CalculationToolFileName}",
-                        masterFileStream,
-                        true
-                    );
-            }
+            excel.Dispose();
         }
     }
 }

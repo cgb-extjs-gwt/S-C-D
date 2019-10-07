@@ -2,7 +2,6 @@
 using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
-using System.Net;
 
 namespace Gdc.Scd.Export.CdCs
 {
@@ -17,10 +16,8 @@ namespace Gdc.Scd.Export.CdCs
             var Kernel = Module.CreateKernel();
             var Logger = Kernel.Get<ILogger>();
 
-            var creds = new NetworkCredential(Config.SpServiceAccount, Config.SpServicePassword, Config.SpServiceDomain);
-
             this.log = Logger;
-            this.cdCs = new CdCsService(Kernel, creds, Logger);
+            this.cdCs = new CdCsService(Kernel, new SharePointClient(Config.NetworkCredential), Logger);
         }
 
         protected CdCsJob(CdCsService cdCs, ILogger log)
