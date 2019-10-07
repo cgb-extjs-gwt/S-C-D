@@ -145,6 +145,8 @@
     <Compile Include="Enums\ProActiveOutputColumns.cs" />
     <Compile Include="CdCsService.cs" />
     <Compile Include="ConfigHandler.cs" />
+    <Compile Include="Helpers\ExcelHelper.cs" />
+    <Compile Include="Helpers\StreamHelper.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Procedures\Common.cs" />
     <Compile Include="Procedures\GetHddRetentionCosts.cs" />

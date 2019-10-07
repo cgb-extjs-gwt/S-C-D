@@ -1,6 +1,8 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.OperationResult;
+using Ninject;
 using System;
+using System.Net;
 
 namespace Gdc.Scd.Export.CdCs
 {
@@ -10,7 +12,16 @@ namespace Gdc.Scd.Export.CdCs
 
         protected CdCsService cdCs;
 
-        public CdCsJob() { }
+        public CdCsJob()
+        {
+            var Kernel = Module.CreateKernel();
+            var Logger = Kernel.Get<ILogger>();
+
+            var creds = new NetworkCredential(Config.SpServiceAccount, Config.SpServicePassword, Config.SpServiceDomain);
+
+            this.log = Logger;
+            this.cdCs = new CdCsService(Kernel, creds, Logger);
+        }
 
         protected CdCsJob(CdCsService cdCs, ILogger log)
         {
@@ -28,7 +39,7 @@ namespace Gdc.Scd.Export.CdCs
             catch (Exception ex)
             {
                 log.Fatal(ex, CdCsMessages.UNEXPECTED_ERROR);
-                Notify(CdCsMessages.UNEXPECTED_ERROR, ex);
+                Notify(ex, CdCsMessages.UNEXPECTED_ERROR);
                 return Result(false);
             }
         }
@@ -38,7 +49,7 @@ namespace Gdc.Scd.Export.CdCs
             return "CdCsJob";
         }
 
-        protected virtual void Notify(string msg, Exception ex)
+        protected virtual void Notify(Exception ex, string msg)
         {
             Fujitsu.GDC.ErrorNotification.Logger.Error(msg, ex, null, null);
         }

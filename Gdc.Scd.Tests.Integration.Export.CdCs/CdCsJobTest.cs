@@ -74,7 +74,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Logistics
             Assert.AreEqual("Error here", fakeLogger.Exception.Message);
         }
 
-        protected override void Notify(string msg, Exception ex)
+        protected override void Notify(Exception ex, string msg)
         {
             this.notify = new FakeNotify() { Msg = msg, Error = ex };
         }
