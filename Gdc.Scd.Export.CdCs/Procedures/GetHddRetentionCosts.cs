@@ -1,28 +1,48 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using Gdc.Scd.Export.CdCs.Dto;
-using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
-using System.Linq;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
     class GetHddRetentionCosts
     {
-        private const string HDD_RETENTION = "Report.HddRetention";
+        private const string PROC = "Report.HddRetention";
 
-        private readonly CommonService _service;
+        private readonly IRepositorySet _repo;
 
-        public GetHddRetentionCosts(CommonService service)
+        private bool prepared;
+
+        private int WG;
+        private int WGNAME;
+        private int TRANSFERPRICE;
+        private int DEALERPRICE;
+        private int LISTPRICE;
+
+        public GetHddRetentionCosts(IRepositorySet repo)
         {
-            _service = service;
+            _repo = repo;
         }
 
         public List<HddRetentionDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(HDD_RETENTION, FillParameters(country));
-            return GetHddRetentionCost(data);
+            prepared = false;
+
+            var parameters = FillParameters(country);
+            var sql = SelectQuery(parameters);
+
+            return _repo.ExecuteAsList(sql, Read, parameters);
+        }
+
+        private string SelectQuery(DbParameter[] parameters)
+        {
+            return new SqlStringBuilder()
+                   .Append("SELECT * FROM ").AppendFunc(PROC, parameters)
+                   .Append(" ORDER BY Wg")
+                   .Build();
         }
 
         private DbParameter[] FillParameters(string country)
@@ -32,30 +52,32 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             };
         }
 
-        private List<HddRetentionDto> GetHddRetentionCost(DataTable table)
+        private HddRetentionDto Read(DbDataReader reader)
         {
-            var hddRetentionList = new List<HddRetentionDto>();
-            if(table != null)
+            if (!prepared)
             {
-                for (var rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
-                {
-                    var row = table.Rows[rowIndex];
-
-                    var hddRetentionDto = new HddRetentionDto
-                    {
-                        Wg = row.Field<string>("Wg"),
-                        WgName = row.Field<string>("WgDescription"),
-                        TransferPrice = Convert.ToDouble(row["TP"]),
-                        DealerPrice = Convert.ToDouble(row["DealerPrice"]),
-                        ListPrice = Convert.ToDouble(row["ListPrice"])
-                    };
-
-                    hddRetentionList.Add(hddRetentionDto);
-                }
+                Prepare(reader);
             }
-            
 
-            return hddRetentionList.OrderBy(x => x.Wg).ToList();
+            return new HddRetentionDto
+            {
+                Wg = reader.GetStringOrDefault(WG),
+                WgName = reader.GetStringOrDefault(WGNAME),
+                TransferPrice = reader.GetDoubleOrDefault(TRANSFERPRICE),
+                DealerPrice = reader.GetDoubleOrDefault(DEALERPRICE),
+                ListPrice = reader.GetDoubleOrDefault(LISTPRICE)
+            };
+        }
+
+        private void Prepare(DbDataReader reader)
+        {
+            WG = reader.GetOrdinal("Wg");
+            WGNAME = reader.GetOrdinal("WgDescription");
+            TRANSFERPRICE = reader.GetOrdinal("TP");
+            DEALERPRICE = reader.GetOrdinal("DealerPrice");
+            LISTPRICE = reader.GetOrdinal("ListPrice");
+            //
+            prepared = true;
         }
     }
 }

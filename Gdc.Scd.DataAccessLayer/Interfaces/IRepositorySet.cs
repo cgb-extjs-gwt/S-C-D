@@ -56,6 +56,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         DataTable ExecuteAsTable(string sql, params DbParameter[] parameters);
 
+        List<T> ExecuteAsList<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters);
+
         Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters);
 
         Task<T> ExecuteScalarAsync<T>(string sql, IEnumerable<CommandParameterInfo> parameters = null);
