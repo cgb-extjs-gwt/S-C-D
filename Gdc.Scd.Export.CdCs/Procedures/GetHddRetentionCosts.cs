@@ -8,7 +8,7 @@ using System.Data.Common;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
-    class GetHddRetentionCosts
+    public class GetHddRetentionCosts
     {
         private const string PROC = "Report.HddRetention";
 

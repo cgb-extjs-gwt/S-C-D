@@ -8,7 +8,7 @@ using System.Data.Common;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
-    class GetServiceCostsBySla
+    public class GetServiceCostsBySla
     {
         private const string PROC = "Report.GetServiceCostsBySla";
 

@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.Export.CdCs.Dto
 {
-    class HddRetentionDto
+    public class HddRetentionDto
     {
         public string Wg { get; set; }
         public string WgName { get; set; }

@@ -7,7 +7,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
     {
         public Exception error;
 
-        public FakeCdCsService() : base(null, null, null) { }
+        public FakeCdCsService() { }
 
         public override void Run()
         {

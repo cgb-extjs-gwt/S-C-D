@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
@@ -15,9 +16,10 @@ namespace Gdc.Scd.Export.CdCs
         {
             var Kernel = Module.CreateKernel();
             var Logger = Kernel.Get<ILogger>();
+            var repo = Kernel.Get<IRepositorySet>();
 
             this.log = Logger;
-            this.cdCs = new CdCsService(Kernel, new SharePointClient(Config.NetworkCredential), Logger);
+            this.cdCs = new CdCsService(repo, new SharePointClient(Config.NetworkCredential), Logger);
         }
 
         protected CdCsJob(CdCsService cdCs, ILogger log)
