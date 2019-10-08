@@ -2,10 +2,10 @@
 {
     public static class HddRetentionColumns
     {
-        public static readonly int Wg = 1;
-        public static readonly int WgName = 2;
-        public static readonly int TP = 3;
-        public static readonly int DealerPrice = 4;
-        public static readonly int ListPrice = 5;
+        public const int Wg = 1;
+        public const int WgName = 2;
+        public const int TP = 3;
+        public const int DealerPrice = 4;
+        public const int ListPrice = 5;
     }
 }
