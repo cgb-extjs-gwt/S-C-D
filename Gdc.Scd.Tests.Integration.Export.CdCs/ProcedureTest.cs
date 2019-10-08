@@ -39,7 +39,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
             var proc = new GetServiceCostsBySla(repo);
             var sla = new CdCsServiceTest().ReadSla();
 
-            Assert.NotZero(proc.Execute(COUNTRY, sla).Count);
+            Assert.NotZero(proc.Execute(113, sla).Count);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 {
     public class GetServiceCostsBySla
     {
-        private const string PROC = "Report.GetServiceCostsBySla";
+        private const string PROC = "Report.GetServiceCostsBySlaTable";
 
         private readonly IRepositorySet _repo;
 
@@ -31,46 +31,22 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             _repo = repo;
         }
 
-        public List<ServiceCostDto> Execute(string country, List<SlaDto> slaList)
-        {
-            var result = new List<ServiceCostDto>(100);
-
-            foreach (var sla in slaList)
-            {
-                result.AddRange(Execute(country, sla));
-            }
-
-            return result;
-        }
-
-        public List<ServiceCostDto> Execute(string country, SlaDto sla)
+        public List<ServiceCostDto> Execute(long country, SlaCollection sla)
         {
             prepared = false;
-            current = sla;
-
-            var parameters = FillParameters(country, sla);
-            var sql = SelectQuery(parameters);
-
-            return _repo.ExecuteAsList(sql, Read, parameters);
+            return _repo.ExecuteAsList(SelectQuery(), Read, FillParameters(country, sla));
         }
 
-        private string SelectQuery(DbParameter[] parameters)
+        private string SelectQuery()
         {
-            return new SqlStringBuilder()
-                   .Append("SELECT * FROM ").AppendFunc(PROC, parameters)
-                   .Build();
+            return new SqlStringBuilder().Append("exec ").Append(PROC).Append(" @cnt, @sla").Build();
         }
 
-        private DbParameter[] FillParameters(string country, SlaDto sla)
+        private DbParameter[] FillParameters(long country, SlaCollection sla)
         {
             return new[] {
                  new DbParameterBuilder().WithName("cnt").WithValue(country).Build(),
-                 new DbParameterBuilder().WithName("loc").WithValue(sla.ServiceLocation).Build(),
-                 new DbParameterBuilder().WithName("av").WithValue(sla.Availability).Build(),
-                 new DbParameterBuilder().WithName("reactiontime").WithValue(sla.ReactionTime).Build(),
-                 new DbParameterBuilder().WithName("reactiontype").WithValue(sla.ReactionType).Build(),
-                 new DbParameterBuilder().WithName("wg").WithValue(sla.WarrantyGroup).Build(),
-                 new DbParameterBuilder().WithName("dur").WithValue(sla.Duration).Build()
+                 new DbParameterBuilder().WithName("sla").WithTypeName("Report.SlaString").WithValue(sla.AsTable()).Build()
             };
         }
 

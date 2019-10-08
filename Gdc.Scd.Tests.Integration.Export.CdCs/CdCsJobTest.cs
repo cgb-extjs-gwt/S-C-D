@@ -4,7 +4,7 @@ using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
 
-namespace Gdc.Scd.Tests.Integration.Import.Logistics
+namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {
     public class CdCsJobTest : CdCsJob
     {

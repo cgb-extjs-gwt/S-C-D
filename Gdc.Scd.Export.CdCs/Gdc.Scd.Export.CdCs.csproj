@@ -141,7 +141,9 @@
     <Compile Include="Enums\ProActiveOutputColumns.cs" />
     <Compile Include="CdCsService.cs" />
     <Compile Include="ConfigHandler.cs" />
+    <Compile Include="Helpers\CdCsConfigurationHelper.cs" />
     <Compile Include="Helpers\ExcelHelper.cs" />
+    <Compile Include="Dto\SlaCollection.cs" />
     <Compile Include="Helpers\StreamHelper.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Procedures\Common.cs" />
