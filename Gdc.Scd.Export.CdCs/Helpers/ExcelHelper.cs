@@ -4,9 +4,9 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 {
     public static class ExcelHelper
     {
-        public static void SetCellAsString(this IXLWorksheet sheet, int row, int column, string value)
+        public static IXLCell SetCellAsString(this IXLWorksheet sheet, int row, int column, string value)
         {
-            sheet.Cell(row, column).SetValue(value);
+            return sheet.Cell(row, column).SetValue(value);
         }
 
         public static void SetCellAsDouble(this IXLWorksheet sheet, int row, int column, double value)

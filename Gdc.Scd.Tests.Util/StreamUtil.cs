@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace Gdc.Scd.Tests.Util
@@ -13,10 +14,48 @@ namespace Gdc.Scd.Tests.Util
 
         public static string ReadText(string path, string fn)
         {
-            path = Path.Combine(Location(), path, fn);
-            var streamReader = new StreamReader(path);
+            return GetReader(path, fn).ReadToEnd();
+        }
 
-            return streamReader.ReadToEnd();
+        public static List<string[]> ReadCsv(string path, string fn, char sep = ';')
+        {
+            var result = new List<string[]>(25);
+
+            using (var rdr = GetReader(path, fn))
+            {
+                string line;
+                while ((line = rdr.ReadLine()) != null)
+                {
+                    result.Add(line.Split(sep));
+                }
+
+                rdr.Close();
+            }
+
+            return result;
+        }
+
+        public static StreamReader GetReader(string path, string fn)
+        {
+            path = Path.Combine(Location(), path, fn);
+            return new StreamReader(path);
+        }
+
+        public static void Save(string path, string fn, Stream stream)
+        {
+            path = Path.Combine(Location(), path);
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            path = Path.Combine(path, fn);
+
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
+            {
+                stream.CopyTo(fileStream);
+            }
         }
 
         private static string Location()

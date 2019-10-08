@@ -55,6 +55,9 @@
     <None Include="TestData\CD_CS_Master File_SCD 2.0.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestData\tc_tp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
