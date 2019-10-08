@@ -49,7 +49,7 @@ namespace Gdc.Scd.Export.CdCs
             {
 
                 Logger.Info(CdCsMessages.PARSE_SLA_SHEET);
-                var slaList = ReadExcel(excel);
+                var slaList = ReadSla(excel);
 
                 Logger.Info(CdCsMessages.WRITE_COUNTRY_COSTS);
                 PrecessExcel(excel, slaList);
@@ -58,7 +58,7 @@ namespace Gdc.Scd.Export.CdCs
             }
         }
 
-        protected virtual SlaCollection ReadExcel(Stream excel)
+        protected virtual SlaCollection ReadSla(Stream excel)
         {
             var slaList = new SlaCollection(128);
 

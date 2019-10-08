@@ -1,10 +1,5 @@
 ﻿using Gdc.Scd.Export.CdCs.Helpers;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {
@@ -15,7 +10,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         [SetUp]
         public void Setup()
         {
-            writer = new ExcelWriter();
+            writer = new ExcelWriter(null);
         }
 
         [TestCase]

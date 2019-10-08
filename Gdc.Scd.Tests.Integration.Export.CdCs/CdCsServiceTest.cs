@@ -2,7 +2,6 @@
 using Gdc.Scd.Export.CdCs.Dto;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {
@@ -16,7 +15,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
             Assert.AreEqual(80, this.ReadSla().Count);
         }
 
-        public List<SlaDto> ReadSla()
+        public SlaCollection ReadSla()
         {
             var s = GetSla();
             return base.ReadSla(s);
