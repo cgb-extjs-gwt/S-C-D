@@ -144,6 +144,7 @@
     <Compile Include="Helpers\CdCsConfigurationHelper.cs" />
     <Compile Include="Helpers\ExcelHelper.cs" />
     <Compile Include="Dto\SlaCollection.cs" />
+    <Compile Include="Helpers\ExcelWriter.cs" />
     <Compile Include="Helpers\StreamHelper.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Procedures\Common.cs" />
