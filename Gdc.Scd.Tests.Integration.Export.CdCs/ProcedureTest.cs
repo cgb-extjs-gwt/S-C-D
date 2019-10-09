@@ -37,9 +37,28 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         public void GetServiceCostsBySlaTest()
         {
             var proc = new GetServiceCostsBySla(repo);
-            var sla = new CdCsServiceTest().ReadSla();
+            var sla = ExcelWriterTest.GenSlaCollection();
 
-            Assert.NotZero(proc.Execute(113, sla).Count);
+            var data = proc.Execute(113, sla);
+
+            Assert.NotZero(data.Count);
+
+            foreach(var row in data)
+            {
+                Assert.AreEqual("Germany", row.CountryGroup);
+                AssertString(row.Key);
+                AssertString(row.ServiceLocation);
+                AssertString(row.Availability);
+                AssertString(row.ReactionTime);
+                AssertString(row.ReactionType);
+                AssertString(row.WarrantyGroup);
+                AssertString(row.Duration);
+            }
+        }
+
+        public static void AssertString(string s)
+        {
+            Assert.False(string.IsNullOrEmpty(s));
         }
     }
 }

@@ -4,6 +4,16 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 {
     public static class ExcelHelper
     {
+        public static void ClearFrom(this IXLWorksheet sheet, int startRow)
+        {
+            var range = sheet.RangeUsed();
+
+            for (int i = startRow; i <= range.RowCount(); i++)
+            {
+                range.Row(i).Clear();
+            }
+        }
+
         public static IXLCell SetCellAsString(this IXLWorksheet sheet, int row, int column, string value)
         {
             return sheet.Cell(row, column).SetValue(value);

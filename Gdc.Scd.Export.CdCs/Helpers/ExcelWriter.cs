@@ -62,7 +62,7 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 
         public Stream GetData()
         {
-            var stream = new MemoryStream(1028 * 256 * 8); //2MB
+            var stream = new MemoryStream(1024 * 1024 * 2); //2MB
             workbook.SaveAs(stream);
             stream.Seek(0, SeekOrigin.Begin);
             Dispose();
@@ -97,7 +97,6 @@ namespace Gdc.Scd.Export.CdCs.Helpers
         public void WriteTcTp(List<ServiceCostDto> data)
         {
             var sheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs);
-            var range = sheet.RangeUsed();
 
             sheet.Column(1).InsertColumnsBefore(2);
 
@@ -107,18 +106,14 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 
             const int startRow = 2;
 
-            int row = startRow;
-            for (; row <= range.RowCount(); row++)
-            {
-                range.Row(row).Clear();
-            }
+            sheet.ClearFrom(startRow);
 
-            row = startRow;
-            for (var i = 0; i < data.Count; i++)
+            for (int i = 0, row = startRow; i < data.Count; i++, row++)
             {
                 var cost = data[i];
-                row = row + i;
 
+                sheet.SetCellAsString(row, 1, cost.Key);
+                sheet.SetCellAsString(row, 2, cost.CountryGroup);
                 sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.ServiceLocation, cost.ServiceLocation);
                 sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.Availability, cost.Availability);
                 sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.ReactionTime, cost.ReactionTime);
@@ -139,20 +134,16 @@ namespace Gdc.Scd.Export.CdCs.Helpers
         {
             var sheet = workbook.Worksheet(InputSheets.ProActiveOutput);
 
-            var rowNum = 8;
-            for (var i = 0; i < data.Count; i++)
+            for (int i = 0, rowNum = 8; i < data.Count; i++, rowNum++)
             {
                 var pro = data[i];
 
-                sheet.Row(rowNum).Clear();
                 sheet.SetCellAsString(rowNum, ProActiveOutputColumns.Wg, pro.Wg);
                 sheet.SetCellAsCurrency(rowNum, ProActiveOutputColumns.ProActive6, pro.ProActive6, currency);
                 sheet.SetCellAsCurrency(rowNum, ProActiveOutputColumns.ProActive7, pro.ProActive7, currency);
                 sheet.SetCellAsCurrency(rowNum, ProActiveOutputColumns.ProActive3, pro.ProActive3, currency);
                 sheet.SetCellAsCurrency(rowNum, ProActiveOutputColumns.ProActive4, pro.ProActive4, currency);
                 sheet.SetCellAsCurrency(rowNum, ProActiveOutputColumns.OneTimeTask, pro.OneTimeTasks, currency);
-
-                rowNum++;
             }
         }
 
@@ -160,24 +151,17 @@ namespace Gdc.Scd.Export.CdCs.Helpers
         {
             var sheet = workbook.Worksheet(InputSheets.HddRetention);
 
-            var range = sheet.RangeUsed();
             const int startRow = 4;
 
-            var row = startRow;
-            for (; row < range.RowCount(); row++)
-            {
-                range.Row(row).Clear();
-            }
+            sheet.ClearFrom(startRow);
 
             //set Last update
             var today = DateTime.Today.ToString("dd.MM.yyyy");
             sheet.SetCellAsString(1, HddRetentionColumns.ListPrice, $"Last update: {today}");
 
-            row = startRow;
-            for (var i = 0; i < data.Count; i++)
+            for (int i = 0, row = startRow; i < data.Count; i++, row++)
             {
                 var hdd = data[i];
-                row = row + i;
 
                 sheet.SetCellAsString(row, HddRetentionColumns.Wg, hdd.Wg);
                 sheet.SetCellAsString(row, HddRetentionColumns.WgName, hdd.WgName ?? string.Empty);
