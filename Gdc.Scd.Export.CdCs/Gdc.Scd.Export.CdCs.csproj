@@ -135,10 +135,6 @@
     <Compile Include="Dto\HddRetentionDto.cs" />
     <Compile Include="Dto\ProActiveDto.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Enums\HddRetentionColumns.cs" />
-    <Compile Include="Enums\InputMctCdCsWGsColumns.cs" />
-    <Compile Include="Enums\InputSheets.cs" />
-    <Compile Include="Enums\ProActiveOutputColumns.cs" />
     <Compile Include="CdCsService.cs" />
     <Compile Include="ConfigHandler.cs" />
     <Compile Include="Helpers\CdCsConfigurationHelper.cs" />

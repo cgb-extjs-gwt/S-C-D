@@ -1,6 +1,5 @@
 ﻿using ClosedXML.Excel;
 using Gdc.Scd.Export.CdCs.Dto;
-using Gdc.Scd.Export.CdCs.Enums;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +8,13 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 {
     public class ExcelWriter : IDisposable
     {
+        private class InputSheets
+        {
+            public const string InputMctCdCsWGs = "Input_MCT_CD_CS_WGs";
+            public const string ProActiveOutput = "ProActive_SCD_Output";
+            public const string HddRetention = "HDD_Retention";
+        }
+
         private class InputMctCdCsWGsColumns
         {
             public const int ServiceLocation = 1;

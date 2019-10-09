@@ -2,8 +2,6 @@
 {
     public class ServiceCostDto
     {
-        internal  SlaDto Sla { get; set; }
-
         public string Key { get; set; }
         public string CountryGroup { get; set; }
 
