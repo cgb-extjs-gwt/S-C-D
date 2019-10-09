@@ -14,6 +14,7 @@ namespace Gdc.Scd.Export.CdCs
 
         public SharePointClient(NetworkCredential networkCredential)
         {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             credentials = networkCredential;
         }
 

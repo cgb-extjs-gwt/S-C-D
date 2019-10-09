@@ -10,6 +10,7 @@ namespace Gdc.Scd.Export.CdCs.Helpers
         {
             var ms = new MemoryStream();
             source.CopyTo(ms, BUFFER_SIZE);
+            ms.Seek(0, SeekOrigin.Begin);
             return ms;
         }
     }
