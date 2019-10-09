@@ -4,8 +4,10 @@ using System.Reflection;
 
 namespace Gdc.Scd.Tests.Util
 {
-    public class StreamUtil
+    public static class StreamUtil
     {
+        private const int BUFFER_SIZE = 32768;
+
         public static Stream ReadBin(string path, string fn)
         {
             path = Path.Combine(Location(), path, fn);
@@ -56,6 +58,13 @@ namespace Gdc.Scd.Tests.Util
             {
                 stream.CopyTo(fileStream);
             }
+        }
+
+        public static MemoryStream Copy(this Stream source)
+        {
+            var ms = new MemoryStream();
+            source.CopyTo(ms, BUFFER_SIZE);
+            return ms;
         }
 
         private static string Location()

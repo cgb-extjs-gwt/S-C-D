@@ -9,8 +9,8 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {
     public class ExcelWriterTest
     {
-        private const string RESULT_PATH = "Results";
-        private const string TEST_PATH = "TestData";
+        public const string RESULT_PATH = "Results";
+        public const string TEST_PATH = "TestData";
 
         private ExcelWriter writer;
 
@@ -57,12 +57,12 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
             Save(writer.GetData(), "cd_cs_doc.xlsm");
         }
 
-        private void Save(Stream stream, string fn)
+        public static void Save(Stream stream, string fn)
         {
             StreamUtil.Save(RESULT_PATH, fn, stream);
         }
 
-        public System.IO.Stream GetDoc()
+        public static System.IO.Stream GetDoc()
         {
             return StreamUtil.ReadBin(TEST_PATH, "CalculationTool_CD_CS.xlsm");
         }

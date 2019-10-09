@@ -1,29 +1,32 @@
-﻿using Gdc.Scd.Export.CdCs;
-using Gdc.Scd.Export.CdCs.Dto;
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Export.CdCs;
+using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using Gdc.Scd.Tests.Util;
+using Ninject;
 using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {
-    public class CdCsServiceTest : CdCsService
+    public class CdCsServiceTest
     {
-        public CdCsServiceTest() { }
+        private IKernel kernel;
+
+        private IRepositorySet repo;
+
+        private CdCsService testing;
+
+        public CdCsServiceTest()
+        {
+            kernel = Gdc.Scd.Export.CdCs.Module.CreateKernel();
+            repo = kernel.Get<IRepositorySet>();
+
+            testing = new CdCsService(repo, new FileSharePointClient(), new FakeLogger());
+        }
 
         [TestCase]
-        public void ReadSlaTest()
+        public void RunTest()
         {
-            Assert.AreEqual(80, this.ReadSla().Count);
-        }
-
-        public SlaCollection ReadSla()
-        {
-            var s = GetSla();
-            return base.ReadSla(s);
-        }
-
-        public System.IO.Stream GetSla()
-        {
-            return StreamUtil.ReadBin("TestData", "CalculationTool_CD_CS.xlsm");
+            testing.Run();
         }
     }
 }
