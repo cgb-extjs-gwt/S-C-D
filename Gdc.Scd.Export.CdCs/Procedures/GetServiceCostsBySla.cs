@@ -1,78 +1,113 @@
-﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Gdc.Scd.Export.CdCs.Dto;
+using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
-    class GetServiceCostsBySla
+    public class GetServiceCostsBySla
     {
-        private readonly CommonService _repository;
+        private const string PROC = "Report.GetServiceCostsBySlaTable";
 
-        public GetServiceCostsBySla(CommonService repository)
+        private readonly IRepositorySet _repo;
+
+        private bool prepared;
+
+        private int COUNTRY_GROUP;
+        private int KEY;
+
+        private int SERVICELOCATION;
+        private int AVAILABILITY;
+        private int REACTIONTIME;
+        private int REACTIONTYPE;
+        private int WG;
+        private int DURATION;
+
+        private int SERVICETC;
+        private int SERVICETP;
+        private int SERVICETP_MONTHLYYEAR1;
+        private int SERVICETP_MONTHLYYEAR2;
+        private int SERVICETP_MONTHLYYEAR3;
+        private int SERVICETP_MONTHLYYEAR4;
+        private int SERVICETP_MONTHLYYEAR5;
+
+        public GetServiceCostsBySla(IRepositorySet repo)
         {
-            _repository = repository;
+            _repo = repo;
         }
 
-        public List<ServiceCostDto> Execute(string country, List<SlaDto> slaList)
+        public List<ServiceCostDto> Execute(long country, SlaCollection sla)
         {
-            var result = new List<ServiceCostDto>();
-            var procName = Enums.Enums.Functions.GetServiceCostsBySla;
+            prepared = false;
+            return _repo.ExecuteAsList(SelectQuery(), Read, FillParameters(country, sla));
+        }
 
-            foreach (var sla in slaList)
+        private string SelectQuery()
+        {
+            return new SqlStringBuilder().Append("exec ").Append(PROC).Append(" @cnt, @sla").Build();
+        }
+
+        private DbParameter[] FillParameters(long country, SlaCollection sla)
+        {
+            return new[] {
+                 new DbParameterBuilder().WithName("cnt").WithValue(country).Build(),
+                 new DbParameterBuilder().WithName("sla").WithTypeName("Report.SlaString").WithValue(sla.AsTable()).Build()
+            };
+        }
+
+        private ServiceCostDto Read(DbDataReader reader)
+        {
+            if (!prepared)
             {
-                var data = _repository.ExecuteAsTable(procName, FillParameters(country, sla));
-                var row = data != null && data.Rows.Count > 0 ? data.Rows[0] : null;
-                result.Add(GetServiceCost(sla, row));
+                Prepare(reader);
             }
-           
-            return result;
-        }
 
-        private DbParameter[] FillParameters(string country, SlaDto sla)
-        {
-            var cnt = new DbParameterBuilder().WithName("cnt").WithValue(country);
-            var loc = new DbParameterBuilder().WithName("loc").WithValue(sla.ServiceLocation);
-            var av = new DbParameterBuilder().WithName("av").WithValue(sla.Availability);
-            var reactionTime = new DbParameterBuilder().WithName("reactiontime").WithValue(sla.ReactionTime);
-            var reactionType = new DbParameterBuilder().WithName("reactiontype").WithValue(sla.ReactionType);
-            var wg = new DbParameterBuilder().WithName("wg").WithValue(sla.WarrantyGroup);
-            var dur = new DbParameterBuilder().WithName("dur").WithValue(sla.Duration);
-
-            var result = new[] {
-                cnt.Build(),
-                loc.Build(),
-                av.Build(),
-                reactionTime.Build(),
-                reactionType.Build(),
-                wg.Build(),
-                dur.Build()
-            };
-
-            return result;
-        }
-
-        private ServiceCostDto GetServiceCost(SlaDto sla, DataRow row)
-        {
-            var serviceCost = new ServiceCostDto
+            return new ServiceCostDto
             {
-                Sla = sla,
-                ServiceTC = CommonService.CheckDoubleField(row, "ServiceTC"),
-                ServiceTP = CommonService.CheckDoubleField(row, "ServiceTP"),
-                ServiceTP_MonthlyYear1 = CommonService.CheckDoubleField(row, "ServiceTPMonthly1"),
-                ServiceTP_MonthlyYear2 = CommonService.CheckDoubleField(row, "ServiceTPMonthly2"),
-                ServiceTP_MonthlyYear3 = CommonService.CheckDoubleField(row, "ServiceTPMonthly3"),
-                ServiceTP_MonthlyYear4 = CommonService.CheckDoubleField(row, "ServiceTPMonthly4"),
-                ServiceTP_MonthlyYear5 = CommonService.CheckDoubleField(row, "ServiceTPMonthly5")
+                CountryGroup = reader.GetString(COUNTRY_GROUP),
+                Key = reader.GetString(KEY),
 
+                ServiceLocation = reader.GetString(SERVICELOCATION),
+                Availability = reader.GetString(AVAILABILITY),
+                ReactionTime = reader.GetString(REACTIONTIME),
+                ReactionType = reader.GetString(REACTIONTYPE),
+                WarrantyGroup = reader.GetString(WG),
+                Duration = reader.GetString(DURATION),
+
+                ServiceTC = reader.GetDoubleOrDefault(SERVICETC),
+                ServiceTP = reader.GetDoubleOrDefault(SERVICETP),
+                ServiceTP_MonthlyYear1 = reader.GetDoubleOrDefault(SERVICETP_MONTHLYYEAR1),
+                ServiceTP_MonthlyYear2 = reader.GetDoubleOrDefault(SERVICETP_MONTHLYYEAR2),
+                ServiceTP_MonthlyYear3 = reader.GetDoubleOrDefault(SERVICETP_MONTHLYYEAR3),
+                ServiceTP_MonthlyYear4 = reader.GetDoubleOrDefault(SERVICETP_MONTHLYYEAR4),
+                ServiceTP_MonthlyYear5 = reader.GetDoubleOrDefault(SERVICETP_MONTHLYYEAR5)
             };
-            return serviceCost;
-        }     
+        }
+
+        private void Prepare(DbDataReader reader)
+        {
+            COUNTRY_GROUP = reader.GetOrdinal("CountryGroup");
+            KEY = reader.GetOrdinal("Key");
+
+            SERVICELOCATION = reader.GetOrdinal("ServiceLocation");
+            AVAILABILITY = reader.GetOrdinal("Availability");
+            REACTIONTIME = reader.GetOrdinal("ReactionTime");
+            REACTIONTYPE = reader.GetOrdinal("ReactionType");
+            WG = reader.GetOrdinal("Wg");
+            DURATION = reader.GetOrdinal("Duration");
+
+            SERVICETC = reader.GetOrdinal("ServiceTC");
+            SERVICETP = reader.GetOrdinal("ServiceTP");
+            SERVICETP_MONTHLYYEAR1 = reader.GetOrdinal("ServiceTPMonthly1");
+            SERVICETP_MONTHLYYEAR2 = reader.GetOrdinal("ServiceTPMonthly2");
+            SERVICETP_MONTHLYYEAR3 = reader.GetOrdinal("ServiceTPMonthly3");
+            SERVICETP_MONTHLYYEAR4 = reader.GetOrdinal("ServiceTPMonthly4");
+            SERVICETP_MONTHLYYEAR5 = reader.GetOrdinal("ServiceTPMonthly5");
+            //
+            prepared = true;
+        }
     }
 }

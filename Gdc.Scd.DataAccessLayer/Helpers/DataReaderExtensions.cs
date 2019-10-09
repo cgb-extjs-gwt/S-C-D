@@ -111,6 +111,16 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return false;
         }
 
+        public static double GetDoubleOrDefault(this DbDataReader reader, int ordinal)
+        {
+            return reader.IsDBNull(ordinal) ? 0 : reader.GetDouble(ordinal);
+        }
+
+        public static string GetStringOrDefault(this DbDataReader reader, int ordinal)
+        {
+            return reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);
+        }
+
         private static bool IsEmpty(DbDataReader reader)
         {
             return reader == null || !reader.HasRows || reader.FieldCount <= 0;

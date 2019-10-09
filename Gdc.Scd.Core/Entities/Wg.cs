@@ -26,6 +26,11 @@ namespace Gdc.Scd.Core.Entities
 
         public RoleCode RoleCode { get; set; }
 
+        [MustCompare(true)]
+        [MustUpdateCoordinate(MetaConstants.CompanyInputLevelName)]
+        public long? CompanyId { get; set; }
+        public Company Company { get; set; }
+
         [MustCompare]
         public WgType WgType { get; set; }
 

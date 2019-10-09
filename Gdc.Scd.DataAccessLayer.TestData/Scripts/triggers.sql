@@ -8,6 +8,8 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+    set @tableName = REPLACE(REPLACE(@tableName, '[', ''), ']', '');
+
 	--RUN ENABLE TRIGGER
 	DECLARE @cmd AS nvarchar(MAX)
 	SET @cmd = N'ENABLE TRIGGER ALL ON ' + @tableName
@@ -21,12 +23,12 @@ BEGIN
 		INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU
 			  ON TC.CONSTRAINT_TYPE = 'PRIMARY KEY' AND
 				 TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME AND
-				 '['+KU.TABLE_SCHEMA+'].['+KU.TABLE_NAME + ']'=@tableName
+				 KU.TABLE_SCHEMA+'.'+KU.TABLE_NAME = @tableName
 	ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;
 
 	--CALCULATE COLUMN TO UPDATE
 	DECLARE @columnToUpdate AS nvarchar(max)
-	SELECT TOP(1) @columnToUpdate=[name] 
+	SELECT TOP(1) @columnToUpdate = '[' + [name] + ']'
 	FROM syscolumns 
 	WHERE id=OBJECT_ID(@tableName) AND [name] != @primaryKey
 	

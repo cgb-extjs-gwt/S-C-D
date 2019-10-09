@@ -397,6 +397,30 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public List<T> ExecuteAsList<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var list = new List<T>(50);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(mapFunc(reader));
+                        }
+                    }
+                }
+
+                return list;
+            });
+        }
+
         public Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>

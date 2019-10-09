@@ -9,8 +9,6 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -94,6 +92,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                 CreatedDateTime = DateTime.Now,
                                 Description = item.WgDescription,
                                 PlaId = item.PlaId.Value,
+                                CompanyId = pla.CompanyId,
                                 CentralContractGroupId = defaultCentralContractGroup?.Id,
                                 Name = item.WgCode,
                                 ExistsInLogisticsDb = true,
@@ -119,6 +118,7 @@ namespace Gdc.Scd.Import.Core.Impl
                             {
                                 wg.PlaId = pla.Id;
                                 wg.Description = item.WgDescription;
+                                wg.CompanyId = pla.CompanyId;
                             }
                             _logger.Log(LogLevel.Debug, ImportConstants.UPDATE_WG, item.WgCode);
                             batchUpdate.Add(wg);
@@ -232,17 +232,11 @@ namespace Gdc.Scd.Import.Core.Impl
                     foreach (var country in countries)
                     {
                         if (dbWg != null)
-                            availabilityFees.Add(new AvailabilityFee
-                            {
-                                CountryId = country,
-                                WgId = dbWg.Id,
-                                PlaId = dbWg.Pla.Id,
-                                CreatedDateTime = DateTime.Now,
-                                ModifiedDateTime = DateTime.Now,
-                                DeactivatedDateTime = null
-                            });
+                        {
+                            availabilityFees.Add(CreateFee(dbWg, country));
+                        }
                     }
-                    
+
                     if (availabilityFees.Any())
                     {
                         _availabilityFeeRepo.Save(availabilityFees);
@@ -258,6 +252,21 @@ namespace Gdc.Scd.Import.Core.Impl
                 result = false;
             }
             return result;
+        }
+
+        public static AvailabilityFee CreateFee(Wg dbWg, long country)
+        {
+            var now = DateTime.Now;
+            return new AvailabilityFee
+            {
+                CountryId = country,
+                WgId = dbWg.Id,
+                PlaId = dbWg.Pla.Id,
+                CompanyId = dbWg.Pla.CompanyId,
+                CreatedDateTime = now,
+                ModifiedDateTime = now,
+                DeactivatedDateTime = null
+            };
         }
     }
 }

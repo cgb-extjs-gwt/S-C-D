@@ -1,4 +1,8 @@
-﻿if OBJECT_ID('dbo.spDropTable') is not null
+﻿if OBJECT_ID('Hardware.ProlongationMarkup_Backup') is not null
+    exec sp_rename 'Hardware.ProlongationMarkup_Backup','ProlongationMarkup';
+go
+
+if OBJECT_ID('dbo.spDropTable') is not null
     drop procedure dbo.spDropTable;
 go
 
@@ -697,13 +701,13 @@ begin
     where moc.Deactivated = 0
     order by c.Name, wg.Name
 end
-
 GO
 
-if OBJECT_ID('[Archive].[spGetProlongationMarkup]') is not null
-    DROP PROCEDURE [Archive].[spGetProlongationMarkup]
-GO
-
-
-sp_rename 'Hardware.ProlongationMarkup','ProlongationMarkup_Backup';
+if OBJECT_ID('Archive.spGetProlongationMarkup') is not null
+    drop procedure Archive.spGetProlongationMarkup;
 go
+
+if OBJECT_ID('Hardware.ProlongationMarkup') is not null
+    exec sp_rename 'Hardware.ProlongationMarkup','ProlongationMarkup_Backup';
+go
+

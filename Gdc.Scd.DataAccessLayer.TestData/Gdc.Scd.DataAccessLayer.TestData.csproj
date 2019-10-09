@@ -21,7 +21,6 @@
     <None Remove="Scripts\archive_report\MaterialCostWarrantyEmeia.sql" />
     <None Remove="Scripts\archive_report\ProActive.sql" />
     <None Remove="Scripts\archive_report\ProActiveSw.sql" />
-    <None Remove="Scripts\archive_report\ProlongationMarkup.sql" />
     <None Remove="Scripts\archive_report\Reinsurance.sql" />
     <None Remove="Scripts\archive_report\RoleCodeHourlyRates.sql" />
     <None Remove="Scripts\archive_report\ServiceSupportCost.sql" />
@@ -92,7 +91,6 @@
     <EmbeddedResource Include="Scripts\archive_report\MaterialCostWarrantyEmeia.sql" />
     <EmbeddedResource Include="Scripts\archive_report\ProActive.sql" />
     <EmbeddedResource Include="Scripts\archive_report\ProActiveSw.sql" />
-    <EmbeddedResource Include="Scripts\archive_report\ProlongationMarkup.sql" />
     <EmbeddedResource Include="Scripts\archive_report\Reinsurance.sql" />
     <EmbeddedResource Include="Scripts\archive_report\RoleCodeHourlyRates.sql" />
     <EmbeddedResource Include="Scripts\archive_report\ServiceSupportCost.sql" />

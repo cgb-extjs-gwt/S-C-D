@@ -13,8 +13,8 @@ export class OwnApprovalLayout extends BundleListLayout {
         return (
             <BundleView 
                 key={bundle.id}
-                bundle={bundle} 
-                isCheckColumnsVisible={true}
+                bundle={bundle}
+                isCheckColumnsVisible={false}
             >
                 {
                     bundle.state == ApprovalBundleState.Saved 

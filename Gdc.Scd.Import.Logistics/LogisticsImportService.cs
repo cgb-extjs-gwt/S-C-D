@@ -1,54 +1,41 @@
 ﻿using Gdc.Scd.Core.Enums;
-using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Core.Interfaces;
-using Ninject;
-using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Logistics
 {
     public class LogisticsImportService
     {
-        public IConfigHandler ConfigHandler { get; private set; }
-        public IImportManager ImportManager { get; set; }
-        public ILogger<LogLevel> Logger { get; private set; }
+        private readonly IConfigHandler configHandler;
 
-        public LogisticsImportService()
+        private readonly IImportManager importManager;
+
+        private readonly ILogger logger;
+
+        public LogisticsImportService(
+                IConfigHandler config,
+                IImportManager manager,
+                ILogger log
+            )
         {
-            NinjectExt.IsConsoleApplication = true;
-            IKernel kernel = CreateKernel();
-            ConfigHandler = kernel.Get<IConfigHandler>();
-            ImportManager = kernel.Get<IImportManager>();
-            Logger = kernel.Get<ILogger<LogLevel>>();
+            configHandler = config;
+            importManager = manager;
+            logger = log;
         }
 
-        public void UploadLogisticInfo()
+        public virtual void Run()
         {
-            Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
-            Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
-            var configuration = ConfigHandler.ReadConfiguration(ImportSystems.LOGISTICS);
-            Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_END);
-            var result = ImportManager.ImportData(configuration);
+            logger.Info(ImportConstants.START_PROCESS);
+            logger.Info(ImportConstants.CONFIG_READ_START);
+            var configuration = configHandler.ReadConfiguration(ImportSystems.LOGISTICS);
+            logger.Info(ImportConstants.CONFIG_READ_END);
+            var result = importManager.ImportData(configuration);
             if (!result.Skipped)
             {
-                Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
-                ConfigHandler.UpdateImportResult(configuration, result.ModifiedDateTime);
+                logger.Info(ImportConstants.UPDATING_CONFIGURATION);
+                configHandler.UpdateImportResult(configuration, result.ModifiedDateTime);
             }
-            Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
-        }
-
-        private StandardKernel CreateKernel()
-        {
-            return new StandardKernel(
-                new Scd.Core.Module(),
-                new Scd.DataAccessLayer.Module(),
-                new Scd.BusinessLogicLayer.Module(),
-                new Module());
+            logger.Info(ImportConstants.END_PROCESS);
         }
     }
 }

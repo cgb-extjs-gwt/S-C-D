@@ -582,7 +582,7 @@ RETURN (
 
         INNER JOIN WgCte wg on wg.Id = m.WgId
 
-        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId 
 
         INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -686,13 +686,14 @@ RETURN (
               , m.MaterialCostWarranty * m.ExchangeRate as MaterialCostWarranty
               , m.MaterialCostOow * m.ExchangeRate as MaterialCostOow
 
-              , m.Duration
+              , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Duration as varchar(1)) end as Duration
 
               , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
               , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
               , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
               , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
               , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+              , m.FieldServicePerYear * m.AFRP1 as FieldServiceCostP1
             
               , m.StandardHandling
               , m.HighAvailabilityHandling

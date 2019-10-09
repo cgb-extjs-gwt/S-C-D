@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 
-namespace Gdc.Scd.Export.CdCs.Impl
+namespace Gdc.Scd.Export.CdCs
 {
     public class ConfigHandler
     {
@@ -23,7 +23,9 @@ namespace Gdc.Scd.Export.CdCs.Impl
         {
             var configuration = this._repository.GetAll().Include(x => x.Country).Include(x => x.Country.Currency);
             if (configuration == null)
+            {
                 throw new ConfigurationErrorsException($"Configuration error: Config doesn't exist in the database");
+            }
             return configuration.ToList();
         }
     }

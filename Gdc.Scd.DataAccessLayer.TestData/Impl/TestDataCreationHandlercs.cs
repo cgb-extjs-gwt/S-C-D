@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Gdc.Scd.Core.Constants;
+﻿using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Enums;
@@ -18,6 +12,12 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -44,6 +44,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         public void Handle()
         {
             this.CreateCentralContractGroup();
+            this.CreateCompanies();
             this.CreatePlas();
             this.CreateServiceLocations();
             this.CreateUserAndRoles();
@@ -120,6 +121,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateCompanies()
+        {
+            var repository = this.repositorySet.GetRepository<Company>();
+
+            repository.Save(new Company[]
+            {
+                new Company { Name = "Fujitsu FBTA" },
+                new Company { Name = "Fujitsu Group Companies FGC" }
+            });
+
+            this.repositorySet.Sync();
         }
 
         private void CreateDurationAvailability()
@@ -673,6 +687,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreatePlas()
         {
             var repository = this.repositorySet.GetRepository<CentralContractGroup>();
+            var companyRepo = this.repositorySet.GetRepository<Company>();
+
+            var fuj = companyRepo.GetAll().First(c => c.Name == "Fujitsu FBTA").Id;
+            var fujGroup = companyRepo.GetAll().First(c => c.Name == "Fujitsu Group Companies FGC").Id;
 
             var na = repository.GetAll().First(c => c.Code == "NA").Id;
             var centricStor = repository.GetAll().First(c => c.Code == "CG350").Id;
@@ -706,7 +724,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "DESKTOP AND WORKSTATION",
                     CodingPattern = "SME",
-
+                    CompanyId = fuj,
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -859,6 +877,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "NOTEBOOK AND TABLET",
                     CodingPattern = "PSBM",
+                    CompanyId = fuj,
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -949,6 +968,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "PERIPHERALS",
                     CodingPattern = "PSMO",
+                    CompanyId = fuj,
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -1041,7 +1061,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                    new Pla { Name = "RETAIL PRODUCTS", CodingPattern = "RETA"}
+                    new Pla { Name = "RETAIL PRODUCTS", CodingPattern = "RETA", CompanyId = fuj }
                 }},
                 new ClusterPla { Name = "STORAGE", Plas = new List<Pla>
                 {
@@ -1049,6 +1069,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "STORAGE PRODUCTS",
                     CodingPattern = "STOR",
+                    CompanyId = fujGroup,
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -1620,6 +1641,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "X86 / IA SERVER",
                     CodingPattern = "SSHI",
+                    CompanyId = fujGroup,
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -2082,7 +2104,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                    new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" }
+                    new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX", CompanyId = fujGroup }
                 } }
             };
 
@@ -2091,8 +2113,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var plas = new Pla[]
             {
-                new Pla { Name = "EPS MAINFRAME PRODUCTS", CodingPattern = "EPSM"},
-                new Pla { Name = "UNASSIGNED", CodingPattern = "ZZZZ"}
+                new Pla { Name = "EPS MAINFRAME PRODUCTS", CodingPattern = "EPSM", CompanyId = fujGroup },
+                new Pla { Name = "UNASSIGNED", CodingPattern = "ZZZZ", CompanyId = fujGroup }
             };
             this.repositorySet.GetRepository<Pla>().Save(plas);
             this.repositorySet.Sync();

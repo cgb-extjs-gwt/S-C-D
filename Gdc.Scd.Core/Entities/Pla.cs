@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Gdc.Scd.Core.Attributes;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
@@ -15,6 +16,11 @@ namespace Gdc.Scd.Core.Entities
         }
 
         public string CodingPattern { get; set; }
+
+        [MustUpdateCoordinate(MetaConstants.CompanyInputLevelName)]
+        public long CompanyId { get; set; }
+        public Company Company { get; set; }
+
         public List<Wg> WarrantyGroups { get; set; }
     }
 }
