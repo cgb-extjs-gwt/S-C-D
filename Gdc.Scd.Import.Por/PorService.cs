@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
@@ -16,50 +15,47 @@ using System.Linq;
 
 namespace Gdc.Scd.Import.Por
 {
-    public static class PorService
+    public class PorService
     {
-        public static IDataImporter<SCD2_ServiceOfferingGroups> SogImporter { get; private set; }
-        public static ILogger Logger { get; private set; }
-        public static IDataImporter<SCD2_WarrantyGroups> WgImporter { get; private set; }
-        public static IDataImporter<SCD2_SW_Overview> SoftwareImporter { get; private set; }
-        public static IDataImporter<SCD2_v_SAR_new_codes> FspCodesImporter { get; private set; }
-        public static IDataImporter<SCD2_LUT_TSP> LutCodesImporter { get; private set; }
-        public static IDataImporter<SCD2_SWR_Level> SwProActiveImporter { get; private set; }
-        public static DomainService<Pla> PlaService { get; private set; }
-        public static DomainService<ServiceLocation> LocationService { get; private set; }
-        public static DomainService<ReactionType> ReactionTypeService { get; private set; }
-        public static DomainService<ReactionTime> ReactionTimeService { get; private set; }
-        public static DomainService<Availability> AvailabilityService { get; private set; }
-        public static DomainService<Duration> DurationService { get; private set; }
-        public static DomainService<ProActiveSla> ProactiveService { get; private set; }
-        public static DomainService<Country> CountryService { get; private set; }
-        public static DomainService<CountryGroup> CountryGroupService { get; private set; }
-        public static ImportService<SFab> SFabDomainService { get; private set; }
-        public static ImportService<Sog> SogDomainService { get; private set; }
-        public static ImportService<Wg> WgDomainService { get; private set; }
-        public static ImportService<SwDigit> DigitService { get; private set; }
-        public static ImportService<SwLicense> LicenseService { get; private set; }
-        public static DomainService<ProActiveDigit> ProActiveDigitService { get; set; }
-        public static DomainService<SwSpMaintenance> SwSpMaintenanceDomainService { get; set; }
-        public static IPorSogService SogService { get; private set; }
-        public static IPorWgService WgService { get; private set; }
-        public static IPorSwDigitService SwDigitService { get; private set; }
-        public static IPorSwSpMaintenaceService SwSpMaintenanceService { get; private set; }
-        public static IPorSwLicenseService SwLicenseService { get; private set; }
-        public static IPorSwDigitLicenseService SwLicenseDigitService { get; private set; }
-        public static IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; private set; }
-        public static IHwFspCodeTranslationService<HwHddFspCodeDto> HardwareHddService { get; private set; }
-        public static ISwFspCodeTranslationService SoftwareService { get; private set; }
-        public static IPorSwProActiveService SoftwareProactiveService { get; private set; }
-        public static ICostBlockService CostBlockService { get; private set; }
-        public static List<UpdateQueryOption> UpdateQueryOptions { get; private set; }
+        private ILogger Logger;
 
-        static PorService()
+        public IDataImporter<SCD2_ServiceOfferingGroups> SogImporter { get; }
+        public IDataImporter<SCD2_WarrantyGroups> WgImporter { get; }
+        public IDataImporter<SCD2_SW_Overview> SoftwareImporter { get; }
+        public IDataImporter<SCD2_v_SAR_new_codes> FspCodesImporter { get; }
+        public IDataImporter<SCD2_LUT_TSP> LutCodesImporter { get; }
+        public IDataImporter<SCD2_SWR_Level> SwProActiveImporter { get; }
+        public DomainService<Pla> PlaService { get; }
+        public DomainService<ServiceLocation> LocationService { get; }
+        public DomainService<ReactionType> ReactionTypeService { get; }
+        public DomainService<ReactionTime> ReactionTimeService { get; }
+        public DomainService<Availability> AvailabilityService { get; }
+        public DomainService<Duration> DurationService { get; }
+        public DomainService<ProActiveSla> ProactiveService { get; }
+        public DomainService<Country> CountryService { get; }
+        public DomainService<CountryGroup> CountryGroupService { get; }
+        public ImportService<SFab> SFabDomainService { get; }
+        public ImportService<Sog> SogDomainService { get; }
+        public ImportService<Wg> WgDomainService { get; }
+        public ImportService<SwDigit> DigitService { get; }
+        public ImportService<SwLicense> LicenseService { get; }
+        public DomainService<ProActiveDigit> ProActiveDigitService { get; }
+        public DomainService<SwSpMaintenance> SwSpMaintenanceDomainService { get; }
+        public IPorSogService SogService { get; }
+        public IPorWgService WgService { get; }
+        public IPorSwDigitService SwDigitService { get; }
+        public IPorSwSpMaintenaceService SwSpMaintenanceService { get; }
+        public IPorSwLicenseService SwLicenseService { get; }
+        public IPorSwDigitLicenseService SwLicenseDigitService { get; }
+        public IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; }
+        public IHwFspCodeTranslationService<HwHddFspCodeDto> HardwareHddService { get; }
+        public ISwFspCodeTranslationService SoftwareService { get; }
+        public IPorSwProActiveService SoftwareProactiveService { get; }
+        public ICostBlockService CostBlockService { get; }
+        public List<UpdateQueryOption> UpdateQueryOptions { get; }
+
+        public PorService(IKernel kernel)
         {
-            NinjectExt.IsConsoleApplication = true;
-            IKernel kernel = CreateKernel();
-
-            //
             Logger = kernel.Get<ILogger>();
             SogImporter = kernel.Get<IDataImporter<SCD2_ServiceOfferingGroups>>();
             WgImporter = kernel.Get<IDataImporter<SCD2_WarrantyGroups>>();
@@ -105,7 +101,7 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static void UploadSogs(List<Pla> plas, int step,
+        public virtual void UploadSogs(List<Pla> plas, int step,
             List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes, string solutionIdentifier)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
@@ -117,7 +113,7 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static void UploadWgs(List<Pla> plas, int step,
+        public virtual void UploadWgs(List<Pla> plas, int step,
             List<Sog> sogs, List<SCD2_WarrantyGroups> wgs, string[] softwareServiceTypes)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
@@ -128,7 +124,7 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static bool UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs,
+        public virtual bool UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs,
             SwHelperModel swInfo,
             int step)
         {
@@ -143,7 +139,7 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static bool UploadSoftwareLicense(List<SCD2_SW_Overview> swLicensesInfo, int step)
+        public virtual bool UploadSoftwareLicense(List<SCD2_SW_Overview> swLicensesInfo, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwLicense));
             var success = SwLicenseService.UploadSwLicense(swLicensesInfo, DateTime.Now, UpdateQueryOptions);
@@ -156,7 +152,7 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public static void RebuildSoftwareInfo(List<SwDigit> digits, IEnumerable<SCD2_SW_Overview> swInfodigits, int step)
+        public virtual void RebuildSoftwareInfo(List<SwDigit> digits, IEnumerable<SCD2_SW_Overview> swInfodigits, int step)
         {
             Logger.Info(ImportConstantMessages.REBUILD_RELATIONSHIPS_START, step, nameof(SwDigit), nameof(SwLicense));
             var licenses = LicenseService.GetAllActive().ToList();
@@ -168,7 +164,7 @@ namespace Gdc.Scd.Import.Por
             Logger.Info(ImportConstantMessages.REBUILD_RELATIONSHIPS_END, step);
         }
 
-        public static void UploadHwFspCodes(HwFspCodeDto model, int step)
+        public virtual void UploadHwFspCodes(HwFspCodeDto model, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(TempHwFspCodeTranslation));
 
@@ -184,12 +180,12 @@ namespace Gdc.Scd.Import.Por
             };
 
             var uploadHddSuccess = HardwareHddService.UploadHardware(hwHddDto);
-            success =  uploadHddSuccess && success;
+            success = uploadHddSuccess && success;
 
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
         }
 
-        public static bool UploadSwProactiveInfo(SwProActiveDto model, int step)
+        public virtual bool UploadSwProactiveInfo(SwProActiveDto model, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, "Software Proactive Info");
             var success = SoftwareProactiveService.UploadSwProactiveInfo(model);
@@ -197,7 +193,7 @@ namespace Gdc.Scd.Import.Por
             return success;
         }
 
-        public static void UploadSwFspCodes(SwFspCodeDto model, int step)
+        public virtual void UploadSwFspCodes(SwFspCodeDto model, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwFspCodeTranslation));
 
@@ -206,7 +202,7 @@ namespace Gdc.Scd.Import.Por
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
         }
 
-        public static void UpdateCostBlocks(int step, IEnumerable<UpdateQueryOption> updateOptions)
+        public virtual void UpdateCostBlocks(int step, IEnumerable<UpdateQueryOption> updateOptions)
         {
             try
             {
@@ -220,13 +216,13 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
-        public static void Update2ndLevelSupportCosts(int step)
+        public virtual void Update2ndLevelSupportCosts(int step)
         {
             try
             {
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_START, step);
 
-                SwSpMaintenanceService.Update2ndLevelSupportCosts(DigitService.GetAllActive(), SwSpMaintenanceDomainService.GetAll());
+                SwSpMaintenanceService.Update2ndLevelSupportCosts(DigitService.GetAllActive().ToList(), SwSpMaintenanceDomainService.GetAll().ToList());
 
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_END);
             }
@@ -236,13 +232,35 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
-        private static StandardKernel CreateKernel()
+        /// <summary>
+        /// Fill SLA Dictionary
+        /// </summary>
+        /// <returns></returns>
+        public virtual SlaDictsDto FillSlasDictionaries()
         {
-            return new StandardKernel(
-                new Scd.Core.Module(),
-                new DataAccessLayer.Module { IsPorImport = true },
-                new BusinessLogicLayer.Module(),
-                new Module());
+            var locationServiceValues = this.LocationService.GetAll().ToList();
+            var reactionTypeValues = this.ReactionTypeService.GetAll().ToList();
+            var reactonTimeValues = this.ReactionTimeService.GetAll().ToList();
+            var availabilityValues = this.AvailabilityService.GetAll().ToList();
+            var durationValues = this.DurationService.GetAll().ToList();
+            var proactiveValues = this.ProactiveService.GetAll().ToList();
+
+            var locationDictionary = FormatDataHelper.FillSlaDictionary(locationServiceValues);
+            var reactionTimeDictionary = FormatDataHelper.FillSlaDictionary(reactonTimeValues);
+            var reactionTypeDictionary = FormatDataHelper.FillSlaDictionary(reactionTypeValues);
+            var availabilityDictionary = FormatDataHelper.FillSlaDictionary(availabilityValues);
+            var durationDictionary = FormatDataHelper.FillSlaDictionary(durationValues);
+            var proactiveDictionary = FormatDataHelper.FillSlaDictionary(proactiveValues);
+
+            return new SlaDictsDto
+            {
+                Availability = availabilityDictionary,
+                Duration = durationDictionary,
+                Locations = locationDictionary,
+                ReactionTime = reactionTimeDictionary,
+                ReactionType = reactionTypeDictionary,
+                Proactive = proactiveDictionary
+            };
         }
     }
 }

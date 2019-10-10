@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.Core.Comparators;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -9,6 +10,7 @@ using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Impl;
 using Gdc.Scd.Import.Por.Core.Interfaces;
+using Ninject;
 using Ninject.Modules;
 using NLog;
 using System.Collections.Generic;
@@ -43,6 +45,16 @@ namespace Gdc.Scd.Import.Por
             Bind(typeof(DomainService<>)).ToSelf();
 
             this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+        }
+
+        public static StandardKernel CreateKernel()
+        {
+            NinjectExt.IsConsoleApplication = true;
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new DataAccessLayer.Module { IsPorImport = true },
+                new BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

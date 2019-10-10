@@ -57,10 +57,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             return true;
 
-            bool AllValuesEqual(IEnumerable<double?> values)
-            {
-                return values.Any() && values.All(x => x == values.First());
-            }
+        }
+
+        private bool AllValuesEqual(IEnumerable<double?> values)
+        {
+            return values.Any() && values.All(x => x == values.First());
         }
     }
 }

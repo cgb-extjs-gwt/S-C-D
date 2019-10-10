@@ -12,8 +12,11 @@ namespace Gdc.Scd.Import.Por
     {
         private ILogger log;
 
-        public ImportPor(ILogger log)
+        private PorService PorService;
+
+        public ImportPor(PorService por, ILogger log)
         {
+            this.PorService = por;
             this.log = log;
         }
 
@@ -105,7 +108,7 @@ namespace Gdc.Scd.Import.Por
             var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
                 PorService.CountryGroupService.GetAll().ToList());
 
-            var sla = FormatDataHelper.FillSlasDictionaries();
+            var sla = PorService.FillSlasDictionaries();
 
             var proactiveDictionary = FormatDataHelper.FillSlaDictionary(proActiveValues);
 

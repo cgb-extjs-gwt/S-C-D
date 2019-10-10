@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
-using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Models;
 using System;
 using System.Collections.Generic;
@@ -95,37 +94,5 @@ namespace Gdc.Scd.Import.Por
 
             return result;
         }
-
-        /// <summary>
-        /// Fill SLA Dictionary
-        /// </summary>
-        /// <returns></returns>
-        public static SlaDictsDto FillSlasDictionaries()
-        {
-            var locationServiceValues = PorService.LocationService.GetAll().ToList();
-            var reactionTypeValues = PorService.ReactionTypeService.GetAll().ToList();
-            var reactonTimeValues = PorService.ReactionTimeService.GetAll().ToList();
-            var availabilityValues = PorService.AvailabilityService.GetAll().ToList();
-            var durationValues = PorService.DurationService.GetAll().ToList();
-            var proactiveValues = PorService.ProactiveService.GetAll().ToList();
-
-            var locationDictionary = FillSlaDictionary(locationServiceValues);
-            var reactionTimeDictionary = FillSlaDictionary(reactonTimeValues);
-            var reactionTypeDictionary = FillSlaDictionary(reactionTypeValues);
-            var availabilityDictionary = FillSlaDictionary(availabilityValues);
-            var durationDictionary = FillSlaDictionary(durationValues);
-            var proactiveDictionary = FillSlaDictionary(proactiveValues);
-
-            return new SlaDictsDto
-            {
-                Availability = availabilityDictionary,
-                Duration = durationDictionary,
-                Locations = locationDictionary,
-                ReactionTime = reactionTimeDictionary,
-                ReactionType = reactionTypeDictionary,
-                Proactive = proactiveDictionary
-            };
-        }
-
     }
 }

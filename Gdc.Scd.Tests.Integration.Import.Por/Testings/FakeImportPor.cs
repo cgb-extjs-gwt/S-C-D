@@ -1,5 +1,4 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Import.Por;
+﻿using Gdc.Scd.Import.Por;
 using System;
 
 namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
@@ -8,7 +7,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
     {
         public Exception error;
 
-        public FakeImportPor(ILogger log) : base(log) { }
+        public FakeImportPor() : base(null, null) { }
 
         public override void Run()
         {

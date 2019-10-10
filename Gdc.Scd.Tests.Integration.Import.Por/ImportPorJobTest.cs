@@ -22,7 +22,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             log = null;
             notify = null;
             fakeLogger = new FakeLogger();
-            fakeImport = new FakeImportPor(fakeLogger) { error = null };
+            fakeImport = new FakeImportPor() { error = null };
 
             log = fakeLogger;
             por = fakeImport;

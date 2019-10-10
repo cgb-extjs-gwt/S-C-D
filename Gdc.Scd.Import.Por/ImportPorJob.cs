@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.OperationResult;
+using Ninject;
 using System;
 
 namespace Gdc.Scd.Import.Por
@@ -12,8 +13,10 @@ namespace Gdc.Scd.Import.Por
 
         public ImportPorJob()
         {
-            log = PorService.Logger;
-            por = new ImportPor(log);
+            var kernel = Module.CreateKernel();
+            //
+            log = kernel.Get<ILogger>();
+            por = new ImportPor(new PorService(kernel), log);
         }
 
         /// <summary>
