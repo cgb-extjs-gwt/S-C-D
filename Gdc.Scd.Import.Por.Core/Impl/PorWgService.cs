@@ -4,7 +4,6 @@ using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +13,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 {
     public class PorWgService : ImportService<Wg>, IPorWgService
     {
-        private ILogger<LogLevel> _logger;
+        private ILogger _logger;
 
         public PorWgService(IRepositorySet repositorySet, IEqualityComparer<Wg> comparer,
-            ILogger<LogLevel> logger)
+            ILogger logger)
             : base(repositorySet, comparer)
         {
             if (logger == null)
@@ -32,7 +31,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             try
             {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(Wg));
+                _logger.Info(PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(Wg));
 
                 var porItems = wgs.Select(w => w.Warranty_Group.ToLower()).ToList();
 
@@ -48,30 +47,30 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 {
                     foreach (var deactivateItem in itemsToDeacivate)
                     {
-                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.DEACTIVATED_ENTITY,
+                        _logger.Debug(PorImportLoggingMessage.DEACTIVATED_ENTITY,
                             nameof(Wg), deactivateItem.Name);
                     }
                 }
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_END, itemsToDeacivate.Count);
+                _logger.Info(PorImportLoggingMessage.DEACTIVATE_STEP_END, itemsToDeacivate.Count);
             }
 
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
             }
 
             return result;
         }
 
-        public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs, 
-            IEnumerable<Sog> sogs, 
-            IEnumerable<Pla> plas, DateTime modifiedDateTime, 
+        public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs,
+            IEnumerable<Sog> sogs,
+            IEnumerable<Pla> plas, DateTime modifiedDateTime,
             IEnumerable<string> softwareServiceTypes, List<UpdateQueryOption> updateOptions)
         {
             var result = true;
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
+            _logger.Info(PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
             var updatedWgs = new List<Wg>();
 
             try
@@ -88,14 +87,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                     if (pla == null)
                     {
-                        _logger.Log(LogLevel.Warn,
+                        _logger.Warn(
                                PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Wg)} {porWg.Warranty_Group}", porWg.Warranty_PLA);
                         continue;
                     }
 
                     Sog sog = sogs.FirstOrDefault(wg => wg.Name.Equals(porWg.SOG, StringComparison.OrdinalIgnoreCase));
                     if (sog == null && !String.IsNullOrEmpty(porWg.SOG))
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.SOG_NOT_EXISTS, porWg.SOG);
+                        _logger.Warn(PorImportLoggingMessage.SOG_NOT_EXISTS, porWg.SOG);
 
                     updatedWgs.Add(new Wg
                     {
@@ -120,16 +119,16 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var addedEntity in added)
                 {
-                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                    _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                         nameof(Wg), addedEntity.Name);
                 }
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, added.Count);
+                _logger.Info(PorImportLoggingMessage.ADD_STEP_END, added.Count);
             }
 
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
             }
 
