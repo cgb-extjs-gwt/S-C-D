@@ -143,6 +143,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         message: 'No Selection'
     };
 
+    private pluginCfg: any;
+
     public constructor(props: CalcCostProps) {
         super(props);
         this.init();
@@ -171,7 +173,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                 <Panel {...this.props} docked="right" scrollable={true} >
                     <HwCostFilter
-                        ref={x => this.filter = x}
+                        ref={this.filterRef}
                         onChange={this.onFilterChange}
                         checkAccess={!this.props.approved} />
 
@@ -184,10 +186,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 </Panel>
 
                 <Grid
-                    ref={x => this.grid = x}
+                    ref={this.gridRef}
                     store={this.store}
                     width="100%"
-                    platformConfig={this.pluginConf()}
+                    platformConfig={this.pluginCfg}
                     onSelectionChange={this.onSelectionChange}
                     selectable={{
                         extensible,
@@ -281,6 +283,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             </Container>
         );
     }
+
+    private filterRef = (x) => {
+        this.filter = x;
+    }
+
+    private gridRef = (x) => {
+        this.grid = x;
+    }
+
     toggleSelectable = field => {
         this.setState({
             selectable: { ...this.state.selectable, [field]: !this.state.selectable[field] }
@@ -290,6 +301,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     setExtensible = extensible => {
         this.setState({ extensible });
     };
+
     private onSelectionChange = (grid, records, selecting, selection) => {
         let message = '??',
             firstRowIndex,
@@ -331,6 +343,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         this.store.on('beforeload', this.onBeforeLoad, this);
         this.store.on('load', this.onLoad, this);
+        //
+        if (this.approved()) { //using CanEdit() does not work cause await http request
+            this.pluginCfg = this.editPluginConf();
+        } else {
+            this.pluginCfg = this.readPluginConf();
+        }
     }
 
     private toggleToolbar(disable: boolean) {
@@ -374,8 +392,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             });
             handleRequest(p);
         });
-
-
     }
 
     private releaseAll() {
@@ -448,37 +464,62 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.grid.refresh();
     }
 
-    private pluginConf(): any {
-        let cfg: any = {
+    private readPluginConf() {
+        let clipboardCfg = {
+            formats: {
+                text: { put: 'noPut' }
+            },
+            noPut: function () { }
+        };
+        return {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: true
+                    clipboard: clipboardCfg
                 }
             },
             '!desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: true
+                    clipboard: clipboardCfg
                 }
             }
         };
+    }
 
-        if (this.approved()) {
-            cfg['!desktop'].plugins.grideditable = true;
-            const desktop = cfg['desktop'];
-            desktop.plugins.gridcellediting = true;
-            desktop.plugins.selectionreplicator = true;
-            desktop.selectable = {
-                cells: true,
-                rows: true,
-                columns: false,
-                drag: true,
-                extensible: 'y'
-            };
-        }
-
-        return cfg;
+    private editPluginConf() {
+        let cb = {
+            formats: {
+                text: {
+                    get: 'getTextData',
+                    put: 'putTextData'
+                }
+            }
+        };
+        return {
+            'desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    gridcellediting: true,
+                    selectionreplicator: true,
+                    clipboard: cb
+                },
+                selectable: {
+                    cells: true,
+                    rows: true,
+                    columns: false,
+                    drag: true,
+                    extensible: 'y'
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: cb,
+                    grideditable: true
+                }
+            }
+        };
     }
 
     private approved() {
