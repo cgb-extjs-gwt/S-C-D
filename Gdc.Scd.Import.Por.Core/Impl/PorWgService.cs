@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
     public class PorWgService : ImportService<Wg>, IPorWgService
