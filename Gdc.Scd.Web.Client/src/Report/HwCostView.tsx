@@ -136,28 +136,51 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             },
             paramsAsJson: true
         },
+
+        fixOrUndo: (canEdit: boolean, record, modifiedFieldNames: string[], field) => {
+
+            if (!modifiedFieldNames || modifiedFieldNames.indexOf(field) === -1) {
+                return; //no changes
+            }
+
+            if (canEdit) {
+                setFloatOrEmpty(record, field);
+            }
+            else {
+                record.set(field, record.previousValues[field], { dirty: false });
+            }
+
+        },
         listeners: {
             update: (store, record, operation, modifiedFieldNames: string[], details) => {
+
+                store.suspendEvents(false);
+
+                let canEditTC = this.canEditTC();
+                let canEditListPrice = this.canEditListPrice();
+
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ServiceTCManual');
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ServiceTPManual');
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'LocalServiceStandardWarrantyManual');
+
+                store.fixOrUndo(canEditListPrice, record, modifiedFieldNames, 'ListPrice');
+                store.fixOrUndo(canEditListPrice, record, modifiedFieldNames, 'DealerDiscount');
 
                 if (modifiedFieldNames && modifiedFieldNames.indexOf('LocalServiceStandardWarrantyManual') !== -1) {
                     this.updateStdw(store, record);
                 }
 
-                const changed = this.store.getUpdatedRecords().length;
+                store.resumeEvents();
+
                 if (modifiedFieldNames && modifiedFieldNames.length > 0 && modifiedFieldNames[0] == SELECTED_FIELD) {
                     this.onCheckChange();
                 }
                 else {
+                    const changed = this.store.getUpdatedRecords().length;
                     this.toggleToolbar(changed == 0);
                 }
 
-                store.suspendEvents(false);
-                setFloatOrEmpty(record, 'ServiceTCManual');
-                setFloatOrEmpty(record, 'ServiceTPManual');
-                setFloatOrEmpty(record, 'ListPrice');
-                setFloatOrEmpty(record, 'DealerDiscount');
-                setFloatOrEmpty(record, 'LocalServiceStandardWarrantyManual');
-                store.resumeEvents();
+                this.grid.refresh();
             }
         }
     });
@@ -204,32 +227,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
         else {
             moneyRndr = this.euroMoneyRenderer;
-        }
-
-        let ServiceTCManual;
-        let ServiceTPManual;
-        let ListPrice;
-        let DealerDiscount;
-        let LocalServiceStandardWarrantyManual;
-
-        if (canEditTC) {
-            ServiceTCManual = 'ServiceTCManual';
-            ServiceTPManual = 'ServiceTPManual';
-            LocalServiceStandardWarrantyManual = 'LocalServiceStandardWarrantyManual';
-        }
-        else {
-            ServiceTCManual = 'roServiceTCManual';
-            ServiceTPManual = 'roServiceTPManual';
-            LocalServiceStandardWarrantyManual = 'roLocalServiceStandardWarrantyManual';
-        }
-
-        if (canEditListPrice) {
-            ListPrice = 'ListPrice';
-            DealerDiscount = 'DealerDiscount';
-        }
-        else {
-            ListPrice = 'roListPrice';
-            DealerDiscount = 'roDealerDiscount';
         }
 
         return (
@@ -296,14 +293,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="roServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex={ServiceTCManual} editable={canEditTC} />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
                         <NumberColumn text="Service TP(calc)" dataIndex="roServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex={ServiceTPManual} editable={canEditTC} />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(released)" dataIndex="roServiceTP_Released" />
 
-                        <NumberColumn text="List price" dataIndex={ListPrice} editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount in %" dataIndex={DealerDiscount} editable={canEditListPrice} renderer={percentRenderer} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
+                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
@@ -311,7 +308,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
                         <NumberColumn text="Local service standard warranty(calc)" dataIndex="roLocalServiceStandardWarranty" />
-                        <NumberColumn text="Local service standard warranty(manual)" dataIndex={LocalServiceStandardWarrantyManual} editable={canEditTC} />
+                        <NumberColumn text="Local service standard warranty(manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
                         <NumberColumn text="Credits" dataIndex="roCredits" />
 
                     </Column>
@@ -364,7 +361,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     setExtensible = extensible => {
         this.setState({ extensible });
     };
-
     private onSelectionChange = (grid, records, selecting, selection) => {
         let message = '??',
             firstRowIndex,
@@ -593,7 +589,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEditListPrice(): boolean {
-        let result: boolean = this.approved();
+        let result: boolean = this.approved() && this.state.showInLocalCurrency;
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canStoreListAndDealerPrices;
@@ -602,7 +598,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEditTC(): boolean {
-        let result: boolean = this.approved();
+        let result: boolean = this.approved() && this.state.showInLocalCurrency;
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canOverrideTransferCostAndPrice;
@@ -666,10 +662,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let items = store.getData();
         let cnt = record.get('Country');
         let wg = record.get('Wg');
+        let stdw = record.get('LocalServiceStandardWarrantyManual');
         for (let i = 0, len = items.count(); i < len; i++) {
             let row = items.getAt(i);
             if (row.get('Country') === cnt && row.get('Wg') === wg) {
-                row.set('LocalServiceStandardWarrantyManual', record.get('LocalServiceStandardWarrantyManual'));
+                row.set('LocalServiceStandardWarrantyManual', stdw);
             }
         }
     }
