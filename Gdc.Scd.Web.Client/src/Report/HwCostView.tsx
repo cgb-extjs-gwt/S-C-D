@@ -498,10 +498,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         filter.approved = this.props.approved;
         operation.setParams(filter);
 
-        const srv = new UserCountryService();
-        let cntId = 0;
         if (this.state && this.state.selectedCountry) {
-            cntId = this.state.selectedCountry.id;
+            const srv = new UserCountryService();
+            let cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
                 this.setState({
                     hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton,
