@@ -17,7 +17,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
 
         public override void Send(Stream data, CdCsConfiguration config)
         {
-            ExcelWriterTest.Save(data, $"cd_cs_doc_{config.Country.Name}.xlsm");
+            ExcelWriterTest.Save(data, $"cd_cs_doc_{config.Country.Name}.xlsx");
         }
     }
 }
