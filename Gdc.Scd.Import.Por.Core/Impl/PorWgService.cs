@@ -8,6 +8,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Import.Por.Core.Dto;
 
 
 namespace Gdc.Scd.Import.Por.Core.Impl
@@ -26,7 +27,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             _logger = logger;
         }
 
-        public bool DeactivateWgs(IEnumerable<SCD2_WarrantyGroups> wgs, DateTime modifiedDatetime)
+        public bool DeactivateWgs(IEnumerable<WgPorDto> wgs, DateTime modifiedDatetime)
         {
             var result = true;
 
@@ -34,13 +35,15 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(Wg));
 
-                var porItems = wgs.Select(w => w.Warranty_Group.ToLower()).ToList();
+                var porItems = wgs.Select(w => w.Name.ToLower()).ToList();
 
                 //select all that is not coming from POR and was not already deactivated in SCD and also either does not
                 //exists in Logistic DB or was already deactivated there
                 var itemsToDeacivate = this.GetAll()
-                                          .Where(w => w.WgType == Scd.Core.Enums.WgType.Por && !porItems.Contains(w.Name.ToLower())
-                                                    && !w.DeactivatedDateTime.HasValue && (!w.ExistsInLogisticsDb || w.IsDeactivatedInLogistic)).ToList();
+                                          .Where(w => w.WgType == Scd.Core.Enums.WgType.Por && 
+                                                      !porItems.Contains(w.Name.ToLower())
+                                                    && !w.DeactivatedDateTime.HasValue 
+                                                    && (!w.ExistsInLogisticsDb || w.IsDeactivatedInLogistic)).ToList();
 
                 var deactivated = this.Deactivate(itemsToDeacivate, modifiedDatetime);
 
@@ -65,10 +68,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             return result;
         }
 
-        public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs, 
+        public bool UploadWgs(IEnumerable<WgPorDto> wgs, 
             IEnumerable<Sog> sogs, 
             IEnumerable<Pla> plas, DateTime modifiedDateTime, 
-            IEnumerable<string> softwareServiceTypes, List<UpdateQueryOption> updateOptions)
+            List<UpdateQueryOption> updateOptions)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
@@ -84,24 +87,24 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var porWg in wgs)
                 {
-                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porWg.Warranty_PLA, StringComparison.OrdinalIgnoreCase));
+                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porWg.Pla, StringComparison.OrdinalIgnoreCase));
 
                     if (pla == null)
                     {
                         _logger.Log(LogLevel.Warn,
-                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Wg)} {porWg.Warranty_Group}", porWg.Warranty_PLA);
+                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Wg)} {porWg.Name}", porWg.Pla);
                         continue;
                     }
 
-                    Sog sog = sogs.FirstOrDefault(wg => wg.Name.Equals(porWg.SOG, StringComparison.OrdinalIgnoreCase));
-                    if (sog == null && !String.IsNullOrEmpty(porWg.SOG))
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.SOG_NOT_EXISTS, porWg.SOG);
+                    Sog sog = sogs.FirstOrDefault(wg => wg.Name.Equals(porWg.Sog, StringComparison.OrdinalIgnoreCase));
+                    if (sog == null && !String.IsNullOrEmpty(porWg.Sog))
+                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.SOG_NOT_EXISTS, porWg.Sog);
 
-                    updatedWgs.Add(new Wg
+                    var newWg = new Wg
                     {
                         Alignment = porWg.Alignment,
-                        Description = porWg.Warranty_Group_Name,
-                        Name = porWg.Warranty_Group,
+                        Description = porWg.Description,
+                        Name = porWg.Name,
                         PlaId = pla.Id,
                         SogId = sog?.Id,
                         CentralContractGroupId = defaultCentralContractGroup?.Id,
@@ -111,9 +114,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         ExistsInLogisticsDb = false,
                         IsDeactivatedInLogistic = false,
                         SCD_ServiceType = porWg.SCD_ServiceType,
-                        IsSoftware = ImportHelper.IsSoftware(porWg.SCD_ServiceType, softwareServiceTypes),
+                        IsSoftware = porWg.IsSoftware,
                         CompanyId = pla.CompanyId
-                    });
+                    };
+
+                    updatedWgs.Add(newWg);
                 }
 
                 var added = this.AddOrActivate(updatedWgs, modifiedDateTime, updateOptions);

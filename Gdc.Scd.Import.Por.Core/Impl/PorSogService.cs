@@ -3,6 +3,7 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using NLog;
 using System;
@@ -26,7 +27,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
 
-        public bool DeactivateSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, DateTime modifiedDatetime)
+        public bool DeactivateSogs(IEnumerable<SogPorDto> sogs, DateTime modifiedDatetime)
         {
             var result = true;
 
@@ -34,7 +35,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(Sog));
 
-                var porItems = sogs.Select(s => s.Service_Offering_Group.ToLower()).ToList();
+                var porItems = sogs.Select(s => s.Name.ToLower()).ToList();
 
                 //select all that is not coming from POR and was not already deactivated in SCD
                 var itemsToDeacivate = this.GetAll()
@@ -64,11 +65,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             return result;
         }
 
-        public bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
+        public bool UploadSogs(IEnumerable<SogPorDto> sogs, 
             IEnumerable<Pla> plas,
-            DateTime modifiedDateTime, 
-            IEnumerable<string> softwareServiceTypes, 
-            List<UpdateQueryOption> updateOptions, string solutionIdentifier)
+            DateTime modifiedDateTime,  
+            List<UpdateQueryOption> updateOptions)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Sog));
@@ -81,28 +81,29 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var porSog in sogs)
                 {
-                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porSog.SOG_PLA, StringComparison.OrdinalIgnoreCase));
+                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porSog.Pla, StringComparison.OrdinalIgnoreCase));
 
                     if (pla == null)
                     {
                         _logger.Log(LogLevel.Warn,
-                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Sog)} {porSog.Service_Offering_Group}", porSog.SOG_PLA);
+                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Sog)} {porSog.Name}", porSog.Pla);
                         continue;
                     }
 
-                    updatedSogs.Add(new Sog
+                    var newSog = new Sog
                     {
                         Alignment = porSog.Alignment,
-                        Description = porSog.Service_Offering_Group_Name,
-                        Name = porSog.Service_Offering_Group,
+                        Description = porSog.Description,
+                        Name = porSog.Name,
                         PlaId = pla.Id,
                         FabGrp = porSog.FabGrp,
                         SCD_ServiceType = porSog.SCD_ServiceType,
                         SFabId = defaultSFab?.Id,
-                        IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes),
-                        IsSolution = ImportHelper.IsSolution(porSog.Service_Types, solutionIdentifier),
-                        ServiceTypes = porSog.Service_Types
-                    });
+                        IsSoftware = porSog.IsSoftware,
+                        IsSolution = porSog.IsSolution
+                    };
+
+                    updatedSogs.Add(newSog);
                 }
 
                 var added = this.AddOrActivate(updatedSogs, modifiedDateTime, updateOptions);
