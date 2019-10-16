@@ -120,9 +120,6 @@
     <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-hw.sql" Link="Scripts\calculation-hw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Scripts\CD_CS\cd-cs-hdd-retention.sql" />
     <EmbeddedResource Include="Scripts\CD_CS\cd-cs-proactive.sql" />
     <EmbeddedResource Include="Scripts\CD_CS\cd-cs-servicecosts.sql" />
