@@ -19,9 +19,9 @@ namespace Gdc.Scd.Import.Por.Core.Dto
         public string SCD_ServiceType { get; set; }
         public bool IsSoftware { get; set; }
         public bool ActivePorFlag { get; set; }
+        public string ServiceTypes { get; set; }
 
-        public WgPorDto(SCD2_WarrantyGroups porWg, IEnumerable<string> softwareTypes,
-            string[] exceptionalHardwareWgs)
+        public WgPorDto(SCD2_WarrantyGroups porWg)
         {
             Alignment = porWg.Alignment;
             Description = porWg.Warranty_Group_Name;
@@ -29,10 +29,10 @@ namespace Gdc.Scd.Import.Por.Core.Dto
             Pla = porWg.Warranty_PLA;
             Sog = porWg.SOG;
             FabGrp = porWg.FabGrp;
+            ServiceTypes = porWg.Service_Types;
             SCD_ServiceType = porWg.SCD_ServiceType;
             ActivePorFlag = porWg.Active_Flag == "1";
-            IsSoftware = !exceptionalHardwareWgs.Contains(porWg.Warranty_Group, StringComparer.OrdinalIgnoreCase)
-                         && ImportHelper.IsSoftware(porWg.SCD_ServiceType, softwareTypes,
+            IsSoftware = ImportHelper.IsSoftware(porWg.Service_Types,
                 porWg.Alignment);
         }
     }

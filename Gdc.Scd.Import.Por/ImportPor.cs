@@ -28,7 +28,6 @@ namespace Gdc.Scd.Import.Por
             var allowedServiceTypes = Config.AllServiceTypes;
             var hddServiceTypes = Config.HddServiceType;
             var solutionIdentifier = Config.SolutionIdentifier;
-            var exceptionalHardwareWgs = Config.ExceptionalHardwareWgs;
 
             log.Info("Reading configuration is completed.");
 
@@ -55,7 +54,7 @@ namespace Gdc.Scd.Import.Por
 
             foreach (var porSog in porSogs)
             {
-                var sogDto = new SogPorDto(porSog, softwareServiceTypes, solutionIdentifier, exceptionalHardwareWgs);
+                var sogDto = new SogPorDto(porSog, solutionIdentifier);
                 if (!sogDto.IsSoftware || sogDto.IsSoftware && sogDto.ActivePorFlag)
                     sogsToUpload.Add(sogDto);
             }
@@ -71,7 +70,7 @@ namespace Gdc.Scd.Import.Por
 
             foreach (var porWg in porWGs)
             {
-                var wgDto = new WgPorDto(porWg, softwareServiceTypes, exceptionalHardwareWgs);
+                var wgDto = new WgPorDto(porWg);
                 if (!wgDto.IsSoftware || wgDto.IsSoftware && wgDto.ActivePorFlag)
                     wgsToUpload.Add(wgDto);
             }

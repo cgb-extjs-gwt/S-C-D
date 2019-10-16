@@ -115,7 +115,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         IsDeactivatedInLogistic = false,
                         SCD_ServiceType = porWg.SCD_ServiceType,
                         IsSoftware = porWg.IsSoftware,
-                        CompanyId = pla.CompanyId
+                        CompanyId = pla.CompanyId,
+                        ServiceTypes = porWg.ServiceTypes
                     };
 
                     updatedWgs.Add(newWg);

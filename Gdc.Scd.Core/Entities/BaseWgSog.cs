@@ -29,5 +29,8 @@ namespace Gdc.Scd.Core.Entities
 
         [MustCompare(true)]
         public bool IsSoftware { get; set; }
+
+        [MustCompare(true, IsIgnoreCase = true)]
+        public string ServiceTypes { get; set; }
     }
 }

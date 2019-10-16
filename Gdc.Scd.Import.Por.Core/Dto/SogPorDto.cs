@@ -22,9 +22,7 @@ namespace Gdc.Scd.Import.Por.Core.Dto
         public bool ActivePorFlag { get; set; }
 
         public SogPorDto(SCD2_ServiceOfferingGroups porSog, 
-            IEnumerable<string> softwareTypes,
-            string solutionIdentifier,
-            string[] exceptionalHardwareWgs)
+            string solutionIdentifier)
         {
             Alignment = porSog.Alignment;
             Description = porSog.Service_Offering_Group_Name;
@@ -34,8 +32,7 @@ namespace Gdc.Scd.Import.Por.Core.Dto
             SCD_ServiceType = porSog.SCD_ServiceType;
             ServiceTypes = porSog.Service_Types;
             ActivePorFlag = porSog.Active_Flag == "1";
-            IsSoftware = !exceptionalHardwareWgs.Contains(porSog.Service_Offering_Group, StringComparer.OrdinalIgnoreCase) 
-                         && ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareTypes,
+            IsSoftware = ImportHelper.IsSoftware(porSog.Service_Types,
                              porSog.Alignment);
             IsSolution = ImportHelper.IsSolution(porSog.Service_Types, solutionIdentifier);
         }

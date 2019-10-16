@@ -70,16 +70,5 @@ namespace Gdc.Scd.Import.Por
                 .Union(SoftwareSolutionTypes)
                 .Union(HddServiceType)
                 .ToArray();
-
-        public static string[] ExceptionalHardwareWgs
-        {
-            get
-            {
-                if (ConfigurationManager.AppSettings["ExceptionalHardwareWgs"] == null)
-                    return new string[0];
-                return ConfigurationManager.AppSettings["ExceptionalHardwareWgs"]
-                    .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            }
-        }
     }
 }

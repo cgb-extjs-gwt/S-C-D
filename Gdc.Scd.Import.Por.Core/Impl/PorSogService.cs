@@ -100,7 +100,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         SCD_ServiceType = porSog.SCD_ServiceType,
                         SFabId = defaultSFab?.Id,
                         IsSoftware = porSog.IsSoftware,
-                        IsSolution = porSog.IsSolution
+                        IsSolution = porSog.IsSolution,
+                        ServiceTypes = porSog.ServiceTypes
                     };
 
                     updatedSogs.Add(newSog);
