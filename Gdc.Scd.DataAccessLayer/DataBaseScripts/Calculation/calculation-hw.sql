@@ -146,11 +146,6 @@ CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
     INCLUDE ([StandardHandling],[HighAvailabilityHandling],[StandardDelivery],[ExpressDelivery],[TaxiCourierDelivery],[ReturnDeliveryFactory],[StandardHandling_Approved],[HighAvailabilityHandling_Approved],[StandardDelivery_Approved],[ExpressDelivery_Approved],[TaxiCourierDelivery_Approved],[ReturnDeliveryFactory_Approved])
 GO
 
-CREATE NONCLUSTERED INDEX ix_Atom_MarkupOtherCosts
-    ON [Hardware].[MarkupOtherCosts] ([Country],[Wg], ReactionTimeTypeAvailability)
-    INCLUDE (MarkupFactor, MarkupFactor_Approved, Markup, Markup_Approved)
-GO
-
 CREATE NONCLUSTERED INDEX [ix_MarkupStandardWaranty_Country_Wg] ON [Hardware].[MarkupStandardWaranty]
 (
 	[Country] ASC,
@@ -1535,8 +1530,18 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
 GO
 
 alter table Hardware.MarkupOtherCosts
-    add MarkupFactor_norm          as (MarkupFactor / 100)
-      , MarkupFactor_norm_Approved as (MarkupFactor_Approved / 100)
+    add
+      [ProlongationMarkup]                float    
+    , [ProlongationMarkup_Approved]       float
+    , [ProlongationMarkupFactor]          float
+    , [ProlongationMarkupFactor_Approved] float
+
+    , [MarkupFactor_norm]  AS ([MarkupFactor]/(100)) PERSISTED
+    , [MarkupFactor_norm_Approved]  AS ([MarkupFactor_Approved]/(100)) PERSISTED
+    , [ProlongationMarkupFactor_norm]  AS ([ProlongationMarkupFactor]/(100)) PERSISTED
+    , [ProlongationMarkupFactor_norm_Approved]  AS ([ProlongationMarkupFactor_Approved]/(100)) PERSISTED
+
+    , Deactivated as cast(case when DeactivatedDateTime is null then 0 else 1 end as bit) PERSISTED not null;
 go
 
 alter table Hardware.MarkupStandardWaranty
