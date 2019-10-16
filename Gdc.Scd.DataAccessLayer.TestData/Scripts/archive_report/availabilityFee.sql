@@ -28,7 +28,7 @@ begin
     join Archive.GetCountries() c on c.id = fee.Country
     join Archive.GetWg(0) wg on wg.id = fee.Wg
 
-    where fee.DeactivatedDateTime is null
+    where fee.Deactivated = 0
 
     order by c.Name, wg.Name
 end

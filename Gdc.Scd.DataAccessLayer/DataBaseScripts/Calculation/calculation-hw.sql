@@ -308,7 +308,7 @@ RETURNS @tbl TABLE (
          , Duration                 bigint
          , ReactionTimeAvailability bigint
          , Cost                     float
-         , PRIMARY KEY (Wg, Duration, ReactionTimeAvailability)
+         , PRIMARY KEY CLUSTERED (Wg, Duration, ReactionTimeAvailability)
     )
 AS
 BEGIN
@@ -1052,7 +1052,7 @@ After INSERT, UPDATE
 AS BEGIN
 
     exec Hardware.UpdateAvailabilityFee;
-
+    exec Hardware.spUpdateReinsuranceCalc;
 END
 go
 
