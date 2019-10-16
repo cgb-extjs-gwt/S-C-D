@@ -2,7 +2,7 @@
   DROP FUNCTION SoftwareSolution.GetProActivePaging;
 go 
 
-CREATE FUNCTION SoftwareSolution.GetProActivePaging (
+CREATE FUNCTION [SoftwareSolution].[GetProActivePaging] (
      @approved bit,
      @cnt dbo.ListID readonly,
      @digit dbo.ListID readonly,
@@ -97,7 +97,8 @@ BEGIN
                     FROM SoftwareSolution.ProActiveSw pro
                     LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
 
-				    WHERE (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+				    WHERE pro.Deactivated = 0
+                    and (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 				    AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
 					AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 
@@ -147,7 +148,8 @@ BEGIN
                 FROM SoftwareSolution.ProActiveSw pro
                 LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
 
-				WHERE (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+				WHERE pro.Deactivated = 0
+                and (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 				AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
 				AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 
@@ -155,4 +157,4 @@ BEGIN
 
     RETURN;
 END
-GO
+go
