@@ -2,7 +2,7 @@
     drop function Report.GetReinsuranceYear;
 go
 
-create function Report.GetReinsuranceYear(@approved bit)
+create function [Report].[GetReinsuranceYear](@approved bit)
 returns @tbl table (
     [Wg] [bigint] NOT NULL PRIMARY KEY,
     [ReinsuranceFlatfee1] [float] NULL,
@@ -58,7 +58,7 @@ begin
             left join @exchange_rate er on er.CurrencyId = r.CurrencyReinsurance
 
             where   r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
-                and r.DeactivatedDateTime is null
+                and r.Deactivated = 0
         )
         INSERT INTO @tbl(Wg
                    
@@ -100,7 +100,7 @@ begin
             left join @exchange_rate er on er.CurrencyId = r.CurrencyReinsurance_Approved
 
             where   r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
-                and r.DeactivatedDateTime is null
+                and r.Deactivated = 0
         )
         INSERT INTO @tbl(Wg
                    
@@ -132,5 +132,4 @@ begin
 
     return;
 end
-
 go
