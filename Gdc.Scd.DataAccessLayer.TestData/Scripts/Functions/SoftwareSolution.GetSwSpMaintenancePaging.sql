@@ -3,7 +3,7 @@
 go
 
 
-CREATE FUNCTION SoftwareSolution.GetSwSpMaintenancePaging (
+CREATE FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging] (
     @approved bit,
     @digit dbo.ListID readonly,
     @av dbo.ListID readonly,
@@ -13,23 +13,23 @@ CREATE FUNCTION SoftwareSolution.GetSwSpMaintenancePaging (
 )
 RETURNS @tbl TABLE 
         (   
-            rownum int NOT NULL,
-            Id bigint NOT NULL,
-            Pla bigint NOT NULL,
-            Sfab bigint NOT NULL,
-            Sog bigint NOT NULL,
-            SwDigit bigint NOT NULL,
-            Availability bigint NOT NULL,
-            Year bigint NOT NULL,
-            [2ndLevelSupportCosts] float NULL,
-            InstalledBaseSog float NULL,
-            TotalInstalledBaseSog float NULL,
-            ReinsuranceFlatfee float NULL,
-            CurrencyReinsurance bigint NULL,
-            RecommendedSwSpMaintenanceListPrice float NULL,
-            MarkupForProductMarginSwLicenseListPrice float NULL,
-            ShareSwSpMaintenanceListPrice float NULL,
-            DiscountDealerPrice float NULL
+            [rownum] [int] NOT NULL,
+            [Id] [bigint] NOT NULL,
+            [Pla] [bigint] NOT NULL,
+            [Sfab] [bigint] NOT NULL,
+            [Sog] [bigint] NOT NULL,
+            [SwDigit] [bigint] NOT NULL,
+            [Availability] [bigint] NOT NULL,
+            [Year] [bigint] NOT NULL,
+            [2ndLevelSupportCosts] [float] NULL,
+            [InstalledBaseSog] [float] NULL,
+            [TotalInstalledBaseSog] [float] NULL,
+            [ReinsuranceFlatfee] [float] NULL,
+            [CurrencyReinsurance] [bigint] NULL,
+            [RecommendedSwSpMaintenanceListPrice] [float] NULL,
+            [MarkupForProductMarginSwLicenseListPrice] [float] NULL,
+            [ShareSwSpMaintenanceListPrice] [float] NULL,
+            [DiscountDealerPrice] [float] NULL
         )
 AS
 BEGIN
@@ -53,7 +53,7 @@ BEGIN
                 WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
                     AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
                     AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
-                    and ssm.DeactivatedDateTime is null
+                    and ssm.Deactivated = 0
             )
             insert @tbl
             select top(@limit)
@@ -108,10 +108,10 @@ BEGIN
             WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
                 AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
                 AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
-                and ssm.DeactivatedDateTime is null
+                and ssm.Deactivated = 0
 
         end
 
     RETURN;
 END
-GO
+go
