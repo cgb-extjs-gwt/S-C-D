@@ -1,21 +1,65 @@
-﻿IF OBJECT_ID('Report.ProActive') IS NOT NULL
-  DROP FUNCTION Report.ProActive;
+﻿IF OBJECT_ID('Report.spProActive') IS NOT NULL
+  DROP PROCEDURE Report.spProActive;
 go 
 
-CREATE FUNCTION Report.ProActive
+CREATE PROCEDURE Report.spProActive
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int
 )
-RETURNS TABLE 
 AS
-RETURN (
+BEGIN
+
+    declare @cntTable dbo.ListId; insert into @cntTable(id) values(@cnt);
+
+    declare @wg_SOG_Table dbo.ListId;
+    insert into @wg_SOG_Table
+    select id
+        from InputAtoms.Wg 
+        where SogId in (select wg.SogId from InputAtoms.Wg wg where @wg is null or wg.Id = @wg)
+        and IsSoftware = 0
+        and SogId is not null
+        and DeactivatedDateTime is null;
+
+    if not exists(select id from @wg_SOG_Table) return;
+
+    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
+
+    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+
+    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
+
+    declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
+
+    declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
+
+    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
+
+    with cte as (
+        select m.* 
+               , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
+        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
+        where @wg is null or m.WgId = @wg
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as FspDescription
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
     select    m.Id
             , m.Country
             , c.CountryGroup
@@ -28,14 +72,11 @@ RETURN (
             , m.Availability
             , m.ProActiveSla
 
-            , case 
-                    when dur.IsProlongation = 1 then 'Prolongation'
-                    else CAST(dur.Value as varchar(1))
-              end as Duration
+            , m.ServicePeriod as Duration
 
-             , m.ServiceTPResult * m.ExchangeRate as ReActive
-             , m.ProActive * m.ExchangeRate as ProActive
-             , (m.ServiceTPResult + coalesce(m.ProActive, 0)) * m.ExchangeRate as ServiceTP
+             , m.ServiceTpSog * m.ExchangeRate as ReActive
+             , m.ProActiveSog * m.ExchangeRate as ProActive
+             , (m.ServiceTpSog + coalesce(m.ProActiveSog, 0)) * m.ExchangeRate as ServiceTP
 
             , m.Currency
 
@@ -43,13 +84,13 @@ RETURN (
             , wg.SogDescription
 
             , m.FspDescription
-
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    from cte2 m
     JOIN InputAtoms.CountryView c on c.Id = m.CountryId
-    join Dependencies.Duration dur on dur.Id = m.DurationId
     JOIN InputAtoms.WgSogView wg on wg.Id = m.WgId
-)
 
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
+
+END
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'PROACTIVE-REPORTS');
