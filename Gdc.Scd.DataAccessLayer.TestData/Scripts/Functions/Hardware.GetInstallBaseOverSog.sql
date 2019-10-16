@@ -27,7 +27,7 @@ begin
         from Hardware.InstallBase ib
         join InputAtoms.Wg wg on wg.id = ib.Wg and wg.SogId is not null 
 
-        where ib.Country in (select id from @cnt) and ib.DeactivatedDateTime is null
+        where ib.Country in (select id from @cnt) and ib.Deactivated = 0
     )
     , IbSogCte as (
         select  ib.*
