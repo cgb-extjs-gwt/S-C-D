@@ -2,7 +2,7 @@
   DROP PROCEDURE Hardware.SpUpdateMaterialCostCalc;
 go
 
-CREATE PROCEDURE Hardware.SpUpdateMaterialCostCalc
+CREATE PROCEDURE [Hardware].[SpUpdateMaterialCostCalc]
 AS
 BEGIN
 
@@ -16,7 +16,7 @@ BEGIN
     INSERT INTO Hardware.MaterialCostWarrantyCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved, MaterialCostIw, MaterialCostIw_Approved)
         select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved, MaterialCostIw, MaterialCostIw_Approved
         from Hardware.MaterialCostWarranty
-        where DeactivatedDateTime is null
+        where Deactivated = 0
 
         union 
 
@@ -31,7 +31,7 @@ BEGIN
 		  INNER JOIN [InputAtoms].[ClusterRegion] cr
 		  ON r.ClusterRegionId = cr.Id
 		  WHERE cr.IsEmeia = 1 AND c.IsMaster = 1) AS cr
-		  where DeactivatedDateTime is null
+		  where Deactivated = 0
 
     -- Enable all table constraints
     ALTER TABLE Hardware.MaterialCostWarrantyCalc CHECK CONSTRAINT ALL;
