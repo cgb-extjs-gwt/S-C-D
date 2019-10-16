@@ -1995,7 +1995,7 @@ RETURN (
 
         from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
 
-        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId 
 
         INNER JOIN Report.GetParameterStd(@approved, @cnt, @wg) std on std.CountryId = m.CountryId and std.WgId = m.WgId
 
@@ -2091,7 +2091,7 @@ RETURN (
               , m.MaterialCostWarranty * m.ExchangeRate as MaterialCostWarranty
               , m.MaterialCostOow * m.ExchangeRate as MaterialCostOow
 
-              , m.Duration
+              , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Duration as varchar(1)) end as Duration
 
               , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
               , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
