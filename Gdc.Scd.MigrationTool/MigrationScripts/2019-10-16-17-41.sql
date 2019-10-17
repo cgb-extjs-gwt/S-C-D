@@ -424,7 +424,7 @@ END
 go
 
 exec Hardware.UpdateAvailabilityFee;
-go;
+go
 
 ALTER TRIGGER [Hardware].[InstallBaseUpdated]
 ON [Hardware].[InstallBase]
@@ -775,9 +775,6 @@ go
 exec Fsp.spUpdateHwStandardWarranty;
 go
 
-alter table [Hardware].[AvailabilityFeeCalc] ADD CONSTRAINT [PK_Hardware_AvailabilityFeeCalc] PRIMARY KEY CLUSTERED ([Country] ASC,[Wg] ASC)
-GO
-
 ALTER TABLE [Hardware].[ProActive] ADD CONSTRAINT [PK_Hardware_ProActive] PRIMARY KEY CLUSTERED (Country, Wg, Deactivated)
 GO
 
@@ -794,6 +791,68 @@ ALTER TABLE [Hardware].[Reinsurance] ADD  CONSTRAINT [PK_Hardware_Reinsurance] P
 GO
 
 --=================================================================
+exec spDropTable 'Hardware.ReinsuranceCalc';
+go
+
+create TABLE Hardware.ReinsuranceCalc(   
+      Wg                       bigint not null
+    , Duration                 bigint not null
+    , ReactionTimeAvailability bigint not null
+    , Cost                     float
+    , Cost_approved            float
+    , PRIMARY KEY CLUSTERED (Wg, Duration, ReactionTimeAvailability)
+)
+go
+
+if OBJECT_ID('Hardware.spUpdateReinsuranceCalc') is not null
+    drop procedure Hardware.spUpdateReinsuranceCalc
+go
+
+create procedure Hardware.spUpdateReinsuranceCalc
+as
+begin
+
+    truncate table Hardware.ReinsuranceCalc;
+
+    insert into Hardware.ReinsuranceCalc(Wg, Duration, ReactionTimeAvailability, Cost, Cost_approved)
+    SELECT    r.Wg 
+            , r.Duration
+            , r.ReactionTimeAvailability
+            , r.ReinsuranceFlatfee_norm / er.Value                    
+            , r.ReinsuranceFlatfee_norm_Approved / er2.Value 
+    FROM Hardware.Reinsurance r
+    JOIN Dependencies.ReactionTime_Avalability ra on ra.id = r.ReactionTimeAvailability and ra.IsDisabled = 0
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
+    LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
+    where r.Deactivated = 0;
+
+end
+go
+
+IF OBJECT_ID('Hardware.Reinsurance_Updated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.Reinsurance_Updated;
+go
+
+CREATE TRIGGER Hardware.Reinsurance_Updated
+ON Hardware.Reinsurance
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.spUpdateReinsuranceCalc;
+END
+GO
+
+alter TRIGGER [References].ExchangeRateUpdated
+ON [References].ExchangeRate
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.UpdateAvailabilityFee;
+    exec Hardware.spUpdateReinsuranceCalc;
+END
+go
+
+exec Hardware.spUpdateReinsuranceCalc;
+go
+
 ALTER PROCEDURE [Hardware].[SpUpdateMaterialCostCalc]
 AS
 BEGIN
@@ -1473,28 +1532,38 @@ RETURN
             
             , std.TaxAndDutiesW
 
-            , r.Cost as Reinsurance
+            , ISNULL(case when @approved = 0 then r.Cost else r.Cost_approved end, 0) as Reinsurance
 
             --##### FIELD SERVICE COST #########                                                                                               
-            , case when @approved = 0 then fsc.LabourCost                     else fsc.LabourCost_Approved                 end / std.ExchangeRate as LabourCost             
-            , case when @approved = 0 then fsc.TravelCost                     else fsc.TravelCost_Approved                 end / std.ExchangeRate as TravelCost             
-            , case when @approved = 0 then fst.PerformanceRate                else fst.PerformanceRate_Approved            end / std.ExchangeRate as PerformanceRate        
-            , case when @approved = 0 then fst.TimeAndMaterialShare_norm      else fst.TimeAndMaterialShare_norm_Approved  end as TimeAndMaterialShare   
-            , case when @approved = 0 then fsc.TravelTime                     else fsc.TravelTime_Approved                 end as TravelTime             
-            , case when @approved = 0 then fsc.RepairTime                     else fsc.RepairTime_Approved                 end as RepairTime             
+            , case when @approved = 0 
 
-            , std.OnsiteHourlyRates      
-                       
+                   then (1 - fst.TimeAndMaterialShare_norm) * (fsc.TravelCost + fsc.LabourCost + fst.PerformanceRate) / std.ExchangeRate + 
+                            fst.TimeAndMaterialShare_norm * ((fsc.TravelTime + fsc.repairTime) * std.OnsiteHourlyRates + fst.PerformanceRate / std.ExchangeRate) 
+
+                   else (1 - fst.TimeAndMaterialShare_norm_Approved) * (fsc.TravelCost_Approved + fsc.LabourCost_Approved + fst.PerformanceRate_Approved) / std.ExchangeRate + 
+                            fst.TimeAndMaterialShare_norm_Approved * ((fsc.TravelTime_Approved + fsc.repairTime_Approved) * std.OnsiteHourlyRates + fst.PerformanceRate_Approved / std.ExchangeRate) 
+
+               end as FieldServicePerYear
+
             --##### SERVICE SUPPORT COST #########                                                                                               
             , std.ServiceSupportPerYear
 
             --##### LOGISTICS COST #########                                                                                               
-            , case when @approved = 0 then lc.ExpressDelivery                 else lc.ExpressDelivery_Approved             end / std.ExchangeRate as ExpressDelivery         
-            , case when @approved = 0 then lc.HighAvailabilityHandling        else lc.HighAvailabilityHandling_Approved    end / std.ExchangeRate as HighAvailabilityHandling
-            , case when @approved = 0 then lc.StandardDelivery                else lc.StandardDelivery_Approved            end / std.ExchangeRate as StandardDelivery        
-            , case when @approved = 0 then lc.StandardHandling                else lc.StandardHandling_Approved            end / std.ExchangeRate as StandardHandling        
-            , case when @approved = 0 then lc.ReturnDeliveryFactory           else lc.ReturnDeliveryFactory_Approved       end / std.ExchangeRate as ReturnDeliveryFactory   
-            , case when @approved = 0 then lc.TaxiCourierDelivery             else lc.TaxiCourierDelivery_Approved         end / std.ExchangeRate as TaxiCourierDelivery     
+            , case when @approved = 0 
+                   then lc.ExpressDelivery          +
+                        lc.HighAvailabilityHandling +
+                        lc.StandardDelivery         +
+                        lc.StandardHandling         +
+                        lc.ReturnDeliveryFactory    +
+                        lc.TaxiCourierDelivery      
+                   else lc.ExpressDelivery_Approved          +
+                        lc.HighAvailabilityHandling_Approved +
+                        lc.StandardDelivery_Approved         +
+                        lc.StandardHandling_Approved         +
+                        lc.ReturnDeliveryFactory_Approved    +
+                        lc.TaxiCourierDelivery_Approved     
+                end / std.ExchangeRate as LogisticPerYear
+
                                                                                                                        
             , case when afEx.id is not null then std.Fee else 0 end as AvailabilityFee
 
@@ -1508,13 +1577,14 @@ RETURN
                 end as MarkupFactorOtherCost                
 
             --####### PROACTIVE COST ###################
-            , std.LocalRemoteAccessSetup
-            , std.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                 as LocalRegularUpdate
-            , std.LocalPreparation * proSla.LocalPreparationShcRepetition                       as LocalPreparation
-            , std.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition as LocalRemoteCustomerBriefing
-            , std.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition as LocalOnsiteCustomerBriefing
-            , std.Travel * proSla.TravellingTimeRepetition                                      as Travel
-            , std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition           as CentralExecutionReport
+            , std.LocalRemoteAccessSetup + dur.Value * (
+                          std.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                
+                        + std.LocalPreparation * proSla.LocalPreparationShcRepetition                      
+                        + std.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition
+                        + std.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition
+                        + std.Travel * proSla.TravellingTimeRepetition                                     
+                        + std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition          
+                    ) as ProActive
 
             , std.LocalServiceStandardWarranty
             , std.LocalServiceStandardWarrantyManual
@@ -1537,7 +1607,9 @@ RETURN
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
-    FROM Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+    FROM Hardware.CalcStdw(@approved, @cnt, @wg) std 
+
+    INNER JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on std.CountryId = m.CountryId and std.WgId = m.WgId 
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -1551,9 +1623,7 @@ RETURN
 
     INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    INNER JOIN Hardware.CalcStdw(@approved, @cnt, @wg) std on std.CountryId = m.CountryId and std.WgId = m.WgId
-
-    LEFT JOIN Hardware.GetReinsurance(@approved) r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
+    LEFT JOIN Hardware.ReinsuranceCalc r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
     LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
@@ -1567,6 +1637,366 @@ RETURN
     LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.Id
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
+)
+go
+
+ALTER FUNCTION [Hardware].[GetCosts](
+    @approved bit,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
+    @lastid bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    with CostCte as (
+        select    m.*
+
+                , ISNULL(m.AvailabilityFee, 0) as AvailabilityFeeOrZero
+       
+        from Hardware.GetCalcMember(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+    )
+    , CostCte2 as (
+        select    m.*
+
+                , m.FieldServicePerYear * m.AFR1  as FieldServiceCost1
+                , m.FieldServicePerYear * m.AFR2  as FieldServiceCost2
+                , m.FieldServicePerYear * m.AFR3  as FieldServiceCost3
+                , m.FieldServicePerYear * m.AFR4  as FieldServiceCost4
+                , m.FieldServicePerYear * m.AFR5  as FieldServiceCost5
+                , m.FieldServicePerYear * m.AFRP1 as FieldServiceCost1P
+
+                , m.LogisticPerYear * m.AFR1  as Logistic1
+                , m.LogisticPerYear * m.AFR2  as Logistic2
+                , m.LogisticPerYear * m.AFR3  as Logistic3
+                , m.LogisticPerYear * m.AFR4  as Logistic4
+                , m.LogisticPerYear * m.AFR5  as Logistic5
+                , m.LogisticPerYear * m.AFRP1 as Logistic1P
+
+                , isnull(case when m.DurationId = 1 then m.Reinsurance end, 0) as Reinsurance1
+                , isnull(case when m.DurationId = 2 then m.Reinsurance end, 0) as Reinsurance2
+                , isnull(case when m.DurationId = 3 then m.Reinsurance end, 0) as Reinsurance3
+                , isnull(case when m.DurationId = 4 then m.Reinsurance end, 0) as Reinsurance4
+                , isnull(case when m.DurationId = 5 then m.Reinsurance end, 0) as Reinsurance5
+                , isnull(case when m.DurationId = 6 then m.Reinsurance end, 0) as Reinsurance1P
+
+        from CostCte m
+    )
+    , CostCte3 as (
+        select    m.*
+
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.Reinsurance1 + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.Reinsurance2 + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect2
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.Reinsurance3 + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect3
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.Reinsurance4 + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect4
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.Reinsurance5 + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect5
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.Reinsurance1P + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1P
+
+        from CostCte2 m
+    )
+    , CostCte5 as (
+        select m.*
+
+             , m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.Reinsurance1 + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1 as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.Reinsurance2 + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2 as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.Reinsurance3 + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3 as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.Reinsurance4 + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4 as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.Reinsurance5 + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5 as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.Reinsurance1P + m.OtherDirect1P + m.AvailabilityFeeOrZero             as ServiceTP1P
+
+        from CostCte3 m
+    )
+    , CostCte6 as (
+        select m.*
+
+                , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+                , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+                , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+                , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+                , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+                , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
+
+        from CostCte5 m
+    )    
+    select m.Id
+
+         --SLA
+
+         , m.CountryId
+         , m.Country
+         , m.CurrencyId
+         , m.Currency
+         , m.ExchangeRate
+         , m.SogId
+         , m.Sog
+         , m.WgId
+         , m.Wg
+         , m.AvailabilityId
+         , m.Availability
+         , m.DurationId
+         , m.Duration
+         , m.Year
+         , m.IsProlongation
+         , m.ReactionTimeId
+         , m.ReactionTime
+         , m.ReactionTypeId
+         , m.ReactionType
+         , m.ServiceLocationId
+         , m.ServiceLocation
+         , m.ProActiveSlaId
+
+         , m.ProActiveSla
+
+         , m.Sla
+         , m.SlaHash
+
+         , m.StdWarranty
+         , m.StdWarrantyLocation
+
+         --Cost
+
+         , m.AvailabilityFee * m.Year as AvailabilityFee
+         , m.TaxAndDutiesW
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.TaxOow1, m.TaxOow2, m.TaxOow3, m.TaxOow4, m.TaxOow5, m.TaxOow1P) as TaxAndDutiesOow
+
+
+         , m.Reinsurance
+         , m.ProActive
+         , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
+
+         , m.MaterialW
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
+
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.FieldServiceCost1, m.FieldServiceCost2, m.FieldServiceCost3, m.FieldServiceCost4, m.FieldServiceCost5, m.FieldServiceCost1P) as FieldServiceCost
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.Logistic1, m.Logistic2, m.Logistic3, m.Logistic4, m.Logistic5, m.Logistic1P) as Logistic
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
+       
+         , m.LocalServiceStandardWarranty
+         , m.LocalServiceStandardWarrantyManual
+       
+         , m.Credits
+
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
+
+         , m.ServiceTC1
+         , m.ServiceTC2
+         , m.ServiceTC3
+         , m.ServiceTC4
+         , m.ServiceTC5
+         , m.ServiceTC1P
+
+         , m.ServiceTP1
+         , m.ServiceTP2
+         , m.ServiceTP3
+         , m.ServiceTP4
+         , m.ServiceTP5
+         , m.ServiceTP1P
+
+         , m.ListPrice
+         , m.DealerDiscount
+         , m.DealerPrice
+         , m.ServiceTCManual
+         , m.ServiceTPManual
+         , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
+         , coalesce(m.ServiceTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTPResult
+         , m.ServiceTP_Released
+
+         , m.ReleaseDate
+         , m.ChangeDate
+         , m.ChangeUserName
+         , m.ChangeUserEmail
+
+       from CostCte6 m
+)
+go
+
+ALTER FUNCTION [Hardware].[GetReleaseCosts] (
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
+    @lastid bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    with ReinsuranceCte as (
+        select r.Wg
+             , ta.ReactionTimeId
+             , ta.AvailabilityId
+             , r.Cost_approved as Cost
+        from Hardware.ReinsuranceCalc r
+
+        JOIN Dependencies.ReactionTime_Avalability ta on ta.Id = r.ReactionTimeAvailability and ta.IsDisabled = 0
+
+        where r.Duration = (select id from Dependencies.Duration where IsProlongation = 1 and Value = 1)
+    )
+    , CostCte as (
+        select    m.*
+
+                , isnull(m.AvailabilityFee, 0) as AvailabilityFeeOrZero
+
+                , isnull(r.Cost, 0) as ReinsuranceProlCost
+       
+        from Hardware.GetCalcMember(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+        left join ReinsuranceCte r on r.Wg = m.WgId and r.ReactionTimeId = m.ReactionTimeId and r.AvailabilityId = m.AvailabilityId
+    )
+    , CostCte2 as (
+        select    m.*
+
+                , m.FieldServicePerYear * m.AFR1  as FieldServiceCost1
+                , m.FieldServicePerYear * m.AFR2  as FieldServiceCost2
+                , m.FieldServicePerYear * m.AFR3  as FieldServiceCost3
+                , m.FieldServicePerYear * m.AFR4  as FieldServiceCost4
+                , m.FieldServicePerYear * m.AFR5  as FieldServiceCost5
+                , m.FieldServicePerYear * m.AFRP1 as FieldServiceCost1P
+
+                , m.LogisticPerYear * m.AFR1  as Logistic1
+                , m.LogisticPerYear * m.AFR2  as Logistic2
+                , m.LogisticPerYear * m.AFR3  as Logistic3
+                , m.LogisticPerYear * m.AFR4  as Logistic4
+                , m.LogisticPerYear * m.AFR5  as Logistic5
+                , m.LogisticPerYear * m.AFRP1 as Logistic1P
+
+        from CostCte m
+    )
+    , CostCte3 as (
+        select    m.*
+
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.ReinsuranceProlCost + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.ReinsuranceProlCost + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect2
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.ReinsuranceProlCost + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect3
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.ReinsuranceProlCost + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect4
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.ReinsuranceProlCost + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect5
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.ReinsuranceProlCost + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1P
+
+        from CostCte2 m
+    )
+    , CostCte5 as (
+        select m.*
+
+             , m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceProlCost + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1 as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceProlCost + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2 as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceProlCost + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3 as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceProlCost + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4 as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceProlCost + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5 as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceProlCost + m.OtherDirect1P + m.AvailabilityFeeOrZero             as ServiceTP1P
+
+        from CostCte3 m
+    )
+    , CostCte6 as (
+        select m.*
+
+                , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+                , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+                , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+                , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+                , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+                , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
+
+        from CostCte5 m
+    )    
+    select m.Id
+
+         --SLA
+
+         , m.CountryId
+         , m.Country
+         , m.CurrencyId
+         , m.Currency
+         , m.ExchangeRate
+         , m.SogId
+         , m.Sog
+         , m.WgId
+         , m.Wg
+         , m.AvailabilityId
+         , m.Availability
+         , m.DurationId
+         , m.Duration
+         , m.Year
+         , m.IsProlongation
+         , m.ReactionTimeId
+         , m.ReactionTime
+         , m.ReactionTypeId
+         , m.ReactionType
+         , m.ServiceLocationId
+         , m.ServiceLocation
+         , m.ProActiveSlaId
+
+         , m.ProActiveSla
+
+         , m.Sla
+         , m.SlaHash
+
+         , m.StdWarranty
+         , m.StdWarrantyLocation
+
+         --Cost
+
+         , m.AvailabilityFee * m.Year as AvailabilityFee
+         , m.TaxAndDutiesW
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.TaxOow1, m.TaxOow2, m.TaxOow3, m.TaxOow4, m.TaxOow5, m.TaxOow1P) as TaxAndDutiesOow
+
+
+         , m.Reinsurance
+         , m.ProActive
+         , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
+
+         , m.MaterialW
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
+
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.FieldServiceCost1, m.FieldServiceCost2, m.FieldServiceCost3, m.FieldServiceCost4, m.FieldServiceCost5, m.FieldServiceCost1P) as FieldServiceCost
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.Logistic1, m.Logistic2, m.Logistic3, m.Logistic4, m.Logistic5, m.Logistic1P) as Logistic
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
+       
+         , m.LocalServiceStandardWarranty
+       
+         , m.Credits
+
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
+
+         , m.ServiceTC1
+         , m.ServiceTC2
+         , m.ServiceTC3
+         , m.ServiceTC4
+         , m.ServiceTC5
+         , m.ServiceTC1P
+
+         , m.ServiceTP1
+         , m.ServiceTP2
+         , m.ServiceTP3
+         , m.ServiceTP4
+         , m.ServiceTP5
+         , m.ServiceTP1P
+
+         , m.ListPrice
+         , m.DealerDiscount
+         , m.DealerPrice
+         , m.ServiceTCManual
+         , m.ServiceTPManual
+         , m.ServiceTP_Released
+
+         , m.ReleaseDate
+         , m.ChangeUserName
+         , m.ChangeUserEmail
+
+       from CostCte6 m
 )
 go
 
@@ -2499,7 +2929,6 @@ GO
 IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
   DROP FUNCTION Hardware.GetReinsurance;
 GO
-
 
 ALTER DATABASE SCD_2 SET RECOVERY FULL
 GO 
