@@ -2444,5 +2444,10 @@ ALTER VIEW [InputAtoms].[WgStdView] AS
 
 GO
 
+IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
+  DROP FUNCTION Hardware.GetReinsurance;
+GO
+
+
 ALTER DATABASE SCD_2 SET RECOVERY FULL
 GO 

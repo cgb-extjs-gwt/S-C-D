@@ -274,46 +274,6 @@ alter table Hardware.Reinsurance
       , ReinsuranceFlatfee_norm_Approved as (ReinsuranceFlatfee_Approved * coalesce(ReinsuranceUpliftFactor_Approved / 100, 1))
 GO
 
-IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
-  DROP FUNCTION Hardware.GetReinsurance;
-GO
-
-CREATE FUNCTION Hardware.GetReinsurance (@approved bit)
-RETURNS @tbl TABLE (   
-           Wg                       bigint
-         , Duration                 bigint
-         , ReactionTimeAvailability bigint
-         , Cost                     float
-         , PRIMARY KEY CLUSTERED (Wg, Duration, ReactionTimeAvailability)
-    )
-AS
-BEGIN
-    
-    if @approved = 0
-    begin
-        insert into @tbl(Wg, Duration, ReactionTimeAvailability, Cost)
-        SELECT  r.Wg, 
-                r.Duration,
-                r.ReactionTimeAvailability,
-                r.ReinsuranceFlatfee_norm / er.Value                    
-        FROM Hardware.Reinsurance r
-        JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
-    end
-    else
-    begin
-        insert into @tbl(Wg, Duration, ReactionTimeAvailability, Cost)
-        SELECT  r.Wg, 
-                r.Duration,
-                r.ReactionTimeAvailability,
-                r.ReinsuranceFlatfee_norm_Approved / er.Value 
-        FROM Hardware.Reinsurance r
-        JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance_Approved
-    end
-
-    RETURN;
-END;
-go
-
 IF OBJECT_ID('Hardware.AFR_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.AFR_Updated;
 go
