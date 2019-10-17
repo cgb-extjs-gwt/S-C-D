@@ -94,28 +94,38 @@ RETURN
             
             , std.TaxAndDutiesW
 
-            , r.Cost as Reinsurance
+            , ISNULL(case when @approved = 0 then r.Cost else r.Cost_approved end, 0) as Reinsurance
 
             --##### FIELD SERVICE COST #########                                                                                               
-            , case when @approved = 0 then fsc.LabourCost                     else fsc.LabourCost_Approved                 end / std.ExchangeRate as LabourCost             
-            , case when @approved = 0 then fsc.TravelCost                     else fsc.TravelCost_Approved                 end / std.ExchangeRate as TravelCost             
-            , case when @approved = 0 then fst.PerformanceRate                else fst.PerformanceRate_Approved            end / std.ExchangeRate as PerformanceRate        
-            , case when @approved = 0 then fst.TimeAndMaterialShare_norm      else fst.TimeAndMaterialShare_norm_Approved  end as TimeAndMaterialShare   
-            , case when @approved = 0 then fsc.TravelTime                     else fsc.TravelTime_Approved                 end as TravelTime             
-            , case when @approved = 0 then fsc.RepairTime                     else fsc.RepairTime_Approved                 end as RepairTime             
+            , case when @approved = 0 
 
-            , std.OnsiteHourlyRates      
-                       
+                   then (1 - fst.TimeAndMaterialShare_norm) * (fsc.TravelCost + fsc.LabourCost + fst.PerformanceRate) / std.ExchangeRate + 
+                            fst.TimeAndMaterialShare_norm * ((fsc.TravelTime + fsc.repairTime) * std.OnsiteHourlyRates + fst.PerformanceRate / std.ExchangeRate) 
+
+                   else (1 - fst.TimeAndMaterialShare_norm_Approved) * (fsc.TravelCost_Approved + fsc.LabourCost_Approved + fst.PerformanceRate_Approved) / std.ExchangeRate + 
+                            fst.TimeAndMaterialShare_norm_Approved * ((fsc.TravelTime_Approved + fsc.repairTime_Approved) * std.OnsiteHourlyRates + fst.PerformanceRate_Approved / std.ExchangeRate) 
+
+               end as FieldServicePerYear
+
             --##### SERVICE SUPPORT COST #########                                                                                               
             , std.ServiceSupportPerYear
 
             --##### LOGISTICS COST #########                                                                                               
-            , case when @approved = 0 then lc.ExpressDelivery                 else lc.ExpressDelivery_Approved             end / std.ExchangeRate as ExpressDelivery         
-            , case when @approved = 0 then lc.HighAvailabilityHandling        else lc.HighAvailabilityHandling_Approved    end / std.ExchangeRate as HighAvailabilityHandling
-            , case when @approved = 0 then lc.StandardDelivery                else lc.StandardDelivery_Approved            end / std.ExchangeRate as StandardDelivery        
-            , case when @approved = 0 then lc.StandardHandling                else lc.StandardHandling_Approved            end / std.ExchangeRate as StandardHandling        
-            , case when @approved = 0 then lc.ReturnDeliveryFactory           else lc.ReturnDeliveryFactory_Approved       end / std.ExchangeRate as ReturnDeliveryFactory   
-            , case when @approved = 0 then lc.TaxiCourierDelivery             else lc.TaxiCourierDelivery_Approved         end / std.ExchangeRate as TaxiCourierDelivery     
+            , case when @approved = 0 
+                   then lc.ExpressDelivery          +
+                        lc.HighAvailabilityHandling +
+                        lc.StandardDelivery         +
+                        lc.StandardHandling         +
+                        lc.ReturnDeliveryFactory    +
+                        lc.TaxiCourierDelivery      
+                   else lc.ExpressDelivery_Approved          +
+                        lc.HighAvailabilityHandling_Approved +
+                        lc.StandardDelivery_Approved         +
+                        lc.StandardHandling_Approved         +
+                        lc.ReturnDeliveryFactory_Approved    +
+                        lc.TaxiCourierDelivery_Approved     
+                end / std.ExchangeRate as LogisticPerYear
+
                                                                                                                        
             , case when afEx.id is not null then std.Fee else 0 end as AvailabilityFee
 
@@ -129,13 +139,14 @@ RETURN
                 end as MarkupFactorOtherCost                
 
             --####### PROACTIVE COST ###################
-            , std.LocalRemoteAccessSetup
-            , std.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                 as LocalRegularUpdate
-            , std.LocalPreparation * proSla.LocalPreparationShcRepetition                       as LocalPreparation
-            , std.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition as LocalRemoteCustomerBriefing
-            , std.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition as LocalOnsiteCustomerBriefing
-            , std.Travel * proSla.TravellingTimeRepetition                                      as Travel
-            , std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition           as CentralExecutionReport
+            , std.LocalRemoteAccessSetup + dur.Value * (
+                          std.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                
+                        + std.LocalPreparation * proSla.LocalPreparationShcRepetition                      
+                        + std.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition
+                        + std.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition
+                        + std.Travel * proSla.TravellingTimeRepetition                                     
+                        + std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition          
+                    ) as ProActive
 
             , std.LocalServiceStandardWarranty
             , std.LocalServiceStandardWarrantyManual
@@ -158,7 +169,9 @@ RETURN
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
-    FROM Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+    FROM Hardware.CalcStdw(@approved, @cnt, @wg) std 
+
+    INNER JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on std.CountryId = m.CountryId and std.WgId = m.WgId 
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -172,9 +185,7 @@ RETURN
 
     INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    INNER JOIN Hardware.CalcStdw(@approved, @cnt, @wg) std on std.CountryId = m.CountryId and std.WgId = m.WgId
-
-    LEFT JOIN Hardware.GetReinsurance(@approved) r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
+    LEFT JOIN Hardware.ReinsuranceCalc r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
     LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
