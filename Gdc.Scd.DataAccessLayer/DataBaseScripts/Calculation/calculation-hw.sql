@@ -165,14 +165,6 @@ IF OBJECT_ID('Hardware.LogisticsCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.LogisticsCostView;
 go
 
-IF OBJECT_ID('Hardware.ReinsuranceView', 'V') IS NOT NULL
-  DROP VIEW Hardware.ReinsuranceView;
-go
-
-IF OBJECT_ID('Hardware.FieldServiceCostView', 'V') IS NOT NULL
-  DROP VIEW Hardware.FieldServiceCostView;
-go
-
 IF OBJECT_ID('Hardware.ProActiveView', 'V') IS NOT NULL
   DROP VIEW Hardware.ProActiveView;
 go
@@ -282,22 +274,6 @@ alter table Hardware.Reinsurance
       , ReinsuranceFlatfee_norm_Approved as (ReinsuranceFlatfee_Approved * coalesce(ReinsuranceUpliftFactor_Approved / 100, 1))
 GO
 
-CREATE VIEW [Hardware].[ReinsuranceView] as
-    SELECT r.Wg, 
-           r.Duration,
-           r.ReactionTimeAvailability,
-
-           r.ReinsuranceFlatfee_norm / er.Value                    as Cost,
-           r.ReinsuranceFlatfee_norm_Approved / er2.Value as Cost_Approved
-
-    FROM Hardware.Reinsurance r
-    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
-    LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
-GO
-
-CREATE NONCLUSTERED INDEX ix_Hardware_Reinsurance_Sla ON [Hardware].[Reinsurance] ([Wg],[Duration],[ReactionTimeAvailability])
-GO
-
 IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
   DROP FUNCTION Hardware.GetReinsurance;
 GO
@@ -338,26 +314,6 @@ BEGIN
 END;
 go
 
-CREATE NONCLUSTERED INDEX [ix_Hardware_Reinsurance_Currency] ON [Hardware].[Reinsurance]
-(
-	[CurrencyReinsurance] ASC
-)
-INCLUDE ( 	[Wg],
-	[Duration],
-	[ReactionTimeAvailability],
-	[ReinsuranceFlatfee_norm]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [ix_Hardware_Reinsurance_Currency_Appr] ON [Hardware].[Reinsurance]
-(
-	[CurrencyReinsurance_Approved] ASC
-)
-INCLUDE ( 	[Wg],
-	[Duration],
-	[ReactionTimeAvailability],
-	[ReinsuranceFlatfee_norm_Approved]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
 IF OBJECT_ID('Hardware.AFR_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.AFR_Updated;
 go
@@ -390,40 +346,6 @@ END
 GO
 
 update Hardware.AFR set AFR = AFR + 0
-GO
-
-IF OBJECT_ID('Fsp.HwStandardWarranty', 'U') IS NOT NULL
-  DROP TABLE Fsp.HwStandardWarranty;
-go
-
-CREATE TABLE Fsp.HwStandardWarranty(
-    Country bigint NOT NULL foreign key references InputAtoms.Country(Id)
-  , Wg bigint NOT NULL foreign key references InputAtoms.Wg(Id)
-
-  , FspId bigint NOT NULL
-  , Fsp nvarchar(255) NOT NULL
-
-  , AvailabilityId bigint NOT NULL foreign key references Dependencies.Availability(Id)
-
-  , DurationId bigint NOT NULL foreign key references Dependencies.Duration(Id)
-  , Duration nvarchar(50)
-  , IsProlongation bit
-  , DurationValue int
-
-  , ReactionTimeId bigint NOT NULL foreign key references Dependencies.ReactionTime(id)
-  , ReactionTypeId bigint NOT NULL foreign key references Dependencies.ReactionType(id)
-
-  , ServiceLocationId bigint NOT NULL foreign key references Dependencies.ServiceLocation(id)
-  , ServiceLocation nvarchar(50)
-
-  , ProActiveSlaId bigint NOT NULL foreign key references Dependencies.ProActiveSla(id)
-
-  , ReactionTime_Avalability bigint
-  , ReactionTime_ReactionType bigint
-  , ReactionTime_ReactionType_Avalability bigint
-
-  , CONSTRAINT PK_HwStandardWarranty PRIMARY KEY NONCLUSTERED (Country, Wg)
-)
 GO
 
 CREATE VIEW [InputAtoms].[WgStdView] AS
@@ -479,111 +401,6 @@ insert into Fsp.LutPriority(LUT, Priority)
     , ('TRK', 1)
     , ('UNG', 1);
 go
-
-IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
-  DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
-go
-
-CREATE TRIGGER [Fsp].[HwFspCodeTranslation_Updated]
-ON [Fsp].[HwFspCodeTranslation]
-After INSERT, UPDATE
-AS BEGIN
-
-    truncate table Fsp.HwStandardWarranty;
-
-    -- Disable all table constraints
-    ALTER TABLE Fsp.HwStandardWarranty NOCHECK CONSTRAINT ALL;
-
-    with Std as (
-        select  row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId ORDER BY lut.Priority) AS [rn]
-              , fsp.*
-        from fsp.HwFspCodeTranslation fsp
-        join Fsp.LutPriority lut on lut.LUT = fsp.LUT
-
-        where fsp.IsStandardWarranty = 1
-    )
-    insert into Fsp.HwStandardWarranty(
-                          Country
-                        , Wg
-                        , FspId
-                        , Fsp
-                        , AvailabilityId
-
-                        , DurationId 
-                        , Duration
-                        , IsProlongation
-                        , DurationValue 
-
-                        , ReactionTimeId
-                        , ReactionTypeId
-
-                        , ServiceLocationId
-                        , ServiceLocation
-
-                        , ProactiveSlaId
-                        , ReactionTime_Avalability              
-                        , ReactionTime_ReactionType             
-                        , ReactionTime_ReactionType_Avalability)
-        select    fsp.CountryId
-                , fsp.WgId
-                , fsp.Id
-                , fsp.Name
-                , fsp.AvailabilityId
-
-                , fsp.DurationId
-                , dur.Name
-                , dur.IsProlongation
-                , dur.Value as DurationValue
-
-                , fsp.ReactionTimeId
-                , fsp.ReactionTypeId
-
-                , fsp.ServiceLocationId
-                , loc.Name as ServiceLocation
-        
-                , fsp.ProactiveSlaId
-                , rta.Id
-                , rtt.Id
-                , rtta.Id
-        from Std fsp
-        INNER JOIN Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = fsp.AvailabilityId and rta.ReactionTimeId = fsp.ReactionTimeId
-        INNER JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = fsp.ReactionTimeId and rtt.ReactionTypeId = fsp.ReactionTypeId
-        INNER JOIN Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = fsp.AvailabilityId and rtta.ReactionTimeId = fsp.ReactionTimeId and rtta.ReactionTypeId = fsp.ReactionTypeId
-
-        INNER JOIN Dependencies.Duration dur on dur.Id = fsp.DurationId
-        INNER JOIN Dependencies.ServiceLocation loc on loc.id = fsp.ServiceLocationId
-        
-        where fsp.rn = 1 ;
-
-    -- Enable all table constraints
-    ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
-
-END
-GO
-
-update fsp.HwFspCodeTranslation set Name = Name where id  < 10
-go
-
-CREATE VIEW [Fsp].[HwStandardWarrantyView] AS
-    SELECT std.Wg
-         , std.Country
-         , std.Duration
-         , dur.Name
-         , dur.IsProlongation
-         , dur.Value as DurationValue
-         , std.AvailabilityId
-         , std.ReactionTimeId
-         , std.ReactionTypeId
-         , std.ServiceLocationId
-         , loc.Name as ServiceLocation
-         , std.ProActiveSlaId
-         , std.ReactionTime_Avalability
-         , std.ReactionTime_ReactionType
-         , std.ReactionTime_ReactionType_Avalability
-    FROM fsp.HwStandardWarranty std
-    INNER JOIN Dependencies.Duration dur on dur.Id = std.Duration
-    INNER JOIN Dependencies.ServiceLocation loc on loc.id = std.ServiceLocationId
-GO
 
 CREATE FUNCTION Hardware.CalcByDur
 (
@@ -1006,42 +823,6 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
     from AvFeeCte2 fee
 GO
 
-IF OBJECT_ID('Hardware.AvailabilityFeeCalc', 'U') IS NOT NULL
-  DROP TABLE Hardware.AvailabilityFeeCalc;
-go
-
-CREATE TABLE Hardware.AvailabilityFeeCalc (
-    [Country] [bigint] NOT NULL FOREIGN KEY REFERENCES InputAtoms.Country(Id),
-    [Wg] [bigint] NOT NULL FOREIGN KEY REFERENCES InputAtoms.Wg(Id),
-    [Fee] [float] NULL,
-    [Fee_Approved] [float] NULL
-)
-
-GO
-
-CREATE NONCLUSTERED INDEX [ix_Hardware_AvailabilityFeeCalc] ON [Hardware].[AvailabilityFeeCalc]
-(
-	[Country] ASC,
-	[Wg] ASC
-)
-INCLUDE ( 	[Fee],
-	[Fee_Approved]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-IF OBJECT_ID('Hardware.AvailabilityFeeUpdated', 'TR') IS NOT NULL
-  DROP TRIGGER Hardware.AvailabilityFeeUpdated;
-go
-
-CREATE TRIGGER Hardware.AvailabilityFeeUpdated
-ON Hardware.AvailabilityFee
-After INSERT, UPDATE
-AS BEGIN
-
-    exec Hardware.UpdateAvailabilityFee;
-
-END
-go
-
 IF OBJECT_ID('[References].ExchangeRateUpdated', 'TR') IS NOT NULL
   DROP TRIGGER [References].ExchangeRateUpdated;
 go
@@ -1050,13 +831,13 @@ CREATE TRIGGER [References].ExchangeRateUpdated
 ON [References].ExchangeRate
 After INSERT, UPDATE
 AS BEGIN
-
     exec Hardware.UpdateAvailabilityFee;
     exec Hardware.spUpdateReinsuranceCalc;
 END
 go
 
 exec Hardware.UpdateAvailabilityFee;
+exec Hardware.spUpdateReinsuranceCalc;
 go
 
 IF OBJECT_ID('Hardware.InstallBaseUpdated', 'TR') IS NOT NULL
@@ -1185,47 +966,6 @@ GO
 alter table Hardware.FieldServiceCost
     add TimeAndMaterialShare_norm          as (TimeAndMaterialShare / 100)
       , TimeAndMaterialShare_norm_Approved as (TimeAndMaterialShare_Approved / 100)
-GO
-
-CREATE VIEW [Hardware].[FieldServiceCostView] AS
-    SELECT  fsc.Country,
-            fsc.Wg,
-            case 
-                when wg.WgType = 0 then 1
-                else 0
-            end as IsMultiVendor,
-            
-            hr.OnsiteHourlyRates,
-            hr.OnsiteHourlyRates_Approved,
-
-            fsc.ServiceLocation,
-            rt.ReactionTypeId,
-            rt.ReactionTimeId,
-
-            fsc.RepairTime,
-            fsc.RepairTime_Approved,
-            
-            fsc.TravelTime,
-            fsc.TravelTime_Approved,
-
-            fsc.LabourCost          / er.Value as LabourCost,
-            fsc.LabourCost_Approved / er.Value as LabourCost_Approved,
-
-            fsc.TravelCost          / er.Value as TravelCost,
-            fsc.TravelCost_Approved / er.Value as TravelCost_Approved,
-
-            fsc.PerformanceRate          / er.Value as PerformanceRate,
-            fsc.PerformanceRate_Approved / er.Value as PerformanceRate_Approved,
-
-            (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare,
-            (fsc.TimeAndMaterialShare_Approved / 100) as TimeAndMaterialShare_Approved
-
-    FROM Hardware.FieldServiceCost fsc
-    JOIN InputAtoms.Country c on c.Id = fsc.Country
-    JOIN InputAtoms.Wg on wg.Id = fsc.Wg
-    JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
-    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = fsc.Country
-    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
 IF OBJECT_ID('Hardware.FieldServiceCalc', 'U') IS NOT NULL

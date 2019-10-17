@@ -49,12 +49,12 @@ RETURN
                 , m.LogisticPerYear * m.AFR5  as Logistic5
                 , m.LogisticPerYear * m.AFRP1 as Logistic1P
 
-                , coalesce(case when m.DurationId = 1 then m.Reinsurance else 0 end, 0) as Reinsurance1
-                , coalesce(case when m.DurationId = 2 then m.Reinsurance else 0 end, 0) as Reinsurance2
-                , coalesce(case when m.DurationId = 3 then m.Reinsurance else 0 end, 0) as Reinsurance3
-                , coalesce(case when m.DurationId = 4 then m.Reinsurance else 0 end, 0) as Reinsurance4
-                , coalesce(case when m.DurationId = 5 then m.Reinsurance else 0 end, 0) as Reinsurance5
-                , coalesce(case when m.DurationId = 6 then m.Reinsurance else 0 end, 0) as Reinsurance1P
+                , isnull(case when m.DurationId = 1 then m.Reinsurance end, 0) as Reinsurance1
+                , isnull(case when m.DurationId = 2 then m.Reinsurance end, 0) as Reinsurance2
+                , isnull(case when m.DurationId = 3 then m.Reinsurance end, 0) as Reinsurance3
+                , isnull(case when m.DurationId = 4 then m.Reinsurance end, 0) as Reinsurance4
+                , isnull(case when m.DurationId = 5 then m.Reinsurance end, 0) as Reinsurance5
+                , isnull(case when m.DurationId = 6 then m.Reinsurance end, 0) as Reinsurance1P
 
         from CostCte m
     )
