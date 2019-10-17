@@ -99,19 +99,7 @@ ALTER TABLE Hardware.ServiceSupportCost
         , TotalIbClusterPla_Approved       float
         , TotalIbClusterPlaRegion          float
         , TotalIbClusterPlaRegion_Approved float
-
-CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
-    ON [Hardware].[LogisticsCosts] (Country, Wg, ReactionTimeType)
-    INCLUDE ([StandardHandling],[HighAvailabilityHandling],[StandardDelivery],[ExpressDelivery],[TaxiCourierDelivery],[ReturnDeliveryFactory],[StandardHandling_Approved],[HighAvailabilityHandling_Approved],[StandardDelivery_Approved],[ExpressDelivery_Approved],[TaxiCourierDelivery_Approved],[ReturnDeliveryFactory_Approved])
-GO
-
-CREATE NONCLUSTERED INDEX [ix_MarkupStandardWaranty_Country_Wg] ON [Hardware].[MarkupStandardWaranty]
-(
-	[Country] ASC,
-	[Wg] ASC
-)
-WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
+go
 
 CREATE NONCLUSTERED INDEX [ix_RoleCodeHourlyRates_Country_RoleCode] ON [Hardware].[RoleCodeHourlyRates]
 (

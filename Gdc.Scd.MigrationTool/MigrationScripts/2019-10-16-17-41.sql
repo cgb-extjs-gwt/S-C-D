@@ -98,8 +98,12 @@ exec spDropConstaint '[Hardware].[MarkupOtherCosts]', '[PK_Hardware_MarkupOtherC
 exec spDropConstaint '[Hardware].[MarkupOtherCosts]', '[PK_Hardware_MarkupOtherCosts]';
 exec spDropConstaint '[Hardware].[MarkupStandardWaranty]', '[PK_Hardware_MarkupStandardWaranty]';
 exec spDropConstaint '[Hardware].[MarkupStandardWaranty]', '[PK_Hardware_MarkupStandardWaranty_Id]';
+
 exec spDropConstaint '[Hardware].[ProActive]', '[PK_Hardware_ProActive_Id]';
 exec spDropConstaint '[Hardware].[ProActive]', '[PK_Hardware_ProActive]';
+exec spDropIndex '[Hardware].[ProActive]', '[ix_Hardware_ProActive]';
+exec spDropIndex '[Hardware].[ProActive]', '[IX_Hardware_ProActive_Country]';
+
 
 exec spDropIndex '[Hardware].[LogisticsCosts]', '[ix_Hardware_LogisticsCosts]';
 exec spDropIndex '[Hardware].[LogisticsCosts]', '[IX_Hardware_LogisticsCosts_Country]';
