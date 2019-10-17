@@ -2,7 +2,7 @@
   DROP FUNCTION Hardware.GetReleaseCosts;
 GO
 
-CREATE FUNCTION Hardware.GetReleaseCosts (
+CREATE FUNCTION [Hardware].[GetReleaseCosts] (
     @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
@@ -22,28 +22,19 @@ RETURN
         select r.Wg
              , ta.ReactionTimeId
              , ta.AvailabilityId
-             , r.ReinsuranceFlatfee_norm_Approved / er.Value as Cost
-        from Hardware.Reinsurance r
+             , r.Cost_approved as Cost
+        from Hardware.ReinsuranceCalc r
 
         JOIN Dependencies.ReactionTime_Avalability ta on ta.Id = r.ReactionTimeAvailability and ta.IsDisabled = 0
 
-        JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance_Approved
-
         where r.Duration = (select id from Dependencies.Duration where IsProlongation = 1 and Value = 1)
-              and r.DeactivatedDateTime is null
     )
     , CostCte as (
         select    m.*
 
-                , coalesce(m.AvailabilityFee, 0) as AvailabilityFeeOrZero
+                , isnull(m.AvailabilityFee, 0) as AvailabilityFeeOrZero
 
-                , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * ((m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate) as FieldServicePerYear
-
-                , m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory as LogisticPerYear
-
-                , m.LocalRemoteAccessSetup + m.Year * (m.LocalPreparation + m.LocalRegularUpdate + m.LocalRemoteCustomerBriefing + m.LocalOnsiteCustomerBriefing + m.Travel + m.CentralExecutionReport) as ProActive
-
-                , coalesce(r.Cost, 0) as ReinsuranceProlCost
+                , isnull(r.Cost, 0) as ReinsuranceProlCost
        
         from Hardware.GetCalcMember(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
         left join ReinsuranceCte r on r.Wg = m.WgId and r.ReactionTimeId = m.ReactionTimeId and r.AvailabilityId = m.AvailabilityId
