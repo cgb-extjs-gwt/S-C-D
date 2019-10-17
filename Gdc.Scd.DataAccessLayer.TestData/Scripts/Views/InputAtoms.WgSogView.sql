@@ -8,5 +8,5 @@ CREATE VIEW InputAtoms.WgSogView as
          , sog.Description as SogDescription
     from InputAtoms.Wg wg
     left join InputAtoms.Sog sog on sog.id = wg.SogId
-    where wg.DeactivatedDateTime is null
+    where wg.Deactivated = 0
 GO
