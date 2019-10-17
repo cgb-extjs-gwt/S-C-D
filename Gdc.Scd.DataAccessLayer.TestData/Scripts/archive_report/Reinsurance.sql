@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetReinsurance') is not null
     drop procedure Archive.spGetReinsurance;
 go
 
-create procedure Archive.spGetReinsurance
+create procedure [Archive].[spGetReinsurance]
 AS
 begin
     select  wg.Name as Wg

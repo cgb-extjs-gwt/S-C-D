@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetMaterialCostWarrantyEmeia') is not null
     drop procedure Archive.spGetMaterialCostWarrantyEmeia;
 go
 
-create procedure Archive.spGetMaterialCostWarrantyEmeia
+create procedure [Archive].[spGetMaterialCostWarrantyEmeia]
 AS
 begin
     select  wg.Name as Wg
@@ -17,7 +17,7 @@ begin
     from Hardware.MaterialCostWarrantyEmeia mcw
     join Archive.GetWg(null) wg on wg.id = mcw.Wg
 
-    where mcw.DeactivatedDateTime is null
+    where mcw.Deactivated = 0
 
     order by wg.Name
 end

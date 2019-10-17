@@ -15,23 +15,23 @@ returns @tbl table (
 begin
 
     insert into @tbl
-    select    dig.Id
-            , dig.Name
-            , dig.Description
+    select  dig.Id
+          , dig.Name
+          , dig.Description
 
-            , sog.Name as Sog
-            , sfab.Name as Sfab
-            , pla.Name as Pla
-            , cpla.Name as ClusterPla
+          , sog.Name as Sog
+          , sfab.Name as Sfab
+          , pla.Name as Pla
+          , cpla.Name as ClusterPla
     from InputAtoms.SwDigit dig
-    left join InputAtoms.Sog sog on sog.Id = dig.SogId and sog.DeactivatedDateTime is null
-    left join InputAtoms.Sfab sfab on sfab.Id = sog.SFabId and sfab.DeactivatedDateTime is null
-    left join InputAtoms.Pla pla on pla.Id = sfab.PlaId
+    left join InputAtoms.Sog sog on sog.Id = dig.SogId and sog.Deactivated = 0
+    left join InputAtoms.Sfab sfab on sfab.Id = sog.SFabId and sfab.Deactivated = 0
+    left join InputAtoms.Pla pla on pla.Id = sfab.PlaId 
     left join InputAtoms.ClusterPla cpla on cpla.Id = pla.ClusterPlaId
 
-    where dig.DeactivatedDateTime is null
+    where dig.Deactivated = 0
 
     return;
 
 end
-GO
+go

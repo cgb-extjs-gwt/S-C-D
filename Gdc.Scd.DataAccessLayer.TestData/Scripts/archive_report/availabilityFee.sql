@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetAvailabilityFee') is not null
     drop procedure Archive.spGetAvailabilityFee;
 go
 
-create procedure Archive.spGetAvailabilityFee
+create procedure [Archive].[spGetAvailabilityFee]
 AS
 begin
     select  c.Name as Country

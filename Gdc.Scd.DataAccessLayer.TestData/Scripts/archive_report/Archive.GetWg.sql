@@ -2,7 +2,7 @@
     drop function Archive.GetWg;
 go
 
-create function Archive.GetWg(@software bit null)
+create function [Archive].[GetWg](@software bit)
 returns @tbl table (
       Id bigint not null primary key
     , Name nvarchar(255)
@@ -24,7 +24,7 @@ begin
     left join InputAtoms.Pla pla on pla.Id = wg.PlaId
     left join InputAtoms.ClusterPla cpla on cpla.Id = pla.ClusterPlaId
     left join InputAtoms.Sog sog on sog.id = wg.SogId
-    where wg.DeactivatedDateTime is null
+    where wg.Deactivated = 0
           and (@software is null or wg.IsSoftware = @software)
 
     return;
