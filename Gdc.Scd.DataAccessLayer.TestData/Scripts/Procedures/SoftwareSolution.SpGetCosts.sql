@@ -8,25 +8,11 @@ CREATE PROCEDURE [SoftwareSolution].[SpGetCosts]
     @av dbo.ListID readonly,
     @year dbo.ListID readonly,
     @lastid bigint,
-    @limit int,
-    @total int output
+    @limit int
 AS
 BEGIN
 
     SET NOCOUNT ON;
-
-	declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
-	declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
-	declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
-
-    SELECT @total = COUNT(m.id)
-
-        FROM SoftwareSolution.SwSpMaintenance m 
-        JOIN Dependencies.Duration_Availability dav on dav.Id = m.DurationAvailability
-
-		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
-			AND (@isEmptyAV = 1 or dav.AvailabilityId in (select id from @av))
-			AND (@isEmptyYear = 1 or dav.YearId in (select id from @year))
 
     select  m.rownum
           , m.Id
@@ -51,7 +37,8 @@ BEGIN
     join Dependencies.Availability av on av.Id = m.Availability
     join Dependencies.Duration dr on dr.Id = m.Year
 
-    order by m.SwDigit, m.Availability, m.Year
+    order by m.rownum
 
 END
-GO
+
+go

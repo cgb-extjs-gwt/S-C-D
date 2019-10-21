@@ -3,42 +3,17 @@
 go
 
 CREATE PROCEDURE [SoftwareSolution].[SpGetProActiveCosts]
-     @approved bit,
-  	@cnt dbo.ListID readonly,
+    @approved bit,
+    @cnt dbo.ListID readonly,
     @digit dbo.ListID readonly,
     @av dbo.ListID readonly,
     @year dbo.ListID readonly,
     @lastid bigint,
-    @limit int,
-    @total int output
+    @limit int
 AS
 BEGIN
 
     SET NOCOUNT ON;
-
-	declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
-	declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
-	declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
-	declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
-
-    WITH FspCte AS (
-        select fsp.SwDigitId
-        from fsp.SwFspCodeTranslation fsp
-        join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
-		where (@isEmptyDigit = 1 or fsp.SwDigitId in (select id from @digit))
-				AND (@isEmptyAV = 1 or fsp.AvailabilityId in (select id from @av))
-				AND (@isEmptyYear = 1 or fsp.DurationId in (select id from @year))
-    )
-    SELECT @total = COUNT(pro.id)
-
-    FROM SoftwareSolution.ProActiveSw pro
-    LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
-
-	WHERE (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
-		AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
-		AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
-
-    -----------------------------------------------------------------------------------------------------
 
     select    m.rownum
             , c.Name as Country               
@@ -59,8 +34,8 @@ BEGIN
     left join Dependencies.Year y on y.Id = m.DurationId
     left join Dependencies.ProActiveSla pro on pro.Id = m.ProactiveSlaId
 
-    order by m.SwDigit, m.AvailabilityId, m.DurationId, m.ProactiveSlaId;
-
+    order by m.rownum;
 
 END
-GO
+
+go

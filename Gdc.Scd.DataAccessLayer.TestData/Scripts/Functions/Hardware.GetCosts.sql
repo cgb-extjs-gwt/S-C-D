@@ -88,7 +88,8 @@ RETURN
 
         from CostCte5 m
     )    
-    select m.Id
+    select m.rownum
+         , m.Id
 
          --SLA
 
@@ -179,4 +180,5 @@ RETURN
 
        from CostCte6 m
 )
+
 go

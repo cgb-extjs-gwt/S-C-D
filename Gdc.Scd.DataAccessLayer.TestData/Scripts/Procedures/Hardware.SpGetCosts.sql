@@ -14,21 +14,20 @@ CREATE PROCEDURE [Hardware].[SpGetCosts]
     @loc          dbo.ListID readonly,
     @pro          dbo.ListID readonly,
     @lastid       bigint,
-    @limit        int,
-    @total        int output
+    @limit        int
 AS
 BEGIN
 
     SET NOCOUNT ON;
-
-    select @total = COUNT(Id) from Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
     if @local = 1
     begin
     
         --convert values from EUR to local
 
-        select Id
+        select 
+               rownum
+             , Id
 
              , Country
              , Currency
@@ -80,13 +79,15 @@ BEGIN
              , ChangeUserEmail                               as ChangeUserEmail
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
-        order by Id
+        order by rownum
         
     end
     else
     begin
 
-        select Id
+        select                
+               rownum
+             , Id
 
              , Country
              , 'EUR' as Currency
@@ -138,7 +139,6 @@ BEGIN
              , ChangeUserEmail               
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
-        order by Id
+        order by rownum
     end
 END
-go

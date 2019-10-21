@@ -19,7 +19,8 @@ RETURNS TABLE
 AS
 RETURN 
 (
-    SELECT    m.Id
+    SELECT    m.rownum
+            , m.Id
 
             --SLA
 
@@ -200,4 +201,4 @@ RETURN
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 )
-go
+GO
