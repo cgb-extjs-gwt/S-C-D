@@ -96,8 +96,11 @@ exec spDropConstaint '[Fsp].[HwFspCodeTranslation]', '[PK_HwFspCodeTranslation]'
 
 exec spDropConstaint '[Hardware].[MarkupOtherCosts]', '[PK_Hardware_MarkupOtherCosts_Id]';
 exec spDropConstaint '[Hardware].[MarkupOtherCosts]', '[PK_Hardware_MarkupOtherCosts]';
+exec spDropIndex '[Hardware].[MarkupOtherCosts]', '[ix_Hardware_MarkupOtherCosts]';
+
 exec spDropConstaint '[Hardware].[MarkupStandardWaranty]', '[PK_Hardware_MarkupStandardWaranty]';
 exec spDropConstaint '[Hardware].[MarkupStandardWaranty]', '[PK_Hardware_MarkupStandardWaranty_Id]';
+exec spDropIndex '[Hardware].[MarkupStandardWaranty]', '[ix_Hardware_MarkupStandardWaranty]';
 
 exec spDropConstaint '[Hardware].[ProActive]', '[PK_Hardware_ProActive_Id]';
 exec spDropConstaint '[Hardware].[ProActive]', '[PK_Hardware_ProActive]';
@@ -119,12 +122,17 @@ exec spDropIndex '[Portfolio].[LocalPortfolio]', '[IX_LocalPortfolio_Sla]';
 exec spDropConstaint '[Hardware].[LogisticsCosts]', '[PK_Hardware_LogisticsCosts_Id]';
 exec spDropConstaint '[Hardware].[LogisticsCosts]', '[PK_Hardware_LogisticsCosts]';
 exec spDropConstaint '[Hardware].[LogisticsCosts]', 'PK_Hardware_LogisticsCosts___';
+EXEC spDropIndex '[Hardware].[LogisticsCosts]', 'ix_Hardware_LogisticsCosts'
+
 exec spDropConstaint '[Hardware].[FieldServiceCalc]', '[PK_FieldServiceCalc]';
+exec spDropIndex'[Hardware].[FieldServiceCalc]', '[ix_FieldServiceCalc]';
+
 exec spDropConstaint '[Hardware].[FieldServiceTimeCalc]', '[PK_FieldServiceTimeCalc]';
 exec spDropConstaint '[Hardware].[AvailabilityFeeCalc]', '[PK_Hardware_AvailabilityFeeCalc]';
 
 exec spDropConstaint '[Hardware].[Reinsurance]', '[PK_Hardware_Reinsurance_Id]';
 exec spDropConstaint '[Hardware].[Reinsurance]', '[PK_Hardware_Reinsurance]';
+exec spDropIndex '[Hardware].[Reinsurance]', '[ix_Hardware_Reinsurance]';
 
 exec spDropIndex '[Hardware].[FieldServiceCalc]', '[ix_FieldServiceCalc_Country]';
 exec spDropIndex '[Hardware].[FieldServiceTimeCalc]', '[ix_FieldServiceTimeCalc_Country]';
@@ -523,7 +531,7 @@ go
 CREATE CLUSTERED INDEX IX_HwFspCodeTranslation_SlaHash_Sla ON [Fsp].[HwFspCodeTranslation] (SlaHash, Sla);
 GO
 
-ALTER TABLE [Hardware].[MarkupOtherCosts] ADD CONSTRAINT [PK_Hardware_MarkupOtherCosts] PRIMARY KEY CLUSTERED 
+CREATE CLUSTERED INDEX ix_Hardware_MarkupOtherCosts on [Hardware].[MarkupOtherCosts] 
 (
     [Country] ASC,
     [Wg] ASC,
@@ -532,7 +540,7 @@ ALTER TABLE [Hardware].[MarkupOtherCosts] ADD CONSTRAINT [PK_Hardware_MarkupOthe
 )
 GO
 
-ALTER TABLE [Hardware].[LogisticsCosts] ADD CONSTRAINT [PK_Hardware_LogisticsCosts] PRIMARY KEY CLUSTERED 
+CREATE CLUSTERED INDEX [ix_Hardware_LogisticsCosts]  ON [Hardware].[LogisticsCosts] 
 (
     [Country] ASC,
     [Wg] ASC,
@@ -541,7 +549,7 @@ ALTER TABLE [Hardware].[LogisticsCosts] ADD CONSTRAINT [PK_Hardware_LogisticsCos
 )
 GO
 
-ALTER TABLE [Hardware].[FieldServiceCalc] ADD  CONSTRAINT [PK_FieldServiceCalc] PRIMARY KEY CLUSTERED 
+CREATE CLUSTERED INDEX [ix_FieldServiceCalc] on [Hardware].[FieldServiceCalc]
 (
     [Country] ASC,
     [Wg] ASC,
@@ -702,7 +710,11 @@ BEGIN
 END
 GO
 
-ALTER PROCEDURE [Temp].[CopyHwFspCodeTranslations]
+if OBJECT_ID('[Temp].[CopyHwFspCodeTranslations]') is not null
+    drop PROCEDURE [Temp].[CopyHwFspCodeTranslations]
+go
+
+create PROCEDURE [Temp].[CopyHwFspCodeTranslations]
 AS
 BEGIN
 
@@ -775,13 +787,13 @@ go
 exec Fsp.spUpdateHwStandardWarranty;
 go
 
-ALTER TABLE [Hardware].[ProActive] ADD CONSTRAINT [PK_Hardware_ProActive] PRIMARY KEY CLUSTERED (Country, Wg, Deactivated)
+CREATE CLUSTERED INDEX [ix_Hardware_ProActive] on [Hardware].[ProActive] (Country, Wg, Deactivated)
 GO
 
-ALTER TABLE [Hardware].[MarkupStandardWaranty] ADD  CONSTRAINT [PK_Hardware_MarkupStandardWaranty] PRIMARY KEY CLUSTERED ([Country] ASC,[Wg] ASC,[Deactivated] ASC)
+CREATE CLUSTERED INDEX [ix_Hardware_MarkupStandardWaranty] on [Hardware].[MarkupStandardWaranty]([Country] ASC,[Wg] ASC,[Deactivated] ASC)
 GO
 
-ALTER TABLE [Hardware].[Reinsurance] ADD  CONSTRAINT [PK_Hardware_Reinsurance] PRIMARY KEY CLUSTERED 
+CREATE CLUSTERED INDEX [ix_Hardware_Reinsurance] on [Hardware].[Reinsurance] 
 (
     [Wg] ASC,
     [ReactionTimeAvailability] ASC,
