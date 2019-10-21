@@ -91,7 +91,7 @@ namespace Gdc.Scd.Web.Server
         {
             CheckJson(jsonArray);
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(jsonArray.Length + 64);
 
             using (JsonWriter writer = new JsonTextWriter(new StringWriter(sb)))
             {

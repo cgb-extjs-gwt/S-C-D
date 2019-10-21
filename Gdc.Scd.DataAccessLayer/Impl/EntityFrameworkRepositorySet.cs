@@ -249,6 +249,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<(string json, int total, bool hasMore)> ExecuteProcAsJsonAsync(string procName, int maxRowCount, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.AsStoredProcedure(procName, parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray(maxRowCount);
+                }
+            });
+        }
+
         public Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>

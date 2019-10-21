@@ -117,7 +117,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             }
         ],
 
-        pageSize: 25,
+        pageSize: 100,
         autoLoad: false,
 
         proxy: {
@@ -257,6 +257,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         ...selectable
                     }}
                     shadow
+                    cls="grid-paging-no-count"
                 >
 
                     { /*dependencies*/}
@@ -508,7 +509,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onLoad(s, recs) {
-
         let first = recs[0];
         if (first) {
             let d = first.data;

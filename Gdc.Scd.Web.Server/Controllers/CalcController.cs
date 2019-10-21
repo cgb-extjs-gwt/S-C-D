@@ -38,7 +38,15 @@ namespace Gdc.Scd.Web.Api.Controllers
                 HasAccess(filter.Approved, filter.Country))
             {
                 return calcSrv.GetHardwareCost(filter.Approved, filter, filter.Start, filter.Limit)
-                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
+                              .ContinueWith(x =>
+                              {
+                                  var total = (filter.Page - 1) * filter.Limit + x.Result.total;
+                                  if (x.Result.hasMore)
+                                  {
+                                      total++;
+                                  }
+                                  return this.JsonContent(x.Result.json, total);
+                              });
             }
             else
             {
@@ -123,10 +131,10 @@ namespace Gdc.Scd.Web.Api.Controllers
         public Task ReleaseHwCostAll([FromBody]HwFilterDto filter)
         {
             if (filter?.Country != null
-                && filter.Country.Length > 0 
+                && filter.Country.Length > 0
                 && HasAccess(false, filter.Country))
             {
-                return calcSrv.ReleaseHardwareCost(this.CurrentUser(), filter);                             
+                return calcSrv.ReleaseHardwareCost(this.CurrentUser(), filter);
             }
 
             return this.NotFoundContentAsync();
@@ -134,7 +142,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private bool IsRangeValid(int start, int limit)
         {
-            return start >= 0 && limit <= 50;
+            return start >= 0 && limit <= 100;
         }
 
         private bool HasAccess(long[] countryIds)
@@ -160,9 +168,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             var hasAccess = true;
-            for(var i=0;i< countryIds.Length; i++)
+            for (var i = 0; i < countryIds.Length; i++)
             {
-                hasAccess= hasAccess && userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds[i]);
+                hasAccess = hasAccess && userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds[i]);
             }
             return hasAccess;
         }
@@ -184,6 +192,6 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         public HwFilterDto Filter { get; set; }
 
-        public HwCostDto[] Items { get; set; }    
+        public HwCostDto[] Items { get; set; }
     }
 }
