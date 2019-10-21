@@ -20,9 +20,6 @@ namespace Gdc.Scd.Core.Entities
         [MustCompare(true)]
         public bool IsSolution { get; set; }
 
-        [MustCompare(true, IsIgnoreCase = true)]
-        public string ServiceTypes { get; set; }
-
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
