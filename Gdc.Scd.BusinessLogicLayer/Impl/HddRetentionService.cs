@@ -4,6 +4,7 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,7 +38,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return usr.IsAdmin;
         }
 
-        public async Task<(HddRetentionDto[] items, int total)> GetCost(
+        public async Task<(HddRetentionDto[] items, bool hasMore)> GetCost(
                 User usr,
                 bool approved,
                 HddFilterDto filter,
@@ -51,8 +52,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 query = query.WhereIf(filter.Wg != null && filter.Wg.Length > 0, x => filter.Wg.Contains(x.WgId));
             }
-
-            var count = await query.GetCountAsync();
 
             IQueryable<HddRetentionDto> queryDto;
 
@@ -90,9 +89,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 });
             }
 
-            var result = await queryDto.PagingAsync(start, limit);
+            var result = await queryDto.PagingAsync(start, limit + 1);
+            var hasMore = result.Length > limit;
+            if (hasMore)
+            {
+                Array.Resize(ref result, limit);
+            }
 
-            return (result, count);
+            return (result, hasMore);
         }
 
         public void SaveCost(User changeUser, HddRetentionDto[] records)

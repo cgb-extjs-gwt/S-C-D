@@ -59,6 +59,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginCfg}
+                    cls="grid-paging-no-count"
                 >
 
                     { /*dependencies*/}

@@ -141,6 +141,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     width="100%"
                     platformConfig={this.pluginCfg}
                     selectable={this.selectable}
+                    cls="grid-paging-no-count"
                 >
 
                     { /*dependencies*/}

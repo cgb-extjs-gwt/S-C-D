@@ -62,7 +62,15 @@ namespace Gdc.Scd.Web.Api.Controllers
             if (IsRangeValid(filter.Start, filter.Limit))
             {
                 return calcSrv.GetSoftwareCost(filter.Approved, filter, filter.Start, filter.Limit)
-                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
+                              .ContinueWith(x =>
+                              {
+                                  var total = (filter.Page - 1) * filter.Limit + x.Result.total;
+                                  if (x.Result.hasMore)
+                                  {
+                                      total++;
+                                  }
+                                  return this.JsonContent(x.Result.json, total);
+                              });
             }
             else
             {
@@ -71,9 +79,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public Task<HttpResponseMessage> GetSwProactiveCost(
-               [FromBody]SwFilterDto filter
-           )
+        public Task<HttpResponseMessage> GetSwProactiveCost([FromBody]SwFilterDto filter)
         {
             if (filter != null &&
                 filter.Country != null &&
@@ -82,7 +88,15 @@ namespace Gdc.Scd.Web.Api.Controllers
                 HasAccess(filter.Approved, filter.Country))
             {
                 return calcSrv.GetSoftwareProactiveCost(filter.Approved, filter, filter.Start, filter.Limit)
-                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
+                              .ContinueWith(x =>
+                              {
+                                  var total = (filter.Page - 1) * filter.Limit + x.Result.total;
+                                  if (x.Result.hasMore)
+                                  {
+                                      total++;
+                                  }
+                                  return this.JsonContent(x.Result.json, total);
+                              });
             }
             else
             {

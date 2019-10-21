@@ -53,7 +53,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                 <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
-                <Grid ref="grid" store={this.store} width="100%" platformConfig={this.pluginCfg}>
+                <Grid ref="grid" store={this.store} width="100%" platformConfig={this.pluginCfg} cls="grid-paging-no-count">
 
                     { /*dependencies*/}
 

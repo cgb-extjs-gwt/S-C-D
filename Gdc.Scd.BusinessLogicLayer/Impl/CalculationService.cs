@@ -41,24 +41,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, start, limit);
         }
 
-        public Task<(string json, int total)> GetSoftwareCost(
-            bool approved,
-            SwFilterDto filter,
-            int lastId,
-            int limit
-        )
+        public Task<(string json, int total, bool hasMore)> GetSoftwareCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
-            return new GetSwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
+            return new GetSwCost(repositorySet).ExecuteJsonAsync(approved, filter, start, limit);
         }
 
-        public Task<(string json, int total)> GetSoftwareProactiveCost(
-            bool approved,
-            SwFilterDto filter,
-            int lastId,
-            int limit
-        )
+        public Task<(string json, int total, bool hasMore)> GetSoftwareProactiveCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
-            return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
+            return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, start, limit);
         }
 
         public Task ReleaseHardwareCost(User changeUser, HwFilterDto filter)
