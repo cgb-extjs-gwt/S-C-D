@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetProActive') is not null
     drop procedure Archive.spGetProActive;
 go
 
-create procedure Archive.spGetProActive
+create procedure [Archive].[spGetProActive]
 AS
 begin
     select  c.Name as Country
@@ -31,7 +31,7 @@ begin
     join Archive.GetWg(null) wg on wg.id = pro.Wg
     join InputAtoms.CentralContractGroup ccg on ccg.Id = pro.CentralContractGroup
 
-    where pro.DeactivatedDateTime is null
+    where pro.Deactivated = 0
     order by c.Name, wg.Name
 end
 go

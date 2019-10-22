@@ -19,14 +19,20 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public Task<DataInfo<HddRetentionDto>> GetCost(
-                [FromBody]HddFilterDto filter
-            )
+        public Task<DataInfo<HddRetentionDto>> GetCost([FromBody]HddFilterDto filter)
         {
             if (IsRangeValid(filter.Start, filter.Limit))
             {
                 return hdd.GetCost(this.CurrentUser(), filter.Approved, filter, filter.Start, filter.Limit)
-                          .ContinueWith(x => new DataInfo<HddRetentionDto> { Items = x.Result.items, Total = x.Result.total });
+                          .ContinueWith(x =>
+                          {
+                              var total = (filter.Page - 1) * filter.Limit + x.Result.items.Length;
+                              if (x.Result.hasMore)
+                              {
+                                  total++;
+                              }
+                              return new DataInfo<HddRetentionDto> { Items = x.Result.items, Total = total };
+                          });
             }
             else
             {

@@ -36,7 +36,7 @@ begin
     join Dependencies.ServiceLocation loc on loc.Id = fsc.ServiceLocation
     join InputAtoms.CentralContractGroup ccg on ccg.Id = fsc.CentralContractGroup
 
-    where fsc.DeactivatedDateTime is null
+    where fsc.Deactivated = 0
 
     order by c.Name, wg.Name
 end

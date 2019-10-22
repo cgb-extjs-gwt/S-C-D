@@ -5,7 +5,8 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer, moneyRenderer, percentRenderer, ddMMyyyyRenderer } from "./Components/GridRenderer";
+import { setFloatOrEmpty, readonly } from "./Components/GridExts";
+import { ddMMyyyyRenderer, emptyRenderer, moneyRenderer, percentRenderer } from "./Components/GridRenderer";
 import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 import { ExportService } from "./Services/ExportService";
@@ -24,6 +25,11 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
 
         fields: [
             'wgId', 'listPrice', 'dealerDiscount', 'changeUserName', 'changeUserEmail', 'changeDate',
+
+            { name: 'readonlyWg', calculate: readonly('wg') },
+            { name: 'readonlySog', calculate: readonly('sog') },
+            { name: 'readonlyHdd', calculate: readonly('hddRetention') },
+            { name: 'readonlyChangeDate', calculate: readonly('changeDate') },
             {
                 name: 'dealerPriceCalc',
                 calculate: function (d) {
@@ -79,19 +85,13 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                 this.toggleToolbar(changed == 0);
 
                 store.suspendEvents(false);
-                store.fixNullValue(record, 'transferPrice');
-                store.fixNullValue(record, 'listPrice');
-                store.fixNullValue(record, 'dealerDiscount');
+                setFloatOrEmpty(record, 'transferPrice');
+                setFloatOrEmpty(record, 'listPrice');
+                setFloatOrEmpty(record, 'dealerDiscount');
                 store.resumeEvents();
             }
         },
-        fixNullValue: function (record, field) {
-            var d = record.data;
-            //
-            //stub, for correct null imput
-            var v = typeof d[field] === 'number' ? d[field] : '';
-            record.set(field, v);
-        }
+
     });
 
     private selectable: any = {
@@ -108,6 +108,8 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         disableCancelButton: true,
         isAdmin: false
     };
+
+    private pluginCfg: any;
 
     public constructor(props: CalcCostProps) {
         super(props);
@@ -127,18 +129,19 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
             <Container layout="fit">
 
                 <HddCostFilter
-                    ref={x => this.filter = x}
+                    ref={this.filterRef}
                     docked="right"
                     onSearch={this.onSearch}
                     onDownload={this.onDownload}
                     scrollable={true} />
 
                 <Grid
-                    ref={x => this.grid = x}
+                    ref={this.gridRef}
                     store={this.store}
                     width="100%"
-                    platformConfig={this.pluginConf()}
+                    platformConfig={this.pluginCfg}
                     selectable={this.selectable}
+                    cls="grid-paging-no-count"
                 >
 
                     { /*dependencies*/}
@@ -151,8 +154,8 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="WG(Asset)" dataIndex="wg" />
-                        <Column text="SOG(Asset)" dataIndex="sog" renderer={value => (value ? value : " ")} />
+                        <Column text="WG(Asset)" dataIndex="readonlyWg" />
+                        <Column text="SOG(Asset)" dataIndex="readonlySog" renderer={emptyRenderer} />
 
                     </Column>
 
@@ -166,7 +169,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
-                        <NumberColumn text="HDD retention" dataIndex="hddRetention" hidden={!isAdmin} />
+                        <NumberColumn text="HDD retention" dataIndex="readonlyHdd" hidden={!isAdmin} />
 
                         <NumberColumn text="Transfer price" dataIndex="transferPrice" editable={canEdit} />
                         <NumberColumn text="List price" dataIndex="listPrice" editable={canEdit} />
@@ -174,7 +177,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer price" dataIndex="dealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="changeUserCalc" renderer={emptyRenderer} />
-                        <Column text="Change date" dataIndex="changeDate" renderer={ddMMyyyyRenderer} />
+                        <Column text="Change date" dataIndex="readonlyChangeDate" renderer={ddMMyyyyRenderer} />
 
                     </Column>
 
@@ -186,6 +189,14 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         );
     }
 
+    private filterRef = (x) => {
+        this.filter = x;
+    }
+
+    private gridRef = (x) => {
+        this.grid = x;
+    }
+
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
@@ -193,6 +204,12 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         this.saveRecords = this.saveRecords.bind(this);
         //
         this.store.on('beforeload', this.onBeforeLoad, this);
+        //
+        if (this.approved()) { //using CanEdit() does not work cause await http request
+            this.pluginCfg = this.editPluginConf();
+        } else {
+            this.pluginCfg = this.readPluginConf();
+        }
     }
 
     private approved() {
@@ -226,37 +243,62 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         operation.setParams(params);
     }
 
-    private pluginConf(): any {
-        let cfg: any = {
+    private readPluginConf() {
+        let clipboardCfg = {
+            formats: {
+                text: { put: 'noPut' }
+            },
+            noPut: function () { }
+        };
+        return {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: true
+                    clipboard: clipboardCfg
                 }
             },
             '!desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: true
+                    clipboard: clipboardCfg
                 }
             }
         };
+    }
 
-        if (this.approved()) { //using CanEdit() does not work cause await http request
-            cfg['!desktop'].plugins.grideditable = true;
-            const desktop = cfg['desktop'];
-            desktop.plugins.gridcellediting = true;
-            desktop.plugins.selectionreplicator = true;
-            desktop.selectable = {
-                cells: true,
-                rows: true,
-                columns: false,
-                drag: true,
-                extensible: 'y'
-            };
-        }
-
-        return cfg;
+    private editPluginConf() {
+        let cb = {
+            formats: {
+                text: {
+                    get: 'getTextData',
+                    put: 'putTextData'
+                }
+            }
+        };
+        return {
+            'desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    gridcellediting: true,
+                    selectionreplicator: true,
+                    clipboard: cb
+                },
+                selectable: {
+                    cells: true,
+                    rows: true,
+                    columns: false,
+                    drag: true,
+                    extensible: 'y'
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: cb,
+                    grideditable: true
+                }
+            }
+        };
     }
 
     private reload() {

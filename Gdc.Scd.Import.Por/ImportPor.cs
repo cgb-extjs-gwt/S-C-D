@@ -52,13 +52,32 @@ namespace Gdc.Scd.Import.Por
             var plas = PorService.PlaService.GetAll().ToList();
             var step = 1;
 
+            var sogsToUpload = new List<SogPorDto>();
+
+            foreach (var porSog in porSogs)
+            {
+                var sogDto = new SogPorDto(porSog, solutionIdentifier);
+                if (!sogDto.IsSoftware || sogDto.IsSoftware && sogDto.ActivePorFlag)
+                    sogsToUpload.Add(sogDto);
+            }
+
             //STEP 1: UPLOADING SOGs
-            PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes, solutionIdentifier);
+            PorService.UploadSogs(plas, step, sogsToUpload);
             step++;
 
             //STEP 2: UPLOAD WGs
             var sogs = PorService.SogDomainService.GetAllActive().ToList();
-            PorService.UploadWgs(plas, step, sogs, porWGs, softwareServiceTypes);
+
+            var wgsToUpload = new List<WgPorDto>();
+
+            foreach (var porWg in porWGs)
+            {
+                var wgDto = new WgPorDto(porWg);
+                if (!wgDto.IsSoftware || wgDto.IsSoftware && wgDto.ActivePorFlag)
+                    wgsToUpload.Add(wgDto);
+            }
+
+            PorService.UploadWgs(plas, step, sogs, wgsToUpload);
             step++;
 
             //STEP 3: UPLOAD SOFTWARE DIGITS 

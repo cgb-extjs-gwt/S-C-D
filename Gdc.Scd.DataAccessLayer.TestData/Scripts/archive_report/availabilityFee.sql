@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetAvailabilityFee') is not null
     drop procedure Archive.spGetAvailabilityFee;
 go
 
-create procedure Archive.spGetAvailabilityFee
+create procedure [Archive].[spGetAvailabilityFee]
 AS
 begin
     select  c.Name as Country
@@ -28,7 +28,7 @@ begin
     join Archive.GetCountries() c on c.id = fee.Country
     join Archive.GetWg(0) wg on wg.id = fee.Wg
 
-    where fee.DeactivatedDateTime is null
+    where fee.Deactivated = 0
 
     order by c.Name, wg.Name
 end

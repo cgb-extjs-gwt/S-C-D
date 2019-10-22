@@ -1,8 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -19,14 +17,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task<(string json, int total)> ExecuteJsonAsync(bool approved, SwFilterDto filter, int lastid, int limit)
+        public Task<(string json, int total, bool hasMore)> ExecuteJsonAsync(bool approved, SwFilterDto filter, int start, int limit)
         {
-            var parameters = Prepare(approved, filter, lastid, limit);
-
-            var d = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
-            var total = GetTotal(parameters);
-
-            return (d.json, total);
+            var parameters = Prepare(approved, filter, start, limit + 1);
+            return _repo.ExecuteProcAsJsonAsync(PROC, limit, parameters);
         }
 
         private static DbParameter[] Prepare(bool approved, SwFilterDto filter, int lastid, int limit)
@@ -37,7 +31,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pDuration = new DbParameterBuilder().WithName("year");
             var pLastid = new DbParameterBuilder().WithName("lastid").WithValue(lastid);
             var pLimit = new DbParameterBuilder().WithName("limit").WithValue(limit);
-            var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
 
             if (filter != null)
             {
@@ -52,14 +45,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pAv.Build(),
                  pDuration.Build(),
                  pLastid.Build(),
-                 pLimit.Build(),
-                 pTotal.Build()
+                 pLimit.Build()
             };
-        }
-
-        private static int GetTotal(DbParameter[] parameters)
-        {
-            return parameters[6].GetInt32();
         }
     }
 }

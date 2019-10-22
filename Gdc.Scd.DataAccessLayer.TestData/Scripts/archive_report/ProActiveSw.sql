@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetProActiveSw') is not null
     drop procedure Archive.spGetProActiveSw;
 go
 
-create procedure Archive.spGetProActiveSw
+create procedure [Archive].[spGetProActiveSw]
 AS
 begin
     select   c.Name as Country
@@ -29,7 +29,7 @@ begin
     join Archive.GetCountries() c on c.Id = pro.Country
     join Archive.GetSwDigit() dig on dig.Id = pro.SwDigit
 
-    where pro.DeactivatedDateTime is null
+    where pro.Deactivated = 0
 
     order by c.Name, dig.Name
 end

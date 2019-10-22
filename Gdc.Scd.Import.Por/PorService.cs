@@ -102,11 +102,11 @@ namespace Gdc.Scd.Import.Por
 
 
         public virtual void UploadSogs(List<Pla> plas, int step,
-            List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes, string solutionIdentifier)
+            List<SogPorDto> sogs)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes,
-                UpdateQueryOptions, solutionIdentifier);
+            var success = SogService.UploadSogs(sogs, plas, DateTime.Now,
+                UpdateQueryOptions);
             if (success)
                 success = SogService.DeactivateSogs(sogs, DateTime.Now);
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
@@ -114,10 +114,10 @@ namespace Gdc.Scd.Import.Por
 
 
         public virtual void UploadWgs(List<Pla> plas, int step,
-            List<Sog> sogs, List<SCD2_WarrantyGroups> wgs, string[] softwareServiceTypes)
+            List<Sog> sogs, List<WgPorDto> wgs)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
-            var success = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, softwareServiceTypes, UpdateQueryOptions);
+            var success = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, UpdateQueryOptions);
             if (success)
                 success = WgService.DeactivateWgs(wgs, DateTime.Now);
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);

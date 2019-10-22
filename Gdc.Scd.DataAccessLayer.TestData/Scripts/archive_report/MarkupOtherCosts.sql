@@ -36,5 +36,5 @@ begin
     where moc.Deactivated = 0
     order by c.Name, wg.Name
 end
-GO
+go
 

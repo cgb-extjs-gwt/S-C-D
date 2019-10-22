@@ -7,11 +7,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICalculationService
     {
-        Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int start, int limit);
+        Task<(string json, int total, bool hasMore)> GetHardwareCost(bool approved, HwFilterDto filter, int start, int limit);
 
-        Task<(string json, int total)> GetSoftwareCost(bool approved, SwFilterDto filter, int start, int limit);
+        Task<(string json, int total, bool hasMore)> GetSoftwareCost(bool approved, SwFilterDto filter, int start, int limit);
 
-        Task<(string json, int total)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
+        Task<(string json, int total, bool hasMore)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
 
         void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records);
 

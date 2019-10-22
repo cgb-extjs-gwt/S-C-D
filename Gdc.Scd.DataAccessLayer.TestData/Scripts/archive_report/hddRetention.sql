@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetHddRetention') is not null
     drop procedure Archive.spGetHddRetention;
 go
 
-create procedure Archive.spGetHddRetention
+create procedure [Archive].[spGetHddRetention]
 AS
     begin
     with HddCte as (
@@ -24,7 +24,7 @@ AS
 
         from Hardware.HddRetention h
         join Dependencies.Year y on y.Id = h.Year
-        where h.DeactivatedDateTime is null
+        where h.Deactivated = 0
 
         group by h.Wg
     )
