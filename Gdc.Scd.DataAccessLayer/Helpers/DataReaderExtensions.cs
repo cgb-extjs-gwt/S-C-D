@@ -65,6 +65,22 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return (sb.ToString(), total);
         }
 
+        public static (string json, int total, bool hasMore) MapToJsonArray(this DbDataReader reader, int maxRowCount)
+        {
+            if (IsEmpty(reader))
+            {
+                return ("[]", 0, false);
+            }
+
+            var sb = new StringBuilder(512);
+
+            using (var writer = new JsonTextWriter(new StringWriter(sb)))
+            {
+                var (total, hasMore) = WriteJsonArray(reader, writer, maxRowCount);
+                return (sb.ToString(), total, hasMore);
+            }
+        }
+
         public static Stream MapToJsonArrayStream(this DbDataReader reader)
         {
             if (IsEmpty(reader))
@@ -155,6 +171,46 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             writer.WriteEndArray();
 
             return total;
+        }
+
+        private static (int total, bool hasMore) WriteJsonArray(DbDataReader reader, JsonWriter writer, int max)
+        {
+            int total = 0;
+            bool hasMore = false;
+            int i, fieldCount = reader.FieldCount;
+
+            writer.WriteStartArray();
+
+            while (reader.Read())
+            {
+                if (total == max)
+                {
+                    //no need to read all dataset anymore
+
+                    hasMore = true;
+                    break;
+                }
+
+                total++;
+                writer.WriteStartObject();
+
+                for (i = 0; i < fieldCount; i++)
+                {
+                    if (reader.IsDBNull(i))
+                    {
+                        continue;
+                    }
+
+                    writer.WritePropertyName(reader.GetName(i));
+                    writer.WriteValue(reader.GetValue(i));
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            return (total, hasMore);
         }
     }
 }

@@ -18,16 +18,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private filter: SwCostFilter;
 
-    private selectable: any = {
-        rows: true,
-        cells: true,
-        columns: true,
-        drag: true,
-        checkbox: false
-    };
-
-    private extensible: string = 'both';
-
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         pageSize: 25,
@@ -50,6 +40,8 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         }
     });
 
+    private pluginCfg: any;
+
     public constructor(props: CalcCostProps) {
         super(props);
         this.init();
@@ -61,12 +53,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                 <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
-                <Grid ref="grid"
-                    store={this.store}
-                    width="100%"
-                    plugins={['pagingtoolbar', 'clipboard']}
-                    selectable={{ extensible: this.extensible, ...this.selectable }}
-                >
+                <Grid ref="grid" store={this.store} width="100%" platformConfig={this.pluginCfg} cls="grid-paging-no-count">
 
                     { /*dependencies*/}
 
@@ -119,6 +106,38 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad);
+        this.pluginCfg = this.getPluginCfg();
+    }
+
+    private getPluginCfg() {
+        let clipboardCfg = {
+            formats: {
+                text: { put: 'noPut' }
+            },
+            noPut: function () { }
+        };
+        return {
+            'desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: clipboardCfg
+                },
+                selectable: {
+                    rows: true,
+                    cells: true,
+                    columns: true,
+                    drag: true,
+                    checkbox: false,
+                    extensible: 'both'
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: clipboardCfg
+                }
+            }
+        };
     }
 
     private onSearch(filter: SwCostFilterModel) {

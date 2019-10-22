@@ -52,6 +52,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<(string json, int total)> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
+        Task<(string json, int total, bool hasMore)> ExecuteProcAsJsonAsync(string procName, int maxRowCount, params DbParameter[] parameters);
+
         Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
 
         Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters);

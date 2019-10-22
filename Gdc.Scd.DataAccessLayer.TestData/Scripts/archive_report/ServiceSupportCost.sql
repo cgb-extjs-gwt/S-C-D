@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetServiceSupportCost') is not null
     drop procedure Archive.spGetServiceSupportCost;
 go
 
-create procedure Archive.spGetServiceSupportCost
+create procedure [Archive].[spGetServiceSupportCost]
 AS
 begin
     select  c.Name as Country
@@ -20,7 +20,7 @@ begin
     join Archive.GetCountries() c on c.id = ssc.Country
     join InputAtoms.ClusterPla cpla on cpla.Id = ssc.ClusterPla
 
-    where ssc.DeactivatedDateTime is null
+    where ssc.Deactivated = 0
 
     order by c.Name, cpla.Name
 end

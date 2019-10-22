@@ -17,7 +17,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         public void LoadTest()
         {
             var data = testing.Load(Config.SpFile);
-            ExcelWriterTest.Save(data, "sp_loaded.xlsm");
+            ExcelWriterTest.Save(data, "sp_loaded_scd_2.0.xlsx");
         }
 
         [Ignore("for one time test only")]

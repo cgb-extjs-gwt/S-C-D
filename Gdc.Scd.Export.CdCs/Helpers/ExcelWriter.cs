@@ -17,19 +17,21 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 
         private class InputMctCdCsWGsColumns
         {
-            public const int ServiceLocation = 1;
-            public const int Availability = 2;
-            public const int ReactionTime = 3;
-            public const int ReactionType = 4;
-            public const int WarrantyGroup = 5;
-            public const int Duration = 6;
-            public const int ServiceTC = 7;
-            public const int ServiceTP = 8;
-            public const int ServiceTP_MonthlyYear1 = 9;
-            public const int ServiceTP_MonthlyYear2 = 10;
-            public const int ServiceTP_MonthlyYear3 = 11;
-            public const int ServiceTP_MonthlyYear4 = 12;
-            public const int ServiceTP_MonthlyYear5 = 13;
+            public const int Key = 1;
+            public const int CountryGroup = 2;
+            public const int ServiceLocation = 3;
+            public const int Availability = 4;
+            public const int ReactionTime = 5;
+            public const int ReactionType = 6;
+            public const int WarrantyGroup = 7;
+            public const int Duration = 8;
+            public const int ServiceTC = 9;
+            public const int ServiceTP = 10;
+            public const int ServiceTP_MonthlyYear1 = 11;
+            public const int ServiceTP_MonthlyYear2 = 12;
+            public const int ServiceTP_MonthlyYear3 = 13;
+            public const int ServiceTP_MonthlyYear4 = 14;
+            public const int ServiceTP_MonthlyYear5 = 15;
         }
 
         private class ProActiveOutputColumns
@@ -104,12 +106,6 @@ namespace Gdc.Scd.Export.CdCs.Helpers
         {
             var sheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs);
 
-            sheet.Column(1).InsertColumnsBefore(2);
-
-            sheet.SetCellAsString(1, 1, "Key");
-            sheet.SetCellAsString(1, 2, "Country Group");
-            sheet.Row(1).Style.Font.Bold = true;
-
             const int startRow = 2;
 
             sheet.ClearFrom(startRow);
@@ -118,21 +114,21 @@ namespace Gdc.Scd.Export.CdCs.Helpers
             {
                 var cost = data[i];
 
-                sheet.SetCellAsString(row, 1, cost.Key);
-                sheet.SetCellAsString(row, 2, cost.CountryGroup);
-                sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.ServiceLocation, cost.ServiceLocation);
-                sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.Availability, cost.Availability);
-                sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.ReactionTime, cost.ReactionTime);
-                sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.ReactionType, cost.ReactionType);
-                sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.WarrantyGroup, cost.WarrantyGroup);
-                sheet.SetCellAsString(row, 2 + InputMctCdCsWGsColumns.Duration, cost.Duration);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTC, cost.ServiceTC);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTP, cost.ServiceTP);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1, cost.ServiceTP_MonthlyYear1);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2, cost.ServiceTP_MonthlyYear2);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTP_MonthlyYear3, cost.ServiceTP_MonthlyYear3);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTP_MonthlyYear4, cost.ServiceTP_MonthlyYear4);
-                sheet.SetCellAsDouble(row, 2 + InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5, cost.ServiceTP_MonthlyYear5);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.Key, cost.Key);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.CountryGroup, cost.CountryGroup);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.ServiceLocation, cost.ServiceLocation);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.Availability, cost.Availability);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.ReactionTime, cost.ReactionTime);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.ReactionType, cost.ReactionType);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.WarrantyGroup, cost.WarrantyGroup);
+                sheet.SetCellAsString(row, InputMctCdCsWGsColumns.Duration, cost.Duration);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTC, cost.ServiceTC);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTP, cost.ServiceTP);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1, cost.ServiceTP_MonthlyYear1);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2, cost.ServiceTP_MonthlyYear2);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear3, cost.ServiceTP_MonthlyYear3);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear4, cost.ServiceTP_MonthlyYear4);
+                sheet.SetCellAsDouble(row, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5, cost.ServiceTP_MonthlyYear5);
             }
         }
 

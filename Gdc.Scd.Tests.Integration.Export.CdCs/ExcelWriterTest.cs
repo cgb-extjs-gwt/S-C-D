@@ -27,24 +27,46 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         }
 
         [TestCase]
+        public void ReadSlaTest()
+        {
+            var slas = writer.ReadSla();
+
+            var sla = slas[1];
+            Assert.AreEqual("On-Site Service", sla.ServiceLocation);
+            Assert.AreEqual("24x7", sla.Availability);
+            Assert.AreEqual("NBD", sla.ReactionTime);
+            Assert.AreEqual("response", sla.ReactionType);
+            Assert.AreEqual("CS1", sla.WarrantyGroup);
+            Assert.AreEqual("3 years", sla.Duration);
+
+            sla = slas[15];
+            Assert.AreEqual("On-Site Service", sla.ServiceLocation);
+            Assert.AreEqual("9x5 (local business hours)", sla.Availability);
+            Assert.AreEqual("NBD", sla.ReactionTime);
+            Assert.AreEqual("response", sla.ReactionType);
+            Assert.AreEqual("CS4", sla.WarrantyGroup);
+            Assert.AreEqual("3 years", sla.Duration);
+        }
+
+        [TestCase]
         public void WriteTcTpTest()
         {
             writer.WriteTcTp(GenTcTp());
-            Save(writer.GetData(), "service_cost.xlsm");
+            Save(writer.GetData(), "service_cost.xlsx");
         }
 
         [TestCase]
         public void WriteHddTest()
         {
             writer.WriteHdd(GenHdd(), "RUB");
-            Save(writer.GetData(), "hdd_retention.xlsm");
+            Save(writer.GetData(), "hdd_retention.xlsx");
         }
 
         [TestCase]
         public void WriteProTest()
         {
             writer.WriteProactive(GenPro(), "RUB");
-            Save(writer.GetData(), "proactive.xlsm");
+            Save(writer.GetData(), "proactive.xlsx");
         }
 
 
@@ -54,7 +76,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
             writer.WriteTcTp(GenTcTp());
             writer.WriteProactive(GenPro(), "RUB");
             writer.WriteHdd(GenHdd(), "RUB");
-            Save(writer.GetData(), "cd_cs_doc.xlsm");
+            Save(writer.GetData(), "cd_cs_doc.xlsx");
         }
 
         public static void Save(Stream stream, string fn)
@@ -64,7 +86,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
 
         public static System.IO.Stream GetDoc()
         {
-            return StreamUtil.ReadBin(TEST_PATH, "CalculationTool_CD_CS.xlsm");
+            return StreamUtil.ReadBin(TEST_PATH, "CD_CS_Master File_SCD 2.0.xlsx");
         }
 
         public static List<ServiceCostDto> GenTcTp()

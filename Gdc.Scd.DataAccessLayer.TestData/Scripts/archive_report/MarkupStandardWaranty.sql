@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetMarkupStandardWaranty') is not null
     drop procedure Archive.spGetMarkupStandardWaranty;
 go
 
-create procedure Archive.spGetMarkupStandardWaranty
+create procedure [Archive].[spGetMarkupStandardWaranty]
 AS
 begin
     select  c.Name as Country
@@ -25,7 +25,7 @@ begin
     join Archive.GetWg(null) wg on wg.id = msw.Wg
     join InputAtoms.CentralContractGroup ccg on ccg.Id = msw.CentralContractGroup
 
-    where msw.DeactivatedDateTime is null
+    where msw.Deactivated = 0
     order by c.Name, wg.Name
 end
 go

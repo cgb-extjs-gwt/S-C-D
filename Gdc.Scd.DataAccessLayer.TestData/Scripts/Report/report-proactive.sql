@@ -2,7 +2,7 @@
   DROP PROCEDURE Report.spProActive;
 go 
 
-CREATE PROCEDURE Report.spProActive
+CREATE PROCEDURE [Report].[spProActive]
 (
     @cnt          bigint,
     @wg           bigint,
@@ -18,6 +18,8 @@ CREATE PROCEDURE Report.spProActive
 AS
 BEGIN
 
+    declare @cntGroup nvarchar(255) = (select Name from InputAtoms.CountryGroup where Id = (select CountryGroupId from InputAtoms.Country where id = @cnt))
+
     declare @cntTable dbo.ListId; insert into @cntTable(id) values(@cnt);
 
     declare @wg_SOG_Table dbo.ListId;
@@ -27,7 +29,7 @@ BEGIN
         where SogId in (select wg.SogId from InputAtoms.Wg wg where @wg is null or wg.Id = @wg)
         and IsSoftware = 0
         and SogId is not null
-        and DeactivatedDateTime is null;
+        and Deactivated = 0;
 
     if not exists(select id from @wg_SOG_Table) return;
 
@@ -41,7 +43,7 @@ BEGIN
 
     declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
 
-    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
+    declare @proTable dbo.ListId; insert into @proTable(id) select id from Dependencies.ProActiveSla where UPPER(ExternalName) = 'NONE';
 
     with cte as (
         select m.* 
@@ -62,7 +64,7 @@ BEGIN
     )
     select    m.Id
             , m.Country
-            , c.CountryGroup
+            , @cntGroup as CountryGroup
             , m.Fsp
             , m.Wg
 
@@ -80,20 +82,16 @@ BEGIN
 
             , m.Currency
 
-            , wg.Sog
-            , wg.SogDescription
+            , sog.Name as Sog
+            , sog.Description as SogDescription
 
             , m.FspDescription
     from cte2 m
-    JOIN InputAtoms.CountryView c on c.Id = m.CountryId
-    JOIN InputAtoms.WgSogView wg on wg.Id = m.WgId
+    JOIN InputAtoms.Sog sog on Sog.Id = m.SogId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
 END
-GO
-
-update Report.Report set SqlFunc = 'spProActive' where upper(Name) = 'PROACTIVE-REPORTS';
 go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'PROACTIVE-REPORTS');
