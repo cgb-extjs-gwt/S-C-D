@@ -2,7 +2,6 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using System;
