@@ -17,7 +17,7 @@ namespace Gdc.Scd.Import.Por
 {
     public class PorService
     {
-        private ILogger Logger;
+        protected ILogger Logger;
 
         public IDataImporter<SCD2_ServiceOfferingGroups> SogImporter { get; }
         public IDataImporter<SCD2_WarrantyGroups> WgImporter { get; }
@@ -53,6 +53,8 @@ namespace Gdc.Scd.Import.Por
         public IPorSwProActiveService SoftwareProactiveService { get; }
         public ICostBlockService CostBlockService { get; }
         public List<UpdateQueryOption> UpdateQueryOptions { get; }
+
+        protected ICostBlockUpdateService CostBlockUpdateService;
 
         public PorService(IKernel kernel)
         {
@@ -100,6 +102,10 @@ namespace Gdc.Scd.Import.Por
             UpdateQueryOptions = new List<UpdateQueryOption>();
         }
 
+        /// <summary>
+        /// Test only
+        /// </summary>
+        protected PorService() { }
 
         public virtual void UploadSogs(List<Pla> plas, int step,
             List<SogPorDto> sogs)
@@ -234,9 +240,20 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
-        public virtual void UpdateCostBlocksByPla(List<Wg> newWgs)
+        public virtual void UpdateCostBlocksByPla(int step, List<Wg> newWgs)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Logger.Info(ImportConstantMessages.UPDATE_COSTS_BY_PLA_START, step);
+
+                CostBlockUpdateService.UpdateByPla(newWgs);
+
+                Logger.Info(ImportConstantMessages.UPDATE_COSTS_BY_PLA_END);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
+            }
         }
 
         /// <summary>

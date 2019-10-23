@@ -105,6 +105,7 @@
     <Compile Include="Impl\PorSwLicenseService.cs" />
     <Compile Include="Impl\PorSwProActiveService.cs" />
     <Compile Include="Impl\PorWgService.cs" />
+    <Compile Include="Interfaces\ICostBlockUpdateService.cs" />
     <Compile Include="Interfaces\IDataImporter.cs" />
     <Compile Include="Interfaces\IHwFspCodeTranslationService.cs" />
     <Compile Include="Interfaces\IPorSogService.cs" />

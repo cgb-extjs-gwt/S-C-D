@@ -25,7 +25,7 @@ namespace Gdc.Scd.Tests.Util
         public void Log(Exception exception, string message, params object[] args)
         {
             this.Exception = exception;
-            this.Message = message;
+            this.Message = string.Format(message, args);
             //
             IsTrace = false;
             IsDebug = false;
