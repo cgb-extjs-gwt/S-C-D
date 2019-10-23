@@ -234,7 +234,9 @@ namespace Gdc.Scd.Import.Por
 
             //STEP 10: UPDATE 2ndLevelSupportCosts
             PorService.Update2ndLevelSupportCosts(step);
+            step++;
 
+            //STEP 11: UPDATE COST BLOCK ELEMENTS BY PLA
             PorService.UpdateCostBlocksByPla(this.newWgs);
 
             log.Info(ImportConstantMessages.END_PROCESS);
