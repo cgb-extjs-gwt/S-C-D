@@ -113,14 +113,16 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public virtual void UploadWgs(List<Pla> plas, int step,
+        public virtual List<Wg> UploadWgs(List<Pla> plas, int step,
             List<Sog> sogs, List<WgPorDto> wgs)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
-            var success = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, UpdateQueryOptions);
+            var (success, added) = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, UpdateQueryOptions);
             if (success)
                 success = WgService.DeactivateWgs(wgs, DateTime.Now);
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
+            //
+            return added;
         }
 
 
@@ -230,6 +232,11 @@ namespace Gdc.Scd.Import.Por
             {
                 Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
             }
+        }
+
+        public virtual void UpdateCostBlocksByPla(List<Wg> newWgs)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

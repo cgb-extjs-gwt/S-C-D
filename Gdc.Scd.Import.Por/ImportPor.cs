@@ -14,6 +14,8 @@ namespace Gdc.Scd.Import.Por
 
         private PorService PorService;
 
+        private List<Wg> newWgs;
+
         public ImportPor(PorService por, ILogger log)
         {
             this.PorService = por;
@@ -77,7 +79,7 @@ namespace Gdc.Scd.Import.Por
                     wgsToUpload.Add(wgDto);
             }
 
-            PorService.UploadWgs(plas, step, sogs, wgsToUpload);
+            this.newWgs = PorService.UploadWgs(plas, step, sogs, wgsToUpload);
             step++;
 
             //STEP 3: UPLOAD SOFTWARE DIGITS 
@@ -232,6 +234,8 @@ namespace Gdc.Scd.Import.Por
 
             //STEP 10: UPDATE 2ndLevelSupportCosts
             PorService.Update2ndLevelSupportCosts(step);
+
+            PorService.UpdateCostBlocksByPla(this.newWgs);
 
             log.Info(ImportConstantMessages.END_PROCESS);
         }

@@ -2,12 +2,11 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Import.Por.Core.Dto;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
@@ -66,12 +65,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             return result;
         }
 
-        public bool UploadWgs(IEnumerable<WgPorDto> wgs, 
+        public (bool, List<Wg>) UploadWgs(IEnumerable<WgPorDto> wgs, 
             IEnumerable<Sog> sogs, 
             IEnumerable<Pla> plas, DateTime modifiedDateTime, 
             List<UpdateQueryOption> updateOptions)
         {
-            var result = true;
+            bool result = true;
+            List<Wg> added = null;
+
             _logger.Info(PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
             var updatedWgs = new List<Wg>();
 
@@ -119,8 +120,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     updatedWgs.Add(newWg);
                 }
 
-                var added = this.AddOrActivate(updatedWgs, modifiedDateTime, updateOptions);
-
+                added = this.AddOrActivate(updatedWgs, modifiedDateTime, updateOptions);
                 foreach (var addedEntity in added)
                 {
                     _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
@@ -134,9 +134,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
+                added = null;
             }
 
-            return result;
+            return (result, added);
         }
     }
 }

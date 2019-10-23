@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
 {
     public interface IPorWgService
     {
-        bool UploadWgs(IEnumerable<WgPorDto> wgs,
+        (bool ok, List<Wg> added) UploadWgs(IEnumerable<WgPorDto> wgs,
             IEnumerable<Sog> sogs,
             IEnumerable<Pla> plas,
             DateTime modifiedDateTime, 
