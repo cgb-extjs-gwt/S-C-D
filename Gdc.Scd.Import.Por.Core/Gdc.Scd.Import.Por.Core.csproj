@@ -145,6 +145,7 @@
       <DependentUpon>FrieseModel.edmx</DependentUpon>
       <LastGenOutput>FrieseModel.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Scripts\UpdateSwProactive.sql" />
     <EmbeddedResource Include="Scripts\UpdateSwSpMaintenance.sql" />
     <EmbeddedResource Include="Scripts\UpdateLogisticsCost.sql" />
     <EmbeddedResource Include="Scripts\UpdateMarkupOtherCosts.sql" />

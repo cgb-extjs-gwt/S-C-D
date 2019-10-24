@@ -25,6 +25,12 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             UpdateProactive(wgs);
         }
 
+        public void UpdateBySog(SwDigit[] digits)
+        {
+            UpdateSwProactive(digits);
+            UpdateSwSpMaintenance(digits);
+        }
+
         public virtual void UpdateFieldServiceCost(Wg[] wgs)
         {
             ExecuteFromFile("UpdateFieldServiceCost.sql", wgs);
@@ -50,9 +56,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             ExecuteFromFile("UpdateProactive.sql", wgs);
         }
 
-       public virtual void UpdateSwSpMaintenance(SwDigit[] digits)
+        public virtual void UpdateSwSpMaintenance(SwDigit[] digits)
         {
             ExecuteFromFile("UpdateSwSpMaintenance.sql", digits);
+        }
+
+        public virtual void UpdateSwProactive(SwDigit[] digits)
+        {
+            ExecuteFromFile("UpdateSwProactive.sql", digits);
         }
 
         protected virtual void ExecuteFromFile(string fn, Wg[] wgs)

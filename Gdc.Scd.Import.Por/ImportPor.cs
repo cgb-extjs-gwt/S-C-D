@@ -16,6 +16,8 @@ namespace Gdc.Scd.Import.Por
 
         private List<Wg> newWgs;
 
+        private List<SwDigit> newDigits;
+
         public ImportPor(PorService por, ILogger log)
         {
             this.PorService = por;
@@ -91,7 +93,8 @@ namespace Gdc.Scd.Import.Por
 
 
             var swInfo = FormatDataHelper.FillSwInfo(porSoftware);
-            var rebuildRelationships = PorService.UploadSoftwareDigits(porSoftware, sogs, swInfo, step);
+            var (rebuildRelationships, addedDigits) = PorService.UploadSoftwareDigits(porSoftware, sogs, swInfo, step);
+            this.newDigits = addedDigits;
             step++;
 
             //STEP 4: UPLOAD SOFTWARE LICENCE
@@ -238,6 +241,10 @@ namespace Gdc.Scd.Import.Por
 
             //STEP 11: UPDATE COST BLOCK ELEMENTS BY PLA
             PorService.UpdateCostBlocksByPla(step, this.newWgs);
+            step++;
+
+            //STEP 12: UPDATE SOFTWARE COST BLOCK ELEMENTS BY SOG
+            PorService.UpdateCostBlocksBySog(step, this.newDigits);
 
             log.Info(ImportConstantMessages.END_PROCESS);
         }

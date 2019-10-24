@@ -63,9 +63,21 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         }
 
         [TestCase]
+        public void UpdateBySogTest()
+        {
+            testing.UpdateBySog(CreateDigit());
+        }
+
+        [TestCase]
         public void UpdateSwSpMaintenanceTest()
         {
             testing.UpdateSwSpMaintenance(CreateDigit());
+        }
+
+        [TestCase]
+        public void UpdateSwProactiveTest()
+        {
+            testing.UpdateSwProactive(CreateDigit());
         }
 
         private Wg[] CreateWg()

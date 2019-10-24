@@ -132,18 +132,18 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public virtual bool UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs,
+        public virtual (bool ok, List<SwDigit> added) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs,
             SwHelperModel swInfo,
             int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
-            var success = SwDigitService.UploadSwDigits(swInfo.SwDigits, sogs, DateTime.Now, UpdateQueryOptions);
+            var (success, added) = SwDigitService.UploadSwDigits(swInfo.SwDigits, sogs, DateTime.Now, UpdateQueryOptions);
             if (success)
             {
                 success = SwDigitService.Deactivate(swInfo.SwDigits, DateTime.Now);
             }
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
-            return success;
+            return (success, added);
         }
 
 
@@ -249,6 +249,22 @@ namespace Gdc.Scd.Import.Por
                 CostBlockUpdateService.UpdateByPla(newWgs.ToArray());
 
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_BY_PLA_END);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
+            }
+        }
+
+        public virtual void UpdateCostBlocksBySog(int step, List<SwDigit> newDigits)
+        {
+            try
+            {
+                Logger.Info(ImportConstantMessages.UPDATE_SW_COSTS_BY_SOG_START, step);
+
+                CostBlockUpdateService.UpdateBySog(newDigits.ToArray());
+
+                Logger.Info(ImportConstantMessages.UPDATE_SW_COSTS_BY_SOG_END);
             }
             catch (Exception ex)
             {

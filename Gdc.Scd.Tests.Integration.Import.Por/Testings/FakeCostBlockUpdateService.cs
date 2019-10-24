@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using System;
-using System.Collections.Generic;
 
 namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
 {
@@ -11,6 +10,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
 
         public Action OnUpdateByPla;
 
+        public Action OnUpdateBySog;
+
         public void UpdateByPla(Wg[] wgs)
         {
             if (error != null)
@@ -19,6 +20,15 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
             }
 
             OnUpdateByPla?.Invoke();
+        }
+
+        public void UpdateBySog(SwDigit[] list)
+        {
+            if (error != null)
+            {
+                throw error;
+            }
+            OnUpdateBySog?.Invoke();
         }
     }
 }

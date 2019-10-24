@@ -21,5 +21,8 @@
 
         public const string UPDATE_COSTS_BY_PLA_START = "STEP {0}: Updating cost block by pla started...";
         public const string UPDATE_COSTS_BY_PLA_END = "Cost block by pla updated.";
+
+        public const string UPDATE_SW_COSTS_BY_SOG_START = "STEP {0}: Updating software cost block by sog started...";
+        public const string UPDATE_SW_COSTS_BY_SOG_END = "Software cost block by sog updated.";
     }
 }
