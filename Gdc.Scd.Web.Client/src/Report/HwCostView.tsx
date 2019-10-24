@@ -44,6 +44,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         fields: [
             'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ReleaseDate',
 
+            { name: 'roFsp', calculate: readonly('Fsp') },
             { name: 'roCountry', calculate: readonly('Country') },
             { name: 'roSog', calculate: readonly('Sog') },
             { name: 'roWg', calculate: readonly('Wg') },
@@ -270,6 +271,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.5" minWidth="50" hidden={!this.approved()} />
+                        <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer}/>
                         <Column text="Country" dataIndex="roCountry" />
                         <Column text="SOG(Asset)" dataIndex="roSog" renderer={emptyRenderer} />
                         <Column text="WG(Asset)" dataIndex="roWg" />
