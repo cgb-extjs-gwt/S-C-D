@@ -1,4 +1,4 @@
-﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
+﻿import { Button, Container, Panel, PanelProps, SearchField } from "@extjs/ext-react";
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
@@ -18,6 +18,8 @@ export interface FilterPanelProps extends PanelProps {
 }
 
 export class SwCostFilter extends React.Component<FilterPanelProps, any> {
+
+    private fsp: SearchField & any;
 
     private digit: MultiSelect;
 
@@ -63,6 +65,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
+                    <SearchField ref={x => this.fsp = x} label="FSP" placeholder="Search by FSP..." />
                     <MultiSelectField ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} label='SW digit'/>
                     <Panel title='Availability'
                         {...panelProps}>
@@ -87,7 +90,8 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
         return {
             digit: this.digit.getSelectedKeysOrNull(),
             availability: this.avail.getSelectedKeysOrNull(),
-            duration: this.duration.getSelectedKeysOrNull()
+            duration: this.duration.getSelectedKeysOrNull(),
+            fsp: this.fsp.getValue()
         }
     }
 

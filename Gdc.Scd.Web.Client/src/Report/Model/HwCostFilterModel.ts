@@ -10,4 +10,5 @@ export interface HwCostFilterModel {
     serviceLocation?: string[];
     proActive?: string[];
     currency?: CurrencyType;
+    fsp?: string;
 }
