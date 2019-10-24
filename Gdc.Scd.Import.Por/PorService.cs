@@ -97,6 +97,7 @@ namespace Gdc.Scd.Import.Por
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
             SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
             CostBlockService = kernel.Get<ICostBlockService>();
+            CostBlockUpdateService = kernel.Get<ICostBlockUpdateService>();
             SwSpMaintenanceService = kernel.Get<IPorSwSpMaintenaceService>();
 
             UpdateQueryOptions = new List<UpdateQueryOption>();

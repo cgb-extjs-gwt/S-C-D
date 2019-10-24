@@ -96,11 +96,11 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         {
             return new SwDigit[]
             {
-                  new SwDigit { Name = "E9" }
-                , new SwDigit { Name = "GX" }
-                , new SwDigit { Name = "HR" }
-                , new SwDigit { Name = "LQ" }
-                , new SwDigit { Name = "LR" }
+                new SwDigit { Name = "E9" },
+                new SwDigit { Name = "GX" },
+                new SwDigit { Name = "HR" },
+                new SwDigit { Name = "LQ" },
+                new SwDigit { Name = "LR" }
             };
         }
     }
