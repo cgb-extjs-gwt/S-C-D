@@ -1,7 +1,9 @@
-﻿using Gdc.Scd.Import.Por;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Import.Por;
 using Gdc.Scd.Tests.Integration.Import.Por.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Gdc.Scd.Tests.Integration.Import.Por
 {
@@ -29,7 +31,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
                 Assert.AreEqual("STEP -1: Updating cost block by pla started...", fakeLogger.Message);
             };
 
-            this.UpdateCostBlocksByPla(-1, null);
+            this.UpdateCostBlocksByPla(-1, new List<Wg>(0));
             Assert.IsTrue(fakeLogger.IsInfo);
             Assert.AreEqual("Cost block by pla updated.", fakeLogger.Message);
         }

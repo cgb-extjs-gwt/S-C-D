@@ -246,7 +246,7 @@ namespace Gdc.Scd.Import.Por
             {
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_BY_PLA_START, step);
 
-                CostBlockUpdateService.UpdateByPla(newWgs);
+                CostBlockUpdateService.UpdateByPla(newWgs.ToArray());
 
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_BY_PLA_END);
             }

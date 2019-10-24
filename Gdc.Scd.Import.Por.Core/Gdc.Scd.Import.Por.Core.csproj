@@ -89,6 +89,7 @@
     <Compile Include="Dto\WgPorDto.cs" />
     <Compile Include="Extensions\EntityExtensions.cs" />
     <Compile Include="Extensions\FspCodeExtensions.cs" />
+    <Compile Include="Impl\CostBlockUpdateService.cs" />
     <Compile Include="Impl\ImportHelper.cs" />
     <Compile Include="Impl\ImportService.cs" />
     <Compile Include="Impl\PorConstants.cs" />
@@ -144,6 +145,12 @@
       <DependentUpon>FrieseModel.edmx</DependentUpon>
       <LastGenOutput>FrieseModel.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Scripts\UpdateSwSpMaintenance.sql" />
+    <EmbeddedResource Include="Scripts\UpdateLogisticsCost.sql" />
+    <EmbeddedResource Include="Scripts\UpdateMarkupOtherCosts.sql" />
+    <EmbeddedResource Include="Scripts\UpdateMarkupStandardWaranty.sql" />
+    <EmbeddedResource Include="Scripts\UpdateProactive.sql" />
+    <EmbeddedResource Include="Scripts\UpdateFieldServiceCost.sql" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

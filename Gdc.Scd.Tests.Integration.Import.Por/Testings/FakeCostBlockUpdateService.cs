@@ -11,7 +11,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
 
         public Action OnUpdateByPla;
 
-        public void UpdateByPla(List<Wg> wgs)
+        public void UpdateByPla(Wg[] wgs)
         {
             if (error != null)
             {
