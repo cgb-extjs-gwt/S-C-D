@@ -29,6 +29,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void UpdateByPlaTest()
         {
+            testing.UpdateByPla(new Wg[0]);
             testing.UpdateByPla(CreateWg());
         }
 
@@ -65,6 +66,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void UpdateBySogTest()
         {
+            testing.UpdateBySog(null);
+            testing.UpdateBySog(new SwDigit[0]);
             testing.UpdateBySog(CreateDigit());
         }
 

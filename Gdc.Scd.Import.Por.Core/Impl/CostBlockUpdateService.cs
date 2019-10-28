@@ -18,6 +18,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public void UpdateByPla(Wg[] wgs)
         {
+            if (wgs == null || wgs.Length == 0)
+            {
+                return;
+            }
+
             UpdateFieldServiceCost(wgs);
             UpdateLogisticsCost(wgs);
             UpdateMarkupOtherCosts(wgs);
@@ -27,6 +32,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public void UpdateBySog(SwDigit[] digits)
         {
+            if (digits == null || digits.Length == 0)
+            {
+                return;
+            }
+
             UpdateSwProactive(digits);
             UpdateSwSpMaintenance(digits);
         }
