@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetReinsurance') is not null
     drop procedure Archive.spGetReinsurance;
 go
 
-create procedure Archive.spGetReinsurance
+create procedure [Archive].[spGetReinsurance]
 AS
 begin
     select  wg.Name as Wg
@@ -28,7 +28,7 @@ begin
     left join [References].Currency cur on cur.Id = r.CurrencyReinsurance_Approved
     left join [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance_Approved
 
-    where r.DeactivatedDateTime is null
+    where r.Deactivated = 0
     order by wg.Name, dur.Name
 end
 go

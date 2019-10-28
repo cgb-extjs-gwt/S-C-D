@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("SwFspCodeTranslation", Schema = MetaConstants.FspCodeTranslationSchema)]
+    [Table(MetaConstants.SwFspCodeTranslation, Schema = MetaConstants.FspCodeTranslationSchema)]
     public class SwFspCodeTranslation : FspCodeTranslation
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetAfr') is not null
     drop procedure Archive.spGetAfr;
 go
 
-create procedure Archive.spGetAfr
+create procedure [Archive].[spGetAfr]
 AS
 begin
     with AfrCte as (
@@ -15,7 +15,7 @@ begin
               , sum(case when y.IsProlongation = 1 and y.Value = 1 then afr.AFR_Approved end) as AFRP1
         from Hardware.AFR afr
         join Dependencies.Year y on y.Id = afr.Year 
-        where afr.DeactivatedDateTime is null
+        where afr.Deactivated = 0
         group by afr.Wg
     )
     select  wg.Name as Wg

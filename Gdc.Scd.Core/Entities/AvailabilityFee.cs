@@ -23,6 +23,11 @@ namespace Gdc.Scd.Core.Entities
         public long? WgId { get; set; }
         public Wg Wg { get; set; }
 
+
+        [Column(MetaConstants.CompanyInputLevelName)]
+        public long? CompanyId { get; set; }
+        public Company Company { get; set; }
+
         public double? InstalledBaseHighAvailability { get; set; }
         public double? TotalLogisticsInfrastructureCost { get; set; }
         public double? StockValueFj { get; set; }

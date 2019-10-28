@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Attributes;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Gdc.Scd.Core.Attributes;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
@@ -25,6 +26,11 @@ namespace Gdc.Scd.Core.Entities
         [MustCompare(true)]
         public string SCD_ServiceType { get; set; }
 
+
+        [MustCompare(true)]
         public bool IsSoftware { get; set; }
+
+        [MustCompare(true, IsIgnoreCase = true)]
+        public string ServiceTypes { get; set; }
     }
 }

@@ -3,23 +3,20 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
     public class PorSwProActiveService : IPorSwProActiveService
     {
-        private ILogger<LogLevel> _logger;
+        private ILogger _logger;
         private IRepositorySet _repositorySet;
         private IRepository<ProActiveDigit> _swProActiveRepository;
 
         public PorSwProActiveService(IRepositorySet repositorySet,
-            ILogger<LogLevel> logger)
+            ILogger logger)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -39,23 +36,23 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 try
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(ProActiveDigit));
+                    _logger.Info(PorImportLoggingMessage.DELETE_BEGIN, nameof(ProActiveDigit));
                     _swProActiveRepository.DeleteAll();
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
+                    _logger.Info(PorImportLoggingMessage.DELETE_END);
                     var combinations = new List<ProActiveDigit>();
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(ProActiveDigit));
+                    _logger.Info(PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(ProActiveDigit));
                     foreach (var proActiveDigit in model.ProActiveInfo)
                     {
                         var digit = model.SwDigits.FirstOrDefault(d => d.Name.Equals(proActiveDigit.ID));
                         if (digit == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_DIGIT, nameof(ProActiveDigit), proActiveDigit.ID);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOW_DIGIT, nameof(ProActiveDigit), proActiveDigit.ID);
                             continue;
                         }
 
-                        if(!model.Proactive.ContainsKey(proActiveDigit.Servicelevel))
+                        if (!model.Proactive.ContainsKey(proActiveDigit.Servicelevel))
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_PROACTIVE, nameof(ProActiveDigit), proActiveDigit.Servicelevel);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOWN_PROACTIVE, nameof(ProActiveDigit), proActiveDigit.Servicelevel);
                             continue;
                         }
 
@@ -70,7 +67,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             CreatedDateTime = model.CreatedDateTime
                         };
 
-                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY, nameof(ProActiveDigit), proActiveDigit.ID);
+                        _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY, nameof(ProActiveDigit), proActiveDigit.ID);
                         combinations.Add(proActiveDigitDb);
                     }
 
@@ -78,15 +75,15 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     _repositorySet.Sync();
                     transaction.Commit();
 
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, combinations.Count);
+                    _logger.Info(PorImportLoggingMessage.ADD_STEP_END, combinations.Count);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                    _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                     result = false;
                 }
             }
-            return result;        
+            return result;
         }
     }
 }

@@ -4,6 +4,7 @@
         <InputLevel Name="NonEmeiaCountry" Caption="Country" Type="View"/>
         <InputLevel Name="ClusterRegion" Caption="Region"/>
         <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
+        <InputLevel Name="Company" Caption="Company"/>
         <InputLevel Name="Pla" Caption="PLA"/>
         <InputLevel Name="CentralContractGroup" Caption="Central Contract Group" HideFilter = "true"/>
         <InputLevel Name="Sfab" Caption="SFAB"/>
@@ -120,7 +121,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -197,7 +198,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -208,7 +209,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -219,7 +220,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -230,7 +231,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -241,7 +242,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -252,7 +253,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
+                <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -273,7 +274,6 @@
             <Elements>
                 <Element Name="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually">
                     <InputLevels>
-                        <InputLevel Hide="True">Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <CostEditor>
@@ -289,6 +289,7 @@
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -303,6 +304,7 @@
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -317,6 +319,7 @@
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -330,6 +333,7 @@
                 <Element Name="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -343,7 +347,6 @@
                 <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
-                        <InputLevel Hide="True">Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <CostEditor>
@@ -356,7 +359,6 @@
                 <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
-                        <InputLevel Hide="True">Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <CostEditor>
@@ -368,7 +370,6 @@
                 </Element>
                 <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
                     <InputLevels>
-                        <InputLevel Hide="True">Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <CostEditor>
@@ -381,7 +382,6 @@
                 <Element Name="JapanBuy" Caption="Japan Buy" InputOption="Manually">
                     <TypeOption Type="Flag"/>
                     <InputLevels>
-                        <InputLevel Hide="True">Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <CostEditor>
@@ -421,7 +421,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -431,7 +431,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -451,7 +451,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>

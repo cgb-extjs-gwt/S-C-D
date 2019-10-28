@@ -29,8 +29,8 @@ begin
     join Archive.GetDurationAvailability() da on da.Id = m.DurationAvailability
     left join [References].Currency cur on cur.Id = m.CurrencyReinsurance_Approved
 
-    where m.DeactivatedDateTime is null
+    where m.Deactivated = 0
 
     order by dig.Name, da.Duration
 end
-GO
+go

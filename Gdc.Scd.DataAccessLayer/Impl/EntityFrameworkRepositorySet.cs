@@ -341,6 +341,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<(string json, int total, bool hasMore)> ExecuteProcAsJsonAsync(string procName, int maxRowCount, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.AsStoredProcedure(procName, parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray(maxRowCount);
+                }
+            });
+        }
+
         public Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
@@ -394,6 +407,30 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     return reader.MapToTable();
                 }
+            });
+        }
+
+        public List<T> ExecuteAsList<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var list = new List<T>(50);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(mapFunc(reader));
+                        }
+                    }
+                }
+
+                return list;
             });
         }
 

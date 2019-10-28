@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Gdc.Scd.Export.CdCs.Dto;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net;
 
 namespace Gdc.Scd.Export.CdCs
 {
@@ -24,5 +21,27 @@ namespace Gdc.Scd.Export.CdCs
         public static string CalculationToolFileName => ConfigurationManager.AppSettings["CalculationToolFileName"];
 
         public static string ProActiveWgList => ConfigurationManager.AppSettings["ProActiveWgList"];
+
+        public static NetworkCredential NetworkCredential
+        {
+            get
+            {
+                return new NetworkCredential(Config.SpServiceAccount, Config.SpServicePassword, Config.SpServiceDomain);
+            }
+        }
+
+        public static SpFileDto SpFile
+        {
+            get
+            {
+                return new SpFileDto
+                {
+                    WebUrl = Config.CalculationToolWeb,
+                    ListName = Config.CalculationToolList,
+                    FolderServerRelativeUrl = Config.CalculationToolFolder,
+                    FileName = Config.CalculationToolFileName
+                };
+            }
+        }
     }
 }

@@ -30,6 +30,8 @@
 
         public const string PlaInputLevelName = "Pla";
 
+        public const string CompanyInputLevelName = "Company";
+
         public const string WgInputLevelName = "Wg";
 
         public const string ManualCostTable = "ManualCost";
@@ -51,6 +53,7 @@
         public const string ReportSchema = "Report";
 
         public const string MatrixSchema = "Matrix";
+        public const string TempSchema = "Temp";
 
         public const string PortfolioSchema = "Portfolio";
 
@@ -73,6 +76,8 @@
         public const string RoleCodeInputLevel = "RoleCode";
 
         public const string HwHddFspCodeTranslationTable = "HwHddFspCodeTranslation";
+        public const string HwFspCodeTranslation = "HwFspCodeTranslation";
+        public const string SwFspCodeTranslation = "SwFspCodeTranslation";
 
         public const string CurrencyTable = "Currency";
 

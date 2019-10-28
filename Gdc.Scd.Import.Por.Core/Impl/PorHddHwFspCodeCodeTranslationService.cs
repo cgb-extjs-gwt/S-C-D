@@ -5,22 +5,19 @@ using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Extensions;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
     public class PorHddHwFspCodeCodeTranslationService : PorFspTranslationService<HwHddFspCodeTranslation>,
         IHwFspCodeTranslationService<HwHddFspCodeDto>
     {
-        private readonly ILogger<LogLevel> _logger;
+        private readonly ILogger _logger;
 
         public PorHddHwFspCodeCodeTranslationService(IRepositorySet repositorySet,
-            ILogger<LogLevel> logger) : base(repositorySet)
+            ILogger logger) : base(repositorySet)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -34,25 +31,25 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 try
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(HwHddFspCodeTranslation));
+                    _logger.Info(PorImportLoggingMessage.DELETE_BEGIN, nameof(HwHddFspCodeTranslation));
                     _repository.DeleteAll();
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
+                    _logger.Info(PorImportLoggingMessage.DELETE_END);
 
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW HDD Codes");
+                    _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW HDD Codes");
                     var result = true;
 
                     result = UploadCodes(model.HardwareCodes, model.HwSla, model.CreationDate);
                     transaction.Commit();
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, result ? "0" : "-1");
+                    _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, result ? "0" : "-1");
                     return result;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
-                    _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                    _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                     return false;
                 }
-             }
+            }
         }
 
         public bool UploadCodes(IEnumerable<SCD2_v_SAR_new_codes> hddCodes,
@@ -64,13 +61,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             var updatedFspCodes = new List<HwHddFspCodeTranslation>();
             try
             {
-                foreach(var code in hddCodes)
+                foreach (var code in hddCodes)
                 {
                     //map country
                     var countryCode = code.Country;
                     if (String.IsNullOrEmpty(countryCode) || !hwSla.Countries.ContainsKey(countryCode))
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, code.Service_Code, countryCode);
+                        _logger.Warn(PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, code.Service_Code, countryCode);
                         continue;
                     }
 
@@ -98,7 +95,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                                 CreatedDateTime = createdDateTime,
                             };
 
-                            _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                            _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                                             nameof(HwHddFspCodeTranslation), dbcode.Name);
 
                             updatedFspCodes.Add(dbcode);
@@ -108,10 +105,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 this.Save(updatedFspCodes);
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
+                _logger.Info(PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

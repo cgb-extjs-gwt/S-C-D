@@ -4,22 +4,19 @@ using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
     public class PorSwLicenseService : ImportService<SwLicense>, IPorSwLicenseService
     {
-        private ILogger<LogLevel> _logger;
+        private ILogger _logger;
 
         public PorSwLicenseService(IRepositorySet repositorySet,
             IEqualityComparer<SwLicense> comparer,
-            ILogger<LogLevel> logger)
+            ILogger logger)
             : base(repositorySet, comparer)
         {
             if (logger == null)
@@ -34,7 +31,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             try
             {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(SwLicense));
+                _logger.Info(PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(SwLicense));
 
                 var porItems = swInfo.Select(sw => sw.Software_Lizenz.ToLower()).ToList();
 
@@ -49,17 +46,17 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 {
                     foreach (var deactivateItem in itemsToDeacivate)
                     {
-                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.DEACTIVATED_ENTITY,
+                        _logger.Debug(PorImportLoggingMessage.DEACTIVATED_ENTITY,
                             nameof(SwDigit), deactivateItem.Name);
                     }
                 }
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_END, itemsToDeacivate.Count);
+                _logger.Info(PorImportLoggingMessage.DEACTIVATE_STEP_END, itemsToDeacivate.Count);
             }
 
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
             }
 
@@ -73,13 +70,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             try
             {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(SwLicense));
+                _logger.Info(PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(SwLicense));
 
                 var updatedSwLicenses = new List<SwLicense>();
 
                 foreach (var swLicense in swInfo)
                 {
-                    
+
                     updatedSwLicenses.Add(new SwLicense
                     {
                         Name = swLicense.Software_Lizenz,
@@ -91,16 +88,16 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var addedEntity in added)
                 {
-                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                    _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                         nameof(SwLicense), addedEntity.Name);
                 }
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, added.Count);
+                _logger.Info(PorImportLoggingMessage.ADD_STEP_END, added.Count);
             }
 
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
             }
 

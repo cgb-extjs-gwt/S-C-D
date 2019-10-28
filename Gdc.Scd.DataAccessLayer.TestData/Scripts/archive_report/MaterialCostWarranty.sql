@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetMaterialCostWarranty') is not null
     drop procedure Archive.spGetMaterialCostWarranty;
 go
 
-create procedure Archive.spGetMaterialCostWarranty
+create procedure [Archive].[spGetMaterialCostWarranty]
 AS
 begin
     select  c.Name as Country
@@ -22,7 +22,7 @@ begin
     join Archive.GetCountries() c on c.id = mcw.NonEmeiaCountry
     join Archive.GetWg(null) wg on wg.id = mcw.Wg
 
-    where mcw.DeactivatedDateTime is null
+    where mcw.Deactivated = 0
 
     order by c.Name, wg.Name
 end

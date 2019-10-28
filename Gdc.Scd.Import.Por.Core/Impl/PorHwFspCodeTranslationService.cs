@@ -1,24 +1,24 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Extensions;
+using Gdc.Scd.Import.Por.Core.Import;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Import.Por.Core.Dto;
-using Gdc.Scd.Import.Por.Core.Import;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
-    public class PorHwFspCodeTranslationService : PorFspTranslationService<HwFspCodeTranslation>, IHwFspCodeTranslationService<HwFspCodeDto>
+    public class PorHwFspCodeTranslationService : PorFspTranslationService<TempHwFspCodeTranslation>, IHwFspCodeTranslationService<HwFspCodeDto>
     {
-        private readonly ILogger<LogLevel> _logger;
+        private readonly ILogger _logger;
 
         public PorHwFspCodeTranslationService(IRepositorySet repositorySet,
-            ILogger<LogLevel> logger) : base(repositorySet)
+            ILogger logger) : base(repositorySet)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -31,60 +31,63 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             try
             {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(HwFspCodeTranslation));
+                _logger.Info(PorImportLoggingMessage.DELETE_BEGIN, nameof(TempHwFspCodeTranslation));
                 _repository.DeleteAll();
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
+                _logger.Info(PorImportLoggingMessage.DELETE_END);
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes");
+                _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes");
                 var hwResult = true;
 
-                _repository.DisableTrigger();
                 hwResult = UploadCodes(model.HardwareCodes, code => code.Country, model.HwSla, model.Sla,
                                        model.CreationDate, model.ProactiveServiceTypes, false);
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, hwResult ? "0" : "-1");
+                _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, hwResult ? "0" : "-1");
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: ProActive");
+                _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: ProActive");
 
 
                 var proActiveResult = UploadCodes(model.ProactiveCodes, code => code.Country, model.HwSla, model.Sla, model.CreationDate,
                                                   model.ProactiveServiceTypes, true);
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, proActiveResult ? "0" : "-1");
+                _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, proActiveResult ? "0" : "-1");
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
+                _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
 
 
 
-                var stdwResult = UploadStdws(model.StandardWarranties, 
-                                                GetCountryFunc(model), 
+                var stdwResult = UploadStdws(model.StandardWarranties,
+                                                GetCountryFunc(model),
                                                 model.HwSla, model.Sla,
                                                 model.CreationDate);
 
-                _repository.EnableTrigger();
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
+                _logger.Info(PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
 
                 var result = hwResult && proActiveResult && stdwResult;
+
+                if (result)
+                {
+                    new CopyHwFspCodeTranslations(_repositorySet).Execute();
+                }
 
                 return result;
             }
             catch (Exception ex)
             {
 
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 return false;
             }
         }
 
         private bool UploadStdws(IEnumerable<SCD2_v_SAR_new_codes> stdwCodes,
-            Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode, 
+            Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode,
             HwSlaDto stdwSla,
             SlaDictsDto slaDto,
             DateTime createdDateTime)
         {
             var result = true;
-            var updatedFspCodes = new List<HwFspCodeTranslation>();
+            var updatedFspCodes = new List<TempHwFspCodeTranslation>();
             try
             {
                 foreach (var code in stdwCodes)
@@ -93,7 +96,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                     if (String.IsNullOrEmpty(code.WG) && String.IsNullOrEmpty(code.SOG))
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.EMPTY_SOG_WG, code.Service_Code);
+                        _logger.Warn(PorImportLoggingMessage.EMPTY_SOG_WG, code.Service_Code);
                         continue;
                     }
 
@@ -103,7 +106,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         var sog = stdwSla.Sogs.FirstOrDefault(s => s.Name == code.SOG);
                         if (sog == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
                             continue;
                         }
 
@@ -116,7 +119,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         var wg = stdwSla.Wgs.FirstOrDefault(w => w.Name == code.WG);
                         if (wg == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_WG, code.Service_Code, code.WG);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOW_WG, code.Service_Code, code.WG);
                             continue;
                         }
 
@@ -127,7 +130,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                     if (sla == null)
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
+                        _logger.Warn(PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
                         continue;
                     }
 
@@ -138,14 +141,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     {
                         continue;
                     }
-     
+
                     foreach (var countryCode in countryCodes)
                     {
                         //if Country Group is unknown or empty than skip it
                         if (String.IsNullOrEmpty(countryCode) ||
                             !stdwSla.Countries.ContainsKey(countryCode))
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, 
+                            _logger.Warn(PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT,
                                 code.Service_Code, countryCode);
                         }
 
@@ -156,8 +159,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                                 foreach (var wg in wgs)
                                 {
                                     var dbcode = AddStdwCode(sla, country, wg, code, createdDateTime, countryCode);
-                                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                                    nameof(HwFspCodeTranslation), dbcode.Name);
+                                    _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                                    nameof(TempHwFspCodeTranslation), dbcode.Name);
 
                                     updatedFspCodes.Add(dbcode);
                                 }
@@ -168,17 +171,18 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 this.Save(updatedFspCodes);
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
+                _logger.Info(PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
                 return result;
             }
 
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                throw ex;
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                return false;
             }
         }
 
-        private bool UploadCodes (IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
+        private bool UploadCodes(IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
             Func<SCD2_v_SAR_new_codes, string> getCountryCode,
             HwSlaDto hwSla,
             SlaDictsDto slaDto,
@@ -188,7 +192,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         {
             var result = true;
 
-            var updatedFspCodes = new List<HwFspCodeTranslation>();
+            var updatedFspCodes = new List<TempHwFspCodeTranslation>();
 
             try
             {
@@ -199,7 +203,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                     if (String.IsNullOrEmpty(countryCode) || !hwSla.Countries.ContainsKey(countryCode))
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, code.Service_Code, countryCode);
+                        _logger.Warn(PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, code.Service_Code, countryCode);
                         continue;
                     }
 
@@ -215,7 +219,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                     if (sla == null)
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
+                        _logger.Warn(PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
                         continue;
                     }
 
@@ -223,7 +227,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     {
                         foreach (var wg in wgs)
                         {
-                            var dbcode = new HwFspCodeTranslation
+                            var dbcode = new TempHwFspCodeTranslation
                             {
                                 AvailabilityId = sla.Availability,
                                 CountryId = country,
@@ -245,8 +249,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                                 IsStandardWarranty = false
                             };
 
-                            _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                            nameof(HwFspCodeTranslation), dbcode.Name);
+                            _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                            nameof(TempHwFspCodeTranslation), dbcode.Name);
 
                             updatedFspCodes.Add(dbcode);
                         }
@@ -256,21 +260,22 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 this.Save(updatedFspCodes);
 
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
+                _logger.Info(PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
                 return result;
             }
             catch (Exception ex)
             {
-                throw ex;
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                return false;
             }
         }
 
 
-        private HwFspCodeTranslation AddStdwCode(SlaDto sla, long? country, 
-            long wg, SCD2_v_SAR_new_codes code, 
+        private TempHwFspCodeTranslation AddStdwCode(SlaDto sla, long? country,
+            long wg, SCD2_v_SAR_new_codes code,
             DateTime createdDateTime, string lutCode)
         {
-            var dbcode = new HwFspCodeTranslation
+            var dbcode = new TempHwFspCodeTranslation
             {
                 AvailabilityId = sla.Availability,
                 DurationId = sla.Duration,
@@ -313,6 +318,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             };
         }
 
-        
+
     }
 }

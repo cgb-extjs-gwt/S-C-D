@@ -8,7 +8,7 @@ namespace Gdc.Scd.Core.Meta.Entities
     public class WgEnityMeta : BaseWgSogEntityMeta
     {
         public ReferenceFieldMeta SogField { get; }
-        
+        public ReferenceFieldMeta CompanyField { get; }
         public ReferenceFieldMeta CentralContractGroupField { get; }
 
         public ReferenceFieldMeta RoleCodeField { get; }
@@ -19,12 +19,11 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public SimpleFieldMeta ResponsiblePersonField { get; }
 
-	    public WgEnityMeta(
-            NamedEntityMeta plaMeta, 
+	    public WgEnityMeta(NamedEntityMeta plaMeta, 
             NamedEntityMeta sfabMeta, 
             NamedEntityMeta sogMeta, 
             NamedEntityMeta centralContractGroupMeta, 
-            NamedEntityMeta roleCode) 
+            NamedEntityMeta roleCode, NamedEntityMeta companyMeta) 
             : base(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema, plaMeta, sfabMeta)
         {
             this.SogField = ReferenceFieldMeta.Build(nameof(Wg.SogId), sogMeta, true);
@@ -33,6 +32,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             this.DescriptionField = new SimpleFieldMeta(nameof(Wg.Description), TypeCode.String);
             this.ResponsiblePersonField = new SimpleFieldMeta(nameof(Wg.ResponsiblePerson), TypeCode.String);
             this.RoleCodeField = ReferenceFieldMeta.Build(nameof(Wg.RoleCodeId), roleCode, true);
+            this.CompanyField = ReferenceFieldMeta.Build(nameof(Wg.CompanyId), companyMeta);
         }
 
         public override IEnumerable<FieldMeta> AllFields
@@ -45,6 +45,7 @@ namespace Gdc.Scd.Core.Meta.Entities
                 yield return this.DescriptionField;
                 yield return this.ResponsiblePersonField;
                 yield return this.RoleCodeField;
+                yield return this.CompanyField;
 
                 foreach (var field in base.AllFields)
                 {

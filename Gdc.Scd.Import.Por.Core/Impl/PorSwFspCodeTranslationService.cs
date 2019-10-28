@@ -1,24 +1,22 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Extensions;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
-    public class PorSwFspCodeTranslationService : PorFspTranslationService<SwFspCodeTranslation>, 
+    public class PorSwFspCodeTranslationService : PorFspTranslationService<SwFspCodeTranslation>,
                                                   ISwFspCodeTranslationService
     {
-        private readonly ILogger<LogLevel> _logger;
+        private readonly ILogger _logger;
 
         public PorSwFspCodeTranslationService(IRepositorySet repositorySet,
-            ILogger<LogLevel> logger) : base(repositorySet)
+            ILogger logger) : base(repositorySet)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -36,29 +34,29 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 try
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(SwFspCodeTranslation));
+                    _logger.Info(PorImportLoggingMessage.DELETE_BEGIN, nameof(SwFspCodeTranslation));
                     _repository.DeleteAll();
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
+                    _logger.Info(PorImportLoggingMessage.DELETE_END);
 
                     foreach (var code in model.SoftwareCodes)
                     {
                         if (String.IsNullOrEmpty(code.SOG))
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.EMPTY_SOG_WG, code.Service_Code);
+                            _logger.Warn(PorImportLoggingMessage.EMPTY_SOG_WG, code.Service_Code);
                             continue;
                         }
 
                         var sog = model.Sogs.FirstOrDefault(s => s.Name == code.SOG);
                         if (sog == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
                             continue;
                         }
 
                         var sla = code.MapFspCodeToSla(model.Sla);
                         if (sla == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
                             continue;
                         }
 
@@ -66,22 +64,22 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         var distinctDigits = swRecords.Select(r => r.Software_Lizenz_Digit).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
                         if (distinctDigits.Count != 1)
-                        { 
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.INCORRECT_SOFTWARE_FSPCODE_DIGIT_MAPPING, code.Service_Code, swRecords.Count);
+                        {
+                            _logger.Warn(PorImportLoggingMessage.INCORRECT_SOFTWARE_FSPCODE_DIGIT_MAPPING, code.Service_Code, swRecords.Count);
                             continue;
                         }
 
                         var digit = model.Digits.FirstOrDefault(d => d.Name == distinctDigits[0]);
                         if (digit == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_DIGIT, code.Service_Code, distinctDigits[0]);
+                            _logger.Warn(PorImportLoggingMessage.UNKNOW_DIGIT, code.Service_Code, distinctDigits[0]);
                             continue;
                         }
 
                         var serviceDescription = swRecords.FirstOrDefault()?.Service_Description;
                         var shortDescription = swRecords.FirstOrDefault()?.Service_Short_Description;
 
-                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
+                        _logger.Debug(PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
                         var proActive = model.ProActiveDigits.FirstOrDefault(d => d.DigitId.HasValue && d.DigitId == digit.Id);
                         var proActiveNullValue = model.Sla.Proactive[PorConstants.SlaNullValue];
 
@@ -115,7 +113,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             dbcode.SwLicenseId = swLicense?.Id;
                         }
 
-                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                        _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                                             nameof(SwFspCodeTranslation), dbcode.Name);
 
                         updatedFspCodes.Add(dbcode);
@@ -125,12 +123,12 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     this.Save(updatedFspCodes);
                     transaction.Commit();
 
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
+                    _logger.Info(PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
                 }
 
                 catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                    _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                     result = false;
                 }
 

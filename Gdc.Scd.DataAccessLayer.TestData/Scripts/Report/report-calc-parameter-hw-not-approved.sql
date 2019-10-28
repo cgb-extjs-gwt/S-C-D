@@ -28,7 +28,6 @@ RETURN (
               , m.ReactionTime
               , m.ReactionType
               , m.Availability
-              , m.Currency
 
              --FSP
               , m.Fsp
@@ -36,22 +35,22 @@ RETURN (
 
               --cost blocks
 
-              , m.LabourCost
-              , m.TravelCost
-              , m.PerformanceRate
+              , m.LabourCost as LabourCost
+              , m.TravelCost as TravelCost
+              , m.PerformanceRate as PerformanceRate
               , m.TravelTime
               , m.RepairTime
-              , m.OnsiteHourlyRate
+              , m.OnsiteHourlyRate as OnsiteHourlyRate
 
-              , m.AvailabilityFee
+              , m.AvailabilityFee as AvailabilityFee
       
-              , m.TaxAndDutiesW
+              , m.TaxAndDutiesW as TaxAndDutiesW
 
-              , m.MarkupOtherCost
-              , m.MarkupFactorOtherCost
+              , m.MarkupOtherCost as MarkupOtherCost
+              , m.MarkupFactorOtherCost as MarkupFactorOtherCost
 
-              , m.MarkupFactorStandardWarranty
-              , m.MarkupStandardWarranty
+              , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
+              , m.MarkupStandardWarranty as MarkupStandardWarranty
       
               , m.AFR1
               , m.AFR2
@@ -69,10 +68,9 @@ RETURN (
               , m.ReinsuranceFlatfee4
               , m.ReinsuranceFlatfee5
               , m.ReinsuranceFlatfeeP1
-
-              , m.ReinsuranceUpliftFactor_4h_24x7
-              , m.ReinsuranceUpliftFactor_4h_9x5
-              , m.ReinsuranceUpliftFactor_NBD_9x5
+              , m.ReinsuranceUpliftFactor_4h_24x7 as ReinsuranceUpliftFactor_4h_24x7
+              , m.ReinsuranceUpliftFactor_4h_9x5 as ReinsuranceUpliftFactor_4h_9x5
+              , m.ReinsuranceUpliftFactor_NBD_9x5 as ReinsuranceUpliftFactor_NBD_9x5
 
               , m.MaterialCostWarranty
               , m.MaterialCostOow
@@ -84,18 +82,20 @@ RETURN (
               , m.FieldServiceCost3
               , m.FieldServiceCost4
               , m.FieldServiceCost5
-         
+              , m.FieldServiceCostP1
+
               , m.StandardHandling
               , m.HighAvailabilityHandling
               , m.StandardDelivery
               , m.ExpressDelivery
               , m.TaxiCourierDelivery
               , m.ReturnDeliveryFactory 
-         
-              , m.LogisticsHandling
-         
-              , m.LogisticTransportcost
 
+              , m.LogisticsHandling
+
+             , m.LogisticTransportcost
+
+            , m.Currency
     from Report.GetParameterHw(0, @cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
 )
 go
@@ -188,6 +188,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'AFR4', 'AFR4', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'AFR5', 'AFR5', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'AFRP1', 'AFR 1 year prolongation', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'FieldServiceCost1', 'Calculated Field Service Cost 1 year', 1, 1);
@@ -199,6 +201,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'FieldServiceCost4', 'Calculated Field Service Cost 4 years', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'FieldServiceCost5', 'Calculated Field Service Cost 5 years', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'FieldServiceCostP1', 'Calculated Field Service Cost 1 year prolongation', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), '2ndLevelSupportCosts', '2nd level support cost', 1, 1);
@@ -238,7 +242,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('usercountry', 0), 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wghardware', 0), 'wg', 'Warranty Group');
 set @index = @index + 1;

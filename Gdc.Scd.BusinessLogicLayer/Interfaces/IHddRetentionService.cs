@@ -6,7 +6,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IHddRetentionService
     {
-        Task<(HddRetentionDto[] items, int total)> GetCost(
+        Task<(HddRetentionDto[] items, bool hasMore)> GetCost(
                 User user,
                 bool approved,
                 HddFilterDto filter,
