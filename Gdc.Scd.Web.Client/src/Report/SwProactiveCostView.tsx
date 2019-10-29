@@ -72,6 +72,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
+                        <Column text="FSP" dataIndex="Fsp" renderer={stringRenderer} />
                         <Column text="Country" dataIndex="Country" />
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />

@@ -5,4 +5,5 @@
     availability?: string[];
     year?: string[];
     duration?: string[];
+    fsp?: string;
 }
