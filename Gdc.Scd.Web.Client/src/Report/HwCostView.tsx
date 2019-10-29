@@ -644,7 +644,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 />
             }
             {
-                selected && <span>Selected: {selected}record(s)</span>
+                selected > 0 && <span>Selected: {selected}record(s)</span>
             }
         </Toolbar>;
     }
