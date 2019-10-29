@@ -28,6 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
             var pLocal = new DbParameterBuilder().WithName("local").WithValue(true);
             var pCnt = new DbParameterBuilder().WithName("cnt");
+            var pFsp = new DbParameterBuilder().WithName("fsp");
             var pWg = new DbParameterBuilder().WithName("wg");
             var pAv = new DbParameterBuilder().WithName("av");
             var pDur = new DbParameterBuilder().WithName("dur");
@@ -41,6 +42,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             if (filter != null)
             {
                 pCnt.WithListIdValue(filter.Country);
+                pFsp.WithValue(filter.Fsp);
                 pWg.WithListIdValue(filter.Wg);
                 pAv.WithListIdValue(filter.Availability);
                 pDur.WithListIdValue(filter.Duration);
@@ -54,6 +56,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pApproved.Build(),
                  pLocal.Build(),
                  pCnt.Build(),
+                 pFsp.Build(),
                  pWg.Build(),
                  pAv.Build(),
                  pDur.Build(),
