@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.CopyDataTool.Configuration;
 using Gdc.Scd.CopyDataTool.Entities;
-using TE = Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
-using TargetPortfolio = Gdc.Scd.Core.Entities.Portfolio;
-using Gdc.Scd.Core.Helpers;
-using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Ninject;
-using Ninject.Planning.Targets;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
 using LocalPortfolio = Gdc.Scd.CopyDataTool.Entities.LocalPortfolio;
+using TargetPortfolio = Gdc.Scd.Core.Entities.Portfolio;
+using TE = Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.CopyDataTool
 {
