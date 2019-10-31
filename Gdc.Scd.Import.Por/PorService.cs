@@ -19,53 +19,41 @@ namespace Gdc.Scd.Import.Por
     {
         protected ILogger Logger;
 
-        public IDataImporter<SCD2_ServiceOfferingGroups> SogImporter { get; }
-        public IDataImporter<SCD2_WarrantyGroups> WgImporter { get; }
-        public IDataImporter<SCD2_SW_Overview> SoftwareImporter { get; }
-        public IDataImporter<SCD2_v_SAR_new_codes> FspCodesImporter { get; }
-        public IDataImporter<SCD2_LUT_TSP> LutCodesImporter { get; }
-        public IDataImporter<SCD2_SWR_Level> SwProActiveImporter { get; }
-        public DomainService<Pla> PlaService { get; }
-        public DomainService<ServiceLocation> LocationService { get; }
-        public DomainService<ReactionType> ReactionTypeService { get; }
-        public DomainService<ReactionTime> ReactionTimeService { get; }
-        public DomainService<Availability> AvailabilityService { get; }
-        public DomainService<Duration> DurationService { get; }
-        public DomainService<ProActiveSla> ProactiveService { get; }
-        public DomainService<Country> CountryService { get; }
-        public DomainService<CountryGroup> CountryGroupService { get; }
-        public ImportService<SFab> SFabDomainService { get; }
-        public ImportService<Sog> SogDomainService { get; }
-        public ImportService<Wg> WgDomainService { get; }
-        public ImportService<SwDigit> DigitService { get; }
-        public ImportService<SwLicense> LicenseService { get; }
-        public DomainService<ProActiveDigit> ProActiveDigitService { get; }
-        public DomainService<SwSpMaintenance> SwSpMaintenanceDomainService { get; }
-        public IPorSogService SogService { get; }
-        public IPorWgService WgService { get; }
-        public IPorSwDigitService SwDigitService { get; }
-        public IPorSwSpMaintenaceService SwSpMaintenanceService { get; }
-        public IPorSwLicenseService SwLicenseService { get; }
-        public IPorSwDigitLicenseService SwLicenseDigitService { get; }
-        public IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; }
-        public IHwFspCodeTranslationService<HwHddFspCodeDto> HardwareHddService { get; }
-        public ISwFspCodeTranslationService SoftwareService { get; }
-        public IPorSwProActiveService SoftwareProactiveService { get; }
-        public ICostBlockService CostBlockService { get; }
-        public List<UpdateQueryOption> UpdateQueryOptions { get; }
+        public virtual DomainService<Pla> PlaService { get; }
+        public virtual DomainService<ServiceLocation> LocationService { get; }
+        public virtual DomainService<ReactionType> ReactionTypeService { get; }
+        public virtual DomainService<ReactionTime> ReactionTimeService { get; }
+        public virtual DomainService<Availability> AvailabilityService { get; }
+        public virtual DomainService<Duration> DurationService { get; }
+        public virtual DomainService<ProActiveSla> ProactiveService { get; }
+        public virtual DomainService<Country> CountryService { get; }
+        public virtual DomainService<CountryGroup> CountryGroupService { get; }
+        public virtual ImportService<SFab> SFabDomainService { get; }
+        public virtual ImportService<Sog> SogDomainService { get; }
+        public virtual ImportService<Wg> WgDomainService { get; }
+        public virtual ImportService<SwDigit> DigitService { get; }
+        public virtual ImportService<SwLicense> LicenseService { get; }
+        public virtual DomainService<ProActiveDigit> ProActiveDigitService { get; }
+        public virtual DomainService<SwSpMaintenance> SwSpMaintenanceDomainService { get; }
+        public virtual IPorSogService SogService { get; }
+        public virtual IPorWgService WgService { get; }
+        public virtual IPorSwDigitService SwDigitService { get; }
+        public virtual IPorSwSpMaintenaceService SwSpMaintenanceService { get; }
+        public virtual IPorSwLicenseService SwLicenseService { get; }
+        public virtual IPorSwDigitLicenseService SwLicenseDigitService { get; }
+        public virtual IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; }
+        public virtual IHwFspCodeTranslationService<HwHddFspCodeDto> HardwareHddService { get; }
+        public virtual ISwFspCodeTranslationService SoftwareService { get; }
+        public virtual IPorSwProActiveService SoftwareProactiveService { get; }
+        public virtual ICostBlockService CostBlockService { get; }
+        public virtual List<UpdateQueryOption> UpdateQueryOptions { get; }
 
         protected ICostBlockUpdateService CostBlockUpdateService;
 
         public PorService(IKernel kernel)
         {
             Logger = kernel.Get<ILogger>();
-            SogImporter = kernel.Get<IDataImporter<SCD2_ServiceOfferingGroups>>();
-            WgImporter = kernel.Get<IDataImporter<SCD2_WarrantyGroups>>();
-            SoftwareImporter = kernel.Get<IDataImporter<SCD2_SW_Overview>>();
-            FspCodesImporter = kernel.Get<IDataImporter<SCD2_v_SAR_new_codes>>();
-            LutCodesImporter = kernel.Get<IDataImporter<SCD2_LUT_TSP>>();
             PlaService = kernel.Get<DomainService<Pla>>();
-            SwProActiveImporter = kernel.Get<IDataImporter<SCD2_SWR_Level>>();
 
             //SLA ATOMS
             LocationService = kernel.Get<DomainService<ServiceLocation>>();
@@ -108,11 +96,10 @@ namespace Gdc.Scd.Import.Por
         /// </summary>
         protected PorService() { }
 
-        public virtual void UploadSogs(List<Pla> plas, int step,
-            List<SogPorDto> sogs)
+        public virtual void UploadSogs(int step, List<SogPorDto> sogs)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-            var success = SogService.UploadSogs(sogs, plas, DateTime.Now,
+            var success = SogService.UploadSogs(sogs, GetPla(), DateTime.Now,
                 UpdateQueryOptions);
             if (success)
                 success = SogService.DeactivateSogs(sogs, DateTime.Now);
@@ -120,11 +107,10 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public virtual List<Wg> UploadWgs(List<Pla> plas, int step,
-            List<Sog> sogs, List<WgPorDto> wgs)
+        public virtual List<Wg> UploadWgs(int step, List<WgPorDto> wgs)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
-            var (success, added) = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, UpdateQueryOptions);
+            var (success, added) = WgService.UploadWgs(wgs, GetSog(), GetPla(), DateTime.Now, UpdateQueryOptions);
             if (success)
                 success = WgService.DeactivateWgs(wgs, DateTime.Now);
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
@@ -133,12 +119,10 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public virtual (bool ok, List<SwDigit> added) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, List<Sog> sogs,
-            SwHelperModel swInfo,
-            int step)
+        public virtual (bool ok, List<SwDigit> added) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, SwHelperModel swInfo, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
-            var (success, added) = SwDigitService.UploadSwDigits(swInfo.SwDigits, sogs, DateTime.Now, UpdateQueryOptions);
+            var (success, added) = SwDigitService.UploadSwDigits(swInfo.SwDigits, GetSog(), DateTime.Now, UpdateQueryOptions);
             if (success)
             {
                 success = SwDigitService.Deactivate(swInfo.SwDigits, DateTime.Now);
@@ -161,11 +145,11 @@ namespace Gdc.Scd.Import.Por
         }
 
 
-        public virtual void RebuildSoftwareInfo(List<SwDigit> digits, IEnumerable<SCD2_SW_Overview> swInfodigits, int step)
+        public virtual void RebuildSoftwareInfo(IEnumerable<SCD2_SW_Overview> swInfodigits, int step)
         {
             Logger.Info(ImportConstantMessages.REBUILD_RELATIONSHIPS_START, step, nameof(SwDigit), nameof(SwLicense));
             var licenses = LicenseService.GetAllActive().ToList();
-            var success = SwLicenseDigitService.UploadSwDigitAndLicenseRelation(licenses, digits, swInfodigits, DateTime.Now);
+            var success = SwLicenseDigitService.UploadSwDigitAndLicenseRelation(licenses, GetDigits(), swInfodigits, DateTime.Now);
             if (!success)
             {
                 Logger.Warn(ImportConstantMessages.REBUILD_FAILS, step);
@@ -273,35 +257,66 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
-        /// <summary>
-        /// Fill SLA Dictionary
-        /// </summary>
-        /// <returns></returns>
-        public virtual SlaDictsDto FillSlasDictionaries()
+        private SlaDictsDto _slaDictsDto;
+        public virtual SlaDictsDto GetSlasDictionaries()
         {
-            var locationServiceValues = this.LocationService.GetAll().ToList();
-            var reactionTypeValues = this.ReactionTypeService.GetAll().ToList();
-            var reactonTimeValues = this.ReactionTimeService.GetAll().ToList();
-            var availabilityValues = this.AvailabilityService.GetAll().ToList();
-            var durationValues = this.DurationService.GetAll().ToList();
-            var proactiveValues = this.ProactiveService.GetAll().ToList();
-
-            var locationDictionary = FormatDataHelper.FillSlaDictionary(locationServiceValues);
-            var reactionTimeDictionary = FormatDataHelper.FillSlaDictionary(reactonTimeValues);
-            var reactionTypeDictionary = FormatDataHelper.FillSlaDictionary(reactionTypeValues);
-            var availabilityDictionary = FormatDataHelper.FillSlaDictionary(availabilityValues);
-            var durationDictionary = FormatDataHelper.FillSlaDictionary(durationValues);
-            var proactiveDictionary = FormatDataHelper.FillSlaDictionary(proactiveValues);
-
-            return new SlaDictsDto
+            if (_slaDictsDto == null)
             {
-                Availability = availabilityDictionary,
-                Duration = durationDictionary,
-                Locations = locationDictionary,
-                ReactionTime = reactionTimeDictionary,
-                ReactionType = reactionTypeDictionary,
-                Proactive = proactiveDictionary
-            };
+                var locationServiceValues = this.LocationService.GetAll().ToList();
+                var reactionTypeValues = this.ReactionTypeService.GetAll().ToList();
+                var reactonTimeValues = this.ReactionTimeService.GetAll().ToList();
+                var availabilityValues = this.AvailabilityService.GetAll().ToList();
+                var durationValues = this.DurationService.GetAll().ToList();
+                var proactiveValues = this.ProactiveService.GetAll().ToList();
+
+                var locationDictionary = FormatDataHelper.FillSlaDictionary(locationServiceValues);
+                var reactionTimeDictionary = FormatDataHelper.FillSlaDictionary(reactonTimeValues);
+                var reactionTypeDictionary = FormatDataHelper.FillSlaDictionary(reactionTypeValues);
+                var availabilityDictionary = FormatDataHelper.FillSlaDictionary(availabilityValues);
+                var durationDictionary = FormatDataHelper.FillSlaDictionary(durationValues);
+                var proactiveDictionary = FormatDataHelper.FillSlaDictionary(proactiveValues);
+
+                _slaDictsDto = new SlaDictsDto
+                {
+                    Availability = availabilityDictionary,
+                    Duration = durationDictionary,
+                    Locations = locationDictionary,
+                    ReactionTime = reactionTimeDictionary,
+                    ReactionType = reactionTypeDictionary,
+                    Proactive = proactiveDictionary
+                };
+            }
+            return _slaDictsDto;
+        }
+
+        private List<Pla> _plas;
+        public List<Pla> GetPla()
+        {
+            if (_plas == null)
+            {
+                _plas = PlaService.GetAll().ToList();
+            }
+            return _plas;
+        }
+
+        private List<Sog> _sogs;
+        public List<Sog> GetSog()
+        {
+            if (_sogs == null)
+            {
+                _sogs = SogDomainService.GetAllActive().ToList();
+            }
+            return _sogs;
+        }
+
+        private List<SwDigit> _digits;
+        public List<SwDigit> GetDigits()
+        {
+            if (_digits == null)
+            {
+                _digits = DigitService.GetAllActive().ToList();
+            }
+            return _digits;
         }
     }
 }

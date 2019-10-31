@@ -7,7 +7,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
     {
         public Exception error;
 
-        public FakeImportPor() : base(null, null) { }
+        public FakeImportPor() : base(null, null, null) { }
 
         public override void Run()
         {

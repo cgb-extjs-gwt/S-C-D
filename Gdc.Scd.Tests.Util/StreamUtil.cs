@@ -19,6 +19,11 @@ namespace Gdc.Scd.Tests.Util
             return GetReader(path, fn).ReadToEnd();
         }
 
+        public static T ReadJson<T>(string path, string fn)
+        {
+            return ReadText(path, fn).AsObject<T>();
+        }
+
         public static List<string[]> ReadCsv(string path, string fn, char sep = ';')
         {
             var result = new List<string[]>(25);
