@@ -3,7 +3,6 @@ using Gdc.Scd.Import.Por;
 using Gdc.Scd.Tests.Integration.Import.Por.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 
 namespace Gdc.Scd.Tests.Integration.Import.Por

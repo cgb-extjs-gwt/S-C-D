@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="FormatDataHelper.cs" />
+    <Compile Include="FrieseClient.cs" />
     <Compile Include="ImportConstantMessages.cs" />
     <Compile Include="ImportPor.cs" />
     <Compile Include="ImportPorJob.cs" />

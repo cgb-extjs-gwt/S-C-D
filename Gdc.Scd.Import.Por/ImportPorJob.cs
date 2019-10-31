@@ -16,7 +16,7 @@ namespace Gdc.Scd.Import.Por
             var kernel = Module.CreateKernel();
             //
             log = kernel.Get<ILogger>();
-            por = new ImportPor(new PorService(kernel), log);
+            por = new ImportPor(new PorService(kernel), new FrieseClient(log), log);
         }
 
         /// <summary>

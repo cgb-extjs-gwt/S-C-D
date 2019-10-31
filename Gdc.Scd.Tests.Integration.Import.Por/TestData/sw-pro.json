@@ -1,0 +1,100 @@
+﻿[
+    {
+        "id": "HV",
+        "beschreibung": "Fujitsu Power Appliance for SAP HANA, Base license (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "HS"
+    },
+    {
+        "id": "HW",
+        "beschreibung": "Fujitsu Power Appliance for SAP HANA, Extension I (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "HT"
+    },
+    {
+        "id": "HX",
+        "beschreibung": "Fujitsu Power Appliance for SAP HANA, Extension II (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "HU"
+    },
+    {
+        "id": "MF",
+        "beschreibung": "FlexFrame Orchestrator Identifier (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "ME"
+    },
+    {
+        "id": "MD",
+        "beschreibung": "FlexFrame Orchestrator (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "MC"
+    },
+    {
+        "id": "OF",
+        "beschreibung": "HANA-RA-TDI (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "NP"
+    },
+    {
+        "id": "OI",
+        "beschreibung": "Fujitsu PF4 SAP HANA TDI  (Proactive)",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "OH"
+    },
+    {
+        "id": "QO",
+        "beschreibung": "FFO Basis Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PI"
+    },
+    {
+        "id": "QP",
+        "beschreibung": "FFO Extension S Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PJ"
+    },
+    {
+        "id": "QQ",
+        "beschreibung": "FFO Extension M Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PK"
+    },
+    {
+        "id": "QR",
+        "beschreibung": "FFO Extension L Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PL"
+    },
+    {
+        "id": "QS",
+        "beschreibung": "FFO Basis S Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PM"
+    },
+    {
+        "id": "QT",
+        "beschreibung": "FFO Entry XS Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PN"
+    },
+    {
+        "id": "QU",
+        "beschreibung": "FFO Entry S Laufzeit Lizenz proactive",
+        "proactive": "6",
+        "servicelevel": "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+        "sW_level_digit_ReactiveMapping": "PO"
+    }
+]
