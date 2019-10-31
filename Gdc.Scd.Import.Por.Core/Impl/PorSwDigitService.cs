@@ -68,7 +68,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             DateTime modifiedDateTime, List<UpdateQueryOption> updateOptions)
         {
             bool result = true;
-            List<SwDigit> added = null;
+            List<SwDigit> novice;
 
             try
             {
@@ -95,7 +95,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     });
                 }
 
-                added = this.AddOrActivate(updatedSwDigits, modifiedDateTime, updateOptions);
+                var (added, inserted) = this.Add(updatedSwDigits, modifiedDateTime, updateOptions);
 
                 foreach (var addedEntity in added)
                 {
@@ -103,6 +103,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         nameof(SwDigit), addedEntity.Name);
                 }
 
+                novice = inserted;
                 _logger.Info(PorImportLoggingMessage.ADD_STEP_END, added.Count);
             }
 
@@ -110,10 +111,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
-                added = null;
+                novice = null;
             }
 
-            return (result, added);
+            return (result, novice);
         }
     }
 }

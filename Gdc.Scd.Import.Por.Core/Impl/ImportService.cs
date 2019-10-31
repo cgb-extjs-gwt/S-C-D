@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
-    public class ImportService<T> : DomainService<T> where T: NamedId, IModifiable, new()
+    public class ImportService<T> : DomainService<T> where T : NamedId, IModifiable, new()
     {
         private const int BATCH_NUMBER = 50;
         private readonly IEqualityComparer<T> _comparer;
@@ -44,22 +44,33 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 result = false;
                 throw ex;
             }
-            
+
 
             return result;
         }
 
-        public List<T> AddOrActivate(IEnumerable<T> itemsToUpdate, DateTime modifiedDate, 
+        public List<T> AddOrActivate(IEnumerable<T> itemsToUpdate, DateTime modifiedDate,
             List<UpdateQueryOption> updateOptions,
             Expression<Func<T, bool>> predicate = null)
         {
+            return Add(itemsToUpdate, modifiedDate, updateOptions, predicate).added;
+        }
+
+        public (List<T> added, List<T> inserted) Add(
+                IEnumerable<T> itemsToUpdate,
+                DateTime modifiedDate,
+                List<UpdateQueryOption> updateOptions,
+                Expression<Func<T, bool>> predicate = null
+            )
+        {
             List<T> batch = new List<T>();
-            var dbItems = predicate == null ? this.GetAll().ToList() 
+            List<T> novice = new List<T>(32);
+            var dbItems = predicate == null ? this.GetAll().ToList()
                                             : this.GetAll().Where(predicate).ToList();
 
             foreach (T item in itemsToUpdate)
             {
-                var dbItem = dbItems.FirstOrDefault(i => i.Name.Equals(item.Name, 
+                var dbItem = dbItems.FirstOrDefault(i => i.Name.Equals(item.Name,
                                                             StringComparison.OrdinalIgnoreCase));
 
                 //new item
@@ -68,6 +79,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     item.CreatedDateTime = modifiedDate;
                     item.ModifiedDateTime = modifiedDate;
                     batch.Add(item);
+                    novice.Add(item);
                 }
 
                 //item already exists in the database
@@ -80,7 +92,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         if (coordinatesToUpdate != null)
                             updateOptions.Add(coordinatesToUpdate);
 
-                        item.CopyModifiedValues(dbItem, modifiedDate);                       
+                        item.CopyModifiedValues(dbItem, modifiedDate);
                         batch.Add(dbItem);
                     }
 
@@ -98,7 +110,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             }
 
             this.Save(batch);
-            return batch;
+            return (batch, novice);
         }
 
         public override void Save(IEnumerable<T> items)
