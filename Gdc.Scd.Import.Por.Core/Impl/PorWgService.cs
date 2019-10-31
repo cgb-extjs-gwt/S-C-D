@@ -37,9 +37,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 //select all that is not coming from POR and was not already deactivated in SCD and also either does not
                 //exists in Logistic DB or was already deactivated there
                 var itemsToDeacivate = this.GetAll()
-                                          .Where(w => w.WgType == Scd.Core.Enums.WgType.Por && 
+                                          .Where(w => w.WgType == Scd.Core.Enums.WgType.Por &&
                                                       !porItems.Contains(w.Name.ToLower())
-                                                    && !w.DeactivatedDateTime.HasValue 
+                                                    && !w.DeactivatedDateTime.HasValue
                                                     && (!w.ExistsInLogisticsDb || w.IsDeactivatedInLogistic)).ToList();
 
                 var deactivated = this.Deactivate(itemsToDeacivate, modifiedDatetime);
@@ -65,13 +65,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             return result;
         }
 
-        public (bool, List<Wg>) UploadWgs(IEnumerable<WgPorDto> wgs, 
-            IEnumerable<Sog> sogs, 
-            IEnumerable<Pla> plas, DateTime modifiedDateTime, 
+        public (bool, List<Wg>) UploadWgs(IEnumerable<WgPorDto> wgs,
+            IEnumerable<Sog> sogs,
+            IEnumerable<Pla> plas, DateTime modifiedDateTime,
             List<UpdateQueryOption> updateOptions)
         {
             bool result = true;
-            List<Wg> added = null;
+            List<Wg> novice;
 
             _logger.Info(PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
             var updatedWgs = new List<Wg>();
@@ -120,13 +120,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     updatedWgs.Add(newWg);
                 }
 
-                added = this.AddOrActivate(updatedWgs, modifiedDateTime, updateOptions);
+                var (added, inserted) = this.Add(updatedWgs, modifiedDateTime, updateOptions);
                 foreach (var addedEntity in added)
                 {
-                    _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                        nameof(Wg), addedEntity.Name);
+                    _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY, nameof(Wg), addedEntity.Name);
                 }
 
+                novice = inserted;
                 _logger.Info(PorImportLoggingMessage.ADD_STEP_END, added.Count);
             }
 
@@ -134,10 +134,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
                 result = false;
-                added = null;
+                novice = null;
             }
 
-            return (result, added);
+            return (result, novice);
         }
     }
 }
