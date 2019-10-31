@@ -75,6 +75,12 @@ namespace Gdc.Scd.Import.Por
             return porSoftware;
         }
 
+        public virtual List<SCD2_SW_Overview> GetLicences()
+        {
+            var swInfo = FormatDataHelper.FillSwInfo(GetSw());
+            return swInfo.SwLicenses.Select(sw => sw.Value).ToList();
+        }
+
         public virtual List<SCD2_SWR_Level> GetSwProactive()
         {
             if (swProActive == null)

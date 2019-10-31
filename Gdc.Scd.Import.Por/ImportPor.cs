@@ -11,7 +11,7 @@ namespace Gdc.Scd.Import.Por
     {
         protected ILogger log;
 
-        protected PorService PorService;
+        protected PorService por;
 
         protected FrieseClient friese;
 
@@ -30,7 +30,7 @@ namespace Gdc.Scd.Import.Por
 
         public ImportPor(PorService por, FrieseClient friese, ILogger log)
         {
-            this.PorService = por;
+            this.por = por;
             this.friese = friese;
             this.log = log;
         }
@@ -100,7 +100,7 @@ namespace Gdc.Scd.Import.Por
                     sogsToUpload.Add(sogDto);
             }
 
-            PorService.UploadSogs(step, sogsToUpload);
+            por.UploadSogs(step, sogsToUpload);
             step++;
         }
 
@@ -115,7 +115,7 @@ namespace Gdc.Scd.Import.Por
                     wgsToUpload.Add(wgDto);
             }
 
-            this.newWgs = PorService.UploadWgs(step, wgsToUpload);
+            this.newWgs = por.UploadWgs(step, wgsToUpload);
             step++;
         }
 
@@ -123,28 +123,28 @@ namespace Gdc.Scd.Import.Por
         {
             var porSoftware = friese.GetSw();
             var swInfo = FormatDataHelper.FillSwInfo(porSoftware);
-            var (rebuildRelationships, addedDigits) = PorService.UploadSoftwareDigits(porSoftware, swInfo, step);
+            var (rebuildRelationships, addedDigits) = por.UploadSoftwareDigits(porSoftware, swInfo, step);
             this.newDigits = addedDigits;
             step++;
 
             //STEP 4: UPLOAD SOFTWARE LICENCE
             var swLicensesInfo = swInfo.SwLicenses.Select(sw => sw.Value).ToList();
-            rebuildRelationships = rebuildRelationships && PorService.UploadSoftwareLicense(swLicensesInfo, step);
+            rebuildRelationships = rebuildRelationships && por.UploadSoftwareLicense(swLicensesInfo, step);
             step++;
 
             //STEP 5: REBUILD RELATIONSHIPS BETWEEN SOFTWARE LICENSES AND DIGITS
             if (rebuildRelationships)
             {
-                PorService.RebuildSoftwareInfo(porSoftware, step);
+                por.RebuildSoftwareInfo(porSoftware, step);
                 step++;
             }
         }
 
         protected virtual void UploadFsp()
         {
-            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(), PorService.CountryGroupService.GetAll().ToList());
+            var countries = FormatDataHelper.FillCountryDictionary(por.CountryService.GetAll().ToList(), por.CountryGroupService.GetAll().ToList());
 
-            var wgs = PorService.WgDomainService.GetAllActive().Where(wg => wg.WgType == Scd.Core.Enums.WgType.Por).ToList();
+            var wgs = por.WgDomainService.GetAllActive().Where(wg => wg.WgType == Scd.Core.Enums.WgType.Por).ToList();
             var hwModel = new HwFspCodeDto
             {
                 HardwareCodes = friese.GetOtherHardwareFsp(),
@@ -156,18 +156,18 @@ namespace Gdc.Scd.Import.Por
                 HwSla = new HwSlaDto
                 {
                     Countries = countries,
-                    Proactive = PorService.GetSlasDictionaries().Proactive,
-                    Sogs = PorService.GetSog(),
+                    Proactive = por.GetSlasDictionaries().Proactive,
+                    Sogs = por.GetSog(),
                     Wgs = wgs
                 },
-                Sla = PorService.GetSlasDictionaries(),
+                Sla = por.GetSlasDictionaries(),
                 OtherHardwareServiceTypes = hardwareServiceTypes,
                 ProactiveServiceTypes = proactiveServiceTypes,
                 StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes
             };
 
             //UPLOAD HARDWARE
-            PorService.UploadHwFspCodes(hwModel, step);
+            por.UploadHwFspCodes(hwModel, step);
             step++;
         }
 
@@ -175,58 +175,59 @@ namespace Gdc.Scd.Import.Por
         {
             var proActiveDigitModel = new SwProActiveDto
             {
-                Proactive = PorService.GetSlasDictionaries().Proactive,
-                SwDigits = PorService.GetDigits(),
+                Proactive = por.GetSlasDictionaries().Proactive,
+                SwDigits = por.GetDigits(),
                 ProActiveInfo = friese.GetSwProactive(),
                 CreatedDateTime = DateTime.Now
             };
 
-            PorService.UploadSwProactiveInfo(proActiveDigitModel, step);
+            por.UploadSwProactiveInfo(proActiveDigitModel, step);
             step++;
         }
 
         protected virtual void UploadSw()
         {
-            var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
-            var license = PorService.LicenseService.GetAll().ToList();
+            var proActiveDigits = por.ProActiveDigitService.GetAll().ToList();
+            var license = por.LicenseService.GetAll().ToList();
 
             var swModel = new SwFspCodeDto
             {
-                Sla = PorService.GetSlasDictionaries(),
-                Digits = PorService.GetDigits(),
+                Sla = por.GetSlasDictionaries(),
+                Digits = por.GetDigits(),
                 SoftwareInfo = friese.GetSw(),
                 SoftwareCodes = friese.GetSwFsp(),
-                Sogs = PorService.GetSog(),
+                Sogs = por.GetSog(),
                 SoftwareServiceTypes = softwareServiceTypes,
                 CreatedDateTime = DateTime.Now,
                 ProActiveDigits = proActiveDigits,
                 License = license
             };
 
-            PorService.UploadSwFspCodes(swModel, step);
+            por.UploadSwFspCodes(swModel, step);
             step++;
         }
 
         protected virtual void UpdateCostBlocks()
         {
-            PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
+            por.UpdateCostBlocks(step, por.UpdateQueryOptions);
             step++;
         }
 
         protected virtual void UpdateServiceSupport()
         {
-            PorService.Update2ndLevelSupportCosts(step);
+            por.Update2ndLevelSupportCosts(step);
+            step++;
+        }
+
+        protected virtual void UpdateHwCosts()
+        {
+            por.UpdateCostBlocksByPla(step, this.newWgs);
             step++;
         }
 
         protected virtual void UpdateSwCosts()
         {
-            PorService.UpdateCostBlocksBySog(step, this.newDigits);
-        }
-
-        protected virtual void UpdateHwCosts()
-        {
-            PorService.UpdateCostBlocksByPla(step, this.newWgs);
+            por.UpdateCostBlocksBySog(step, this.newDigits);
             step++;
         }
     }

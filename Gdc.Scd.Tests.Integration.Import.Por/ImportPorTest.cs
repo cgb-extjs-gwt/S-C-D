@@ -18,7 +18,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             log = new ThrowLoggerDecorator(kernel.Get<ILogger>());
             kernel.Rebind<ILogger>().ToConstant(log);
             friese = new FakeFrieseClient(log);
-            PorService = new PorService(kernel);
+            por = new PorService(kernel);
         }
 
         [TestCase]
