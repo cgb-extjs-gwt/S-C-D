@@ -1,0 +1,51 @@
+﻿<#@ template language="C#" inherits="BaseUpdateCost" #>
+
+declare @wg dbo.ListID;
+insert into @wg(id) select id from InputAtoms.Wg where Deactivated = 0 and UPPER(name) in (<# PrintNames(); #>)
+
+IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp;
+IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
+
+select c.* into #tmp
+from Hardware.MarkupOtherCosts c
+where c.Deactivated = 0 and not exists(select * from @wg where Id = c.Wg)
+
+create index ix_tmp_Country_SLA on #tmp(Country, <#= this.field #>, ReactionTimeTypeAvailability);
+
+select    t.Country
+        , t.<#= this.field #>
+        , t.ReactionTimeTypeAvailability
+
+        , case when min(Markup) = max(Markup) then min(Markup) else null end as Markup
+        , case when min(Markup_Approved) = max(Markup_Approved) then min(Markup_Approved) else null end as Markup_Approved
+        , case when min(MarkupFactor) = max(MarkupFactor) then min(MarkupFactor) else null end as MarkupFactor
+        , case when min(MarkupFactor_Approved) = max(MarkupFactor_Approved) then min(MarkupFactor_Approved) else null end as MarkupFactor_Approved
+        , case when min(ProlongationMarkup) = max(ProlongationMarkup) then min(ProlongationMarkup) else null end as ProlongationMarkup
+        , case when min(ProlongationMarkup_Approved) = max(ProlongationMarkup_Approved) then min(ProlongationMarkup_Approved) else null end as ProlongationMarkup_Approved
+        , case when min(ProlongationMarkupFactor) = max(ProlongationMarkupFactor) then min(ProlongationMarkupFactor) else null end as ProlongationMarkupFactor
+        , case when min(ProlongationMarkupFactor_Approved) = max(ProlongationMarkupFactor_Approved) then min(ProlongationMarkupFactor_Approved) else null end as ProlongationMarkupFactor_Approved
+
+into #tmpMin
+from #tmp t
+group by t.Country, t.<#= this.field #>, t.ReactionTimeTypeAvailability;
+
+create index ix_tmpmin_Country_SLA on #tmp(Country, <#= this.field #>, ReactionTimeTypeAvailability);
+
+update c set
+      Markup = coalesce(t.Markup, c.Markup)
+    , Markup_Approved = coalesce(t.Markup_Approved, c.Markup_Approved)
+    , MarkupFactor = coalesce(t.MarkupFactor, c.MarkupFactor)
+    , MarkupFactor_Approved = coalesce(t.MarkupFactor_Approved, c.MarkupFactor_Approved)
+    , ProlongationMarkup = coalesce(t.ProlongationMarkup, c.ProlongationMarkup)
+    , ProlongationMarkup_Approved = coalesce(t.ProlongationMarkup_Approved, c.ProlongationMarkup_Approved)
+    , ProlongationMarkupFactor = coalesce(t.ProlongationMarkupFactor, c.ProlongationMarkupFactor)
+    , ProlongationMarkupFactor_Approved = coalesce(t.ProlongationMarkupFactor_Approved, c.ProlongationMarkupFactor_Approved)
+
+from Hardware.MarkupOtherCosts c
+inner join #tmpMin t on t.Country = c.Country and t.<#= this.field #> = c.<#= this.field #> and t.ReactionTimeTypeAvailability = c.ReactionTimeTypeAvailability
+where c.Deactivated = 0 and exists(select * from @wg where Id = c.Wg);
+
+IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp
+IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
+
+

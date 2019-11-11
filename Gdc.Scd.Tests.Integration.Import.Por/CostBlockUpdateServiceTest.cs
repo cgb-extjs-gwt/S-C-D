@@ -83,7 +83,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             testing.UpdateSwProactive(CreateDigit());
         }
 
-        private Wg[] CreateWg()
+        public static Wg[] CreateWg()
         {
             return new Wg[] {
                 new Wg { Name = "TC4" },

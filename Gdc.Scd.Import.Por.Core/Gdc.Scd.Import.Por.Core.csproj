@@ -118,6 +118,66 @@
     <Compile Include="Interfaces\IPorWgService.cs" />
     <Compile Include="Interfaces\ISwFspCodeTranslationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scripts\BaseUpdateCost.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BaseUpdateCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\BaseUpdateCost2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BaseUpdateCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateCost.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateCost2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateLogisticCost.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateLogisticCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateLogisticCost2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateLogisticCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateMarkupOtherCosts.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateMarkupOtherCosts.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateMarkupOtherCosts2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateMarkupOtherCosts.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateMarkupStandardWaranty.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateMarkupStandardWaranty.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateMarkupStandardWaranty2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateMarkupStandardWaranty.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateProactive.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateProactive.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\UpdateProactive2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateProactive.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="DataAccessLayer\FrieseModel.edmx">
@@ -145,11 +205,32 @@
       <DependentUpon>FrieseModel.edmx</DependentUpon>
       <LastGenOutput>FrieseModel.cs</LastGenOutput>
     </Content>
+    <Content Include="Scripts\BaseUpdateCost.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>BaseUpdateCost.cs</LastGenOutput>
+    </Content>
+    <Content Include="Scripts\UpdateCost.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>UpdateCost.cs</LastGenOutput>
+    </Content>
+    <Content Include="Scripts\UpdateLogisticCost.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>UpdateLogisticCost.cs</LastGenOutput>
+    </Content>
+    <Content Include="Scripts\UpdateMarkupOtherCosts.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>UpdateMarkupOtherCosts.cs</LastGenOutput>
+    </Content>
+    <Content Include="Scripts\UpdateMarkupStandardWaranty.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>UpdateMarkupStandardWaranty.cs</LastGenOutput>
+    </Content>
+    <Content Include="Scripts\UpdateProactive.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>UpdateProactive.cs</LastGenOutput>
+    </Content>
     <EmbeddedResource Include="Scripts\UpdateSwProactive.sql" />
     <EmbeddedResource Include="Scripts\UpdateSwSpMaintenance.sql" />
-    <EmbeddedResource Include="Scripts\UpdateLogisticsCost.sql" />
-    <EmbeddedResource Include="Scripts\UpdateMarkupOtherCosts.sql" />
-    <EmbeddedResource Include="Scripts\UpdateMarkupStandardWaranty.sql" />
     <EmbeddedResource Include="Scripts\UpdateProactive.sql" />
     <EmbeddedResource Include="Scripts\UpdateFieldServiceCost.sql" />
   </ItemGroup>

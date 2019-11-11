@@ -65,6 +65,20 @@ namespace Gdc.Scd.Tests.Util
             }
         }
 
+        public static void Save(string path, string fn, string text)
+        {
+            path = Path.Combine(Location(), path);
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            path = Path.Combine(path, fn);
+
+            File.WriteAllText(path, text);
+        }
+
         public static MemoryStream Copy(this Stream source)
         {
             var ms = new MemoryStream();

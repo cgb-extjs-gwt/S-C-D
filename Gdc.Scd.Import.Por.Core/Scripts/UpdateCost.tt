@@ -1,0 +1,58 @@
+﻿<#@ template language="C#" #>
+
+declare @wg dbo.ListID;
+insert into @wg(id) select id from InputAtoms.Wg where Deactivated = 0 and UPPER(name) in (<# WriteNames(); #>)
+
+IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp;
+IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
+
+select c.* into #tmp
+from <#= table #> c
+where c.Deactivated = 0 and not exists(select * from @wg where Id = c.Wg);
+
+create index ix_tmp_Country_SLA on #tmp(<# WriteDeps(); #>);
+
+select    <# WriteDeps(); #>
+
+        , case when min(StandardHandling) = max(StandardHandling) then min(StandardHandling) else null end as StandardHandling
+        , case when min(HighAvailabilityHandling) = max(HighAvailabilityHandling) then min(HighAvailabilityHandling) else null end as HighAvailabilityHandling
+        , case when min(StandardDelivery) = max(StandardDelivery) then min(StandardDelivery) else null end as StandardDelivery
+        , case when min(ExpressDelivery) = max(ExpressDelivery) then min(ExpressDelivery) else null end as ExpressDelivery
+        , case when min(TaxiCourierDelivery) = max(TaxiCourierDelivery) then min(TaxiCourierDelivery) else null end as TaxiCourierDelivery
+        , case when min(ReturnDeliveryFactory) = max(ReturnDeliveryFactory) then min(ReturnDeliveryFactory) else null end as ReturnDeliveryFactory
+
+        , case when min(StandardHandling_Approved) = max(StandardHandling_Approved) then min(StandardHandling_Approved) else null end as StandardHandling_Approved
+        , case when min(HighAvailabilityHandling_Approved) = max(HighAvailabilityHandling_Approved) then min(HighAvailabilityHandling_Approved) else null end as HighAvailabilityHandling_Approved
+        , case when min(StandardDelivery_Approved) = max(StandardDelivery_Approved) then min(StandardDelivery_Approved) else null end as StandardDelivery_Approved
+        , case when min(ExpressDelivery_Approved) = max(ExpressDelivery_Approved) then min(ExpressDelivery_Approved) else null end as ExpressDelivery_Approved
+        , case when min(TaxiCourierDelivery_Approved) = max(TaxiCourierDelivery_Approved) then min(TaxiCourierDelivery_Approved) else null end as TaxiCourierDelivery_Approved
+        , case when min(ReturnDeliveryFactory_Approved) = max(ReturnDeliveryFactory_Approved) then min(ReturnDeliveryFactory_Approved) else null end as ReturnDeliveryFactory_Approved
+
+into #tmpMin
+from #tmp 
+group by <# WriteDeps(); #>
+
+create index ix_tmpmin_Country_SLA on #tmpMin(<# WriteDeps(); #>);
+
+update c set
+      StandardHandling = coalesce(t.StandardHandling, c.StandardHandling) 
+    , HighAvailabilityHandling = coalesce(t.HighAvailabilityHandling, c.HighAvailabilityHandling) 
+    , StandardDelivery = coalesce(t.StandardDelivery, c.StandardDelivery) 
+    , ExpressDelivery = coalesce(t.ExpressDelivery, c.ExpressDelivery) 
+    , TaxiCourierDelivery = coalesce(t.TaxiCourierDelivery, c.TaxiCourierDelivery) 
+    , ReturnDeliveryFactory = coalesce(t.ReturnDeliveryFactory, c.ReturnDeliveryFactory) 
+
+    , StandardHandling_Approved = coalesce(t.StandardHandling_Approved, c.StandardHandling_Approved) 
+    , HighAvailabilityHandling_Approved = coalesce(t.HighAvailabilityHandling_Approved, c.HighAvailabilityHandling_Approved) 
+    , StandardDelivery_Approved = coalesce(t.StandardDelivery_Approved, c.StandardDelivery_Approved) 
+    , ExpressDelivery_Approved = coalesce(t.ExpressDelivery_Approved, c.ExpressDelivery_Approved) 
+    , TaxiCourierDelivery_Approved = coalesce(t.TaxiCourierDelivery_Approved, c.TaxiCourierDelivery_Approved) 
+    , ReturnDeliveryFactory_Approved = coalesce(t.ReturnDeliveryFactory_Approved, c.ReturnDeliveryFactory_Approved) 
+
+from <#= table #> c
+inner join #tmpMin t on <# WriteJoinByDeps(); #> 
+where c.Deactivated = 0 and exists(select * from @wg where Id = c.Wg);
+
+IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp
+IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
+

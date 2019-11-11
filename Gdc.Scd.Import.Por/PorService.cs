@@ -28,7 +28,6 @@ namespace Gdc.Scd.Import.Por
         public virtual DomainService<ProActiveSla> ProactiveService { get; }
         public virtual DomainService<Country> CountryService { get; }
         public virtual DomainService<CountryGroup> CountryGroupService { get; }
-        public virtual ImportService<SFab> SFabDomainService { get; }
         public virtual ImportService<Sog> SogDomainService { get; }
         public virtual ImportService<Wg> WgDomainService { get; }
         public virtual ImportService<SwDigit> DigitService { get; }
@@ -67,7 +66,6 @@ namespace Gdc.Scd.Import.Por
             ProActiveDigitService = kernel.Get<DomainService<ProActiveDigit>>();
             SwSpMaintenanceDomainService = kernel.Get<DomainService<SwSpMaintenance>>();
 
-            SFabDomainService = kernel.Get<ImportService<SFab>>();
             SogDomainService = kernel.Get<ImportService<Sog>>();
             WgDomainService = kernel.Get<ImportService<Wg>>();
             DigitService = kernel.Get<ImportService<SwDigit>>();

@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CostBlockUpdateServiceTest.cs" />
+    <Compile Include="Helpers\WgHelper.cs" />
     <Compile Include="ImportPorJobTest.cs" />
     <Compile Include="ImportPorTest.cs" />
     <Compile Include="PorServiceTest.cs" />
@@ -47,6 +48,10 @@
     <Compile Include="Testings\FakeCostBlockUpdateService.cs" />
     <Compile Include="Testings\FakeFrieseClient.cs" />
     <Compile Include="Testings\FakeImportPor.cs" />
+    <Compile Include="UpdateCostTest.cs" />
+    <Compile Include="UpdateLogisticCostTest.cs" />
+    <Compile Include="UpdateMarkupOtherCostsTest.cs" />
+    <Compile Include="UpdateMarkupStandardWarantyTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

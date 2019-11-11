@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.Interfaces;
+using Gdc.Scd.Import.Por.Core.Scripts;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -48,17 +49,17 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateLogisticsCost(Wg[] wgs)
         {
-            ExecuteFromFile("UpdateLogisticsCost.sql", wgs);
+            Execute(new UpdateLogisticCost(wgs));
         }
 
         public virtual void UpdateMarkupOtherCosts(Wg[] wgs)
         {
-            ExecuteFromFile("UpdateMarkupOtherCosts.sql", wgs);
+            Execute(new UpdateMarkupOtherCosts(wgs));
         }
 
         public virtual void UpdateMarkupStandardWaranty(Wg[] wgs)
         {
-            ExecuteFromFile("UpdateMarkupStandardWaranty.sql", wgs);
+            Execute(new UpdateMarkupStandardWaranty(wgs));
         }
 
         public virtual void UpdateProactive(Wg[] wgs)
@@ -74,6 +75,12 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public virtual void UpdateSwProactive(SwDigit[] digits)
         {
             ExecuteFromFile("UpdateSwProactive.sql", digits);
+        }
+
+        private void Execute(BaseUpdateCost tpl)
+        {
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
         }
 
         protected virtual void ExecuteFromFile(string fn, Wg[] wgs)
