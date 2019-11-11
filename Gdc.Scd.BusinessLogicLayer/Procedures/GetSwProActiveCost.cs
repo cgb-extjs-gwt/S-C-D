@@ -27,6 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         {
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
             var pCnt = new DbParameterBuilder().WithName("cnt");
+            var pFsp = new DbParameterBuilder().WithName("fsp");
             var pDigit = new DbParameterBuilder().WithName("digit");
             var pAv = new DbParameterBuilder().WithName("av");
             var pYear = new DbParameterBuilder().WithName("year");
@@ -36,6 +37,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             if (filter != null)
             {
                 pCnt.WithListIdValue(filter.Country);
+                pFsp.WithValue(filter.Fsp);
                 pDigit.WithListIdValue(filter.Digit);
                 pAv.WithListIdValue(filter.Availability);
                 pYear.WithListIdValue(filter.Year);
@@ -44,6 +46,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return new DbParameter[] {
                  pApproved.Build(),
                  pCnt.Build(),
+                 pFsp.Build(),
                  pDigit.Build(),
                  pAv.Build(),
                  pYear.Build(),

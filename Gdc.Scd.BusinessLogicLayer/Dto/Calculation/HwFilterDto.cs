@@ -4,6 +4,8 @@
     {
         public long[] Country { get; set; }
 
+        public string Fsp { get; set; }
+
         public long[] Wg { get; set; }
 
         public long[] Availability { get; set; }

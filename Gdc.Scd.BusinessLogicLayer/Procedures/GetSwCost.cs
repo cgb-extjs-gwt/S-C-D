@@ -26,6 +26,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static DbParameter[] Prepare(bool approved, SwFilterDto filter, int lastid, int limit)
         {
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
+            var pFsp = new DbParameterBuilder().WithName("fsp");
             var pDigit = new DbParameterBuilder().WithName("digit");
             var pAv = new DbParameterBuilder().WithName("av");
             var pDuration = new DbParameterBuilder().WithName("year");
@@ -34,6 +35,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             if (filter != null)
             {
+                pFsp.WithValue(filter.Fsp);
                 pDigit.WithListIdValue(filter.Digit);
                 pAv.WithListIdValue(filter.Availability);
                 pDuration.WithListIdValue(filter.Duration);
@@ -41,6 +43,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             return new DbParameter[] {
                  pApproved.Build(),
+                 pFsp.Build(),
                  pDigit.Build(),
                  pAv.Build(),
                  pDuration.Build(),
