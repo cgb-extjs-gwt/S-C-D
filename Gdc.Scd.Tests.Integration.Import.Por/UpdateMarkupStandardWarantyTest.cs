@@ -10,7 +10,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void SqlByCentralContractGroupTest()
         {
-            var wgs = WgHelper.CreateWg("aa1", "xyz", "abc");
+            var wgs = InputAtomHelper.CreateWg("aa1", "xyz", "abc");
             var tpl = new UpdateMarkupStandardWaranty(wgs);
             var sql = tpl.ByCentralContractGroup();
 
@@ -21,7 +21,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void SqlByPlaTest()
         {
-            var wgs = WgHelper.CreateWg("xxx", "yyy", "zzz", "pxy");
+            var wgs = InputAtomHelper.CreateWg("xxx", "yyy", "zzz", "pxy");
             var tpl = new UpdateMarkupStandardWaranty(wgs);
             var sql = tpl.ByPla();
 

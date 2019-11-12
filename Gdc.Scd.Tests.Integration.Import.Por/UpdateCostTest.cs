@@ -15,7 +15,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void SqlByPlaTest()
         {
-            this.items = WgHelper.CreateWg("aa1", "xyz", "abc");
+            this.items = InputAtomHelper.CreateWg("aa1", "xyz", "abc");
             this.table = "Hardware.LogisticsCosts";
             this.deps = new string[] { "Country", "Pla", "ReactionTimeType" };
             this.updateFields = GetFields();
@@ -33,7 +33,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void SqlByCentralContractGroupTest()
         {
-            this.items = WgHelper.CreateWg("aa1", "xyz", "abc");
+            this.items = InputAtomHelper.CreateWg("aa1", "xyz", "abc");
             this.table = "Hardware.LogisticsCosts";
             this.deps = new string[] { "Country", "CentralContractGroup", "ReactionTimeType" };
             this.updateFields = GetFields();
