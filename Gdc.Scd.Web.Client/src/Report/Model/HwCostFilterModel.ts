@@ -11,4 +11,5 @@ export interface HwCostFilterModel {
     proActive?: string[];
     currency?: CurrencyType;
     fsp?: string;
+    hasFsp?: boolean;
 }

@@ -10,6 +10,7 @@ import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { FspRadioField } from "./FspRadioField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -24,6 +25,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     private cnt: CountryField;
 
     private fsp: SearchField & any;
+
+    private hasFsp: FspRadioField;
 
     private wg: MultiSelect;
 
@@ -93,11 +96,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                     <SearchField ref={x => this.fsp = x} label="FSP" placeholder="Search by FSP..." />
 
-                    <Container layout={{ type: 'vbox', align: 'left' }} margin="0" defaults={{ padding: '0' }} >
-                        <RadioField name="hasFsp" boxLabel="All" checked />
-                        <RadioField name="hasFsp" boxLabel="With FSP" />
-                        <RadioField name="hasFsp" boxLabel="No FSP" />
-                    </Container>
+                    <FspRadioField ref={x => this.hasFsp = x} />
 
                     <Panel title='Asset(WG)'
                         {...panelProps}>
@@ -150,7 +149,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
             serviceLocation: this.srvloc.getSelectedKeysOrNull(),
             proActive: this.proactive.getSelectedKeysOrNull(),
             currency: this.getCurrency(),
-            fsp: this.fsp.getValue()
+            fsp: this.fsp.getValue(),
+            hasFsp: this.hasFsp.getValue()
         }
     }
 
