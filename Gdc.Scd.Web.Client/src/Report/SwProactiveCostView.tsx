@@ -59,7 +59,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginCfg}
-                    cls="grid-paging-no-count"
+                    cls="grid-paging-no-count grid-small-head"
                 >
 
                     { /*dependencies*/}
@@ -70,9 +70,9 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 60, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="FSP" dataIndex="Fsp" renderer={stringRenderer} />
+                        <Column text="FSP" dataIndex="Fsp" minWidth="180" renderer={stringRenderer} />
                         <Column text="Country" dataIndex="Country" />
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />

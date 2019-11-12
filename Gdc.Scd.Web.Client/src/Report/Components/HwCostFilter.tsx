@@ -93,6 +93,12 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                     <SearchField ref={x => this.fsp = x} label="FSP" placeholder="Search by FSP..." />
 
+                    <Container layout={{ type: 'vbox', align: 'left' }} margin="0" defaults={{ padding: '0' }} >
+                        <RadioField name="hasFsp" boxLabel="All" checked />
+                        <RadioField name="hasFsp" boxLabel="With FSP" />
+                        <RadioField name="hasFsp" boxLabel="No FSP" />
+                    </Container>
+
                     <Panel title='Asset(WG)'
                         {...panelProps}>
                         <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />

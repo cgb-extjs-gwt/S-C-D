@@ -51,9 +51,6 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         if (d.changeUserName) {
                             result += d.changeUserName;
                         }
-                        if (d.changeUserEmail) {
-                            result += '[' + d.changeUserEmail + ']';
-                        }
                     }
                     return result;
                 }
@@ -141,7 +138,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     width="100%"
                     platformConfig={this.pluginCfg}
                     selectable={this.selectable}
-                    cls="grid-paging-no-count"
+                    cls="grid-paging-no-count grid-small-head"
                 >
 
                     { /*dependencies*/}

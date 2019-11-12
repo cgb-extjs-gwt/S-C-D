@@ -53,7 +53,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                 <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
-                <Grid ref="grid" store={this.store} width="100%" platformConfig={this.pluginCfg} cls="grid-paging-no-count">
+                <Grid ref="grid" store={this.store} width="100%" platformConfig={this.pluginCfg} cls="grid-paging-no-count grid-small-head">
 
                     { /*dependencies*/}
 
@@ -63,9 +63,9 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 60, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="FSP" dataIndex="Fsp" renderer={stringRenderer} />
+                        <Column text="FSP" dataIndex="Fsp" minWidth="180" renderer={stringRenderer} />
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />
                         <Column text="Availability" dataIndex="Availability" />
@@ -81,7 +81,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 60, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
                         <Column text="Service support cost" dataIndex="ServiceSupport" />
                         <Column text="Reinsurance" dataIndex="Reinsurance" />
