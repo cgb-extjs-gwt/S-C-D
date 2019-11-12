@@ -8,7 +8,7 @@ import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { readonly, setFloatOrEmpty } from "./Components/GridExts";
-import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer } from "./Components/GridRenderer";
+import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer, locationRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
@@ -108,9 +108,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     if (d) {
                         if (d.ChangeUserName) {
                             result += d.ChangeUserName;
-                        }
-                        if (d.ChangeUserEmail) {
-                            result += '[' + d.ChangeUserEmail + ']';
                         }
                     }
                     return result;
@@ -258,7 +255,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         ...selectable
                     }}
                     shadow
-                    cls="grid-paging-no-count"
+                    cls="grid-paging-no-count grid-small-head"
                 >
 
                     { /*dependencies*/}
@@ -268,21 +265,20 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 40, maxWidth: 65, cls: "x-text-el-wrap" }}>
 
-                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.5" minWidth="50" hidden={!this.approved()} />
-                        <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer} />
-                        <Column text="Country" dataIndex="roCountry" />
-                        <Column text="SOG(Asset)" dataIndex="roSog" renderer={emptyRenderer} />
-                        <Column text="WG(Asset)" dataIndex="roWg" />
-                        <Column text="Availability" dataIndex="roAvailability" />
+                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} width="50" hidden={!this.approved()} />
+                        <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer} minWidth="180" />
+                        <Column text="SOG" width="50" dataIndex="roSog" renderer={emptyRenderer} />
+                        <Column text="WG" width="50" dataIndex="roWg" />
+                        <Column text="Avail." width="50" dataIndex="roAvailability" />
                         <Column text="Duration" dataIndex="roDuration" />
                         <Column text="Reaction type" dataIndex="roReactionType" />
                         <Column text="Reaction time" dataIndex="roReactionTime" />
-                        <Column text="Service location" dataIndex="roServiceLocation" />
+                        <Column text="Service location" dataIndex="ServiceLocation" renderer={locationRenderer} />
                         <Column text="ProActive SLA" dataIndex="roProActiveSla" />
-                        <Column text="Standard warranty duration" dataIndex="roStdWarranty" renderer={yearRenderer} flex="0.5" minWidth="50" />
-                        <Column text="Standard Warranty Service Location" dataIndex="roStdWarrantyLocation" renderer={stringRenderer} />
+                        <Column text="STDW duration" dataIndex="roStdWarranty" renderer={yearRenderer} />
+                        <Column text="STDW Service Location" dataIndex="roStdWarrantyLocation" renderer={locationRenderer} />
 
                     </Column>
 
@@ -293,25 +289,25 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                        defaults={{ align: 'center', minWidth: 40, maxWidth: 80, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <NumberColumn text="Service TC(calc)" dataIndex="roServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
+                        <NumberColumn text="Service TC (calc)" dataIndex="roServiceTC" />
+                        <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
-                        <NumberColumn text="Service TP(calc)" dataIndex="roServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
-                        <NumberColumn text="Service TP(released)" dataIndex="roServiceTP_Released" />
+                        <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
+                        <NumberColumn text="Service TP (manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
+                        <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
+                        <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
-                        <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Change user" minWidth="60" maxWidth="90" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
                         <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
-                        <NumberColumn text="Local service standard warranty(calc)" dataIndex="roLocalServiceStandardWarranty" />
-                        <NumberColumn text="Local service standard warranty(manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
+                        <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
+                        <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
                         <NumberColumn text="Credits" dataIndex="roCredits" />
 
                     </Column>
@@ -323,13 +319,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}
+                        defaults={{ align: 'center', minWidth: 40, maxWidth: 80, cls: "x-text-el-wrap", renderer: moneyRndr }}
                     >
 
                         <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="roServiceSupportCost" />
                         <NumberColumn text="Logistic cost" dataIndex="roLogistic" />
-                        <NumberColumn text="Availability fee" dataIndex="roAvailabilityFee" />
+                        <NumberColumn text="Avail. fee" dataIndex="roAvailabilityFee" />
                         <NumberColumn text="Reinsurance" dataIndex="roReinsurance" />
                         <NumberColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" />
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
