@@ -29,6 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pLocal = new DbParameterBuilder().WithName("local").WithValue(true);
             var pCnt = new DbParameterBuilder().WithName("cnt");
             var pFsp = new DbParameterBuilder().WithName("fsp");
+            var pHasFsp = new DbParameterBuilder().WithName("hasFsp");
             var pWg = new DbParameterBuilder().WithName("wg");
             var pAv = new DbParameterBuilder().WithName("av");
             var pDur = new DbParameterBuilder().WithName("dur");
@@ -43,6 +44,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             {
                 pCnt.WithListIdValue(filter.Country);
                 pFsp.WithValue(filter.Fsp);
+                pHasFsp.WithValue(filter.HasFsp);
                 pWg.WithListIdValue(filter.Wg);
                 pAv.WithListIdValue(filter.Availability);
                 pDur.WithListIdValue(filter.Duration);
@@ -57,6 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pLocal.Build(),
                  pCnt.Build(),
                  pFsp.Build(),
+                 pHasFsp.Build(),
                  pWg.Build(),
                  pAv.Build(),
                  pDur.Build(),

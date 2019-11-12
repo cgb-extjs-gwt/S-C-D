@@ -6,6 +6,8 @@
 
         public string Fsp { get; set; }
 
+        public bool? HasFsp { get; set; }
+
         public long[] Wg { get; set; }
 
         public long[] Availability { get; set; }

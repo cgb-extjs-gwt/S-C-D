@@ -9,6 +9,7 @@
         public long[] Year { get; set; }
         public long[] Duration { get; set; }
         public string Fsp { get; set; }
+        public bool? HasFsp { get; set; }
 
         public bool Approved { get; set; }
 

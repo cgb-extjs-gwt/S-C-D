@@ -73,6 +73,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return WithPValue(value ? 1 : 0);
         }
 
+        public DbParameterBuilder WithValue(bool? value)
+        {
+            return value.HasValue ? WithPValue(value.Value ? 1 : 0) : WithNull();
+        }
+
         public DbParameterBuilder WithValue(DataTable value)
         {
             return WithPValue(value);
