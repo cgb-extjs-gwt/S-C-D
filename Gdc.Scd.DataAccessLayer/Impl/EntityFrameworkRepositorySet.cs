@@ -52,23 +52,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public void Sync()
         {
             var interceptorInfos =
-                    this.ChangeTracker.Entries()
-                                      .Where(entry => entry.State == EntityState.Added)
-                                      .Select(entry => entry.Entity)
-                                      .GroupBy(entity => entity.GetType())
-                                      .SelectMany(group => 
-                                      {
-                                          var interceptorType = typeof(IAfterAddingInterceptor<>).MakeGenericType(group.Key);
-                                          this.serviceProvider.GetAll(interceptorType);
+                                this.ChangeTracker.Entries()
+                                    .Where(entry => entry.State == EntityState.Added)
+                                    .Where(entry => entry.Entity is IIdentifiable)
+                                    .Select(entry => entry.Entity)
+                                    .GroupBy(entity => entity.GetType())
+                                    .SelectMany(group =>
+                                    {
+                                        var interceptorType = typeof(IAfterAddingInterceptor<>).MakeGenericType(group.Key);
 
-                                          return this.serviceProvider.GetAll(interceptorType).Select(interceptor => new
-                                          {
-                                              EntityType = group.Key,
-                                              Entities = group.ToArray(),
-                                              Interceptor = interceptor
-                                          });
-                                      })
-                                      .ToArray();
+                                        return this.serviceProvider.GetAll(interceptorType).Select(interceptor => new
+                                        {
+                                            EntityType = group.Key,
+                                            Entities = group.ToArray(),
+                                            Interceptor = interceptor
+                                        });
+                                    })
+                                    .ToArray();
 
             this.SaveChanges();
 
@@ -486,12 +486,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             base.OnConfiguring(optionsBuilder);
 
-            var connectionStringSettings = 
+            var connectionStringSettings =
                 ConfigurationManager.ConnectionStrings.OfType<ConnectionStringSettings>()
                                                       .FirstOrDefault(settings => settings.Name == this.connectionNameOrConnectionString);
 
-            var connectionString = connectionStringSettings == null 
-                ? this.connectionNameOrConnectionString 
+            var connectionString = connectionStringSettings == null
+                ? this.connectionNameOrConnectionString
                 : connectionStringSettings.ConnectionString;
 
             optionsBuilder.UseSqlServer(connectionString, opt => opt.UseRowNumberForPaging());
@@ -565,7 +565,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     conn.Open();
                 }
-                
+
                 using (var cmd = conn.CreateCommand())
                 {
                     this.InitCommand(cmd);
