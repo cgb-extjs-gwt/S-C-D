@@ -52,6 +52,7 @@
     <Compile Include="UpdateLogisticCostTest.cs" />
     <Compile Include="UpdateMarkupOtherCostsTest.cs" />
     <Compile Include="UpdateMarkupStandardWarantyTest.cs" />
+    <Compile Include="UpdateProactiveTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

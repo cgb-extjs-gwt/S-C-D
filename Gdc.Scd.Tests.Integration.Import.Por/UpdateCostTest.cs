@@ -13,19 +13,37 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         public UpdateCostTest() : base(new NamedId[1]) { }
 
         [TestCase]
-        public void SqlTest()
+        public void SqlByPlaTest()
         {
             this.items = WgHelper.CreateWg("aa1", "xyz", "abc");
             this.table = "Hardware.LogisticsCosts";
             this.deps = new string[] { "Country", "Pla", "ReactionTimeType" };
             this.updateFields = GetFields();
 
-            var sql = ByPla();
+            var sql = TransformText();
 
             sql.Has("('AA1', 'XYZ', 'ABC')");
             sql.Has("Pla", "Pla not found");
             sql.Has("create index ix_tmp_Country_SLA on #tmp([Country], [Pla], [ReactionTimeType]);", "index ix_tmp_Country_SLA");
             sql.Has("create index ix_tmpmin_Country_SLA on #tmpMin([Country], [Pla], [ReactionTimeType]);", "ix_tmpmin_Country_SLA");
+
+            StreamUtil.Save(RESULT_PATH, "update_by_pla.sql", sql);
+        }
+
+        [TestCase]
+        public void SqlByCentralContractGroupTest()
+        {
+            this.items = WgHelper.CreateWg("aa1", "xyz", "abc");
+            this.table = "Hardware.LogisticsCosts";
+            this.deps = new string[] { "Country", "CentralContractGroup", "ReactionTimeType" };
+            this.updateFields = GetFields();
+
+            var sql = TransformText();
+
+            sql.Has("('AA1', 'XYZ', 'ABC')");
+            sql.Has("CentralContractGroup", "CentralContractGroup not found");
+            sql.Has("create index ix_tmp_Country_SLA on #tmp([Country], [CentralContractGroup], [ReactionTimeType]);", "index ix_tmp_Country_SLA");
+            sql.Has("create index ix_tmpmin_Country_SLA on #tmpMin([Country], [CentralContractGroup], [ReactionTimeType]);", "ix_tmpmin_Country_SLA");
 
             StreamUtil.Save(RESULT_PATH, "update_by_CentralContractGroup.sql", sql);
         }

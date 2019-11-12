@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.Core.Entities;
-using System;
 
 namespace Gdc.Scd.Import.Por.Core.Scripts
 {
@@ -13,8 +12,6 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
 
         protected string table;
 
-        protected string field;
-
         public UpdateCost(NamedId[] items)
         {
             if (items == null || items.Length == 0)
@@ -24,14 +21,28 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
             this.items = items;
         }
 
-        public string ByCentralContractGroup()
+        public UpdateCost WithUpdateFields(string[] fields)
         {
-            return For("CentralContractGroup");
+            this.updateFields = fields;
+            return this;
         }
 
-        public string ByPla()
+        public UpdateCost WithTable(string tbl)
         {
-            return For("Pla");
+            this.table = tbl;
+            return this;
+        }
+
+        public UpdateCost WithDeps(string[] deps)
+        {
+            this.deps = deps;
+            return this;
+        }
+
+        public string Build()
+        {
+            GenerationEnvironment.Clear();
+            return TransformText();
         }
 
         protected void WriteNames()
@@ -116,19 +127,6 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
         protected void WriteSetField(string f)
         {
             Write("["); Write(f); Write("] = coalesce(t.["); Write(f); Write("], c.["); Write(f); Write("])");
-        }
-
-        private string For(string f)
-        {
-            this.field = f;
-            this.GenerationEnvironment.Clear();
-            return this.TransformText();
-        }
-
-        protected UpdateCost Print(string v)
-        {
-            Write(v);
-            return this;
         }
     }
 }

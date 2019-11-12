@@ -49,22 +49,30 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateLogisticsCost(Wg[] wgs)
         {
-            Execute(new UpdateLogisticCost(wgs));
+            var tpl = new UpdateLogisticCost(wgs);
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
         }
 
         public virtual void UpdateMarkupOtherCosts(Wg[] wgs)
         {
-            Execute(new UpdateMarkupOtherCosts(wgs));
+            var tpl = new UpdateMarkupOtherCosts(wgs);
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
         }
 
         public virtual void UpdateMarkupStandardWaranty(Wg[] wgs)
         {
-            Execute(new UpdateMarkupStandardWaranty(wgs));
+            var tpl = new UpdateMarkupStandardWaranty(wgs);
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
         }
 
         public virtual void UpdateProactive(Wg[] wgs)
         {
-            ExecuteFromFile("UpdateProactive.sql", wgs);
+            var tpl = new UpdateProactive(wgs);
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
         }
 
         public virtual void UpdateSwSpMaintenance(SwDigit[] digits)
@@ -75,12 +83,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public virtual void UpdateSwProactive(SwDigit[] digits)
         {
             ExecuteFromFile("UpdateSwProactive.sql", digits);
-        }
-
-        private void Execute(BaseUpdateCost tpl)
-        {
-            _repo.ExecuteSql(tpl.ByCentralContractGroup());
-            _repo.ExecuteSql(tpl.ByPla());
         }
 
         protected virtual void ExecuteFromFile(string fn, Wg[] wgs)

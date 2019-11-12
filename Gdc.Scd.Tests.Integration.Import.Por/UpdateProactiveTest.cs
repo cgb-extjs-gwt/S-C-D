@@ -5,13 +5,13 @@ using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.Import.Por
 {
-    public class UpdateMarkupOtherCostsTest
+    public class UpdateProactiveTest
     {
         [TestCase]
         public void SqlByCentralContractGroupTest()
         {
             var wgs = WgHelper.CreateWg("aa1", "xyz", "abc");
-            var tpl = new UpdateMarkupOtherCosts(wgs);
+            var tpl = new UpdateProactive(wgs);
             var sql = tpl.ByCentralContractGroup();
 
             sql.Has("('AA1', 'XYZ', 'ABC')");
@@ -22,7 +22,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         public void SqlByPlaTest()
         {
             var wgs = WgHelper.CreateWg("xxx", "yyy", "zzz", "pxy");
-            var tpl = new UpdateMarkupOtherCosts(wgs);
+            var tpl = new UpdateProactive(wgs);
             var sql = tpl.ByPla();
 
             sql.Has("('XXX', 'YYY', 'ZZZ', 'PXY')");
