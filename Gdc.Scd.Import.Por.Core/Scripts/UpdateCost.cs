@@ -49,77 +49,51 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
             
             #line default
             #line hidden
-            this.Write(");\r\n\r\nselect    ");
+            this.Write(");\r\n\r\nselect  ");
             
             #line 15 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
  WriteDeps(); 
             
             #line default
             #line hidden
-            this.Write("\r\n        , case when min(StandardHandling) = max(StandardHandling) then min(Stan" +
-                    "dardHandling) else null end as StandardHandling\r\n        , case when min(HighAva" +
-                    "ilabilityHandling) = max(HighAvailabilityHandling) then min(HighAvailabilityHand" +
-                    "ling) else null end as HighAvailabilityHandling\r\n        , case when min(Standar" +
-                    "dDelivery) = max(StandardDelivery) then min(StandardDelivery) else null end as S" +
-                    "tandardDelivery\r\n        , case when min(ExpressDelivery) = max(ExpressDelivery)" +
-                    " then min(ExpressDelivery) else null end as ExpressDelivery\r\n        , case when" +
-                    " min(TaxiCourierDelivery) = max(TaxiCourierDelivery) then min(TaxiCourierDeliver" +
-                    "y) else null end as TaxiCourierDelivery\r\n        , case when min(ReturnDeliveryF" +
-                    "actory) = max(ReturnDeliveryFactory) then min(ReturnDeliveryFactory) else null e" +
-                    "nd as ReturnDeliveryFactory\r\n\r\n        , case when min(StandardHandling_Approved" +
-                    ") = max(StandardHandling_Approved) then min(StandardHandling_Approved) else null" +
-                    " end as StandardHandling_Approved\r\n        , case when min(HighAvailabilityHandl" +
-                    "ing_Approved) = max(HighAvailabilityHandling_Approved) then min(HighAvailability" +
-                    "Handling_Approved) else null end as HighAvailabilityHandling_Approved\r\n        ," +
-                    " case when min(StandardDelivery_Approved) = max(StandardDelivery_Approved) then " +
-                    "min(StandardDelivery_Approved) else null end as StandardDelivery_Approved\r\n     " +
-                    "   , case when min(ExpressDelivery_Approved) = max(ExpressDelivery_Approved) the" +
-                    "n min(ExpressDelivery_Approved) else null end as ExpressDelivery_Approved\r\n     " +
-                    "   , case when min(TaxiCourierDelivery_Approved) = max(TaxiCourierDelivery_Appro" +
-                    "ved) then min(TaxiCourierDelivery_Approved) else null end as TaxiCourierDelivery" +
-                    "_Approved\r\n        , case when min(ReturnDeliveryFactory_Approved) = max(ReturnD" +
-                    "eliveryFactory_Approved) then min(ReturnDeliveryFactory_Approved) else null end " +
-                    "as ReturnDeliveryFactory_Approved\r\n\r\ninto #tmpMin\r\nfrom #tmp \r\ngroup by ");
+            this.Write(" \r\n      , ");
             
-            #line 33 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
+            #line 16 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
+ WriteSelectFields(); 
+            
+            #line default
+            #line hidden
+            this.Write("\r\ninto #tmpMin\r\nfrom #tmp \r\ngroup by ");
+            
+            #line 20 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
  WriteDeps(); 
             
             #line default
             #line hidden
             this.Write("\r\ncreate index ix_tmpmin_Country_SLA on #tmpMin(");
             
-            #line 35 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
+            #line 22 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
  WriteDeps(); 
             
             #line default
             #line hidden
-            this.Write(@");
-
-update c set
-      StandardHandling = coalesce(t.StandardHandling, c.StandardHandling) 
-    , HighAvailabilityHandling = coalesce(t.HighAvailabilityHandling, c.HighAvailabilityHandling) 
-    , StandardDelivery = coalesce(t.StandardDelivery, c.StandardDelivery) 
-    , ExpressDelivery = coalesce(t.ExpressDelivery, c.ExpressDelivery) 
-    , TaxiCourierDelivery = coalesce(t.TaxiCourierDelivery, c.TaxiCourierDelivery) 
-    , ReturnDeliveryFactory = coalesce(t.ReturnDeliveryFactory, c.ReturnDeliveryFactory) 
-
-    , StandardHandling_Approved = coalesce(t.StandardHandling_Approved, c.StandardHandling_Approved) 
-    , HighAvailabilityHandling_Approved = coalesce(t.HighAvailabilityHandling_Approved, c.HighAvailabilityHandling_Approved) 
-    , StandardDelivery_Approved = coalesce(t.StandardDelivery_Approved, c.StandardDelivery_Approved) 
-    , ExpressDelivery_Approved = coalesce(t.ExpressDelivery_Approved, c.ExpressDelivery_Approved) 
-    , TaxiCourierDelivery_Approved = coalesce(t.TaxiCourierDelivery_Approved, c.TaxiCourierDelivery_Approved) 
-    , ReturnDeliveryFactory_Approved = coalesce(t.ReturnDeliveryFactory_Approved, c.ReturnDeliveryFactory_Approved) 
-
-from ");
+            this.Write(");\r\n\r\nupdate c set \r\n        ");
             
-            #line 52 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
+            #line 25 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
+ WriteSetFields(); 
+            
+            #line default
+            #line hidden
+            this.Write("\r\nfrom ");
+            
+            #line 27 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(table));
             
             #line default
             #line hidden
             this.Write(" c\r\ninner join #tmpMin t on ");
             
-            #line 53 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
+            #line 28 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
  WriteJoinByDeps(); 
             
             #line default

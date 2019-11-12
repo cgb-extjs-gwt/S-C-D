@@ -74,14 +74,43 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
             }
         }
 
-        protected void WriteSelectField(string f)
+        protected void WriteSelectFields()
         {
-            Write(", case when min([");Write(f);Write("]) = max(["); Write(f); Write("]) then min(["); Write(f); Write("]) else null end as ["); Write(f); Write("]");
+            const string whitespace = "      , ";
+            for (var i = 0; i < updateFields.Length; i++)
+            {
+                if (i > 0)
+                {
+                    Write(whitespace);
+                }
+                WriteSelectField(updateFields[i]);
+                WriteLine(string.Empty);
+                Write(whitespace);
+                WriteSelectField(updateFields[i] + "_Approved");
+                WriteLine(string.Empty);
+            }
         }
 
-        protected void WriteUpdateFields()
+        protected void WriteSelectField(string f)
         {
-            throw new NotImplementedException();
+            Write("case when min(["); Write(f); Write("]) = max(["); Write(f); Write("]) then min(["); Write(f); Write("]) else null end as ["); Write(f); Write("]");
+        }
+
+        protected void WriteSetFields()
+        {
+            const string whitespace = "      , ";
+            for (var i = 0; i < updateFields.Length; i++)
+            {
+                if (i > 0)
+                {
+                    Write(whitespace);
+                }
+                WriteSetField(updateFields[i]);
+                WriteLine(string.Empty);
+                Write(whitespace);
+                WriteSetField(updateFields[i] + "_Approved");
+                WriteLine(string.Empty);
+            }
         }
 
         protected void WriteSetField(string f)
