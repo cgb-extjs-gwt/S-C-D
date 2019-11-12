@@ -34,5 +34,15 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             UpdateCostBlocks();
             UpdateHwCosts();
         }
+
+        [TestCase]
+        public void WhenUploadNewDigitCostsShouldBeInit_Test()
+        {
+            UploadSwDigit();
+            UploadSwProactiveDigit();
+            UploadSw();
+            UpdateCostBlocks();
+            UpdateSwCosts();
+        }
     }
 }
