@@ -2,31 +2,32 @@
 
 namespace Gdc.Scd.Import.Por.Core.Scripts
 {
-    public class UpdateLogisticCost : UpdateCost
+    public class UpdateLogisticCost 
     {
-        public UpdateLogisticCost(Wg[] items) : base(items)
+        private UpdateCost tpl;
+
+        public UpdateLogisticCost(Wg[] items) 
         {
-            this.table = "Hardware.LogisticsCosts";
-            this.updateFields = new string[] {
-                  "StandardHandling",
-                  "HighAvailabilityHandling",
-                  "StandardDelivery",
-                  "ExpressDelivery",
-                  "TaxiCourierDelivery",
-                  "ReturnDeliveryFactory"
-            };
+            this.tpl = new UpdateCost(items)
+                             .WithTable("Hardware.LogisticsCosts")
+                             .WithUpdateFields(new string[] {
+                                  "StandardHandling",
+                                  "HighAvailabilityHandling",
+                                  "StandardDelivery",
+                                  "ExpressDelivery",
+                                  "TaxiCourierDelivery",
+                                  "ReturnDeliveryFactory"
+                            });
         }
 
         public string ByCentralContractGroup()
         {
-            this.deps = new string[] { "Country", "CentralContractGroup", "ReactionTimeType" };
-            return Build();
+            return tpl.WithDeps(new string[] { "Country", "CentralContractGroup", "ReactionTimeType" }).Build();
         }
 
         public string ByPla()
         {
-            this.deps = new string[] { "Country", "Pla", "ReactionTimeType" };
-            return Build();
+            return tpl.WithDeps(new string[] { "Country", "Pla", "ReactionTimeType" }).Build();
         }
     }
 }

@@ -4,7 +4,6 @@ using Gdc.Scd.Import.Por.Core.Interfaces;
 using Gdc.Scd.Import.Por.Core.Scripts;
 using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
@@ -44,7 +43,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateFieldServiceCost(Wg[] wgs)
         {
-            ExecuteFromFile("UpdateFieldServiceCost.sql", wgs);
+            var tpl = new UpdateFieldServiceCost(wgs);
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
+            _repo.ExecuteSql(ReadText("UpdateFieldServiceCost.sql"));
         }
 
         public virtual void UpdateLogisticsCost(Wg[] wgs)
@@ -85,28 +87,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         {
             var tpl = new UpdateSwProactive(digits);
             _repo.ExecuteSql(tpl.BySog());
-        }
-
-        protected virtual void ExecuteFromFile(string fn, Wg[] wgs)
-        {
-            var sb = new StringBuilder(2048);
-            sb.Append(@"
-                declare @wg dbo.ListID;
-                insert into @wg(id) select id from InputAtoms.Wg where Deactivated = 0 and UPPER(name) in (");
-            for (var i = 0; i < wgs.Length; i++)
-            {
-                if (i > 0)
-                {
-                    sb.Append(", ");
-                }
-                sb.Append("'").Append(wgs[i].Name.ToUpper()).Append("'");
-            }
-            sb.Append(");");
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.Append(ReadText(fn));
-
-            _repo.ExecuteSql(sb.ToString());
         }
 
         protected virtual string ReadText(string fn)

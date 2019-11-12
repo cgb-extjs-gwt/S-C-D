@@ -33,8 +33,8 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
             
             #line default
             #line hidden
-            this.Write(")\r\n\r\nIF OBJECT_ID(\'tempdb..#tmp\') IS NOT NULL DROP TABLE #tmp;\r\nIF OBJECT_ID(\'tem" +
-                    "pdb..#tmpMin\') IS NOT NULL DROP TABLE #tmpMin;\r\n\r\nselect c.* into #tmp\r\nfrom ");
+            this.Write(");\r\n\r\nIF OBJECT_ID(\'tempdb..#tmp\') IS NOT NULL DROP TABLE #tmp;\r\nIF OBJECT_ID(\'te" +
+                    "mpdb..#tmpMin\') IS NOT NULL DROP TABLE #tmpMin;\r\n\r\nselect c.* into #tmp\r\nfrom ");
             
             #line 10 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(table));
@@ -70,7 +70,7 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
             
             #line default
             #line hidden
-            this.Write("\r\ncreate index ix_tmpmin_Country_SLA on #tmpMin(");
+            this.Write(";\r\n\r\ncreate index ix_tmpmin_Country_SLA on #tmpMin(");
             
             #line 22 "C:\Dev\SCD\Gdc.Scd.Import.Por.Core\Scripts\UpdateCost.tt"
  WriteDeps(); 

@@ -1,7 +1,7 @@
 ﻿<#@ template language="C#" #>
 
 declare @wg dbo.ListID;
-insert into @wg(id) select id from InputAtoms.Wg where Deactivated = 0 and UPPER(name) in (<# WriteNames(); #>)
+insert into @wg(id) select id from InputAtoms.Wg where Deactivated = 0 and UPPER(name) in (<# WriteNames(); #>);
 
 IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp;
 IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
@@ -17,7 +17,7 @@ select  <# WriteDeps(); #>
 
 into #tmpMin
 from #tmp 
-group by <# WriteDeps(); #>
+group by <# WriteDeps(); #>;
 
 create index ix_tmpmin_Country_SLA on #tmpMin(<# WriteDeps(); #>);
 
