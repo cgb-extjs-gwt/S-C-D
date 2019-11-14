@@ -10,8 +10,8 @@ export class FspRadioField extends React.Component<any> {
     public render() {
         return <Container layout={{ type: 'vbox', align: 'left' }} margin="0" defaults={{ padding: '0' }} >
             <RadioField name="hasFsp" boxLabel="All" checked />
-            <RadioField ref={this.setWithFsp} name="hasFsp" boxLabel="With FSP" />
-            <RadioField ref={this.setNoFsp} name="hasFsp" boxLabel="No FSP" />
+            <RadioField ref={this.setWithFsp} name="hasFsp" boxLabel="With FSP code" />
+            <RadioField ref={this.setNoFsp} name="hasFsp" boxLabel="Without FSP code" />
         </Container>
     }
 

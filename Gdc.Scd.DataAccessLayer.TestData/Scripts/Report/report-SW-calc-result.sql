@@ -4,7 +4,9 @@ go
 
 CREATE FUNCTION Report.SwCalcResult
 (
-	@approved bit,
+    @approved bit,
+    @fsp nvarchar(255),
+    @hasFsp bit,
     @digit dbo.ListID readonly,
     @availability dbo.ListID readonly,
     @duration dbo.ListID readonly
@@ -12,7 +14,8 @@ CREATE FUNCTION Report.SwCalcResult
 RETURNS TABLE 
 AS
 RETURN (
-    select    d.Name as SwDigit
+    select    m.Fsp
+            , d.Name as SwDigit
             , sog.Name as Sog
             , av.Name as Availability 
             , dr.Name as Duration
@@ -21,7 +24,7 @@ RETURN (
             , m.TransferPrice
             , m.MaintenanceListPrice
             , m.DealerPrice
-    from SoftwareSolution.GetCosts(@approved, @digit, @availability, @duration, -1, -1) m
+    from SoftwareSolution.GetCosts2(@approved, @fsp, @hasFsp, @digit, @availability, @duration, -1, -1) m
     join InputAtoms.SwDigit d on d.Id = m.SwDigit
     join InputAtoms.Sog sog on sog.Id = m.Sog
     join Dependencies.Availability av on av.Id = m.Availability
@@ -34,6 +37,8 @@ declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'FSP code', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SwDigit', 'SW digit', 1, 1);
 set @index = @index + 1;
@@ -60,6 +65,10 @@ delete from Report.ReportFilter where ReportId = @reportId;
 
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'boolean'), 'approved', 'Approved');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'text'), 'fsp', 'FSP code');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'boolean'), 'hasFsp', 'With FSP code');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=1), 'digit', 'SW digit');
 set @index = @index + 1;
