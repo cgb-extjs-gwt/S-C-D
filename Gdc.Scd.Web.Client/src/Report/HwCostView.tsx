@@ -265,7 +265,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 40, maxWidth: 65, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
                         <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} width="50" hidden={!this.approved()} />
                         <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer} minWidth="180" />
@@ -289,7 +289,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 40, maxWidth: 80, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC (calc)" dataIndex="roServiceTC" />
                         <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
@@ -319,7 +319,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 40, maxWidth: 80, cls: "x-text-el-wrap", renderer: moneyRndr }}
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}
                     >
 
                         <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
