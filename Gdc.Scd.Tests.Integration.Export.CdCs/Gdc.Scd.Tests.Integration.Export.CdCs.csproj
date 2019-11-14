@@ -54,7 +54,7 @@
     <None Include="TestData\CalculationTool_CD_CS.xlsm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestData\CD_CS_Master File_SCD 2.0.xlsx">
+    <None Include="TestData\CD_CS_Master File_SCD 2.0_v3.xlsm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestData\hdd.csv">

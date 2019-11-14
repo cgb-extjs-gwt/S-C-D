@@ -13,12 +13,12 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
             testing = new SharePointClient(Config.NetworkCredential);
         }
 
-        [TestCase("sp_loaded_scd_2.0.xlsx")]
-        [TestCase("CD_CS_Master File_SCD 2.0_v3.xlsx")]
-        public void LoadTest(string fn)
+        [TestCase]
+        public void LoadTest()
         {
-            var data = testing.Load(Config.SpFile);
-            ExcelWriterTest.Save(data, fn);
+            var cfg = Config.SpFile;
+            var data = testing.Load(cfg);
+            ExcelWriterTest.Save(data, cfg.FileName);
         }
 
         [Ignore("for one time test only")]

@@ -8,6 +8,10 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
 {
     public class FileSharePointClient : SharePointClient
     {
+        public const string TEST_PATH = "TestData";
+        
+        private const string EXCEL = "CD_CS_Master File_SCD 2.0_v3.xlsm";
+
         public FileSharePointClient() : base(null) { }
 
         public override MemoryStream Load(SpFileDto cfg)
@@ -17,7 +21,12 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
 
         public override void Send(Stream data, CdCsConfiguration config)
         {
-            ExcelWriterTest.Save(data, $"cd_cs_doc_{config.Country.Name}.xlsx");
+            ExcelWriterTest.Save(data, config.Country.Name + "_" + EXCEL);
+        }
+
+        public static System.IO.Stream GetDoc()
+        {
+            return StreamUtil.ReadBin(TEST_PATH, EXCEL);
         }
     }
 }

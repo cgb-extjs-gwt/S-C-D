@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Export.CdCs.Dto;
 using Gdc.Scd.Export.CdCs.Helpers;
+using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -86,7 +87,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
 
         public static System.IO.Stream GetDoc()
         {
-            return StreamUtil.ReadBin(TEST_PATH, "CD_CS_Master File_SCD 2.0.xlsx");
+            return FileSharePointClient.GetDoc();
         }
 
         public static List<ServiceCostDto> GenTcTp()
