@@ -3,7 +3,8 @@ import { Container, FormPanel, Toolbar, Button } from "@extjs/ext-react";
 import { Bundle } from "../States/ApprovalState";
 
 export interface BundleListLayoutActions {
-    onRefresh?()
+    onRefresh?(),
+    isCheckColumnsVisible?(): boolean
 }
 
 export interface BundleListLayoutProps extends BundleListLayoutActions  {
