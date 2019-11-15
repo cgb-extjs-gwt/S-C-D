@@ -517,7 +517,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             this.exchangeRate = d.ExchangeRate;
 
         }
+        this.reRender(); // stub for correct render
+    }
+
+    private reRender() {
         this.grid.refresh();
+        this.setState({ ______: new Date().getTime() });
     }
 
     private readPluginConf() {
