@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Export.CdCs;
+using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs
@@ -25,7 +26,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         [TestCase]
         public void SendTest()
         {
-            var data = ExcelWriterTest.GetDoc();
+            var data = FileSharePointClient.GetDoc();
             var cfg = new CdCsConfiguration
             {
                 FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool",

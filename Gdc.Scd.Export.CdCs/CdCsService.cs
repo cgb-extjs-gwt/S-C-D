@@ -84,6 +84,7 @@ namespace Gdc.Scd.Export.CdCs
             WriteServiceCost(writer, slaList, config);
             WriteProactive(writer, config);
             WriteHdd(writer, config);
+            writer.WriteToolConfig(config.GetCountry(), config.GetPriceListPath());
         }
 
         protected void WriteServiceCost(ExcelWriter writer, SlaCollection slaList, CdCsConfiguration config)

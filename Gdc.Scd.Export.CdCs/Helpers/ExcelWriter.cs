@@ -13,6 +13,7 @@ namespace Gdc.Scd.Export.CdCs.Helpers
             public const string InputMctCdCsWGs = "Input_MCT_CD_CS_WGs";
             public const string ProActiveOutput = "ProActive_SCD_Output";
             public const string HddRetention = "HDD_Retention";
+            public const string ToolConfig = "ToolConfig";
         }
 
         private class InputMctCdCsWGsColumns
@@ -171,6 +172,16 @@ namespace Gdc.Scd.Export.CdCs.Helpers
                 sheet.SetCellAsCurrency(row, HddRetentionColumns.DealerPrice, hdd.DealerPrice, currency);
                 sheet.SetCellAsCurrency(row, HddRetentionColumns.ListPrice, hdd.ListPrice, currency);
             }
+        }
+
+        public void WriteToolConfig(string country, string path)
+        {
+            var sheet = workbook.Worksheet(InputSheets.ToolConfig);
+
+            const int dataCol = 2;
+
+            sheet.SetCellAsString(1, dataCol, path);
+            sheet.SetCellAsString(2, dataCol, country);
         }
     }
 }

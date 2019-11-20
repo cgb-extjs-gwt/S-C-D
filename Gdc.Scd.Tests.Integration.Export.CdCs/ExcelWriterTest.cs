@@ -18,7 +18,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         [SetUp]
         public void Setup()
         {
-            writer = new ExcelWriter(GetDoc());
+            writer = new ExcelWriter(FileSharePointClient.GetDoc());
         }
 
         [TearDown]
@@ -53,21 +53,28 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         public void WriteTcTpTest()
         {
             writer.WriteTcTp(GenTcTp());
-            Save(writer.GetData(), "service_cost.xlsx");
+            Save(writer.GetData(), "service_cost_");
         }
 
         [TestCase]
         public void WriteHddTest()
         {
             writer.WriteHdd(GenHdd(), "RUB");
-            Save(writer.GetData(), "hdd_retention.xlsx");
+            Save(writer.GetData(), "hdd_retention_");
         }
 
         [TestCase]
         public void WriteProTest()
         {
             writer.WriteProactive(GenPro(), "RUB");
-            Save(writer.GetData(), "proactive.xlsx");
+            Save(writer.GetData(), "proactive_");
+        }
+
+        [TestCase]
+        public void WriteToolConfigTest()
+        {
+            writer.WriteToolConfig("Russia", @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CNEE/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\Russia PriceList_CD_CS.xlsx");
+            Save(writer.GetData(), "Russia PriceList_");
         }
 
 
@@ -77,17 +84,13 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
             writer.WriteTcTp(GenTcTp());
             writer.WriteProactive(GenPro(), "RUB");
             writer.WriteHdd(GenHdd(), "RUB");
-            Save(writer.GetData(), "cd_cs_doc.xlsx");
+            writer.WriteToolConfig("Russia", @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CNEE/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\Russia PriceList_CD_CS.xlsx");
+            Save(writer.GetData(), "cd_cs_doc_");
         }
 
         public static void Save(Stream stream, string fn)
         {
-            StreamUtil.Save(RESULT_PATH, fn, stream);
-        }
-
-        public static System.IO.Stream GetDoc()
-        {
-            return FileSharePointClient.GetDoc();
+            StreamUtil.Save(RESULT_PATH, fn + FileSharePointClient.EXCEL, stream);
         }
 
         public static List<ServiceCostDto> GenTcTp()

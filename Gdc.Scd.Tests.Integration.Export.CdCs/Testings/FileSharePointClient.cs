@@ -10,13 +10,13 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
     {
         public const string TEST_PATH = "TestData";
         
-        private const string EXCEL = "CD_CS_Master File_SCD 2.0_v3.xlsm";
+        public const string EXCEL = "CalculationTool_CD_CS.xlsm";
 
         public FileSharePointClient() : base(null) { }
 
         public override MemoryStream Load(SpFileDto cfg)
         {
-            return ExcelWriterTest.GetDoc().Copy();
+            return GetDoc().Copy();
         }
 
         public override void Send(Stream data, CdCsConfiguration config)

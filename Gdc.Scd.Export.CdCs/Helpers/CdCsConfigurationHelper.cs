@@ -13,5 +13,15 @@ namespace Gdc.Scd.Export.CdCs.Helpers
         {
             return c.Country.Currency.Name;
         }
+
+        public static string GetPriceListPath(this CdCsConfiguration c)
+        {
+            return string.Concat(
+                    c.FileWebUrl, 
+                    @"/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\", 
+                    c.GetCountry(), 
+                    " PriceList_CD_CS.xlsx"
+                );
+        }
     }
 }
