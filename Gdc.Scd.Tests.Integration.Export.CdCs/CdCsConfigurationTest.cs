@@ -42,22 +42,22 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
         [TestCase(
             @"Russia",
             @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CNEE",
-            @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CNEE/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\Russia PriceList_CD_CS.xlsx"
+            @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CNEE/CD_CS_Pricelist/Forms/AllItems.aspx"
         )]
         [TestCase(
             @"Austria",
             @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CGER",
-            @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CGER/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\Austria PriceList_CD_CS.xlsx"
+            @"http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/test/CGER/CD_CS_Pricelist/Forms/AllItems.aspx"
         )]
         [TestCase(
             @"404",
             @"some_path_xxx/some_region__yyy",
-            @"some_path_xxx/some_region__yyy/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\404 PriceList_CD_CS.xlsx"
+            @"some_path_xxx/some_region__yyy/CD_CS_Pricelist/Forms/AllItems.aspx"
         )]
         [TestCase(
             @"United States",
             @"https://partners.ts.fujitsu.com/teams/cor/SCD/USA/test",
-            @"https://partners.ts.fujitsu.com/teams/cor/SCD/USA/test/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\United States PriceList_CD_CS.xlsx"
+            @"https://partners.ts.fujitsu.com/teams/cor/SCD/USA/test/CD_CS_Pricelist/Forms/AllItems.aspx"
         )]
         public void GetPriceListPath(string country, string fileWebUrl, string expected)
         {

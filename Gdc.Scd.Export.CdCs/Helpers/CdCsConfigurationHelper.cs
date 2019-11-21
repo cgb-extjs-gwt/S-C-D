@@ -16,12 +16,7 @@ namespace Gdc.Scd.Export.CdCs.Helpers
 
         public static string GetPriceListPath(this CdCsConfiguration c)
         {
-            return string.Concat(
-                    c.FileWebUrl, 
-                    @"/Calculation Output Reporting/Single Calculator (MCT)\..\..\CD_CS_PriceList\", 
-                    c.GetCountry(), 
-                    " PriceList_CD_CS.xlsx"
-                );
+            return string.Concat(c.FileWebUrl, @"/CD_CS_Pricelist/Forms/AllItems.aspx");
         }
     }
 }
