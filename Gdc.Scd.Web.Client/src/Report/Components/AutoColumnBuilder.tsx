@@ -2,7 +2,7 @@
 import * as React from "react";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
-import { IRenderer, moneyRenderer, localMoneyRendererFactory, numberRendererFactory, percentRenderer, stringRenderer, yesNoRenderer } from "./GridRenderer";
+import { IRenderer, moneyRenderer, localMoneyRendererFactory, numberRendererFactory, percentRenderer, stringRenderer, yesNoRenderer, ddMMyyyyRenderer } from "./GridRenderer";
 
 const localMoneyRenderer = localMoneyRendererFactory('Currency');
 
@@ -41,6 +41,10 @@ export class AutoColumnBuilder {
 
             case AutoColumnType.BOOLEAN:
                 this.initBoolean();
+                break;
+
+            case AutoColumnType.DATETIME:
+                this.initDate();
                 break;
 
             case AutoColumnType.TEXT:
@@ -82,6 +86,11 @@ export class AutoColumnBuilder {
     private initPercent() {
         this.factory = this.columnCmp;
         this.rndr = percentRenderer;
+    }
+
+    private initDate() {
+        this.factory = this.columnCmp;
+        this.rndr = ddMMyyyyRenderer;
     }
 
     private columnCmp(key: number): JSX.Element {
