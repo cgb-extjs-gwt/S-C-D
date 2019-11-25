@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="325bc2d9c90d48eb9dc5b33b6fc70c60" Name="Diagram1" ZoomLevel="78">
+        <EntityTypeShape EntityType="SCD_2Model.Availability" Width="1.5" PointX="0.75" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Duration" Width="1.5" PointX="0.75" PointY="11.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Duration_Availability" Width="1.5" PointX="3" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ProActiveSla" Width="1.5" PointX="0.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ReactionTime" Width="1.5" PointX="0.75" PointY="3.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ReactionTime_Avalability" Width="1.5" PointX="3" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ReactionTime_ReactionType" Width="1.5" PointX="6" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ReactionTime_ReactionType_Avalability" Width="1.5" PointX="6" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ReactionType" Width="2" PointX="3.25" PointY="1.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ServiceLocation" Width="1.5" PointX="0.75" PointY="24.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Year" Width="1.5" PointX="1.5" PointY="17.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ManualCost" Width="1.5" PointX="5.25" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.StandardWarrantyManualCost" Width="1.5" PointX="4" PointY="39.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.CentralContractGroup" Width="1.5" PointX="1.5" PointY="43.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ClusterPla" Width="1.5" PointX="1.5" PointY="59.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.ClusterRegion" Width="1.5" PointX="1.5" PointY="33.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Country" Width="1.5" PointX="0.75" PointY="27.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.CountryGroup" Width="1.5" PointX="1.5" PointY="35.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Pla" Width="1.5" PointX="1.5" PointY="55.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Region" Width="1.5" PointX="1.5" PointY="40.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.RoleCode" Width="1.5" PointX="1.5" PointY="62.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Sfab" Width="1.5" PointX="1.5" PointY="65" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Sog" Width="1.5" PointX="1.5" PointY="68.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.SwDigit" Width="1.5" PointX="3.75" PointY="69.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.SwDigitLicense" Width="1.5" PointX="6" PointY="69.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.SwLicense" Width="1.5" PointX="3.75" PointY="65.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.Wg" Width="1.5" PointX="0.75" PointY="48.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SCD_2Model.LocalPortfolio" Width="1.5" PointX="3" PointY="11.125" IsExpanded="true" />
+        <AssociationConnector Association="SCD_2Model.FK_Duration_Availability_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_Avalability_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Duration_Availability_Duration_YearId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Duration_Year_Id" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_Duration_DurationId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_ProActiveSla_ProActiveSlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_ServiceLocation_ServiceLocationId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK__ManualCos__Portf__60BE0156" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK__StandardW__Count__6350553E" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK__StandardWa__WgId__64447977" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Wg_CentralContractGroup_CentralContractGroupId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Pla_ClusterPla_ClusterPlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Country_ClusterRegion_ClusterRegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Region_ClusterRegion_ClusterRegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Country_CountryGroup_CountryGroupId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Country_Region_RegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_Country_CountryId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_CountryGroup_Region_RegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Sfab_Pla_PlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Sog_Pla_PlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Wg_Pla_PlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Wg_RoleCode_RoleCodeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Sog_Sfab_SFabId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Wg_Sfab_SFabId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_SwDigit_Sog_SogId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_Wg_Sog_SogId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_SwDigitLicense_SwDigit_SwDigitId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_SwDigitLicense_SwLicense_SwLicenseId" ManuallyRouted="false" />
+        <AssociationConnector Association="SCD_2Model.FK_LocalPortfolio_Wg_WgId" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="SCD_2Model.PrincipalPortfolio" Width="1.5" PointX="4" PointY="35" />
+        <AssociationConnector Association="SCD_2Model.FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId" />
+        <AssociationConnector Association="SCD_2Model.FK_PrincipalPortfolio_Wg_WgId" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

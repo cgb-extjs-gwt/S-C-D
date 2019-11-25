@@ -8,18 +8,35 @@ import { buildBundleFilter } from "../../Approval/Helpers/FilterHelper";
 import { getBundles } from "../../Approval/Services/ApprovalService";
 import { loadBundles } from "../../Approval/Actions/BundleListActions";
 import { ApprovalLayout } from "./ApprovalLayout";
+import { ApprovalBundleState } from "../../Approval/States/ApprovalState";
 
-export const ApprovalLayoutContainer = connectAdvanced<CommonState, BundleListLayoutProps, {}>(
-    dispatch => ({ pages: { costApproval } }) => ({
-        bundles: costApproval.bundles,
-        onRefresh: () => {
-            const filter = buildBundleFilter(costApproval.filter);
+export const ApprovalLayoutContainer = function () {
 
-            handleRequest(
-                getBundles(filter).then(bundles => {
-                    dispatch(loadBundles(COST_APPROVAL_PAGE, bundles))
-                })
-            );
-        }
-    })
-)(ApprovalLayout)
+    //================================================
+    //TODO: remove this stub, move state to .....
+    let fn = () => {
+        return -1;
+    };
+    //================================================
+
+    return connectAdvanced<CommonState, BundleListLayoutProps, {}>(
+        dispatch => ({ pages: { costApproval } }) => ({
+            bundles: costApproval.bundles,
+            isCheckColumnsVisible: () => {
+                return ApprovalBundleState.Approving === fn();
+            },
+            onRefresh: () => {
+                const filter = buildBundleFilter(costApproval.filter);
+
+                fn = () => filter.state;
+
+                handleRequest(
+                    getBundles(filter).then(bundles => {
+                        dispatch(loadBundles(COST_APPROVAL_PAGE, bundles))
+                    })
+                );
+            }
+        })
+    )(ApprovalLayout);
+
+}();

@@ -6,24 +6,23 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 {
     public static class ImportHelper
     {
-        public static bool IsSoftware(string serviceType, IEnumerable<string> softwareTypes)
+        private const string SOFTWARE = "Software";
+        private const string SOFTWARE_TYPE = "SWP";
+        private const string SOLUTION_TYPE = "SOL";
+ 
+        public static bool IsSoftware(string serviceType, 
+            string alignment)
         {
-            var result = false;
+            if (String.IsNullOrEmpty(alignment))
+                return false;
 
             if (String.IsNullOrEmpty(serviceType))
-                return false;
-            var wgTypes = serviceType.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                                                     .Select(t => t.Trim());
-            foreach (var wgType in wgTypes)
-            {
-                if (softwareTypes.Contains(wgType, StringComparer.OrdinalIgnoreCase))
-                {
-                    result = true;
-                    break;
-                }
-            }
+                return SOFTWARE.Equals(alignment, StringComparison.OrdinalIgnoreCase);
 
-            return result;
+
+            return SOFTWARE.Equals(alignment, StringComparison.OrdinalIgnoreCase) &&
+                   (serviceType.ToUpper().Contains(SOFTWARE_TYPE) ||
+                    serviceType.ToUpper().Contains(SOLUTION_TYPE));
         }
 
         public static bool IsSolution(string serviceType, string solutionIdentifier)

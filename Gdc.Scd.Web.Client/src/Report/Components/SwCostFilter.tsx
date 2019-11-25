@@ -1,4 +1,4 @@
-﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
+﻿import { Button, Container, Panel, PanelProps, SearchField } from "@extjs/ext-react";
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
@@ -7,6 +7,7 @@ import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
 import { MultiSelectField } from "../../Dict/Components/MultiSelectField";
+import { FspRadioField } from "./FspRadioField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -18,6 +19,10 @@ export interface FilterPanelProps extends PanelProps {
 }
 
 export class SwCostFilter extends React.Component<FilterPanelProps, any> {
+
+    private fsp: SearchField & any;
+
+    private hasFsp: FspRadioField;
 
     private digit: MultiSelect;
 
@@ -63,7 +68,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <MultiSelectField ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} label='SW digit'/>
+                    <SearchField ref={x => this.fsp = x} label="FSP" placeholder="Search by FSP..." />
+                    <FspRadioField ref={x => this.hasFsp = x} />
+                    <MultiSelectField ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} label='SW digit' />
                     <Panel title='Availability'
                         {...panelProps}>
                         <MultiSelect ref={x => this.avail = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
@@ -77,7 +84,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
                 <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="5px 20px" />
 
-                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" handler={this.onDownload} margin="5px 20px"/>
+                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" handler={this.onDownload} margin="5px 20px" />
 
             </Panel>
         );
@@ -87,7 +94,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
         return {
             digit: this.digit.getSelectedKeysOrNull(),
             availability: this.avail.getSelectedKeysOrNull(),
-            duration: this.duration.getSelectedKeysOrNull()
+            duration: this.duration.getSelectedKeysOrNull(),
+            fsp: this.fsp.getValue(),
+            hasFsp: this.hasFsp.getValue()
         }
     }
 

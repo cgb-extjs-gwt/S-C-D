@@ -1,0 +1,2574 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="SCD_2Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Availability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ExternalName" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Duration">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" />
+          <Property Name="ExternalName" Type="nvarchar(max)" />
+          <Property Name="IsProlongation" Type="bit" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Value" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Duration_Availability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AvailabilityId" Type="bigint" />
+          <Property Name="YearId" Type="bigint" />
+          <Property Name="IsDisabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProActiveSla">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CentralExecutionShcReportRepetition" Type="int" Nullable="false" />
+          <Property Name="ExternalName" Type="nvarchar(max)" />
+          <Property Name="LocalOnsiteShcCustomerBriefingRepetition" Type="int" Nullable="false" />
+          <Property Name="LocalPreparationShcRepetition" Type="int" Nullable="false" />
+          <Property Name="LocalRegularUpdateReadyRepetition" Type="int" Nullable="false" />
+          <Property Name="LocalRemoteShcCustomerBriefingRepetition" Type="int" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="TravellingTimeRepetition" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ReactionTime">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ExternalName" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="ReactionTime_Avalability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AvailabilityId" Type="bigint" />
+          <Property Name="ReactionTimeId" Type="bigint" />
+          <Property Name="IsDisabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ReactionTime_ReactionType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ReactionTimeId" Type="bigint" />
+          <Property Name="ReactionTypeId" Type="bigint" />
+          <Property Name="IsDisabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ReactionTime_ReactionType_Avalability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AvailabilityId" Type="bigint" />
+          <Property Name="ReactionTimeId" Type="bigint" />
+          <Property Name="ReactionTypeId" Type="bigint" />
+          <Property Name="IsDisabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ReactionType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ExternalName" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="ServiceLocation">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ExternalName" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Order" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Year">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IsProlongation" Type="bit" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Value" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ManualCost">
+          <Key>
+            <PropertyRef Name="PortfolioId" />
+          </Key>
+          <Property Name="PortfolioId" Type="bigint" Nullable="false" />
+          <Property Name="DealerDiscount" Type="float" />
+          <Property Name="ListPrice" Type="float" />
+          <Property Name="ServiceTC" Type="float" />
+          <Property Name="ServiceTP" Type="float" />
+          <Property Name="DealerPrice" Type="float" StoreGeneratedPattern="Computed" />
+          <Property Name="ChangeUserId" Type="bigint" />
+          <Property Name="ChangeDate" Type="datetime" />
+          <Property Name="ReleaseDate" Type="datetime" />
+          <Property Name="ServiceTP1_Released" Type="float" />
+          <Property Name="ServiceTP2_Released" Type="float" />
+          <Property Name="ServiceTP3_Released" Type="float" />
+          <Property Name="ServiceTP4_Released" Type="float" />
+          <Property Name="ServiceTP5_Released" Type="float" />
+          <Property Name="ServiceTP1P_Released" Type="float" />
+          <Property Name="ServiceTP_Released" Type="float" />
+        </EntityType>
+        <EntityType Name="StandardWarrantyManualCost">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CountryId" Type="bigint" Nullable="false" />
+          <Property Name="WgId" Type="bigint" Nullable="false" />
+          <Property Name="ChangeUserId" Type="bigint" Nullable="false" />
+          <Property Name="ChangeDate" Type="datetime" Nullable="false" />
+          <Property Name="StandardWarranty" Type="float" />
+        </EntityType>
+        <EntityType Name="CentralContractGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Code" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="ClusterPla">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="ClusterRegion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="IsEmeia" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Country">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AssignedToMultiVendor" Type="bit" Nullable="false" />
+          <Property Name="CanOverrideTransferCostAndPrice" Type="bit" Nullable="false" />
+          <Property Name="CanStoreListAndDealerPrices" Type="bit" Nullable="false" />
+          <Property Name="ClusterRegionId" Type="bigint" />
+          <Property Name="CountryGroupId" Type="bigint" />
+          <Property Name="CurrencyId" Type="bigint" Nullable="false" />
+          <Property Name="ISO3CountryCode" Type="nvarchar(max)" />
+          <Property Name="IsMaster" Type="bit" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="QualityGateGroup" Type="nvarchar(max)" />
+          <Property Name="RegionId" Type="bigint" />
+          <Property Name="SAPCountryCode" Type="nvarchar(max)" />
+          <Property Name="CanOverride2ndLevelSupportLocal" Type="bit" Nullable="false" />
+          <Property Name="InstallbaseGroup" Type="nvarchar" MaxLength="300" />
+        </EntityType>
+        <EntityType Name="CountryGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AutoUploadInstallBase" Type="bit" Nullable="false" />
+          <Property Name="CountryDigit" Type="nvarchar(max)" />
+          <Property Name="LUTCode" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="RegionId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Pla">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ClusterPlaId" Type="bigint" />
+          <Property Name="CodingPattern" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Region">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ClusterRegionId" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="RoleCode">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="ModifiedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DeactivatedDateTime" Type="datetime2" Precision="7" />
+        </EntityType>
+        <EntityType Name="Sfab">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DeactivatedDateTime" Type="datetime2" Precision="7" />
+          <Property Name="ModifiedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="PlaId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Alignment" Type="nvarchar(max)" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DeactivatedDateTime" Type="datetime2" Precision="7" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="FabGrp" Type="nvarchar(max)" />
+          <Property Name="IsSoftware" Type="bit" Nullable="false" />
+          <Property Name="ModifiedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="PlaId" Type="bigint" Nullable="false" />
+          <Property Name="SCD_ServiceType" Type="nvarchar(max)" />
+          <Property Name="SFabId" Type="bigint" />
+          <Property Name="IsSolution" Type="bit" Nullable="false" />
+          <Property Name="ServiceTypes" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="SwDigit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DeactivatedDateTime" Type="datetime2" Precision="7" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="ModifiedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="SogId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SwDigitLicense">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="SwDigitId" Type="bigint" />
+          <Property Name="SwLicenseId" Type="bigint" />
+        </EntityType>
+        <EntityType Name="SwLicense">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DeactivatedDateTime" Type="datetime2" Precision="7" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="ModifiedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Wg">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Alignment" Type="nvarchar(max)" />
+          <Property Name="CreatedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DeactivatedDateTime" Type="datetime2" Precision="7" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="ExistsInLogisticsDb" Type="bit" Nullable="false" />
+          <Property Name="FabGrp" Type="nvarchar(max)" />
+          <Property Name="IsDeactivatedInLogistic" Type="bit" Nullable="false" />
+          <Property Name="IsSoftware" Type="bit" Nullable="false" />
+          <Property Name="ModifiedDateTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="PlaId" Type="bigint" Nullable="false" />
+          <Property Name="RoleCodeId" Type="bigint" />
+          <Property Name="SCD_ServiceType" Type="nvarchar(max)" />
+          <Property Name="SFabId" Type="bigint" />
+          <Property Name="SogId" Type="bigint" />
+          <Property Name="WgType" Type="int" Nullable="false" />
+          <Property Name="ResponsiblePerson" Type="nvarchar(max)" />
+          <Property Name="CentralContractGroupId" Type="bigint" />
+          <Property Name="PsmRelease" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LocalPortfolio">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AvailabilityId" Type="bigint" Nullable="false" />
+          <Property Name="CountryId" Type="bigint" Nullable="false" />
+          <Property Name="DurationId" Type="bigint" Nullable="false" />
+          <Property Name="ProActiveSlaId" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTimeId" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTypeId" Type="bigint" Nullable="false" />
+          <Property Name="ServiceLocationId" Type="bigint" Nullable="false" />
+          <Property Name="WgId" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTime_Avalability" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTime_ReactionType" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTime_ReactionType_Avalability" Type="bigint" Nullable="false" />
+          <Property Name="Sla" Type="nvarchar" MaxLength="167" StoreGeneratedPattern="Computed" />
+          <Property Name="SlaHash" Type="int" StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="PrincipalPortfolio">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AvailabilityId" Type="bigint" Nullable="false" />
+          <Property Name="DurationId" Type="bigint" Nullable="false" />
+          <Property Name="ProActiveSlaId" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTimeId" Type="bigint" Nullable="false" />
+          <Property Name="ReactionTypeId" Type="bigint" Nullable="false" />
+          <Property Name="ServiceLocationId" Type="bigint" Nullable="false" />
+          <Property Name="WgId" Type="bigint" Nullable="false" />
+          <Property Name="IsCorePortfolio" Type="bit" Nullable="false" />
+          <Property Name="IsGlobalPortfolio" Type="bit" Nullable="false" />
+          <Property Name="IsMasterPortfolio" Type="bit" Nullable="false" />
+        </EntityType>
+        <Association Name="FK__ManualCos__Portf__60BE0156">
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ManualCost" Type="Self.ManualCost" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="LocalPortfolio">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ManualCost">
+              <PropertyRef Name="PortfolioId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StandardW__Count__6350553E">
+          <End Role="Country" Type="Self.Country" Multiplicity="1" />
+          <End Role="StandardWarrantyManualCost" Type="Self.StandardWarrantyManualCost" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Country">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="StandardWarrantyManualCost">
+              <PropertyRef Name="CountryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StandardWa__WgId__64447977">
+          <End Role="Wg" Type="Self.Wg" Multiplicity="1" />
+          <End Role="StandardWarrantyManualCost" Type="Self.StandardWarrantyManualCost" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wg">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="StandardWarrantyManualCost">
+              <PropertyRef Name="WgId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Country_ClusterRegion_ClusterRegionId">
+          <End Role="ClusterRegion" Type="Self.ClusterRegion" Multiplicity="0..1" />
+          <End Role="Country" Type="Self.Country" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClusterRegion">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Country">
+              <PropertyRef Name="ClusterRegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Country_CountryGroup_CountryGroupId">
+          <End Role="CountryGroup" Type="Self.CountryGroup" Multiplicity="0..1" />
+          <End Role="Country" Type="Self.Country" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CountryGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Country">
+              <PropertyRef Name="CountryGroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Country_Region_RegionId">
+          <End Role="Region" Type="Self.Region" Multiplicity="0..1" />
+          <End Role="Country" Type="Self.Country" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Region">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Country">
+              <PropertyRef Name="RegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CountryGroup_Region_RegionId">
+          <End Role="Region" Type="Self.Region" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="CountryGroup" Type="Self.CountryGroup" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Region">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CountryGroup">
+              <PropertyRef Name="RegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Duration_Availability_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="0..1" />
+          <End Role="Duration_Availability" Type="Self.Duration_Availability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Duration_Availability">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Duration_Availability_Duration_YearId">
+          <End Role="Duration" Type="Self.Duration" Multiplicity="0..1" />
+          <End Role="Duration_Availability" Type="Self.Duration_Availability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Duration">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Duration_Availability">
+              <PropertyRef Name="YearId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Duration_Year_Id">
+          <End Role="Year" Type="Self.Year" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Duration" Type="Self.Duration" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Year">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Duration">
+              <PropertyRef Name="Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Country_CountryId">
+          <End Role="Country" Type="Self.Country" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Country">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="CountryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Duration_DurationId">
+          <End Role="Duration" Type="Self.Duration" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Duration">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="DurationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ProActiveSla_ProActiveSlaId">
+          <End Role="ProActiveSla" Type="Self.ProActiveSla" Multiplicity="1" />
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProActiveSla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ProActiveSlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ReactionType_ReactionTypeId">
+          <End Role="ReactionType" Type="Self.ReactionType" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ReactionTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ServiceLocation_ServiceLocationId">
+          <End Role="ServiceLocation" Type="Self.ServiceLocation" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ServiceLocation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ServiceLocationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Wg_WgId">
+          <End Role="Wg" Type="Self.Wg" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wg">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="WgId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Pla_ClusterPla_ClusterPlaId">
+          <End Role="ClusterPla" Type="Self.ClusterPla" Multiplicity="0..1" />
+          <End Role="Pla" Type="Self.Pla" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClusterPla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Pla">
+              <PropertyRef Name="ClusterPlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId">
+          <End Role="ServiceLocation" Type="Self.ServiceLocation" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="PrincipalPortfolio" Type="Self.PrincipalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ServiceLocation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PrincipalPortfolio">
+              <PropertyRef Name="ServiceLocationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PrincipalPortfolio_Wg_WgId">
+          <End Role="Wg" Type="Self.Wg" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="PrincipalPortfolio" Type="Self.PrincipalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wg">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PrincipalPortfolio">
+              <PropertyRef Name="WgId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_Avalability_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="0..1" />
+          <End Role="ReactionTime_Avalability" Type="Self.ReactionTime_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_Avalability">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="0..1" />
+          <End Role="ReactionTime_Avalability" Type="Self.ReactionTime_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_Avalability">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType_Avalability" Type="Self.ReactionTime_ReactionType_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType_Avalability">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType_Avalability" Type="Self.ReactionTime_ReactionType_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType_Avalability">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId">
+          <End Role="ReactionType" Type="Self.ReactionType" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType_Avalability" Type="Self.ReactionTime_ReactionType_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType_Avalability">
+              <PropertyRef Name="ReactionTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType" Type="Self.ReactionTime_ReactionType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId">
+          <End Role="ReactionType" Type="Self.ReactionType" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType" Type="Self.ReactionTime_ReactionType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType">
+              <PropertyRef Name="ReactionTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Region_ClusterRegion_ClusterRegionId">
+          <End Role="ClusterRegion" Type="Self.ClusterRegion" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Region" Type="Self.Region" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClusterRegion">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Region">
+              <PropertyRef Name="ClusterRegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sfab_Pla_PlaId">
+          <End Role="Pla" Type="Self.Pla" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Sfab" Type="Self.Sfab" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sfab">
+              <PropertyRef Name="PlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sog_Pla_PlaId">
+          <End Role="Pla" Type="Self.Pla" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Sog" Type="Self.Sog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sog">
+              <PropertyRef Name="PlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sog_Sfab_SFabId">
+          <End Role="Sfab" Type="Self.Sfab" Multiplicity="0..1" />
+          <End Role="Sog" Type="Self.Sog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sfab">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sog">
+              <PropertyRef Name="SFabId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SwDigit_Sog_SogId">
+          <End Role="Sog" Type="Self.Sog" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="SwDigit" Type="Self.SwDigit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sog">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SwDigit">
+              <PropertyRef Name="SogId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SwDigitLicense_SwDigit_SwDigitId">
+          <End Role="SwDigit" Type="Self.SwDigit" Multiplicity="0..1" />
+          <End Role="SwDigitLicense" Type="Self.SwDigitLicense" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SwDigit">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SwDigitLicense">
+              <PropertyRef Name="SwDigitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SwDigitLicense_SwLicense_SwLicenseId">
+          <End Role="SwLicense" Type="Self.SwLicense" Multiplicity="0..1" />
+          <End Role="SwDigitLicense" Type="Self.SwDigitLicense" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SwLicense">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SwDigitLicense">
+              <PropertyRef Name="SwLicenseId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_CentralContractGroup_CentralContractGroupId">
+          <End Role="CentralContractGroup" Type="Self.CentralContractGroup" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CentralContractGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="CentralContractGroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_Pla_PlaId">
+          <End Role="Pla" Type="Self.Pla" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="PlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_RoleCode_RoleCodeId">
+          <End Role="RoleCode" Type="Self.RoleCode" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RoleCode">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="RoleCodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_Sfab_SFabId">
+          <End Role="Sfab" Type="Self.Sfab" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sfab">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="SFabId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_Sog_SogId">
+          <End Role="Sog" Type="Self.Sog" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sog">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="SogId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SCD_2ModelStoreContainer">
+          <EntitySet Name="Availability" EntityType="Self.Availability" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="Duration" EntityType="Self.Duration" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="Duration_Availability" EntityType="Self.Duration_Availability" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ProActiveSla" EntityType="Self.ProActiveSla" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ReactionTime" EntityType="Self.ReactionTime" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ReactionTime_Avalability" EntityType="Self.ReactionTime_Avalability" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ReactionTime_ReactionType" EntityType="Self.ReactionTime_ReactionType" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ReactionTime_ReactionType_Avalability" EntityType="Self.ReactionTime_ReactionType_Avalability" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ReactionType" EntityType="Self.ReactionType" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ServiceLocation" EntityType="Self.ServiceLocation" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="Year" EntityType="Self.Year" Schema="Dependencies" store:Type="Tables" />
+          <EntitySet Name="ManualCost" EntityType="Self.ManualCost" Schema="Hardware" store:Type="Tables" />
+          <EntitySet Name="StandardWarrantyManualCost" EntityType="Self.StandardWarrantyManualCost" Schema="Hardware" store:Type="Tables" />
+          <EntitySet Name="CentralContractGroup" EntityType="Self.CentralContractGroup" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="ClusterPla" EntityType="Self.ClusterPla" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="ClusterRegion" EntityType="Self.ClusterRegion" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="Country" EntityType="Self.Country" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="CountryGroup" EntityType="Self.CountryGroup" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="Pla" EntityType="Self.Pla" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="Region" EntityType="Self.Region" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="RoleCode" EntityType="Self.RoleCode" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="Sfab" EntityType="Self.Sfab" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="Sog" EntityType="Self.Sog" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="SwDigit" EntityType="Self.SwDigit" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="SwDigitLicense" EntityType="Self.SwDigitLicense" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="SwLicense" EntityType="Self.SwLicense" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="Wg" EntityType="Self.Wg" Schema="InputAtoms" store:Type="Tables" />
+          <EntitySet Name="LocalPortfolio" EntityType="Self.LocalPortfolio" Schema="Portfolio" store:Type="Tables" />
+          <EntitySet Name="PrincipalPortfolio" EntityType="Self.PrincipalPortfolio" Schema="Portfolio" store:Type="Tables" />
+          <AssociationSet Name="FK__ManualCos__Portf__60BE0156" Association="Self.FK__ManualCos__Portf__60BE0156">
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+            <End Role="ManualCost" EntitySet="ManualCost" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StandardW__Count__6350553E" Association="Self.FK__StandardW__Count__6350553E">
+            <End Role="Country" EntitySet="Country" />
+            <End Role="StandardWarrantyManualCost" EntitySet="StandardWarrantyManualCost" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StandardWa__WgId__64447977" Association="Self.FK__StandardWa__WgId__64447977">
+            <End Role="Wg" EntitySet="Wg" />
+            <End Role="StandardWarrantyManualCost" EntitySet="StandardWarrantyManualCost" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Country_ClusterRegion_ClusterRegionId" Association="Self.FK_Country_ClusterRegion_ClusterRegionId">
+            <End Role="ClusterRegion" EntitySet="ClusterRegion" />
+            <End Role="Country" EntitySet="Country" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Country_CountryGroup_CountryGroupId" Association="Self.FK_Country_CountryGroup_CountryGroupId">
+            <End Role="CountryGroup" EntitySet="CountryGroup" />
+            <End Role="Country" EntitySet="Country" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Country_Region_RegionId" Association="Self.FK_Country_Region_RegionId">
+            <End Role="Region" EntitySet="Region" />
+            <End Role="Country" EntitySet="Country" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CountryGroup_Region_RegionId" Association="Self.FK_CountryGroup_Region_RegionId">
+            <End Role="Region" EntitySet="Region" />
+            <End Role="CountryGroup" EntitySet="CountryGroup" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Duration_Availability_Availability_AvailabilityId" Association="Self.FK_Duration_Availability_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="Duration_Availability" EntitySet="Duration_Availability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Duration_Availability_Duration_YearId" Association="Self.FK_Duration_Availability_Duration_YearId">
+            <End Role="Duration" EntitySet="Duration" />
+            <End Role="Duration_Availability" EntitySet="Duration_Availability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Duration_Year_Id" Association="Self.FK_Duration_Year_Id">
+            <End Role="Year" EntitySet="Year" />
+            <End Role="Duration" EntitySet="Duration" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Availability_AvailabilityId" Association="Self.FK_LocalPortfolio_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Country_CountryId" Association="Self.FK_LocalPortfolio_Country_CountryId">
+            <End Role="Country" EntitySet="Country" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Duration_DurationId" Association="Self.FK_LocalPortfolio_Duration_DurationId">
+            <End Role="Duration" EntitySet="Duration" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ProActiveSla_ProActiveSlaId" Association="Self.FK_LocalPortfolio_ProActiveSla_ProActiveSlaId">
+            <End Role="ProActiveSla" EntitySet="ProActiveSla" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ReactionTime_ReactionTimeId" Association="Self.FK_LocalPortfolio_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ReactionType_ReactionTypeId" Association="Self.FK_LocalPortfolio_ReactionType_ReactionTypeId">
+            <End Role="ReactionType" EntitySet="ReactionType" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ServiceLocation_ServiceLocationId" Association="Self.FK_LocalPortfolio_ServiceLocation_ServiceLocationId">
+            <End Role="ServiceLocation" EntitySet="ServiceLocation" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Wg_WgId" Association="Self.FK_LocalPortfolio_Wg_WgId">
+            <End Role="Wg" EntitySet="Wg" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Pla_ClusterPla_ClusterPlaId" Association="Self.FK_Pla_ClusterPla_ClusterPlaId">
+            <End Role="ClusterPla" EntitySet="ClusterPla" />
+            <End Role="Pla" EntitySet="Pla" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId" Association="Self.FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId">
+            <End Role="ServiceLocation" EntitySet="ServiceLocation" />
+            <End Role="PrincipalPortfolio" EntitySet="PrincipalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PrincipalPortfolio_Wg_WgId" Association="Self.FK_PrincipalPortfolio_Wg_WgId">
+            <End Role="Wg" EntitySet="Wg" />
+            <End Role="PrincipalPortfolio" EntitySet="PrincipalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_Avalability_Availability_AvailabilityId" Association="Self.FK_ReactionTime_Avalability_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="ReactionTime_Avalability" EntitySet="ReactionTime_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId" Association="Self.FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="ReactionTime_Avalability" EntitySet="ReactionTime_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId" Association="Self.FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="ReactionTime_ReactionType_Avalability" EntitySet="ReactionTime_ReactionType_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId" Association="Self.FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="ReactionTime_ReactionType_Avalability" EntitySet="ReactionTime_ReactionType_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId" Association="Self.FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId">
+            <End Role="ReactionType" EntitySet="ReactionType" />
+            <End Role="ReactionTime_ReactionType_Avalability" EntitySet="ReactionTime_ReactionType_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId" Association="Self.FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="ReactionTime_ReactionType" EntitySet="ReactionTime_ReactionType" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId" Association="Self.FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId">
+            <End Role="ReactionType" EntitySet="ReactionType" />
+            <End Role="ReactionTime_ReactionType" EntitySet="ReactionTime_ReactionType" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Region_ClusterRegion_ClusterRegionId" Association="Self.FK_Region_ClusterRegion_ClusterRegionId">
+            <End Role="ClusterRegion" EntitySet="ClusterRegion" />
+            <End Role="Region" EntitySet="Region" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sfab_Pla_PlaId" Association="Self.FK_Sfab_Pla_PlaId">
+            <End Role="Pla" EntitySet="Pla" />
+            <End Role="Sfab" EntitySet="Sfab" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sog_Pla_PlaId" Association="Self.FK_Sog_Pla_PlaId">
+            <End Role="Pla" EntitySet="Pla" />
+            <End Role="Sog" EntitySet="Sog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sog_Sfab_SFabId" Association="Self.FK_Sog_Sfab_SFabId">
+            <End Role="Sfab" EntitySet="Sfab" />
+            <End Role="Sog" EntitySet="Sog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SwDigit_Sog_SogId" Association="Self.FK_SwDigit_Sog_SogId">
+            <End Role="Sog" EntitySet="Sog" />
+            <End Role="SwDigit" EntitySet="SwDigit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SwDigitLicense_SwDigit_SwDigitId" Association="Self.FK_SwDigitLicense_SwDigit_SwDigitId">
+            <End Role="SwDigit" EntitySet="SwDigit" />
+            <End Role="SwDigitLicense" EntitySet="SwDigitLicense" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SwDigitLicense_SwLicense_SwLicenseId" Association="Self.FK_SwDigitLicense_SwLicense_SwLicenseId">
+            <End Role="SwLicense" EntitySet="SwLicense" />
+            <End Role="SwDigitLicense" EntitySet="SwDigitLicense" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_CentralContractGroup_CentralContractGroupId" Association="Self.FK_Wg_CentralContractGroup_CentralContractGroupId">
+            <End Role="CentralContractGroup" EntitySet="CentralContractGroup" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_Pla_PlaId" Association="Self.FK_Wg_Pla_PlaId">
+            <End Role="Pla" EntitySet="Pla" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_RoleCode_RoleCodeId" Association="Self.FK_Wg_RoleCode_RoleCodeId">
+            <End Role="RoleCode" EntitySet="RoleCode" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_Sfab_SFabId" Association="Self.FK_Wg_Sfab_SFabId">
+            <End Role="Sfab" EntitySet="Sfab" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_Sog_SogId" Association="Self.FK_Wg_Sog_SogId">
+            <End Role="Sog" EntitySet="Sog" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SCD_2Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Availability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ExternalName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Duration_Availability" Relationship="Self.FK_Duration_Availability_Availability_AvailabilityId" FromRole="Availability" ToRole="Duration_Availability" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_Availability_AvailabilityId" FromRole="Availability" ToRole="LocalPortfolio" />
+          <NavigationProperty Name="ReactionTime_Avalability" Relationship="Self.FK_ReactionTime_Avalability_Availability_AvailabilityId" FromRole="Availability" ToRole="ReactionTime_Avalability" />
+          <NavigationProperty Name="ReactionTime_ReactionType_Avalability" Relationship="Self.FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId" FromRole="Availability" ToRole="ReactionTime_ReactionType_Avalability" />
+        </EntityType>
+        <EntityType Name="Duration">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" />
+          <Property Name="ExternalName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsProlongation" Type="Boolean" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Value" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Duration_Availability" Relationship="Self.FK_Duration_Availability_Duration_YearId" FromRole="Duration" ToRole="Duration_Availability" />
+          <NavigationProperty Name="Year" Relationship="Self.FK_Duration_Year_Id" FromRole="Duration" ToRole="Year" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_Duration_DurationId" FromRole="Duration" ToRole="LocalPortfolio" />
+        </EntityType>
+        <EntityType Name="Duration_Availability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AvailabilityId" Type="Int64" />
+          <Property Name="YearId" Type="Int64" />
+          <Property Name="IsDisabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Availability" Relationship="Self.FK_Duration_Availability_Availability_AvailabilityId" FromRole="Duration_Availability" ToRole="Availability" />
+          <NavigationProperty Name="Duration" Relationship="Self.FK_Duration_Availability_Duration_YearId" FromRole="Duration_Availability" ToRole="Duration" />
+        </EntityType>
+        <EntityType Name="ProActiveSla">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CentralExecutionShcReportRepetition" Type="Int32" Nullable="false" />
+          <Property Name="ExternalName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LocalOnsiteShcCustomerBriefingRepetition" Type="Int32" Nullable="false" />
+          <Property Name="LocalPreparationShcRepetition" Type="Int32" Nullable="false" />
+          <Property Name="LocalRegularUpdateReadyRepetition" Type="Int32" Nullable="false" />
+          <Property Name="LocalRemoteShcCustomerBriefingRepetition" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TravellingTimeRepetition" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_ProActiveSla_ProActiveSlaId" FromRole="ProActiveSla" ToRole="LocalPortfolio" />
+        </EntityType>
+        <EntityType Name="ReactionTime">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ExternalName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_ReactionTime_ReactionTimeId" FromRole="ReactionTime" ToRole="LocalPortfolio" />
+          <NavigationProperty Name="ReactionTime_Avalability" Relationship="Self.FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId" FromRole="ReactionTime" ToRole="ReactionTime_Avalability" />
+          <NavigationProperty Name="ReactionTime_ReactionType_Avalability" Relationship="Self.FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId" FromRole="ReactionTime" ToRole="ReactionTime_ReactionType_Avalability" />
+          <NavigationProperty Name="ReactionTime_ReactionType" Relationship="Self.FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId" FromRole="ReactionTime" ToRole="ReactionTime_ReactionType" />
+        </EntityType>
+        <EntityType Name="ReactionTime_Avalability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AvailabilityId" Type="Int64" />
+          <Property Name="ReactionTimeId" Type="Int64" />
+          <Property Name="IsDisabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Availability" Relationship="Self.FK_ReactionTime_Avalability_Availability_AvailabilityId" FromRole="ReactionTime_Avalability" ToRole="Availability" />
+          <NavigationProperty Name="ReactionTime" Relationship="Self.FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId" FromRole="ReactionTime_Avalability" ToRole="ReactionTime" />
+        </EntityType>
+        <EntityType Name="ReactionTime_ReactionType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ReactionTimeId" Type="Int64" />
+          <Property Name="ReactionTypeId" Type="Int64" />
+          <Property Name="IsDisabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ReactionTime" Relationship="Self.FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId" FromRole="ReactionTime_ReactionType" ToRole="ReactionTime" />
+          <NavigationProperty Name="ReactionType" Relationship="Self.FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId" FromRole="ReactionTime_ReactionType" ToRole="ReactionType" />
+        </EntityType>
+        <EntityType Name="ReactionTime_ReactionType_Avalability">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AvailabilityId" Type="Int64" />
+          <Property Name="ReactionTimeId" Type="Int64" />
+          <Property Name="ReactionTypeId" Type="Int64" />
+          <Property Name="IsDisabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Availability" Relationship="Self.FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId" FromRole="ReactionTime_ReactionType_Avalability" ToRole="Availability" />
+          <NavigationProperty Name="ReactionTime" Relationship="Self.FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId" FromRole="ReactionTime_ReactionType_Avalability" ToRole="ReactionTime" />
+          <NavigationProperty Name="ReactionType" Relationship="Self.FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId" FromRole="ReactionTime_ReactionType_Avalability" ToRole="ReactionType" />
+        </EntityType>
+        <EntityType Name="ReactionType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ExternalName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ReactionTime_ReactionType" Relationship="Self.FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId" FromRole="ReactionType" ToRole="ReactionTime_ReactionType" />
+          <NavigationProperty Name="ReactionTime_ReactionType_Avalability" Relationship="Self.FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId" FromRole="ReactionType" ToRole="ReactionTime_ReactionType_Avalability" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_ReactionType_ReactionTypeId" FromRole="ReactionType" ToRole="LocalPortfolio" />
+        </EntityType>
+        <EntityType Name="ServiceLocation">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ExternalName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Order" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_ServiceLocation_ServiceLocationId" FromRole="ServiceLocation" ToRole="LocalPortfolio" />
+          <NavigationProperty Name="PrincipalPortfolio" Relationship="SCD_2Model.FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId" FromRole="ServiceLocation" ToRole="PrincipalPortfolio" />
+        </EntityType>
+        <EntityType Name="Year">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IsProlongation" Type="Boolean" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Value" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Duration" Relationship="Self.FK_Duration_Year_Id" FromRole="Year" ToRole="Duration" />
+        </EntityType>
+        <EntityType Name="ManualCost">
+          <Key>
+            <PropertyRef Name="PortfolioId" />
+          </Key>
+          <Property Name="PortfolioId" Type="Int64" Nullable="false" />
+          <Property Name="DealerDiscount" Type="Double" />
+          <Property Name="ListPrice" Type="Double" />
+          <Property Name="ServiceTC" Type="Double" />
+          <Property Name="ServiceTP" Type="Double" />
+          <Property Name="DealerPrice" Type="Double" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="ChangeUserId" Type="Int64" />
+          <Property Name="ChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="ReleaseDate" Type="DateTime" Precision="3" />
+          <Property Name="ServiceTP1_Released" Type="Double" />
+          <Property Name="ServiceTP2_Released" Type="Double" />
+          <Property Name="ServiceTP3_Released" Type="Double" />
+          <Property Name="ServiceTP4_Released" Type="Double" />
+          <Property Name="ServiceTP5_Released" Type="Double" />
+          <Property Name="ServiceTP1P_Released" Type="Double" />
+          <Property Name="ServiceTP_Released" Type="Double" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK__ManualCos__Portf__60BE0156" FromRole="ManualCost" ToRole="LocalPortfolio" />
+        </EntityType>
+        <EntityType Name="StandardWarrantyManualCost">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CountryId" Type="Int64" Nullable="false" />
+          <Property Name="WgId" Type="Int64" Nullable="false" />
+          <Property Name="ChangeUserId" Type="Int64" Nullable="false" />
+          <Property Name="ChangeDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="StandardWarranty" Type="Double" />
+          <NavigationProperty Name="Country" Relationship="Self.FK__StandardW__Count__6350553E" FromRole="StandardWarrantyManualCost" ToRole="Country" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK__StandardWa__WgId__64447977" FromRole="StandardWarrantyManualCost" ToRole="Wg" />
+        </EntityType>
+        <EntityType Name="CentralContractGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Code" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK_Wg_CentralContractGroup_CentralContractGroupId" FromRole="CentralContractGroup" ToRole="Wg" />
+        </EntityType>
+        <EntityType Name="ClusterPla">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Pla" Relationship="Self.FK_Pla_ClusterPla_ClusterPlaId" FromRole="ClusterPla" ToRole="Pla" />
+        </EntityType>
+        <EntityType Name="ClusterRegion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsEmeia" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Country" Relationship="Self.FK_Country_ClusterRegion_ClusterRegionId" FromRole="ClusterRegion" ToRole="Country" />
+          <NavigationProperty Name="Region" Relationship="Self.FK_Region_ClusterRegion_ClusterRegionId" FromRole="ClusterRegion" ToRole="Region" />
+        </EntityType>
+        <EntityType Name="Country">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AssignedToMultiVendor" Type="Boolean" Nullable="false" />
+          <Property Name="CanOverrideTransferCostAndPrice" Type="Boolean" Nullable="false" />
+          <Property Name="CanStoreListAndDealerPrices" Type="Boolean" Nullable="false" />
+          <Property Name="ClusterRegionId" Type="Int64" />
+          <Property Name="CountryGroupId" Type="Int64" />
+          <Property Name="CurrencyId" Type="Int64" Nullable="false" />
+          <Property Name="ISO3CountryCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsMaster" Type="Boolean" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="QualityGateGroup" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RegionId" Type="Int64" />
+          <Property Name="SAPCountryCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CanOverride2ndLevelSupportLocal" Type="Boolean" Nullable="false" />
+          <Property Name="InstallbaseGroup" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="StandardWarrantyManualCost" Relationship="Self.FK__StandardW__Count__6350553E" FromRole="Country" ToRole="StandardWarrantyManualCost" />
+          <NavigationProperty Name="ClusterRegion" Relationship="Self.FK_Country_ClusterRegion_ClusterRegionId" FromRole="Country" ToRole="ClusterRegion" />
+          <NavigationProperty Name="CountryGroup" Relationship="Self.FK_Country_CountryGroup_CountryGroupId" FromRole="Country" ToRole="CountryGroup" />
+          <NavigationProperty Name="Region" Relationship="Self.FK_Country_Region_RegionId" FromRole="Country" ToRole="Region" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_Country_CountryId" FromRole="Country" ToRole="LocalPortfolio" />
+        </EntityType>
+        <EntityType Name="CountryGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AutoUploadInstallBase" Type="Boolean" Nullable="false" />
+          <Property Name="CountryDigit" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LUTCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RegionId" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Country" Relationship="Self.FK_Country_CountryGroup_CountryGroupId" FromRole="CountryGroup" ToRole="Country" />
+          <NavigationProperty Name="Region" Relationship="Self.FK_CountryGroup_Region_RegionId" FromRole="CountryGroup" ToRole="Region" />
+        </EntityType>
+        <EntityType Name="Pla">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ClusterPlaId" Type="Int64" />
+          <Property Name="CodingPattern" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ClusterPla" Relationship="Self.FK_Pla_ClusterPla_ClusterPlaId" FromRole="Pla" ToRole="ClusterPla" />
+          <NavigationProperty Name="Sfab" Relationship="Self.FK_Sfab_Pla_PlaId" FromRole="Pla" ToRole="Sfab" />
+          <NavigationProperty Name="Sog" Relationship="Self.FK_Sog_Pla_PlaId" FromRole="Pla" ToRole="Sog" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK_Wg_Pla_PlaId" FromRole="Pla" ToRole="Wg" />
+        </EntityType>
+        <EntityType Name="Region">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ClusterRegionId" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ClusterRegion" Relationship="Self.FK_Region_ClusterRegion_ClusterRegionId" FromRole="Region" ToRole="ClusterRegion" />
+          <NavigationProperty Name="Country" Relationship="Self.FK_Country_Region_RegionId" FromRole="Region" ToRole="Country" />
+          <NavigationProperty Name="CountryGroup" Relationship="Self.FK_CountryGroup_Region_RegionId" FromRole="Region" ToRole="CountryGroup" />
+        </EntityType>
+        <EntityType Name="RoleCode">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="ModifiedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DeactivatedDateTime" Type="DateTime" Precision="7" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK_Wg_RoleCode_RoleCodeId" FromRole="RoleCode" ToRole="Wg" />
+        </EntityType>
+        <EntityType Name="Sfab">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DeactivatedDateTime" Type="DateTime" Precision="7" />
+          <Property Name="ModifiedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PlaId" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Pla" Relationship="Self.FK_Sfab_Pla_PlaId" FromRole="Sfab" ToRole="Pla" />
+          <NavigationProperty Name="Sog" Relationship="Self.FK_Sog_Sfab_SFabId" FromRole="Sfab" ToRole="Sog" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK_Wg_Sfab_SFabId" FromRole="Sfab" ToRole="Wg" />
+        </EntityType>
+        <EntityType Name="Sog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Alignment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DeactivatedDateTime" Type="DateTime" Precision="7" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FabGrp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsSoftware" Type="Boolean" Nullable="false" />
+          <Property Name="ModifiedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PlaId" Type="Int64" Nullable="false" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SFabId" Type="Int64" />
+          <Property Name="IsSolution" Type="Boolean" Nullable="false" />
+          <Property Name="ServiceTypes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Pla" Relationship="Self.FK_Sog_Pla_PlaId" FromRole="Sog" ToRole="Pla" />
+          <NavigationProperty Name="Sfab" Relationship="Self.FK_Sog_Sfab_SFabId" FromRole="Sog" ToRole="Sfab" />
+          <NavigationProperty Name="SwDigit" Relationship="Self.FK_SwDigit_Sog_SogId" FromRole="Sog" ToRole="SwDigit" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK_Wg_Sog_SogId" FromRole="Sog" ToRole="Wg" />
+        </EntityType>
+        <EntityType Name="SwDigit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DeactivatedDateTime" Type="DateTime" Precision="7" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ModifiedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SogId" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Sog" Relationship="Self.FK_SwDigit_Sog_SogId" FromRole="SwDigit" ToRole="Sog" />
+          <NavigationProperty Name="SwDigitLicense" Relationship="Self.FK_SwDigitLicense_SwDigit_SwDigitId" FromRole="SwDigit" ToRole="SwDigitLicense" />
+        </EntityType>
+        <EntityType Name="SwDigitLicense">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="SwDigitId" Type="Int64" />
+          <Property Name="SwLicenseId" Type="Int64" />
+          <NavigationProperty Name="SwDigit" Relationship="Self.FK_SwDigitLicense_SwDigit_SwDigitId" FromRole="SwDigitLicense" ToRole="SwDigit" />
+          <NavigationProperty Name="SwLicense" Relationship="Self.FK_SwDigitLicense_SwLicense_SwLicenseId" FromRole="SwDigitLicense" ToRole="SwLicense" />
+        </EntityType>
+        <EntityType Name="SwLicense">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DeactivatedDateTime" Type="DateTime" Precision="7" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ModifiedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="SwDigitLicense" Relationship="Self.FK_SwDigitLicense_SwLicense_SwLicenseId" FromRole="SwLicense" ToRole="SwDigitLicense" />
+        </EntityType>
+        <EntityType Name="Wg">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Alignment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DeactivatedDateTime" Type="DateTime" Precision="7" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ExistsInLogisticsDb" Type="Boolean" Nullable="false" />
+          <Property Name="FabGrp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsDeactivatedInLogistic" Type="Boolean" Nullable="false" />
+          <Property Name="IsSoftware" Type="Boolean" Nullable="false" />
+          <Property Name="ModifiedDateTime" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PlaId" Type="Int64" Nullable="false" />
+          <Property Name="RoleCodeId" Type="Int64" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SFabId" Type="Int64" />
+          <Property Name="SogId" Type="Int64" />
+          <Property Name="WgType" Type="Int32" Nullable="false" />
+          <Property Name="ResponsiblePerson" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CentralContractGroupId" Type="Int64" />
+          <Property Name="PsmRelease" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="StandardWarrantyManualCost" Relationship="Self.FK__StandardWa__WgId__64447977" FromRole="Wg" ToRole="StandardWarrantyManualCost" />
+          <NavigationProperty Name="CentralContractGroup" Relationship="Self.FK_Wg_CentralContractGroup_CentralContractGroupId" FromRole="Wg" ToRole="CentralContractGroup" />
+          <NavigationProperty Name="Pla" Relationship="Self.FK_Wg_Pla_PlaId" FromRole="Wg" ToRole="Pla" />
+          <NavigationProperty Name="RoleCode" Relationship="Self.FK_Wg_RoleCode_RoleCodeId" FromRole="Wg" ToRole="RoleCode" />
+          <NavigationProperty Name="Sfab" Relationship="Self.FK_Wg_Sfab_SFabId" FromRole="Wg" ToRole="Sfab" />
+          <NavigationProperty Name="Sog" Relationship="Self.FK_Wg_Sog_SogId" FromRole="Wg" ToRole="Sog" />
+          <NavigationProperty Name="LocalPortfolio" Relationship="Self.FK_LocalPortfolio_Wg_WgId" FromRole="Wg" ToRole="LocalPortfolio" />
+          <NavigationProperty Name="PrincipalPortfolio" Relationship="SCD_2Model.FK_PrincipalPortfolio_Wg_WgId" FromRole="Wg" ToRole="PrincipalPortfolio" />
+        </EntityType>
+        <EntityType Name="LocalPortfolio">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AvailabilityId" Type="Int64" Nullable="false" />
+          <Property Name="CountryId" Type="Int64" Nullable="false" />
+          <Property Name="DurationId" Type="Int64" Nullable="false" />
+          <Property Name="ProActiveSlaId" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTimeId" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTypeId" Type="Int64" Nullable="false" />
+          <Property Name="ServiceLocationId" Type="Int64" Nullable="false" />
+          <Property Name="WgId" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTime_Avalability" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTime_ReactionType" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTime_ReactionType_Avalability" Type="Int64" Nullable="false" />
+          <Property Name="Sla" Type="String" MaxLength="167" FixedLength="false" Unicode="true" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="SlaHash" Type="Int32" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="Availability" Relationship="Self.FK_LocalPortfolio_Availability_AvailabilityId" FromRole="LocalPortfolio" ToRole="Availability" />
+          <NavigationProperty Name="Duration" Relationship="Self.FK_LocalPortfolio_Duration_DurationId" FromRole="LocalPortfolio" ToRole="Duration" />
+          <NavigationProperty Name="ProActiveSla" Relationship="Self.FK_LocalPortfolio_ProActiveSla_ProActiveSlaId" FromRole="LocalPortfolio" ToRole="ProActiveSla" />
+          <NavigationProperty Name="ReactionTime" Relationship="Self.FK_LocalPortfolio_ReactionTime_ReactionTimeId" FromRole="LocalPortfolio" ToRole="ReactionTime" />
+          <NavigationProperty Name="ReactionType" Relationship="Self.FK_LocalPortfolio_ReactionType_ReactionTypeId" FromRole="LocalPortfolio" ToRole="ReactionType" />
+          <NavigationProperty Name="ServiceLocation" Relationship="Self.FK_LocalPortfolio_ServiceLocation_ServiceLocationId" FromRole="LocalPortfolio" ToRole="ServiceLocation" />
+          <NavigationProperty Name="ManualCost" Relationship="Self.FK__ManualCos__Portf__60BE0156" FromRole="LocalPortfolio" ToRole="ManualCost" />
+          <NavigationProperty Name="Country" Relationship="Self.FK_LocalPortfolio_Country_CountryId" FromRole="LocalPortfolio" ToRole="Country" />
+          <NavigationProperty Name="Wg" Relationship="Self.FK_LocalPortfolio_Wg_WgId" FromRole="LocalPortfolio" ToRole="Wg" />
+        </EntityType>
+        <Association Name="FK_Duration_Availability_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="0..1" />
+          <End Role="Duration_Availability" Type="Self.Duration_Availability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Duration_Availability">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_Avalability_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="0..1" />
+          <End Role="ReactionTime_Avalability" Type="Self.ReactionTime_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_Avalability">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId">
+          <End Role="Availability" Type="Self.Availability" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType_Avalability" Type="Self.ReactionTime_ReactionType_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Availability">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType_Avalability">
+              <PropertyRef Name="AvailabilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Duration_Availability_Duration_YearId">
+          <End Role="Duration" Type="Self.Duration" Multiplicity="0..1" />
+          <End Role="Duration_Availability" Type="Self.Duration_Availability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Duration">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Duration_Availability">
+              <PropertyRef Name="YearId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Duration_Year_Id">
+          <End Role="Year" Type="Self.Year" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Duration" Type="Self.Duration" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Year">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Duration">
+              <PropertyRef Name="Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Duration_DurationId">
+          <End Role="Duration" Type="Self.Duration" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Duration">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="DurationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ProActiveSla_ProActiveSlaId">
+          <End Role="ProActiveSla" Type="Self.ProActiveSla" Multiplicity="1" />
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProActiveSla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ProActiveSlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="0..1" />
+          <End Role="ReactionTime_Avalability" Type="Self.ReactionTime_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_Avalability">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType_Avalability" Type="Self.ReactionTime_ReactionType_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType_Avalability">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId">
+          <End Role="ReactionTime" Type="Self.ReactionTime" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType" Type="Self.ReactionTime_ReactionType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionTime">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType">
+              <PropertyRef Name="ReactionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId">
+          <End Role="ReactionType" Type="Self.ReactionType" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType" Type="Self.ReactionTime_ReactionType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType">
+              <PropertyRef Name="ReactionTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId">
+          <End Role="ReactionType" Type="Self.ReactionType" Multiplicity="0..1" />
+          <End Role="ReactionTime_ReactionType_Avalability" Type="Self.ReactionTime_ReactionType_Avalability" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReactionTime_ReactionType_Avalability">
+              <PropertyRef Name="ReactionTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ReactionType_ReactionTypeId">
+          <End Role="ReactionType" Type="Self.ReactionType" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ReactionType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ReactionTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_ServiceLocation_ServiceLocationId">
+          <End Role="ServiceLocation" Type="Self.ServiceLocation" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ServiceLocation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="ServiceLocationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ManualCos__Portf__60BE0156">
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ManualCost" Type="Self.ManualCost" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="LocalPortfolio">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ManualCost">
+              <PropertyRef Name="PortfolioId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StandardW__Count__6350553E">
+          <End Role="Country" Type="Self.Country" Multiplicity="1" />
+          <End Role="StandardWarrantyManualCost" Type="Self.StandardWarrantyManualCost" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Country">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="StandardWarrantyManualCost">
+              <PropertyRef Name="CountryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StandardWa__WgId__64447977">
+          <End Role="Wg" Type="Self.Wg" Multiplicity="1" />
+          <End Role="StandardWarrantyManualCost" Type="Self.StandardWarrantyManualCost" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wg">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="StandardWarrantyManualCost">
+              <PropertyRef Name="WgId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_CentralContractGroup_CentralContractGroupId">
+          <End Role="CentralContractGroup" Type="Self.CentralContractGroup" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CentralContractGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="CentralContractGroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Pla_ClusterPla_ClusterPlaId">
+          <End Role="ClusterPla" Type="Self.ClusterPla" Multiplicity="0..1" />
+          <End Role="Pla" Type="Self.Pla" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClusterPla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Pla">
+              <PropertyRef Name="ClusterPlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Country_ClusterRegion_ClusterRegionId">
+          <End Role="ClusterRegion" Type="Self.ClusterRegion" Multiplicity="0..1" />
+          <End Role="Country" Type="Self.Country" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClusterRegion">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Country">
+              <PropertyRef Name="ClusterRegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Region_ClusterRegion_ClusterRegionId">
+          <End Role="ClusterRegion" Type="Self.ClusterRegion" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Region" Type="Self.Region" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClusterRegion">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Region">
+              <PropertyRef Name="ClusterRegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Country_CountryGroup_CountryGroupId">
+          <End Role="CountryGroup" Type="Self.CountryGroup" Multiplicity="0..1" />
+          <End Role="Country" Type="Self.Country" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CountryGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Country">
+              <PropertyRef Name="CountryGroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Country_Region_RegionId">
+          <End Role="Region" Type="Self.Region" Multiplicity="0..1" />
+          <End Role="Country" Type="Self.Country" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Region">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Country">
+              <PropertyRef Name="RegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Country_CountryId">
+          <End Role="Country" Type="Self.Country" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Country">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="CountryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CountryGroup_Region_RegionId">
+          <End Role="Region" Type="Self.Region" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="CountryGroup" Type="Self.CountryGroup" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Region">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CountryGroup">
+              <PropertyRef Name="RegionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sfab_Pla_PlaId">
+          <End Role="Pla" Type="Self.Pla" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Sfab" Type="Self.Sfab" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sfab">
+              <PropertyRef Name="PlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sog_Pla_PlaId">
+          <End Role="Pla" Type="Self.Pla" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Sog" Type="Self.Sog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sog">
+              <PropertyRef Name="PlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_Pla_PlaId">
+          <End Role="Pla" Type="Self.Pla" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pla">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="PlaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_RoleCode_RoleCodeId">
+          <End Role="RoleCode" Type="Self.RoleCode" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RoleCode">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="RoleCodeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sog_Sfab_SFabId">
+          <End Role="Sfab" Type="Self.Sfab" Multiplicity="0..1" />
+          <End Role="Sog" Type="Self.Sog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sfab">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sog">
+              <PropertyRef Name="SFabId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_Sfab_SFabId">
+          <End Role="Sfab" Type="Self.Sfab" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sfab">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="SFabId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SwDigit_Sog_SogId">
+          <End Role="Sog" Type="Self.Sog" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="SwDigit" Type="Self.SwDigit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sog">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SwDigit">
+              <PropertyRef Name="SogId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Wg_Sog_SogId">
+          <End Role="Sog" Type="Self.Sog" Multiplicity="0..1" />
+          <End Role="Wg" Type="Self.Wg" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sog">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Wg">
+              <PropertyRef Name="SogId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SwDigitLicense_SwDigit_SwDigitId">
+          <End Role="SwDigit" Type="Self.SwDigit" Multiplicity="0..1" />
+          <End Role="SwDigitLicense" Type="Self.SwDigitLicense" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SwDigit">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SwDigitLicense">
+              <PropertyRef Name="SwDigitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SwDigitLicense_SwLicense_SwLicenseId">
+          <End Role="SwLicense" Type="Self.SwLicense" Multiplicity="0..1" />
+          <End Role="SwDigitLicense" Type="Self.SwDigitLicense" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SwLicense">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SwDigitLicense">
+              <PropertyRef Name="SwLicenseId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LocalPortfolio_Wg_WgId">
+          <End Role="Wg" Type="Self.Wg" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="LocalPortfolio" Type="Self.LocalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wg">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LocalPortfolio">
+              <PropertyRef Name="WgId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SCD_2SourceEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Availability" EntityType="Self.Availability" />
+          <EntitySet Name="Duration" EntityType="Self.Duration" />
+          <EntitySet Name="Duration_Availability" EntityType="Self.Duration_Availability" />
+          <EntitySet Name="ProActiveSla" EntityType="Self.ProActiveSla" />
+          <EntitySet Name="ReactionTime" EntityType="Self.ReactionTime" />
+          <EntitySet Name="ReactionTime_Avalability" EntityType="Self.ReactionTime_Avalability" />
+          <EntitySet Name="ReactionTime_ReactionType" EntityType="Self.ReactionTime_ReactionType" />
+          <EntitySet Name="ReactionTime_ReactionType_Avalability" EntityType="Self.ReactionTime_ReactionType_Avalability" />
+          <EntitySet Name="ReactionType" EntityType="Self.ReactionType" />
+          <EntitySet Name="ServiceLocation" EntityType="Self.ServiceLocation" />
+          <EntitySet Name="Year" EntityType="Self.Year" />
+          <EntitySet Name="ManualCost" EntityType="Self.ManualCost" />
+          <EntitySet Name="StandardWarrantyManualCost" EntityType="Self.StandardWarrantyManualCost" />
+          <EntitySet Name="CentralContractGroup" EntityType="Self.CentralContractGroup" />
+          <EntitySet Name="ClusterPla" EntityType="Self.ClusterPla" />
+          <EntitySet Name="ClusterRegion" EntityType="Self.ClusterRegion" />
+          <EntitySet Name="Country" EntityType="Self.Country" />
+          <EntitySet Name="CountryGroup" EntityType="Self.CountryGroup" />
+          <EntitySet Name="Pla" EntityType="Self.Pla" />
+          <EntitySet Name="Region" EntityType="Self.Region" />
+          <EntitySet Name="RoleCode" EntityType="Self.RoleCode" />
+          <EntitySet Name="Sfab" EntityType="Self.Sfab" />
+          <EntitySet Name="Sog" EntityType="Self.Sog" />
+          <EntitySet Name="SwDigit" EntityType="Self.SwDigit" />
+          <EntitySet Name="SwDigitLicense" EntityType="Self.SwDigitLicense" />
+          <EntitySet Name="SwLicense" EntityType="Self.SwLicense" />
+          <EntitySet Name="Wg" EntityType="Self.Wg" />
+          <EntitySet Name="LocalPortfolio" EntityType="Self.LocalPortfolio" />
+          <AssociationSet Name="FK_Duration_Availability_Availability_AvailabilityId" Association="Self.FK_Duration_Availability_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="Duration_Availability" EntitySet="Duration_Availability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Availability_AvailabilityId" Association="Self.FK_LocalPortfolio_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_Avalability_Availability_AvailabilityId" Association="Self.FK_ReactionTime_Avalability_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="ReactionTime_Avalability" EntitySet="ReactionTime_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId" Association="Self.FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId">
+            <End Role="Availability" EntitySet="Availability" />
+            <End Role="ReactionTime_ReactionType_Avalability" EntitySet="ReactionTime_ReactionType_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Duration_Availability_Duration_YearId" Association="Self.FK_Duration_Availability_Duration_YearId">
+            <End Role="Duration" EntitySet="Duration" />
+            <End Role="Duration_Availability" EntitySet="Duration_Availability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Duration_Year_Id" Association="Self.FK_Duration_Year_Id">
+            <End Role="Year" EntitySet="Year" />
+            <End Role="Duration" EntitySet="Duration" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Duration_DurationId" Association="Self.FK_LocalPortfolio_Duration_DurationId">
+            <End Role="Duration" EntitySet="Duration" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ProActiveSla_ProActiveSlaId" Association="Self.FK_LocalPortfolio_ProActiveSla_ProActiveSlaId">
+            <End Role="ProActiveSla" EntitySet="ProActiveSla" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ReactionTime_ReactionTimeId" Association="Self.FK_LocalPortfolio_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId" Association="Self.FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="ReactionTime_Avalability" EntitySet="ReactionTime_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId" Association="Self.FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="ReactionTime_ReactionType_Avalability" EntitySet="ReactionTime_ReactionType_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId" Association="Self.FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId">
+            <End Role="ReactionTime" EntitySet="ReactionTime" />
+            <End Role="ReactionTime_ReactionType" EntitySet="ReactionTime_ReactionType" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId" Association="Self.FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId">
+            <End Role="ReactionType" EntitySet="ReactionType" />
+            <End Role="ReactionTime_ReactionType" EntitySet="ReactionTime_ReactionType" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId" Association="Self.FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId">
+            <End Role="ReactionType" EntitySet="ReactionType" />
+            <End Role="ReactionTime_ReactionType_Avalability" EntitySet="ReactionTime_ReactionType_Avalability" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ReactionType_ReactionTypeId" Association="Self.FK_LocalPortfolio_ReactionType_ReactionTypeId">
+            <End Role="ReactionType" EntitySet="ReactionType" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_ServiceLocation_ServiceLocationId" Association="Self.FK_LocalPortfolio_ServiceLocation_ServiceLocationId">
+            <End Role="ServiceLocation" EntitySet="ServiceLocation" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ManualCos__Portf__60BE0156" Association="Self.FK__ManualCos__Portf__60BE0156">
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+            <End Role="ManualCost" EntitySet="ManualCost" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StandardW__Count__6350553E" Association="Self.FK__StandardW__Count__6350553E">
+            <End Role="Country" EntitySet="Country" />
+            <End Role="StandardWarrantyManualCost" EntitySet="StandardWarrantyManualCost" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StandardWa__WgId__64447977" Association="Self.FK__StandardWa__WgId__64447977">
+            <End Role="Wg" EntitySet="Wg" />
+            <End Role="StandardWarrantyManualCost" EntitySet="StandardWarrantyManualCost" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_CentralContractGroup_CentralContractGroupId" Association="Self.FK_Wg_CentralContractGroup_CentralContractGroupId">
+            <End Role="CentralContractGroup" EntitySet="CentralContractGroup" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Pla_ClusterPla_ClusterPlaId" Association="Self.FK_Pla_ClusterPla_ClusterPlaId">
+            <End Role="ClusterPla" EntitySet="ClusterPla" />
+            <End Role="Pla" EntitySet="Pla" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Country_ClusterRegion_ClusterRegionId" Association="Self.FK_Country_ClusterRegion_ClusterRegionId">
+            <End Role="ClusterRegion" EntitySet="ClusterRegion" />
+            <End Role="Country" EntitySet="Country" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Region_ClusterRegion_ClusterRegionId" Association="Self.FK_Region_ClusterRegion_ClusterRegionId">
+            <End Role="ClusterRegion" EntitySet="ClusterRegion" />
+            <End Role="Region" EntitySet="Region" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Country_CountryGroup_CountryGroupId" Association="Self.FK_Country_CountryGroup_CountryGroupId">
+            <End Role="CountryGroup" EntitySet="CountryGroup" />
+            <End Role="Country" EntitySet="Country" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Country_Region_RegionId" Association="Self.FK_Country_Region_RegionId">
+            <End Role="Region" EntitySet="Region" />
+            <End Role="Country" EntitySet="Country" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Country_CountryId" Association="Self.FK_LocalPortfolio_Country_CountryId">
+            <End Role="Country" EntitySet="Country" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CountryGroup_Region_RegionId" Association="Self.FK_CountryGroup_Region_RegionId">
+            <End Role="Region" EntitySet="Region" />
+            <End Role="CountryGroup" EntitySet="CountryGroup" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sfab_Pla_PlaId" Association="Self.FK_Sfab_Pla_PlaId">
+            <End Role="Pla" EntitySet="Pla" />
+            <End Role="Sfab" EntitySet="Sfab" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sog_Pla_PlaId" Association="Self.FK_Sog_Pla_PlaId">
+            <End Role="Pla" EntitySet="Pla" />
+            <End Role="Sog" EntitySet="Sog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_Pla_PlaId" Association="Self.FK_Wg_Pla_PlaId">
+            <End Role="Pla" EntitySet="Pla" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_RoleCode_RoleCodeId" Association="Self.FK_Wg_RoleCode_RoleCodeId">
+            <End Role="RoleCode" EntitySet="RoleCode" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sog_Sfab_SFabId" Association="Self.FK_Sog_Sfab_SFabId">
+            <End Role="Sfab" EntitySet="Sfab" />
+            <End Role="Sog" EntitySet="Sog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_Sfab_SFabId" Association="Self.FK_Wg_Sfab_SFabId">
+            <End Role="Sfab" EntitySet="Sfab" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SwDigit_Sog_SogId" Association="Self.FK_SwDigit_Sog_SogId">
+            <End Role="Sog" EntitySet="Sog" />
+            <End Role="SwDigit" EntitySet="SwDigit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Wg_Sog_SogId" Association="Self.FK_Wg_Sog_SogId">
+            <End Role="Sog" EntitySet="Sog" />
+            <End Role="Wg" EntitySet="Wg" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SwDigitLicense_SwDigit_SwDigitId" Association="Self.FK_SwDigitLicense_SwDigit_SwDigitId">
+            <End Role="SwDigit" EntitySet="SwDigit" />
+            <End Role="SwDigitLicense" EntitySet="SwDigitLicense" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SwDigitLicense_SwLicense_SwLicenseId" Association="Self.FK_SwDigitLicense_SwLicense_SwLicenseId">
+            <End Role="SwLicense" EntitySet="SwLicense" />
+            <End Role="SwDigitLicense" EntitySet="SwDigitLicense" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LocalPortfolio_Wg_WgId" Association="Self.FK_LocalPortfolio_Wg_WgId">
+            <End Role="Wg" EntitySet="Wg" />
+            <End Role="LocalPortfolio" EntitySet="LocalPortfolio" />
+          </AssociationSet>
+          <EntitySet Name="PrincipalPortfolio" EntityType="SCD_2Model.PrincipalPortfolio" />
+          <AssociationSet Name="FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId" Association="SCD_2Model.FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId">
+            <End Role="ServiceLocation" EntitySet="ServiceLocation" />
+            <End Role="PrincipalPortfolio" EntitySet="PrincipalPortfolio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PrincipalPortfolio_Wg_WgId" Association="SCD_2Model.FK_PrincipalPortfolio_Wg_WgId">
+            <End Role="Wg" EntitySet="Wg" />
+            <End Role="PrincipalPortfolio" EntitySet="PrincipalPortfolio" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="PrincipalPortfolio">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AvailabilityId" Type="Int64" Nullable="false" />
+          <Property Name="DurationId" Type="Int64" Nullable="false" />
+          <Property Name="ProActiveSlaId" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTimeId" Type="Int64" Nullable="false" />
+          <Property Name="ReactionTypeId" Type="Int64" Nullable="false" />
+          <Property Name="ServiceLocationId" Type="Int64" Nullable="false" />
+          <Property Name="WgId" Type="Int64" Nullable="false" />
+          <Property Name="IsCorePortfolio" Type="Boolean" Nullable="false" />
+          <Property Name="IsGlobalPortfolio" Type="Boolean" Nullable="false" />
+          <Property Name="IsMasterPortfolio" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ServiceLocation" Relationship="SCD_2Model.FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId" FromRole="PrincipalPortfolio" ToRole="ServiceLocation" />
+          <NavigationProperty Name="Wg" Relationship="SCD_2Model.FK_PrincipalPortfolio_Wg_WgId" FromRole="PrincipalPortfolio" ToRole="Wg" />
+        </EntityType>
+        <Association Name="FK_PrincipalPortfolio_ServiceLocation_ServiceLocationId">
+          <End Type="SCD_2Model.ServiceLocation" Role="ServiceLocation" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="SCD_2Model.PrincipalPortfolio" Role="PrincipalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ServiceLocation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PrincipalPortfolio">
+              <PropertyRef Name="ServiceLocationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PrincipalPortfolio_Wg_WgId">
+          <End Type="SCD_2Model.Wg" Role="Wg" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="SCD_2Model.PrincipalPortfolio" Role="PrincipalPortfolio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wg">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PrincipalPortfolio">
+              <PropertyRef Name="WgId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SCD_2ModelStoreContainer" CdmEntityContainer="SCD_2SourceEntities">
+          <EntitySetMapping Name="Availability">
+            <EntityTypeMapping TypeName="SCD_2Model.Availability">
+              <MappingFragment StoreEntitySet="Availability">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ExternalName" ColumnName="ExternalName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Duration">
+            <EntityTypeMapping TypeName="SCD_2Model.Duration">
+              <MappingFragment StoreEntitySet="Duration">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ExternalName" ColumnName="ExternalName" />
+                <ScalarProperty Name="IsProlongation" ColumnName="IsProlongation" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Duration_Availability">
+            <EntityTypeMapping TypeName="SCD_2Model.Duration_Availability">
+              <MappingFragment StoreEntitySet="Duration_Availability">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="AvailabilityId" ColumnName="AvailabilityId" />
+                <ScalarProperty Name="YearId" ColumnName="YearId" />
+                <ScalarProperty Name="IsDisabled" ColumnName="IsDisabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProActiveSla">
+            <EntityTypeMapping TypeName="SCD_2Model.ProActiveSla">
+              <MappingFragment StoreEntitySet="ProActiveSla">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CentralExecutionShcReportRepetition" ColumnName="CentralExecutionShcReportRepetition" />
+                <ScalarProperty Name="ExternalName" ColumnName="ExternalName" />
+                <ScalarProperty Name="LocalOnsiteShcCustomerBriefingRepetition" ColumnName="LocalOnsiteShcCustomerBriefingRepetition" />
+                <ScalarProperty Name="LocalPreparationShcRepetition" ColumnName="LocalPreparationShcRepetition" />
+                <ScalarProperty Name="LocalRegularUpdateReadyRepetition" ColumnName="LocalRegularUpdateReadyRepetition" />
+                <ScalarProperty Name="LocalRemoteShcCustomerBriefingRepetition" ColumnName="LocalRemoteShcCustomerBriefingRepetition" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="TravellingTimeRepetition" ColumnName="TravellingTimeRepetition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReactionTime">
+            <EntityTypeMapping TypeName="SCD_2Model.ReactionTime">
+              <MappingFragment StoreEntitySet="ReactionTime">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ExternalName" ColumnName="ExternalName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReactionTime_Avalability">
+            <EntityTypeMapping TypeName="SCD_2Model.ReactionTime_Avalability">
+              <MappingFragment StoreEntitySet="ReactionTime_Avalability">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="AvailabilityId" ColumnName="AvailabilityId" />
+                <ScalarProperty Name="ReactionTimeId" ColumnName="ReactionTimeId" />
+                <ScalarProperty Name="IsDisabled" ColumnName="IsDisabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReactionTime_ReactionType">
+            <EntityTypeMapping TypeName="SCD_2Model.ReactionTime_ReactionType">
+              <MappingFragment StoreEntitySet="ReactionTime_ReactionType">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ReactionTimeId" ColumnName="ReactionTimeId" />
+                <ScalarProperty Name="ReactionTypeId" ColumnName="ReactionTypeId" />
+                <ScalarProperty Name="IsDisabled" ColumnName="IsDisabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReactionTime_ReactionType_Avalability">
+            <EntityTypeMapping TypeName="SCD_2Model.ReactionTime_ReactionType_Avalability">
+              <MappingFragment StoreEntitySet="ReactionTime_ReactionType_Avalability">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="AvailabilityId" ColumnName="AvailabilityId" />
+                <ScalarProperty Name="ReactionTimeId" ColumnName="ReactionTimeId" />
+                <ScalarProperty Name="ReactionTypeId" ColumnName="ReactionTypeId" />
+                <ScalarProperty Name="IsDisabled" ColumnName="IsDisabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReactionType">
+            <EntityTypeMapping TypeName="SCD_2Model.ReactionType">
+              <MappingFragment StoreEntitySet="ReactionType">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ExternalName" ColumnName="ExternalName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ServiceLocation">
+            <EntityTypeMapping TypeName="SCD_2Model.ServiceLocation">
+              <MappingFragment StoreEntitySet="ServiceLocation">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ExternalName" ColumnName="ExternalName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Order" ColumnName="Order" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Year">
+            <EntityTypeMapping TypeName="SCD_2Model.Year">
+              <MappingFragment StoreEntitySet="Year">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="IsProlongation" ColumnName="IsProlongation" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ManualCost">
+            <EntityTypeMapping TypeName="SCD_2Model.ManualCost">
+              <MappingFragment StoreEntitySet="ManualCost">
+                <ScalarProperty Name="PortfolioId" ColumnName="PortfolioId" />
+                <ScalarProperty Name="DealerDiscount" ColumnName="DealerDiscount" />
+                <ScalarProperty Name="ListPrice" ColumnName="ListPrice" />
+                <ScalarProperty Name="ServiceTC" ColumnName="ServiceTC" />
+                <ScalarProperty Name="ServiceTP" ColumnName="ServiceTP" />
+                <ScalarProperty Name="DealerPrice" ColumnName="DealerPrice" />
+                <ScalarProperty Name="ChangeUserId" ColumnName="ChangeUserId" />
+                <ScalarProperty Name="ChangeDate" ColumnName="ChangeDate" />
+                <ScalarProperty Name="ReleaseDate" ColumnName="ReleaseDate" />
+                <ScalarProperty Name="ServiceTP1_Released" ColumnName="ServiceTP1_Released" />
+                <ScalarProperty Name="ServiceTP2_Released" ColumnName="ServiceTP2_Released" />
+                <ScalarProperty Name="ServiceTP3_Released" ColumnName="ServiceTP3_Released" />
+                <ScalarProperty Name="ServiceTP4_Released" ColumnName="ServiceTP4_Released" />
+                <ScalarProperty Name="ServiceTP5_Released" ColumnName="ServiceTP5_Released" />
+                <ScalarProperty Name="ServiceTP1P_Released" ColumnName="ServiceTP1P_Released" />
+                <ScalarProperty Name="ServiceTP_Released" ColumnName="ServiceTP_Released" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StandardWarrantyManualCost">
+            <EntityTypeMapping TypeName="SCD_2Model.StandardWarrantyManualCost">
+              <MappingFragment StoreEntitySet="StandardWarrantyManualCost">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+                <ScalarProperty Name="WgId" ColumnName="WgId" />
+                <ScalarProperty Name="ChangeUserId" ColumnName="ChangeUserId" />
+                <ScalarProperty Name="ChangeDate" ColumnName="ChangeDate" />
+                <ScalarProperty Name="StandardWarranty" ColumnName="StandardWarranty" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CentralContractGroup">
+            <EntityTypeMapping TypeName="SCD_2Model.CentralContractGroup">
+              <MappingFragment StoreEntitySet="CentralContractGroup">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ClusterPla">
+            <EntityTypeMapping TypeName="SCD_2Model.ClusterPla">
+              <MappingFragment StoreEntitySet="ClusterPla">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ClusterRegion">
+            <EntityTypeMapping TypeName="SCD_2Model.ClusterRegion">
+              <MappingFragment StoreEntitySet="ClusterRegion">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="IsEmeia" ColumnName="IsEmeia" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Country">
+            <EntityTypeMapping TypeName="SCD_2Model.Country">
+              <MappingFragment StoreEntitySet="Country">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="AssignedToMultiVendor" ColumnName="AssignedToMultiVendor" />
+                <ScalarProperty Name="CanOverrideTransferCostAndPrice" ColumnName="CanOverrideTransferCostAndPrice" />
+                <ScalarProperty Name="CanStoreListAndDealerPrices" ColumnName="CanStoreListAndDealerPrices" />
+                <ScalarProperty Name="ClusterRegionId" ColumnName="ClusterRegionId" />
+                <ScalarProperty Name="CountryGroupId" ColumnName="CountryGroupId" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="ISO3CountryCode" ColumnName="ISO3CountryCode" />
+                <ScalarProperty Name="IsMaster" ColumnName="IsMaster" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="QualityGateGroup" ColumnName="QualityGateGroup" />
+                <ScalarProperty Name="RegionId" ColumnName="RegionId" />
+                <ScalarProperty Name="SAPCountryCode" ColumnName="SAPCountryCode" />
+                <ScalarProperty Name="CanOverride2ndLevelSupportLocal" ColumnName="CanOverride2ndLevelSupportLocal" />
+                <ScalarProperty Name="InstallbaseGroup" ColumnName="InstallbaseGroup" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CountryGroup">
+            <EntityTypeMapping TypeName="SCD_2Model.CountryGroup">
+              <MappingFragment StoreEntitySet="CountryGroup">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="AutoUploadInstallBase" ColumnName="AutoUploadInstallBase" />
+                <ScalarProperty Name="CountryDigit" ColumnName="CountryDigit" />
+                <ScalarProperty Name="LUTCode" ColumnName="LUTCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="RegionId" ColumnName="RegionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Pla">
+            <EntityTypeMapping TypeName="SCD_2Model.Pla">
+              <MappingFragment StoreEntitySet="Pla">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ClusterPlaId" ColumnName="ClusterPlaId" />
+                <ScalarProperty Name="CodingPattern" ColumnName="CodingPattern" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Region">
+            <EntityTypeMapping TypeName="SCD_2Model.Region">
+              <MappingFragment StoreEntitySet="Region">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ClusterRegionId" ColumnName="ClusterRegionId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RoleCode">
+            <EntityTypeMapping TypeName="SCD_2Model.RoleCode">
+              <MappingFragment StoreEntitySet="RoleCode">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="ModifiedDateTime" ColumnName="ModifiedDateTime" />
+                <ScalarProperty Name="DeactivatedDateTime" ColumnName="DeactivatedDateTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sfab">
+            <EntityTypeMapping TypeName="SCD_2Model.Sfab">
+              <MappingFragment StoreEntitySet="Sfab">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="DeactivatedDateTime" ColumnName="DeactivatedDateTime" />
+                <ScalarProperty Name="ModifiedDateTime" ColumnName="ModifiedDateTime" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="PlaId" ColumnName="PlaId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sog">
+            <EntityTypeMapping TypeName="SCD_2Model.Sog">
+              <MappingFragment StoreEntitySet="Sog">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Alignment" ColumnName="Alignment" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="DeactivatedDateTime" ColumnName="DeactivatedDateTime" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="FabGrp" ColumnName="FabGrp" />
+                <ScalarProperty Name="IsSoftware" ColumnName="IsSoftware" />
+                <ScalarProperty Name="ModifiedDateTime" ColumnName="ModifiedDateTime" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="PlaId" ColumnName="PlaId" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+                <ScalarProperty Name="SFabId" ColumnName="SFabId" />
+                <ScalarProperty Name="IsSolution" ColumnName="IsSolution" />
+                <ScalarProperty Name="ServiceTypes" ColumnName="ServiceTypes" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SwDigit">
+            <EntityTypeMapping TypeName="SCD_2Model.SwDigit">
+              <MappingFragment StoreEntitySet="SwDigit">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="DeactivatedDateTime" ColumnName="DeactivatedDateTime" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ModifiedDateTime" ColumnName="ModifiedDateTime" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SogId" ColumnName="SogId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SwDigitLicense">
+            <EntityTypeMapping TypeName="SCD_2Model.SwDigitLicense">
+              <MappingFragment StoreEntitySet="SwDigitLicense">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="SwDigitId" ColumnName="SwDigitId" />
+                <ScalarProperty Name="SwLicenseId" ColumnName="SwLicenseId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SwLicense">
+            <EntityTypeMapping TypeName="SCD_2Model.SwLicense">
+              <MappingFragment StoreEntitySet="SwLicense">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="DeactivatedDateTime" ColumnName="DeactivatedDateTime" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ModifiedDateTime" ColumnName="ModifiedDateTime" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Wg">
+            <EntityTypeMapping TypeName="SCD_2Model.Wg">
+              <MappingFragment StoreEntitySet="Wg">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Alignment" ColumnName="Alignment" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="DeactivatedDateTime" ColumnName="DeactivatedDateTime" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ExistsInLogisticsDb" ColumnName="ExistsInLogisticsDb" />
+                <ScalarProperty Name="FabGrp" ColumnName="FabGrp" />
+                <ScalarProperty Name="IsDeactivatedInLogistic" ColumnName="IsDeactivatedInLogistic" />
+                <ScalarProperty Name="IsSoftware" ColumnName="IsSoftware" />
+                <ScalarProperty Name="ModifiedDateTime" ColumnName="ModifiedDateTime" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="PlaId" ColumnName="PlaId" />
+                <ScalarProperty Name="RoleCodeId" ColumnName="RoleCodeId" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+                <ScalarProperty Name="SFabId" ColumnName="SFabId" />
+                <ScalarProperty Name="SogId" ColumnName="SogId" />
+                <ScalarProperty Name="WgType" ColumnName="WgType" />
+                <ScalarProperty Name="ResponsiblePerson" ColumnName="ResponsiblePerson" />
+                <ScalarProperty Name="CentralContractGroupId" ColumnName="CentralContractGroupId" />
+                <ScalarProperty Name="PsmRelease" ColumnName="PsmRelease" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LocalPortfolio">
+            <EntityTypeMapping TypeName="SCD_2Model.LocalPortfolio">
+              <MappingFragment StoreEntitySet="LocalPortfolio">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="AvailabilityId" ColumnName="AvailabilityId" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+                <ScalarProperty Name="DurationId" ColumnName="DurationId" />
+                <ScalarProperty Name="ProActiveSlaId" ColumnName="ProActiveSlaId" />
+                <ScalarProperty Name="ReactionTimeId" ColumnName="ReactionTimeId" />
+                <ScalarProperty Name="ReactionTypeId" ColumnName="ReactionTypeId" />
+                <ScalarProperty Name="ServiceLocationId" ColumnName="ServiceLocationId" />
+                <ScalarProperty Name="WgId" ColumnName="WgId" />
+                <ScalarProperty Name="ReactionTime_Avalability" ColumnName="ReactionTime_Avalability" />
+                <ScalarProperty Name="ReactionTime_ReactionType" ColumnName="ReactionTime_ReactionType" />
+                <ScalarProperty Name="ReactionTime_ReactionType_Avalability" ColumnName="ReactionTime_ReactionType_Avalability" />
+                <ScalarProperty Name="Sla" ColumnName="Sla" />
+                <ScalarProperty Name="SlaHash" ColumnName="SlaHash" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PrincipalPortfolio">
+            <EntityTypeMapping TypeName="SCD_2Model.PrincipalPortfolio">
+              <MappingFragment StoreEntitySet="PrincipalPortfolio">
+                <ScalarProperty Name="IsMasterPortfolio" ColumnName="IsMasterPortfolio" />
+                <ScalarProperty Name="IsGlobalPortfolio" ColumnName="IsGlobalPortfolio" />
+                <ScalarProperty Name="IsCorePortfolio" ColumnName="IsCorePortfolio" />
+                <ScalarProperty Name="WgId" ColumnName="WgId" />
+                <ScalarProperty Name="ServiceLocationId" ColumnName="ServiceLocationId" />
+                <ScalarProperty Name="ReactionTypeId" ColumnName="ReactionTypeId" />
+                <ScalarProperty Name="ReactionTimeId" ColumnName="ReactionTimeId" />
+                <ScalarProperty Name="ProActiveSlaId" ColumnName="ProActiveSlaId" />
+                <ScalarProperty Name="DurationId" ColumnName="DurationId" />
+                <ScalarProperty Name="AvailabilityId" ColumnName="AvailabilityId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

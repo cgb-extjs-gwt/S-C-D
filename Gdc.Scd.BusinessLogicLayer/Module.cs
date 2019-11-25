@@ -5,6 +5,7 @@ using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Helpers;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 
@@ -40,12 +41,17 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostImportExcelService>().To<CostImportExcelService>().InScdRequestScope();
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
+            Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
+
+            //Need to optimize
+            //Bind<IAfterAddingInterceptor<Wg>>().To<PortfolioInheritanceInterceptor>().InScdRequestScope(); 
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
+            Kernel.RegisterEntity<Company>();
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Wg>();
@@ -68,6 +74,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<SwLicense>();
             Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<TempHwFspCodeTranslation>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<HwHddFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();

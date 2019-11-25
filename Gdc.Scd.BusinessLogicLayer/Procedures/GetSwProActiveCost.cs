@@ -1,8 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -19,30 +17,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task<(string json, int total)> ExecuteJsonAsync(bool approved, SwFilterDto filter, int lastid, int limit)
+        public Task<(string json, int total, bool hasMore)> ExecuteJsonAsync(bool approved, SwFilterDto filter, int start, int limit)
         {
-            var parameters = Prepare(approved, filter, lastid, limit);
-
-            var d = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
-            var total = GetTotal(parameters);
-
-            return (d.json, total);
+            var parameters = Prepare(approved, filter, start, limit + 1); //get one row over limit for correct paging
+            return _repo.ExecuteProcAsJsonAsync(PROC, limit, parameters);
         }
 
         private static DbParameter[] Prepare(bool approved, SwFilterDto filter, int lastid, int limit)
         {
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
             var pCnt = new DbParameterBuilder().WithName("cnt");
+            var pFsp = new DbParameterBuilder().WithName("fsp");
+            var pHasFsp = new DbParameterBuilder().WithName("hasFsp");
             var pDigit = new DbParameterBuilder().WithName("digit");
             var pAv = new DbParameterBuilder().WithName("av");
             var pYear = new DbParameterBuilder().WithName("year");
             var pLastid = new DbParameterBuilder().WithName("lastid").WithValue(lastid);
             var pLimit = new DbParameterBuilder().WithName("limit").WithValue(limit);
-            var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
 
             if (filter != null)
             {
                 pCnt.WithListIdValue(filter.Country);
+                pFsp.WithValue(filter.Fsp);
+                pHasFsp.WithValue(filter.HasFsp);
                 pDigit.WithListIdValue(filter.Digit);
                 pAv.WithListIdValue(filter.Availability);
                 pYear.WithListIdValue(filter.Year);
@@ -51,18 +48,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return new DbParameter[] {
                  pApproved.Build(),
                  pCnt.Build(),
+                 pFsp.Build(),
+                 pHasFsp.Build(),
                  pDigit.Build(),
                  pAv.Build(),
                  pYear.Build(),
                  pLastid.Build(),
-                 pLimit.Build(),
-                 pTotal.Build()
+                 pLimit.Build()
             };
-        }
-
-        private static int GetTotal(DbParameter[] parameters)
-        {
-            return parameters[7].GetInt32();
         }
     }
 }

@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetRoleCodeHourlyRates') is not null
     drop procedure Archive.spGetRoleCodeHourlyRates;
 go
 
-create procedure Archive.spGetRoleCodeHourlyRates
+create procedure [Archive].[spGetRoleCodeHourlyRates]
 AS
 begin
     select  c.Name as Country
@@ -15,9 +15,9 @@ begin
 
     from Hardware.RoleCodeHourlyRates hr
     join Archive.GetCountries() c on c.id = hr.Country
-    left join InputAtoms.RoleCode rc on rc.Id = hr.RoleCode and rc.DeactivatedDateTime is null
+    left join InputAtoms.RoleCode rc on rc.Id = hr.RoleCode and rc.Deactivated = 0
 
-    where hr.DeactivatedDateTime is null
+    where hr.Deactivated = 0
 
     order by c.Name, rc.Name
 end

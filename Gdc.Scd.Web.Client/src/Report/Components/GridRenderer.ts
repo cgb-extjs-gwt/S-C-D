@@ -39,11 +39,11 @@ export function localToEuroMoneyRendererFactory(exchangeRateField: string): IRen
 }
 
 export function currencyRenderer(value: any, currency: string): string {
-    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00') + ' ' + currency;
+    return isEmpty(value) || isNaN(parseFloat(value)) ? N_A : Ext.util.Format.number(value, '0.00') + ' ' + currency;
 }
 
 export function percentRenderer(value: any, row: any): string {
-    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00###') + '%';
+    return isEmpty(value) || isNaN(parseFloat(value)) ? N_A : Ext.util.Format.number(value, '0.00###') + '%';
 }
 
 export function yearRenderer(val: number, row) {
@@ -57,6 +57,10 @@ export function yearRenderer(val: number, row) {
     else {
         return val + ' Years';
     }
+}
+
+export function locationRenderer(val, row) {
+    return isEmpty(val) ? N_A : val.replace(' Service', '');
 }
 
 export const ddMMyyyyRenderer = Ext.util.Format.dateRenderer('Y-m-d');

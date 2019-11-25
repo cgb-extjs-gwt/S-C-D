@@ -1,8 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -19,15 +17,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task<(string json, int total)> ExecuteJsonAsync(bool approved, HwFilterDto filter, int lastid, int limit)
+        public Task<(string json, int total, bool hasMore)> ExecuteJsonAsync(bool approved, HwFilterDto filter, int start, int limit)
         {
-            var parameters = Prepare(approved, filter, lastid, limit);
-
-            
-            var d = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
-            var total = GetTotal(parameters);
-
-            return (d.json, total);
+            var parameters = Prepare(approved, filter, start, limit + 1); //get one row over limit for correct paging
+            return _repo.ExecuteProcAsJsonAsync(PROC, limit, parameters);
         }
 
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)
@@ -35,6 +28,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
             var pLocal = new DbParameterBuilder().WithName("local").WithValue(true);
             var pCnt = new DbParameterBuilder().WithName("cnt");
+            var pFsp = new DbParameterBuilder().WithName("fsp");
+            var pHasFsp = new DbParameterBuilder().WithName("hasFsp");
             var pWg = new DbParameterBuilder().WithName("wg");
             var pAv = new DbParameterBuilder().WithName("av");
             var pDur = new DbParameterBuilder().WithName("dur");
@@ -44,11 +39,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pPro = new DbParameterBuilder().WithName("pro");
             var pLastid = new DbParameterBuilder().WithName("lastid").WithValue(lastid);
             var pLimit = new DbParameterBuilder().WithName("limit").WithValue(limit);
-            var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
 
             if (filter != null)
             {
                 pCnt.WithListIdValue(filter.Country);
+                pFsp.WithValue(filter.Fsp);
+                pHasFsp.WithValue(filter.HasFsp);
                 pWg.WithListIdValue(filter.Wg);
                 pAv.WithListIdValue(filter.Availability);
                 pDur.WithListIdValue(filter.Duration);
@@ -62,6 +58,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pApproved.Build(),
                  pLocal.Build(),
                  pCnt.Build(),
+                 pFsp.Build(),
+                 pHasFsp.Build(),
                  pWg.Build(),
                  pAv.Build(),
                  pDur.Build(),
@@ -70,14 +68,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pLoc.Build(),
                  pPro.Build(),
                  pLastid.Build(),
-                 pLimit.Build(),
-                 pTotal.Build()
+                 pLimit.Build()
             };
-        }
-
-        private static int GetTotal(DbParameter[] parameters)
-        {
-            return parameters[12].GetInt32();
         }
     }
 }

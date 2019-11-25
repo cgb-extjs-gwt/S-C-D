@@ -1,6 +1,7 @@
 ﻿using System;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
@@ -16,9 +17,18 @@ namespace Gdc.Scd.DataAccessLayer
 {
     public class Module : NinjectModule
     {
+        public bool IsPorImport { get; set; }
+
         public override void Load()
         {
-            Bind(typeof(IRepository<>)).To(typeof(ModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
+            if (!IsPorImport)
+            {
+                Bind(typeof(IRepository<>)).To(typeof(ModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
+            }
+            else
+            {
+                Bind(typeof(IRepository<>)).To(typeof(PorModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
+            }
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InScdRequestScope();
             Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InScdRequestScope();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InScdRequestScope();
@@ -46,6 +56,8 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICostBlockQueryBuilder>().To<CostBlockQueryBuilder>().InScdRequestScope();
             Bind<IPivotGridRepository>().To<PivotGridRepository>().InScdRequestScope();
             Bind<IPortfolioPivotGridQueryBuilder>().To<PortfolioPivotGridQueryBuilder>().InSingletonScope();
+            Bind<IPortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>, IRepository<PrincipalPortfolio>>().To<PortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>>().InScdRequestScope();
+            Bind<IPortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>, IRepository<LocalPortfolio>>().To<PortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>>().InScdRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();

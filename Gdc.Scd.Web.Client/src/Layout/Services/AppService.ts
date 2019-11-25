@@ -44,5 +44,4 @@ export class AppService {
         perm = perm.toUpperCase();
         return this.getRoles().then(x => x.some(y => y.permissions.some(p => p.toUpperCase() === perm)));
     }
-
 }

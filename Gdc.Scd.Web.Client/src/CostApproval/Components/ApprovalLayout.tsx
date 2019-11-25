@@ -8,13 +8,13 @@ import { FilterContainer } from "../../Approval/Components/FilterContainer";
 
 export class ApprovalLayout extends BundleListLayout {
     protected bundleItemRender(bundle: Bundle) {
-        const { onRefresh } = this.props;
+        const { onRefresh, isCheckColumnsVisible } = this.props;
 
         return (
             <BundleView 
                 key={bundle.id}
-                bundle={bundle} 
-                isCheckColumnsVisible={true}
+                bundle={bundle}
+                isCheckColumnsVisible={isCheckColumnsVisible()}
             >
                 <ApproveRejectContainerComponent bundleId={bundle.id} onHandled={onRefresh}/>
             </BundleView>

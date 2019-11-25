@@ -1,16 +1,16 @@
-﻿using Gdc.Scd.Export.CdCs.Dto;
-using System;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using Gdc.Scd.Export.CdCs.Dto;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
-    class GetProActiveCosts
+    public class GetProActiveCosts
     {
+        private const string PROC = "Report.GetProActiveByCountryAndWg";
+
         private readonly CommonService _service;
 
         public GetProActiveCosts(CommonService service)
@@ -20,18 +20,16 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public List<ProActiveDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(Enums.Enums.Functions.GetProActiveByCountryAndWg, FillParameters(country));
+            var data = _service.ExecuteAsTable(PROC, FillParameters(country));
             return GetProActiveCost(data);
         }
 
         private DbParameter[] FillParameters(string country)
         {
-            var result = new DbParameter[] {
-                _service.FillParameter("cnt", country),
-                _service.FillParameter("wgList", Config.ProActiveWgList)
+            return new DbParameter[] {
+                new DbParameterBuilder().WithName("cnt").WithValue(country).Build(),
+                new DbParameterBuilder().WithName("wgList").WithValue(Config.ProActiveWgList).Build(),
             };
-
-            return result;
         }
 
         private List<ProActiveDto> GetProActiveCost(DataTable table)
@@ -58,8 +56,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                 proList.Add(proActiveCost);
             }
 
-
             return proList;
-        }      
+        }
     }
 }

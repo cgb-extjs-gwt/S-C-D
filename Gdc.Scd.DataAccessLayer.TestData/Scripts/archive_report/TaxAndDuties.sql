@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetTaxAndDuties') is not null
     drop procedure Archive.spGetTaxAndDuties;
 go
 
-create procedure Archive.spGetTaxAndDuties
+create procedure [Archive].[spGetTaxAndDuties]
 AS
 begin
     select  c.Name as Country
@@ -14,7 +14,7 @@ begin
     from Hardware.TaxAndDuties tax
     join Archive.GetCountries() c on c.id = tax.Country
 
-    where tax.DeactivatedDateTime is null
+    where tax.Deactivated = 0
 
     order by c.Name
 end

@@ -1,0 +1,33 @@
+﻿<#@ template language="C#" #>
+
+declare @wg dbo.ListID;
+insert into @wg(id) select id from InputAtoms.Wg where Deactivated = 0 and UPPER(name) in (<# WriteNames(); #>);
+
+IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp;
+IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
+
+select c.* into #tmp
+from <#= table #> c
+where c.Deactivated = 0 and not exists(select * from @wg where Id = c.Wg);
+
+create index ix_tmp_Country_SLA on #tmp(<# WriteDeps(); #>);
+
+select  <# WriteDeps(); #> 
+      , <# WriteSelectFields(); #>
+
+into #tmpMin
+from #tmp 
+group by <# WriteDeps(); #>;
+
+create index ix_tmpmin_Country_SLA on #tmpMin(<# WriteDeps(); #>);
+
+update c set 
+        <# WriteSetFields(); #>
+
+from <#= table #> c
+inner join #tmpMin t on <# WriteJoinByDeps(); #> 
+where c.Deactivated = 0 and exists(select * from @wg where Id = c.Wg);
+
+IF OBJECT_ID('tempdb..#tmp') IS NOT NULL DROP TABLE #tmp
+IF OBJECT_ID('tempdb..#tmpMin') IS NOT NULL DROP TABLE #tmpMin;
+

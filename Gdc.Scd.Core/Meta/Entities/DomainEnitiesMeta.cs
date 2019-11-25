@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Helpers;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -54,12 +55,17 @@ namespace Gdc.Scd.Core.Meta.Entities
                     yield return this.LocalPortfolio;
                 }
 
+                if (this.PrincipalPortfolio != null)
+                {
+                    yield return this.PrincipalPortfolio;
+                }
+
                 if (this.ExchangeRate != null)
                 {
                     yield return this.ExchangeRate;
                 }
 
-                var fields =
+                var metas =
                     this.CostBlocks.Cast<BaseEntityMeta>()
                                    .Concat(this.CostBlocks.Select(costBlock => costBlock.HistoryMeta))
                                    .Concat(this.RelatedItemsHistories)
@@ -67,9 +73,9 @@ namespace Gdc.Scd.Core.Meta.Entities
                                    .Concat(this.InputLevels)
                                    .Concat(this.OtherMetas);
 
-                foreach (var field in fields)
+                foreach (var meta in metas)
                 {
-                    yield return field;
+                    yield return meta;
                 }
             }
         }
@@ -86,6 +92,18 @@ namespace Gdc.Scd.Core.Meta.Entities
             return this.GetEntityMeta(entityInfo.Name, entityInfo.Schema);
         }
 
+        public BaseEntityMeta GetEntityMeta(Type type)
+        {
+            var entityInfo = MetaHelper.GetEntityInfo(type);
+
+            return this.GetEntityMeta(entityInfo);
+        }
+
+        public BaseEntityMeta GetEntityMeta<T>()
+        {
+            return this.GetEntityMeta(typeof(T));
+        }
+
         public NamedEntityMeta GetInputLevel(string name)
         {
             var fullName = BaseEntityMeta.BuildFullName(name, MetaConstants.InputLevelSchema);
@@ -98,6 +116,13 @@ namespace Gdc.Scd.Core.Meta.Entities
             var fullName = BaseEntityMeta.BuildFullName(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema);
 
             return this.InputLevels[fullName] as CountryEntityMeta;
+        }
+
+        public WgEnityMeta GetWgEntityMeta()
+        {
+            var fullName = BaseEntityMeta.BuildFullName(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
+
+            return this.InputLevels[fullName] as WgEnityMeta;
         }
 
         public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)

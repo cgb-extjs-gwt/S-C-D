@@ -7,6 +7,8 @@ CREATE FUNCTION Report.HwCalcResult
     @approved bit,
     @local bit,
     @country         dbo.ListID readonly,
+    @fsp             nvarchar(255),
+    @hasFsp          bit,
     @wg              dbo.ListID readonly,
     @availability    dbo.ListID readonly,
     @duration        dbo.ListID readonly,
@@ -20,6 +22,8 @@ AS
 RETURN (
     select    Country
             , case when @local = 1 then c.Name else 'EUR' end as Currency
+
+            , costs.Fsp
 
             , sog.Name as SOG
             , Wg
@@ -65,7 +69,7 @@ RETURN (
             , ReleaseDate
             , ChangeDate
 
-    from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
+    from Hardware.GetCosts2(@approved, @country, @fsp, @hasFsp, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
     join [References].Currency c on c.Id = costs.CurrencyId
     join InputAtoms.Wg wg on wg.id = costs.WgId
     LEFT JOIN InputAtoms.Sog sog on sog.Id = wg.SogId
@@ -83,6 +87,8 @@ select @money = id from Report.ReportColumnType where upper(name) = 'MONEY';
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'FSP code', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SOG', 'SOG', 1, 1);
 set @index = @index + 1;
@@ -171,6 +177,13 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'country' and MultiSelect=1), 'country', 'Country');
+
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'text'), 'fsp', 'FSP code');
+
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'boolean'), 'hasFsp', 'With FSP code');
+
 
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'wg' and MultiSelect=1), 'wg', 'Asset(WG)');

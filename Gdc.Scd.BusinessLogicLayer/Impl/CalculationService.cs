@@ -31,54 +31,54 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.portfolioRepo = portfolioRepo;
         }
 
-        public Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
+        public Task<(string json, int total, bool hasMore)> GetHardwareCost(bool approved, HwFilterDto filter, int start, int limit)
         {
             if (filter == null || filter.Country == null || filter.Country.Length == 0)
             {
                 throw new ArgumentException("No country specified");
             }
 
-            return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
+            return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, start, limit);
         }
 
-        public Task<(string json, int total)> GetSoftwareCost(
-            bool approved,
-            SwFilterDto filter,
-            int lastId,
-            int limit
-        )
+        public Task<(string json, int total, bool hasMore)> GetSoftwareCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
-            return new GetSwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
+            return new GetSwCost(repositorySet).ExecuteJsonAsync(approved, filter, start, limit);
         }
 
-        public Task<(string json, int total)> GetSoftwareProactiveCost(
-            bool approved,
-            SwFilterDto filter,
-            int lastId,
-            int limit
-        )
+        public Task<(string json, int total, bool hasMore)> GetSoftwareProactiveCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
-            return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
+            return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, start, limit);
         }
 
-        public async Task ReleaseHardwareCost(User changeUser, HwFilterDto filter)
+        public Task ReleaseHardwareCost(User changeUser, HwFilterDto filter)
         {
             if (filter?.Country == null || filter.Country.Length == 0)
             {
                 throw new ArgumentException("No country specified");
             }
 
-            await new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter);
+            return new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter);
         }
 
-        public async Task ReleaseSelectedHardwareCost(User changeUser, HwFilterDto filter, HwCostDto[] items)
+        public Task ReleaseSelectedHardwareCost(User changeUser, HwFilterDto filter, HwCostDto[] items)
         {
             if (items == null || items.Length == 0)
             {
                 throw new ArgumentException("No records specified");
             }
 
-            await new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
+            return new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
         }
 
         public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records)

@@ -1,4 +1,4 @@
-﻿import { Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
+﻿import { Container, Panel, PanelProps, RadioField, SearchField } from "@extjs/ext-react";
 import * as React from "react";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
@@ -10,6 +10,7 @@ import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { FspRadioField } from "./FspRadioField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -22,6 +23,10 @@ export interface FilterPanelProps extends PanelProps {
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private cnt: CountryField;
+
+    private fsp: SearchField & any;
+
+    private hasFsp: FspRadioField;
 
     private wg: MultiSelect;
 
@@ -89,6 +94,10 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                 >
                     {countryField}
 
+                    <SearchField ref={x => this.fsp = x} label="FSP" placeholder="Search by FSP..." />
+
+                    <FspRadioField ref={x => this.hasFsp = x} />
+
                     <Panel title='Asset(WG)'
                         {...panelProps}>
                         <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />
@@ -139,7 +148,9 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
             reactionTime: this.reacttime.getSelectedKeysOrNull(),
             serviceLocation: this.srvloc.getSelectedKeysOrNull(),
             proActive: this.proactive.getSelectedKeysOrNull(),
-            currency: this.getCurrency()
+            currency: this.getCurrency(),
+            fsp: this.fsp.getValue(),
+            hasFsp: this.hasFsp.getValue()
         }
     }
 

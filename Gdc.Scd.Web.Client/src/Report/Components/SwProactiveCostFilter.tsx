@@ -1,11 +1,11 @@
-﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
+﻿import { Button, Container, Panel, PanelProps, SearchField } from "@extjs/ext-react";
 import * as React from "react";
-import { SwCostFilterModel } from "../Model/SwCostFilterModel";
-import { NamedId } from "../../Common/States/CommonStates";
-import { DictFactory } from "../../Dict/Services/DictFactory";
-import { IDictService } from "../../Dict/Services/IDictService";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
 import { MultiSelectField } from "../../Dict/Components/MultiSelectField";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { SwCostFilterModel } from "../Model/SwCostFilterModel";
+import { FspRadioField } from "./FspRadioField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -28,6 +28,10 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
     private year: MultiSelect;
 
     private dictSrv: IDictService;
+
+    private fsp: SearchField & any;
+
+    private hasFsp: FspRadioField;
 
     public constructor(props: any) {
         super(props);
@@ -80,6 +84,8 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
 
                     {countryField}
+                    <SearchField ref={x => this.fsp = x} label="FSP" placeholder="Search by FSP..." />
+                    <FspRadioField ref={x => this.hasFsp = x} />
                     <MultiSelectField ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} label='SW digit' />
                     <Panel title='Availability'
                         {...panelProps}>
@@ -105,7 +111,9 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
             country: this.cnt.getSelectedKeysOrNull(),
             digit: this.digit.getSelectedKeysOrNull(),
             availability: this.av.getSelectedKeysOrNull(),
-            year: this.year.getSelectedKeysOrNull()
+            year: this.year.getSelectedKeysOrNull(),
+            fsp: this.fsp.getValue(),
+            hasFsp: this.hasFsp.getValue()
         };
     }
 

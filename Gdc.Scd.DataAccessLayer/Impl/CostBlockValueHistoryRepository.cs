@@ -145,7 +145,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var count = await this.repositorySet.ExecuteScalarAsync<int>(queryData.Sql, queryData.Parameters);
 
             var historyItems = 
-                await this.repositorySet.ReadBySql(
+                await this.repositorySet.ReadBySqlAsync(
                     historyQuery.ByQueryInfo(queryInfo), 
                     reader => new HistoryItemDto
                     {

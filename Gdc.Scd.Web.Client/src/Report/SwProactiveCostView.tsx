@@ -14,15 +14,6 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     private filter: SwProactiveCostFilter;
 
-    private selectable: any = {
-        extensible: 'both',
-        rows: true,
-        cells: true,
-        columns: true,
-        drag: true,
-        checkbox: false
-    };
-
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         pageSize: 25,
@@ -45,6 +36,8 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         }
     });
 
+    private pluginCfg: any;
+
     public constructor(props: CalcCostProps) {
         super(props);
         this.init();
@@ -55,18 +48,18 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
             <Container layout="fit">
 
                 <SwProactiveCostFilter
-                    ref={x => this.filter = x}
+                    ref={this.filterRef}
                     docked="right"
                     onSearch={this.onSearch}
                     onDownload={this.onDownload}
                     checkAccess={!this.props.approved}
                     scrollable={true} />
 
-                <Grid ref={x => this.grid = x}
+                <Grid ref={this.gridRef}
                     store={this.store}
                     width="100%"
-                    plugins={['pagingtoolbar', 'clipboard']}
-                    selectable={this.selectable}
+                    platformConfig={this.pluginCfg}
+                    cls="grid-paging-no-count grid-small-head"
                 >
 
                     { /*dependencies*/}
@@ -77,8 +70,9 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 60, flex: 1, cls: "x-text-el-wrap" }}>
 
+                        <Column text="FSP" dataIndex="Fsp" minWidth="180" renderer={stringRenderer} />
                         <Column text="Country" dataIndex="Country" />
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />
@@ -110,6 +104,46 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
+        this.pluginCfg = this.getPluginCfg();
+    }
+
+    private filterRef = (x) => {
+        this.filter = x;
+    }
+
+    private gridRef = (x) => {
+        this.grid = x;
+    }
+
+    private getPluginCfg() {
+        let clipboardCfg = {
+            formats: {
+                text: { put: 'noPut' }
+            },
+            noPut: function () { }
+        };
+        return {
+            'desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: clipboardCfg
+                },
+                selectable: {
+                    extensible: 'both',
+                    rows: true,
+                    cells: true,
+                    columns: true,
+                    drag: true,
+                    checkbox: false
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: clipboardCfg
+                }
+            }
+        };
     }
 
     private onSearch(filter: SwCostFilterModel) {

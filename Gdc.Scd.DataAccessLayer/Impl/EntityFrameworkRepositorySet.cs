@@ -1,12 +1,4 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.DataAccessLayer.Helpers;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Ninject;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -14,11 +6,22 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet, IRegisteredEntitiesProvider
     {
+        private const int Timeout = 600;
+
         private readonly IKernel serviceProvider;
 
         private readonly string connectionNameOrConnectionString;
@@ -31,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.connectionNameOrConnectionString = connectionNameOrConnectionString;
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
-            this.Database.SetCommandTimeout(600);
+            this.Database.SetCommandTimeout(Timeout);
         }
 
         public ITransaction GetTransaction()
@@ -48,10 +51,40 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Sync()
         {
+            var interceptorInfos =
+                                this.ChangeTracker.Entries()
+                                    .Where(entry => entry.State == EntityState.Added)
+                                    .Where(entry => entry.Entity is IIdentifiable)
+                                    .Select(entry => entry.Entity)
+                                    .GroupBy(entity => entity.GetType())
+                                    .SelectMany(group =>
+                                    {
+                                        var interceptorType = typeof(IAfterAddingInterceptor<>).MakeGenericType(group.Key);
+
+                                        return this.serviceProvider.GetAll(interceptorType).Select(interceptor => new
+                                        {
+                                            EntityType = group.Key,
+                                            Entities = group.ToArray(),
+                                            Interceptor = interceptor
+                                        });
+                                    })
+                                    .ToArray();
+
             this.SaveChanges();
+
+            foreach (var interceptorInfo in interceptorInfos)
+            {
+                var parameters = Array.CreateInstance(interceptorInfo.EntityType, interceptorInfo.Entities.Length);
+
+                interceptorInfo.Entities.CopyTo(parameters, 0);
+
+                interceptorInfo.Interceptor.GetType()
+                                           .GetMethod(nameof(IAfterAddingInterceptor<IIdentifiable>.Handle))
+                                           .Invoke(interceptorInfo.Interceptor, new[] { parameters });
+            }
         }
 
-        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        public Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
             return WithCommand(async cmd =>
             {
@@ -77,14 +110,47 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        public IEnumerable<T> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+
+                if (parameters != null)
+                {
+                    cmd.Parameters.AddRange(this.GetDbParameters(parameters, cmd).ToArray());
+                }
+
+                var result = new List<T>(30);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(mapFunc(reader));
+                        }
+                    }
+                }
+                return (IEnumerable<T>)result;
+            });
+        }
+
+        public IEnumerable<T> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
         {
             var queryData = query.ToQueryData();
 
             return this.ReadBySql(queryData.Sql, mapFunc, queryData.Parameters);
         }
 
-        public Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
+        public Task<IEnumerable<T>> ReadBySqlAsync<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        {
+            var queryData = query.ToQueryData();
+
+            return this.ReadBySqlAsync(queryData.Sql, mapFunc, queryData.Parameters);
+        }
+
+        public Task ReadBySqlAsync(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
             {
@@ -105,7 +171,30 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
+        public Task<DataTable> ReadBySql(SqlHelper query, string tableName)
+        {
+            var queryData = query.ToQueryData();
+
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = queryData.Sql;
+
+                if (queryData.Parameters != null)
+                {
+                    cmd.Parameters.AddRange(this.GetDbParameters(queryData.Parameters, cmd).ToArray());
+                }
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    var dataTable = String.IsNullOrEmpty(tableName) ? new DataTable()
+                        : new DataTable(tableName);
+                    dataTable.Load(reader);
+                    return dataTable;
+                }
+
+            });
+        }
+        public Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
             {
@@ -165,10 +254,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommand(sql, parameters);
         }
 
-        public Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
+        public async Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
         {
             string sql = CreateSpCommand(procName, parameters);
-            return Database.ExecuteSqlCommandAsync(sql, parameters);
+            return await Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
         public int ExecuteProc(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
@@ -252,6 +341,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<(string json, int total, bool hasMore)> ExecuteProcAsJsonAsync(string procName, int maxRowCount, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.AsStoredProcedure(procName, parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray(maxRowCount);
+                }
+            });
+        }
+
         public Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
@@ -308,6 +410,30 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public List<T> ExecuteAsList<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var list = new List<T>(50);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(mapFunc(reader));
+                        }
+                    }
+                }
+
+                return list;
+            });
+        }
+
         public Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
@@ -360,12 +486,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             base.OnConfiguring(optionsBuilder);
 
-            var connectionStringSettings = 
+            var connectionStringSettings =
                 ConfigurationManager.ConnectionStrings.OfType<ConnectionStringSettings>()
                                                       .FirstOrDefault(settings => settings.Name == this.connectionNameOrConnectionString);
 
-            var connectionString = connectionStringSettings == null 
-                ? this.connectionNameOrConnectionString 
+            var connectionString = connectionStringSettings == null
+                ? this.connectionNameOrConnectionString
                 : connectionStringSettings.ConnectionString;
 
             optionsBuilder.UseSqlServer(connectionString, opt => opt.UseRowNumberForPaging());
@@ -435,10 +561,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             try
             {
-                conn.Open();
+                if (conn.State != ConnectionState.Open)
+                {
+                    conn.Open();
+                }
+
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandTimeout = 600;
+                    this.InitCommand(cmd);
+
                     return func(cmd);
                 }
             }
@@ -454,16 +585,31 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var conn = this.Database.GetDbConnection();
             try
             {
-                await conn.OpenAsync();
+                if (conn.State != ConnectionState.Open)
+                {
+                    await conn.OpenAsync();
+                }
+
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandTimeout = 600;
+                    this.InitCommand(cmd);
+
                     return await func(cmd);
                 }
             }
             finally
             {
                 conn.Close();
+            }
+        }
+
+        private void InitCommand(DbCommand command)
+        {
+            command.CommandTimeout = Timeout;
+
+            if (this.Database.CurrentTransaction != null && command.Transaction == null)
+            {
+                command.Transaction = this.Database.CurrentTransaction.GetDbTransaction();
             }
         }
     }

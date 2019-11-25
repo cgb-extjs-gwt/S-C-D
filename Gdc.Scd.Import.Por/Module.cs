@@ -1,13 +1,9 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Impl;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Comparators;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.Core.Meta.Impl;
-using Gdc.Scd.Core.Meta.Interfaces;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
@@ -17,7 +13,6 @@ using Gdc.Scd.Import.Por.Core.Interfaces;
 using Ninject;
 using Ninject.Modules;
 using NLog;
-using System;
 using System.Collections.Generic;
 
 namespace Gdc.Scd.Import.Por
@@ -28,7 +23,7 @@ namespace Gdc.Scd.Import.Por
         {
             Bind<IRepository<SwDigit>>().To<SwDigitRepository>().InSingletonScope();
             Bind<FrieseEntities>().ToSelf().InSingletonScope();
-            Bind<ILogger<LogLevel>>().To<Import.Core.Impl.Logger>().InSingletonScope();
+            Bind<ILogger<LogLevel>, Gdc.Scd.Core.Interfaces.ILogger>().To<Import.Core.Impl.Logger>().InSingletonScope();
 
             Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope();
 
@@ -42,6 +37,7 @@ namespace Gdc.Scd.Import.Por
             Bind<IHwFspCodeTranslationService<HwHddFspCodeDto>>().To<PorHddHwFspCodeCodeTranslationService>();
             Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
             Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
+            Bind<ICostBlockUpdateService>().To<CostBlockUpdateService>();
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));
 
@@ -50,6 +46,16 @@ namespace Gdc.Scd.Import.Por
             Bind(typeof(DomainService<>)).ToSelf();
 
             this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+        }
+
+        public static StandardKernel CreateKernel()
+        {
+            NinjectExt.IsConsoleApplication = true;
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new DataAccessLayer.Module { IsPorImport = true },
+                new BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

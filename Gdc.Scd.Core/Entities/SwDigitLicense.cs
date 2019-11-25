@@ -17,6 +17,7 @@ namespace Gdc.Scd.Core.Entities
 
         public long? SwDigitId { get; set; }
         public long? SwLicenseId { get; set; }
+        public string SwFspCode { get; set; }
 
         public SwDigit SwDigit { get; set; }
         public SwLicense SwLicense { get; set; }

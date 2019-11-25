@@ -7,7 +7,8 @@ import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer } from "./Components/GridRenderer";
+import { readonly, setFloatOrEmpty } from "./Components/GridExts";
+import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer, locationRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
@@ -42,6 +43,51 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         fields: [
             'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ReleaseDate',
+
+            { name: 'roFsp', calculate: readonly('Fsp') },
+            { name: 'roCountry', calculate: readonly('Country') },
+            { name: 'roSog', calculate: readonly('Sog') },
+            { name: 'roWg', calculate: readonly('Wg') },
+            { name: 'roAvailability', calculate: readonly('Availability') },
+            { name: 'roDuration', calculate: readonly('Duration') },
+            { name: 'roReactionType', calculate: readonly('ReactionType') },
+            { name: 'roReactionTime', calculate: readonly('ReactionTime') },
+            { name: 'roServiceLocation', calculate: readonly('ServiceLocation') },
+            { name: 'roProActiveSla', calculate: readonly('ProActiveSla') },
+            { name: 'roStdWarranty', calculate: readonly('StdWarranty') },
+            { name: 'roStdWarrantyLocation', calculate: readonly('StdWarrantyLocation') },
+
+            { name: 'roServiceTC', calculate: readonly('ServiceTC') },
+            { name: 'roServiceTCManual', calculate: readonly('ServiceTCManual') },
+
+            { name: 'roServiceTP', calculate: readonly('ServiceTP') },
+            { name: 'roServiceTPManual', calculate: readonly('ServiceTPManual') },
+            { name: 'roServiceTP_Released', calculate: readonly('ServiceTP_Released') },
+
+            { name: 'roListPrice', calculate: readonly('ListPrice') },
+            { name: 'roDealerDiscount', calculate: readonly('DealerDiscount') },
+            { name: 'roDealerPriceCalc', calculate: readonly('DealerPriceCalc') },
+
+            { name: 'roChangeUserCalc', calculate: readonly('ChangeUserCalc') },
+            { name: 'roReleaseDate', calculate: readonly('ReleaseDate') },
+
+            { name: 'roOtherDirect', calculate: readonly('OtherDirect') },
+
+            { name: 'roLocalServiceStandardWarranty', calculate: readonly('LocalServiceStandardWarranty') },
+            { name: 'roLocalServiceStandardWarrantyManual', calculate: readonly('LocalServiceStandardWarrantyManual') },
+
+            { name: 'roCredits', calculate: readonly('Credits') },
+            { name: 'roFieldServiceCost', calculate: readonly('FieldServiceCost') },
+            { name: 'roServiceSupportCost', calculate: readonly('ServiceSupportCost') },
+            { name: 'roLogistic', calculate: readonly('Logistic') },
+            { name: 'roAvailabilityFee', calculate: readonly('AvailabilityFee') },
+            { name: 'roReinsurance', calculate: readonly('Reinsurance') },
+            { name: 'roTaxAndDutiesW', calculate: readonly('TaxAndDutiesW') },
+            { name: 'roTaxAndDutiesOow', calculate: readonly('TaxAndDutiesOow') },
+            { name: 'roMaterialW', calculate: readonly('MaterialW') },
+            { name: 'roMaterialOow', calculate: readonly('MaterialOow') },
+            { name: 'roProActive', calculate: readonly('ProActive') },
+
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -63,16 +109,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         if (d.ChangeUserName) {
                             result += d.ChangeUserName;
                         }
-                        if (d.ChangeUserEmail) {
-                            result += '[' + d.ChangeUserEmail + ']';
-                        }
                     }
                     return result;
                 }
             }
         ],
 
-        pageSize: 25,
+        pageSize: 100,
         autoLoad: false,
 
         proxy: {
@@ -91,34 +134,52 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             },
             paramsAsJson: true
         },
+
+        fixOrUndo: (canEdit: boolean, record, modifiedFieldNames: string[], field) => {
+
+            if (!modifiedFieldNames || modifiedFieldNames.indexOf(field) === -1) {
+                return; //no changes
+            }
+
+            if (canEdit) {
+                setFloatOrEmpty(record, field);
+            }
+            else {
+                record.set(field, record.previousValues[field], { dirty: false });
+            }
+
+        },
         listeners: {
             update: (store, record, operation, modifiedFieldNames: string[], details) => {
+
+                store.suspendEvents(false);
+
+                let canEditTC = this.canEditTC();
+                let canEditListPrice = this.canEditListPrice();
+
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ServiceTCManual');
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ServiceTPManual');
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'LocalServiceStandardWarrantyManual');
+
+                store.fixOrUndo(canEditListPrice, record, modifiedFieldNames, 'ListPrice');
+                store.fixOrUndo(canEditListPrice, record, modifiedFieldNames, 'DealerDiscount');
 
                 if (modifiedFieldNames && modifiedFieldNames.indexOf('LocalServiceStandardWarrantyManual') !== -1) {
                     this.updateStdw(store, record);
                 }
 
-                const changed = this.store.getUpdatedRecords().length;
+                store.resumeEvents();
+
                 if (modifiedFieldNames && modifiedFieldNames.length > 0 && modifiedFieldNames[0] == SELECTED_FIELD) {
                     this.onCheckChange();
                 }
                 else {
+                    const changed = this.store.getUpdatedRecords().length;
                     this.toggleToolbar(changed == 0);
                 }
 
-                store.fixNullValue(record, 'ServiceTCManual');
-                store.fixNullValue(record, 'ServiceTPManual');
-                store.fixNullValue(record, 'ListPrice');
-                store.fixNullValue(record, 'DealerDiscount');
-                store.fixNullValue(record, 'LocalServiceStandardWarrantyManual');
+                this.grid.refresh();
             }
-        },
-        fixNullValue: function (record, field) {
-            var d = record.data;
-            //
-            //stub, for correct null imput
-            var v = typeof d[field] === 'number' ? d[field] : '';
-            record.set(field, v); 
         }
     });
 
@@ -140,6 +201,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         extensible: 'both',
         message: 'No Selection'
     };
+
+    private pluginCfg: any;
 
     public constructor(props: CalcCostProps) {
         super(props);
@@ -169,7 +232,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                 <Panel {...this.props} docked="right" scrollable={true} >
                     <HwCostFilter
-                        ref={x => this.filter = x}
+                        ref={this.filterRef}
                         onChange={this.onFilterChange}
                         checkAccess={!this.props.approved} />
 
@@ -182,16 +245,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 </Panel>
 
                 <Grid
-                    ref={x => this.grid = x}
+                    ref={this.gridRef}
                     store={this.store}
                     width="100%"
-                    platformConfig={this.pluginConf()}
+                    platformConfig={this.pluginCfg}
                     onSelectionChange={this.onSelectionChange}
                     selectable={{
                         extensible,
                         ...selectable
                     }}
                     shadow
+                    cls="grid-paging-no-count grid-small-head"
                 >
 
                     { /*dependencies*/}
@@ -201,20 +265,20 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.5" minWidth="50" hidden={!this.approved()} />
-                        <Column text="Country" dataIndex="Country" />
-                        <Column text="SOG(Asset)" dataIndex="Sog" renderer={emptyRenderer} />
-                        <Column text="WG(Asset)" dataIndex="Wg" />
-                        <Column text="Availability" dataIndex="Availability" />
-                        <Column text="Duration" dataIndex="Duration" />
-                        <Column text="Reaction type" dataIndex="ReactionType" />
-                        <Column text="Reaction time" dataIndex="ReactionTime" />
-                        <Column text="Service location" dataIndex="ServiceLocation" />
-                        <Column text="ProActive SLA" dataIndex="ProActiveSla" />
-                        <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" minWidth="50" />
-                        <Column text="Standard Warranty Service Location" dataIndex="StdWarrantyLocation" renderer={stringRenderer} />
+                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} width="50" hidden={!this.approved()} />
+                        <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer} minWidth="180" />
+                        <Column text="SOG" width="50" dataIndex="roSog" renderer={emptyRenderer} />
+                        <Column text="WG" width="50" dataIndex="roWg" />
+                        <Column text="Avail." width="50" dataIndex="roAvailability" />
+                        <Column text="Duration" dataIndex="roDuration" />
+                        <Column text="Reaction type" width="8%" dataIndex="roReactionType" />
+                        <Column text="Reaction time" width="8%" dataIndex="roReactionTime" />
+                        <Column text="Service location" dataIndex="ServiceLocation" renderer={locationRenderer} />
+                        <Column text="ProActive SLA" dataIndex="roProActiveSla" />
+                        <Column text="STDW duration" dataIndex="roStdWarranty" renderer={yearRenderer} />
+                        <Column text="STDW Service Location" dataIndex="roStdWarrantyLocation" renderer={locationRenderer} />
 
                     </Column>
 
@@ -225,26 +289,26 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
+                        <NumberColumn text="Service TC (calc)" dataIndex="roServiceTC" />
+                        <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
-                        <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
-                        <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
+                        <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
+                        <NumberColumn text="Service TP (manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
+                        <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
+                        <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
-                        <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
-                        <Column text="Release date" dataIndex="ReleaseDate" renderer={ddMMyyyyRenderer} />
+                        <Column text="Change user" minWidth="60" maxWidth="90" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
 
-                        <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
-                        <NumberColumn text="Local service standard warranty(calc)" dataIndex="LocalServiceStandardWarranty" />
-                        <NumberColumn text="Local service standard warranty(manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
-                        <NumberColumn text="Credits" dataIndex="Credits" />
+                        <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
+                        <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
+                        <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
+                        <NumberColumn text="Credits" dataIndex="roCredits" />
 
                     </Column>
 
@@ -255,20 +319,19 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}
-                        editable
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}
                     >
 
-                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
-                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
-                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
-                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
-                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
-                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
-                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
-                        <NumberColumn text="ProActive" dataIndex="ProActive" />
+                        <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="roServiceSupportCost" />
+                        <NumberColumn text="Logistic cost" dataIndex="roLogistic" />
+                        <NumberColumn text="Avail. fee" dataIndex="roAvailabilityFee" />
+                        <NumberColumn text="Reinsurance" dataIndex="roReinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="roMaterialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="roMaterialOow" />
+                        <NumberColumn text="ProActive" dataIndex="roProActive" />
 
                     </Column>
 
@@ -279,6 +342,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             </Container>
         );
     }
+
+    private filterRef = (x) => {
+        this.filter = x;
+    }
+
+    private gridRef = (x) => {
+        this.grid = x;
+    }
+
     toggleSelectable = field => {
         this.setState({
             selectable: { ...this.state.selectable, [field]: !this.state.selectable[field] }
@@ -329,6 +401,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         this.store.on('beforeload', this.onBeforeLoad, this);
         this.store.on('load', this.onLoad, this);
+        //
+        if (this.approved()) { //using CanEdit() does not work cause await http request
+            this.pluginCfg = this.editPluginConf();
+        } else {
+            this.pluginCfg = this.readPluginConf();
+        }
     }
 
     private toggleToolbar(disable: boolean) {
@@ -372,8 +450,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             });
             handleRequest(p);
         });
-
-
     }
 
     private releaseAll() {
@@ -417,10 +493,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         filter.approved = this.props.approved;
         operation.setParams(filter);
 
-        const srv = new UserCountryService();
-        let cntId = 0;
         if (this.state && this.state.selectedCountry) {
-            cntId = this.state.selectedCountry.id;
+            const srv = new UserCountryService();
+            let cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
                 this.setState({
                     hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton,
@@ -432,7 +507,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onLoad(s, recs) {
-
         let first = recs[0];
         if (first) {
             let d = first.data;
@@ -443,40 +517,70 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             this.exchangeRate = d.ExchangeRate;
 
         }
-        this.grid.refresh();
+        this.reRender(); // stub for correct render
     }
 
-    private pluginConf(): any {
-        let cfg: any = {
+    private reRender() {
+        this.grid.refresh();
+        this.setState({ ______: new Date().getTime() });
+    }
+
+    private readPluginConf() {
+        let clipboardCfg = {
+            formats: {
+                text: { put: 'noPut' }
+            },
+            noPut: function () { }
+        };
+        return {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: true
+                    clipboard: clipboardCfg
                 }
             },
             '!desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: true
+                    clipboard: clipboardCfg
                 }
             }
         };
+    }
 
-        if (this.approved()) {
-            cfg['!desktop'].plugins.grideditable = true;
-            const desktop = cfg['desktop'];
-            desktop.plugins.gridcellediting = true;
-            desktop.plugins.selectionreplicator = true;
-            desktop.selectable = {
-                cells: true,
-                rows: true,
-                columns: false,
-                drag: true,
-                extensible: 'y'
-            };
-        }
-
-        return cfg;
+    private editPluginConf() {
+        let cb = {
+            formats: {
+                text: {
+                    get: 'getTextData',
+                    put: 'putTextData'
+                }
+            }
+        };
+        return {
+            'desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    gridcellediting: true,
+                    selectionreplicator: true,
+                    clipboard: cb
+                },
+                selectable: {
+                    cells: true,
+                    rows: true,
+                    columns: false,
+                    drag: true,
+                    extensible: 'y'
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true,
+                    clipboard: cb,
+                    grideditable: true
+                }
+            }
+        };
     }
 
     private approved() {
@@ -488,7 +592,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEditListPrice(): boolean {
-        let result: boolean = this.approved();
+        let result: boolean = this.approved() && this.state.showInLocalCurrency;
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canStoreListAndDealerPrices;
@@ -497,7 +601,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEditTC(): boolean {
-        let result: boolean = this.approved();
+        let result: boolean = this.approved() && this.state.showInLocalCurrency;
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canOverrideTransferCostAndPrice;
@@ -509,6 +613,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         let invalid = this.state.disableSearchButton;
         let canedit = this.canEdit();
+
+        let selected = this.approved() ? this.getSelectedRows().length : 0;
 
         return <Toolbar docked="top">
             <Button
@@ -538,6 +644,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     disabled={this.state.disableSaveButton}
                 />
             }
+            {
+                selected > 0 && <span>Selected: {selected}record(s)</span>
+            }
         </Toolbar>;
     }
 
@@ -561,10 +670,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let items = store.getData();
         let cnt = record.get('Country');
         let wg = record.get('Wg');
+        let stdw = record.get('LocalServiceStandardWarrantyManual');
         for (let i = 0, len = items.count(); i < len; i++) {
             let row = items.getAt(i);
             if (row.get('Country') === cnt && row.get('Wg') === wg) {
-                row.set('LocalServiceStandardWarrantyManual', record.get('LocalServiceStandardWarrantyManual'));
+                row.set('LocalServiceStandardWarrantyManual', stdw);
             }
         }
     }

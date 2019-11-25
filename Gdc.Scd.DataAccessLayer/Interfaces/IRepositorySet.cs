@@ -18,13 +18,17 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         ITransaction GetTransaction();
 
-        Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
+        IEnumerable<T> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
 
-        Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
+        IEnumerable<T> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
 
-        Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+        Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
 
-        Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters);
+        Task<IEnumerable<T>> ReadBySqlAsync<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
+
+        Task ReadBySqlAsync(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+
+        Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters);
 
         int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
@@ -48,6 +52,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<(string json, int total)> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
+        Task<(string json, int total, bool hasMore)> ExecuteProcAsJsonAsync(string procName, int maxRowCount, params DbParameter[] parameters);
+
         Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
 
         Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters);
@@ -55,6 +61,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters);
 
         DataTable ExecuteAsTable(string sql, params DbParameter[] parameters);
+
+        List<T> ExecuteAsList<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters);
 
         Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters);
 

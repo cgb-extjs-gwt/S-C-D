@@ -102,21 +102,31 @@ namespace Gdc.Scd.Web.Server.Controllers
 
                     var token = o.Value;
 
-                    if (token.Type == JTokenType.Array)
+                    switch (token.Type)
                     {
-                        val = token.ToObject<long[]>();
-                    }
-                    if (token.Type == JTokenType.Integer)
-                    {
-                        val = token.ToObject<long>();
-                    }
-                    if (token.Type == JTokenType.Float)
-                    {
-                        val = token.ToObject<double>();
-                    }
-                    if (token.Type == JTokenType.String)
-                    {
-                        val = token.ToObject<string>();
+                        case JTokenType.Array:
+                            val = token.ToObject<long[]>();
+                            break;
+
+                        case JTokenType.Integer:
+                            val = token.ToObject<long>();
+                            break;
+
+                        case JTokenType.Float:
+                            val = token.ToObject<double>();
+                            break;
+
+                        case JTokenType.String:
+                            var str = token.ToObject<string>();
+                            if (!string.IsNullOrEmpty(str))
+                            {
+                                val = str;
+                            }
+                            break;
+
+                        case JTokenType.Boolean:
+                            val = token.ToObject<bool>();
+                            break;
                     }
 
                     if (val != null)

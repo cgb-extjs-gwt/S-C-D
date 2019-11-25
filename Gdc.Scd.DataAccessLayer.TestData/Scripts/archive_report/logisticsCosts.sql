@@ -2,7 +2,7 @@ if OBJECT_ID('Archive.spGetLogisticsCosts') is not null
     drop procedure Archive.spGetLogisticsCosts;
 go
 
-create procedure Archive.spGetLogisticsCosts
+create procedure [Archive].[spGetLogisticsCosts]
 AS
 begin
     select  c.Name as Country
@@ -34,7 +34,7 @@ begin
 
     join Archive.GetReactionTimeType() rtt on rtt.Id = lc.ReactionTimeType
 
-    where lc.DeactivatedDateTime is null
+    where lc.Deactivated = 0
     order by c.Name, wg.Name
 end
 go

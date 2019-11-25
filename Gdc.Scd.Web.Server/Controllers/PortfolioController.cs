@@ -33,9 +33,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public Task Allow([FromBody]PortfolioRuleSetDto m)
+        public void Allow([FromBody]PortfolioRuleSetDto m)
         {
-            return portfolioService.Allow(m);
+            portfolioService.Allow(m);
         }
 
         [HttpPost]

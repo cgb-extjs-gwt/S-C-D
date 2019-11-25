@@ -6,5 +6,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     public interface IUserRepository : IRepository<User>
     {
         IQueryable<User> GetAllWithRoles();
+
+        IQueryable<User> GetAdmins();
     }
 }
