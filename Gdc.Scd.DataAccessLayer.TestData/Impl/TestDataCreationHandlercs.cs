@@ -2219,6 +2219,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service", Order = 8 },
                 new ServiceLocation {Name = "Remote", ExternalName = "Remote Service", Order = 10 },
                 new ServiceLocation {Name = "Backlevel Service", ExternalName = "Backlevel Service", Order = 11 },
+                new ServiceLocation {Name = "On-Site Exchange", ExternalName = "On-Site Exchange", Order = 12 },
 
             });
 
