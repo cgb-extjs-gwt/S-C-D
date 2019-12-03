@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
@@ -34,7 +35,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private readonly DomainEnitiesMeta meta;
 
         public CostBlockService(
-            ICostBlockRepository costBlockRepository, 
+            ICostBlockRepository costBlockRepository,
             IRepositorySet repositorySet,
             IUserService userService,
             ICostBlockFilterBuilder costBlockFilterBuilder,
@@ -161,7 +162,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         }
 
         public void UpdateByCoordinates(
-            IEnumerable<CostBlockEntityMeta> costBlockMetas, 
+            IEnumerable<CostBlockEntityMeta> costBlockMetas,
             IEnumerable<UpdateQueryOption> updateOptions = null)
         {
             foreach (var costBlockMeta in costBlockMetas)
@@ -195,17 +196,44 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<NamedId>> GetDependencyItems(CostElementContext context)
         {
-            IEnumerable<NamedId> filterItems = null;
-
             var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
             var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
 
-            if (costElementMeta.Dependency != null)
+            if (costElementMeta.Dependency == null)
             {
-                filterItems = await this.GetCoordinateItemsByPorfolio(context, costElementMeta.Dependency.Id);
+                return null; //no dependency, it's ok
             }
 
-            return filterItems;
+            if (context.IsHardware())
+            {
+                //Find items from Portfolio and Standard warranty
+
+                var filterItems = new List<NamedId>(20);
+
+                if (costElementMeta.Dependency != null)
+                {
+                    filterItems.AddRange(await this.GetCoordinateItemsByPorfolio(context, costElementMeta.Dependency.Id));
+                }
+
+                //Add here std warranty items, if not exists
+                //......
+
+                var sysPort = new NamedId[] { new NamedId { Id = 8, Name = "none" } };
+
+                for (var i = 0; i < sysPort.Length; i++)
+                {
+                    var sp = sysPort[i];
+                    if (!filterItems.Any(x => x.Id == sp.Id))
+                    {
+                        filterItems.Add(sp);
+                    }
+                }
+
+                return filterItems;
+            }
+
+            //simple get from config
+            return await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
         }
 
         public async Task<IEnumerable<NamedId>> GetRegions(CostElementContext context)
@@ -214,7 +242,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
             var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
-            
+
             if (costElementMeta.RegionInput != null)
             {
                 if (costBlockMeta.InputLevelFields[costElementMeta.RegionInput.Id].ReferenceMeta is CountryEntityMeta)
@@ -251,10 +279,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var costElementGroups =
                     editInfo.ValueInfos.SelectMany(info => BuildCoordinateInfo(info.CoordinateFilter, editInfo.Meta).Select(coordinateInfo => new
-                                       {
-                                           CostElementValues = info.Values,
-                                           CoordinateInfo = coordinateInfo
-                                       }))
+                    {
+                        CostElementValues = info.Values,
+                        CoordinateInfo = coordinateInfo
+                    }))
                                       .SelectMany(info => info.CostElementValues.Select(costElemenValue => new
                                       {
                                           CostElementValue = costElemenValue,
@@ -262,7 +290,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                           info.CoordinateInfo.InputLevel
                                       }))
                                       .GroupBy(info => info.CostElementValue.Key);
- 
+
                 foreach (var costElementGroup in costElementGroups)
                 {
                     foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
@@ -276,7 +304,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                            .ToArray();
 
                             var filter = filterGroup.Key == null ? new Dictionary<string, long[]>() : filterGroup.Key;
-                            
+
                             var context = new CostElementContext
                             {
                                 ApplicationId = editInfo.Meta.ApplicationId,
@@ -317,13 +345,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             IEnumerable<(IDictionary<string, long[]> Filter, (string Id, long Value) InputLevel)> BuildCoordinateInfo(
-                IDictionary<string, long[]> coordinateFilter, 
+                IDictionary<string, long[]> coordinateFilter,
                 CostBlockEntityMeta meta)
             {
                 var maxInputLevelMeta = meta.DomainMeta.GetMaxInputLevel(coordinateFilter.Keys);
                 var filterKeys = coordinateFilter.Keys.Where(coordinateId => coordinateId != maxInputLevelMeta.Id).ToArray();
                 var key = string.Join(
-                    "_", 
+                    "_",
                     filterKeys.Select(filterKey => $"{filterKey}_{string.Join("_", coordinateFilter[filterKey])}"));
 
                 if (!filterCache.TryGetValue(key, out var filter))
@@ -468,7 +496,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     foreach (var editItemContext in editItemContexts)
                     {
-                        var history = 
+                        var history =
                             await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter, editorType);
 
                         histories.Add(history);
