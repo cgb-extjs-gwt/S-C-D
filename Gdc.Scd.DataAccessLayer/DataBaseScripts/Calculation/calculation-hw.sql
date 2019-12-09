@@ -438,13 +438,14 @@ RETURNS float
 AS
 BEGIN
 
-    if @markupFactor is not null
-        begin
-            return @value * @markupFactor;
-        end
-    else if @fixed is not null
+    if @fixed is not null and @fixed <> 0
         begin
             return @fixed;
+        end
+
+    if @markupFactor is not null and @markupFactor <> 0
+        begin
+            return @value * @markupFactor;
         end
 
     RETURN 0;
