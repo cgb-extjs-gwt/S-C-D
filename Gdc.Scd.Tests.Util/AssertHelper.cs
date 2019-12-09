@@ -23,5 +23,10 @@ namespace Gdc.Scd.Tests.Util
         {
             Assert.True(src.Contains(expected), message, args);
         }
+
+        public static void HasNot(this string src, string expected)
+        {
+            Assert.True(!src.Contains(expected));
+        }
     }
 }

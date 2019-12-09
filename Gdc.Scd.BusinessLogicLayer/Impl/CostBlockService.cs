@@ -207,33 +207,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (context.IsHardware())
             {
                 //Find items from Portfolio and Standard warranty
-
-                var filterItems = new List<NamedId>(20);
-
-                if (costElementMeta.Dependency != null)
-                {
-                    filterItems.AddRange(await this.GetCoordinateItemsByPorfolio(context, costElementMeta.Dependency.Id));
-                }
-
-                //Add here std warranty items, if not exists
-                //......
-
-                var sysPort = new NamedId[] { new NamedId { Id = 8, Name = "none" } };
-
-                for (var i = 0; i < sysPort.Length; i++)
-                {
-                    var sp = sysPort[i];
-                    if (!filterItems.Any(x => x.Id == sp.Id))
-                    {
-                        filterItems.Add(sp);
-                    }
-                }
-
-                return filterItems;
+                return await new PortfolioInputService(repositorySet)
+                               .GetCoordinateItemsByPorfolio(context.RegionInputId.Value, costElementMeta.Dependency.Id);
             }
-
-            //simple get from config
-            return await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
+            else
+            {
+                //simple get from config
+                return await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
+            }
         }
 
         public async Task<IEnumerable<NamedId>> GetRegions(CostElementContext context)
