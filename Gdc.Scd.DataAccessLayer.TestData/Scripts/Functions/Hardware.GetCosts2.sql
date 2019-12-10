@@ -1,19 +1,21 @@
-﻿IF OBJECT_ID('[Hardware].[GetCosts]') IS NOT NULL
-    DROP FUNCTION [Hardware].[GetCosts]
+﻿IF OBJECT_ID('[Hardware].[GetCosts2]') IS NOT NULL
+    DROP FUNCTION [Hardware].[GetCosts2]
 GO
 
-CREATE FUNCTION [Hardware].[GetCosts](
-    @approved bit,
-    @cnt dbo.ListID readonly,
-    @wg dbo.ListID readonly,
-    @av dbo.ListID readonly,
-    @dur dbo.ListID readonly,
+CREATE FUNCTION [Hardware].[GetCosts2](
+    @approved                bit,
+    @cnt dbo.ListID          readonly,
+    @fsp                     nvarchar(255),
+    @hasFsp                  bit,
+    @wg dbo.ListID           readonly,
+    @av dbo.ListID           readonly,
+    @dur dbo.ListID          readonly,
     @reactiontime dbo.ListID readonly,
     @reactiontype dbo.ListID readonly,
-    @loc dbo.ListID readonly,
-    @pro dbo.ListID readonly,
-    @lastid bigint,
-    @limit int
+    @loc dbo.ListID          readonly,
+    @pro dbo.ListID          readonly,
+    @lastid                  bigint,
+    @limit                   int
 )
 RETURNS TABLE 
 AS
@@ -24,7 +26,7 @@ RETURN
 
                 , ISNULL(m.AvailabilityFee, 0) as AvailabilityFeeOrZero
        
-        from Hardware.GetCalcMember(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+        from Hardware.GetCalcMember2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
     )
     , CostCte2 as (
         select    m.*
@@ -184,4 +186,4 @@ RETURN
 
        from CostCte6 m
 )
-go
+GO
