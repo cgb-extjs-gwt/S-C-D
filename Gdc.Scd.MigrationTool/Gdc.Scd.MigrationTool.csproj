@@ -206,6 +206,7 @@
     <Compile Include="Migrations\2019_11\Migration_2019_11_28_12_45.cs" />
     <Compile Include="Migrations\2019_12\Migration_2019_12_03_15_15.cs" />
     <Compile Include="Migrations\2019_12\Migration_2019_12_11_19_31.cs" />
+    <Compile Include="Migrations\2019_12\Migration_2019_12_11_20_10.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -601,6 +602,9 @@
     </Content>
     <Content Include="MigrationScripts\2019-12-03-15-15.sql" />
     <Content Include="MigrationScripts\2019-12-11-19-31.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-12-11-20-10.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
