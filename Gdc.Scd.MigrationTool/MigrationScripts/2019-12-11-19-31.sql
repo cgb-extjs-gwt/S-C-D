@@ -1,4 +1,13 @@
-﻿IF OBJECT_ID('Report.Contract') IS NOT NULL
+ALTER VIEW [InputAtoms].[WgSogView] as 
+    select wg.*
+         , sog.Name as Sog
+         , sog.Description as SogDescription
+    from InputAtoms.Wg wg
+    left join InputAtoms.Sog sog on sog.id = wg.SogId
+    where wg.DeactivatedDateTime is null
+GO
+
+IF OBJECT_ID('Report.Contract') IS NOT NULL
   DROP FUNCTION Report.Contract;
 go 
 
@@ -139,4 +148,5 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive');
+
 
