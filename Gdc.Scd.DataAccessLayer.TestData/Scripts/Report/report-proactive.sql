@@ -43,7 +43,7 @@ BEGIN
 
     declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
 
-    declare @proTable dbo.ListId; insert into @proTable(id) select id from Dependencies.ProActiveSla where UPPER(ExternalName) = 'NONE';
+    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
 
     with cte as (
         select m.* 
