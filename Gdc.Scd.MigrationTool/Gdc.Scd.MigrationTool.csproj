@@ -217,6 +217,7 @@
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 ESM SCD2-0 List %28sb%29.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\Import Maschlanka SDC V2.0.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-29 VIOM SCD 2-0 List %28sb%29.xlsx" />
+    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\Template SCD upload.xlsx" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

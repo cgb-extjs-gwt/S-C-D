@@ -30,6 +30,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
         {
             ["Service Offering Group".ToUpper()] = "SOG".ToUpper(),
             ["Digit (SW licence)".ToUpper()] = "SW Digit".ToUpper(),
+            ["Digit".ToUpper()] = "SW Digit".ToUpper(),
             ["Discount to Dealer Price".ToUpper()] = "Discount to Dealer price in %".ToUpper(),
             ["9x5 - 1 years".ToUpper()] = "1 Year 9x5".ToUpper(),
             ["9x5 - 2 years".ToUpper()] = "2 Years 9x5".ToUpper(),
@@ -46,6 +47,18 @@ namespace Gdc.Scd.MigrationTool.Migrations
             ["1 Years 9x5".ToUpper()] = "1 Year 9x5".ToUpper(),
             ["1 Years 24x7".ToUpper()] = "1 Year 24x7".ToUpper(),
             ["€".ToUpper()] = "EUR".ToUpper(),
+            ["1Y 9x5".ToUpper()] = "1 Year 9x5".ToUpper(),
+            ["1Y 24x7".ToUpper()] = "1 Year 24x7".ToUpper(),
+            ["2Y 9x5".ToUpper()] = "2 Years 9x5".ToUpper(),
+            ["2Y 24x7".ToUpper()] = "2 Years 24x7".ToUpper(),
+            ["3Y 9x5".ToUpper()] = "3 Years 9x5".ToUpper(),
+            ["3Y 24x7".ToUpper()] = "3 Years 24x7".ToUpper(),
+            ["4Y 9x5".ToUpper()] = "4 Years 9x5".ToUpper(),
+            ["4Y 24x7".ToUpper()] = "4 Years 24x7".ToUpper(),
+            ["5Y 9x5".ToUpper()] = "5 Years 9x5".ToUpper(),
+            ["5Y 24x7".ToUpper()] = "5 Years 24x7".ToUpper(),
+            ["Prolongation 1Y 9x5".ToUpper()] = "Prolongation 9x5".ToUpper(),
+            ["Prolongation 1Y 24x7".ToUpper()] = "Prolongation 24x7".ToUpper(),
         };
 
         public int Number => 77777; //!!!!!!!!!!!!!!
@@ -70,7 +83,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
             {
                 Identity = new Identity
                 {
-                    Name = @"G02\MCHSBach", 
+                    Name = @"G02\FFMWDoer", 
                     //Name = "g02\\testUser1",
                     IsAuthenticated = true
                 }
@@ -82,10 +95,10 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
             var fileNames = new[]
             {
-                $"{folderName}.2019-03-28 CS200c SCD2-0 List (sb).xlsx",
-                $"{folderName}.2019-03-28 ESM SCD2-0 List (sb).xlsx",
-                $"{folderName}.Import Maschlanka SDC V2.0.xlsx",
-                $"{folderName}.2019-03-29 VIOM SCD 2-0 List (sb).xlsx"
+                $"{folderName}.Template SCD upload.xlsx",
+                //$"{folderName}.2019-03-28 ESM SCD2-0 List (sb).xlsx",
+                //$"{folderName}.Import Maschlanka SDC V2.0.xlsx",
+                //$"{folderName}.2019-03-29 VIOM SCD 2-0 List (sb).xlsx"
             };
 
             var costBlocks = this.meta.CostBlocks.Where(costBlock => costBlock.Schema == MetaConstants.SoftwareSolutionSchema).ToArray();
@@ -131,7 +144,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
             {
                 Console.WriteLine($"History index: {historyIndex++}/{histories.Count - 1}");
 
-                var approveTask = this.approvalService.Approve(history.Id);
+                var approveTask = this.approvalService.Approve(history.Id, true);
 
                 approveTask.Wait();
             }
