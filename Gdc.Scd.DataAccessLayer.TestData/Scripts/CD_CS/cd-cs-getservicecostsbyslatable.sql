@@ -136,11 +136,11 @@ BEGIN
             , sla.Duration
             , coalesce(c.ServiceTCManual, c.ServiceTC) as ServiceTC
             , c.ServiceTP_Released as ServiceTP
-            , case when c.Year >= 1 then  (mc.ServiceTP1_Released * c.ExchangeRate) / c.Year / 12 else null end as ServiceTPMonthly1
-            , case when c.Year >= 2 then  (mc.ServiceTP2_Released * c.ExchangeRate) / c.Year / 12 else null end as ServiceTPMonthly2
-            , case when c.Year >= 3 then  (mc.ServiceTP3_Released * c.ExchangeRate) / c.Year / 12 else null end as ServiceTPMonthly3
-            , case when c.Year >= 4 then  (mc.ServiceTP4_Released * c.ExchangeRate) / c.Year / 12 else null end as ServiceTPMonthly4
-            , case when c.Year >= 5 then  (mc.ServiceTP5_Released * c.ExchangeRate) / c.Year / 12 else null end as ServiceTPMonthly5
+            , case when c.Year >= 1 then  (mc.ServiceTP1_Released * c.ExchangeRate) / 12 else null end as ServiceTPMonthly1
+            , case when c.Year >= 2 then  (mc.ServiceTP2_Released * c.ExchangeRate) / 12 else null end as ServiceTPMonthly2
+            , case when c.Year >= 3 then  (mc.ServiceTP3_Released * c.ExchangeRate) / 12 else null end as ServiceTPMonthly3
+            , case when c.Year >= 4 then  (mc.ServiceTP4_Released * c.ExchangeRate) / 12 else null end as ServiceTPMonthly4
+            , case when c.Year >= 5 then  (mc.ServiceTP5_Released * c.ExchangeRate) / 12 else null end as ServiceTPMonthly5
     from @tmp sla 
     left join Hardware.GetCosts(1, @cntId, @wgId, @avId, @durId, @reactiontimeId, @reactiontypeId, @locId, @proId, 0, -1) c 
         on sla.SlaHash = c.SlaHash and sla.Sla = c.Sla COLLATE SQL_Latin1_General_CP1_CI_AS
