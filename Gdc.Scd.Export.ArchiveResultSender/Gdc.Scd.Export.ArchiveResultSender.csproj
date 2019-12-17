@@ -61,11 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstract\IArchiveInfoGetter.cs" />
+    <Compile Include="ArchiveResultSenderJob.cs" />
     <Compile Include="ArchiveResultService.cs" />
     <Compile Include="Concrete\FileSystemArchiveInfoGetter.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Module.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

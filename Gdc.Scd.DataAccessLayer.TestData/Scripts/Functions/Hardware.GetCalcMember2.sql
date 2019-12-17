@@ -1,10 +1,12 @@
-﻿IF OBJECT_ID('[Hardware].[GetCalcMember]') IS NOT NULL
-  DROP FUNCTION [Hardware].[GetCalcMember];
+﻿IF OBJECT_ID('[Hardware].[GetCalcMember2]') IS NOT NULL
+  DROP FUNCTION [Hardware].[GetCalcMember2];
 go 
 
-CREATE FUNCTION [Hardware].[GetCalcMember] (
+CREATE FUNCTION [Hardware].[GetCalcMember2] (
     @approved       bit,
     @cnt            dbo.ListID readonly,
+    @fsp            nvarchar(255),
+    @hasFsp         bit,
     @wg             dbo.ListID readonly,
     @av             dbo.ListID readonly,
     @dur            dbo.ListID readonly,
@@ -177,7 +179,7 @@ RETURN
 
     FROM Hardware.CalcStdw(@approved, @cnt, @wg) std 
 
-    INNER JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on std.CountryId = m.CountryId and std.WgId = m.WgId 
+    INNER JOIN Portfolio.GetBySlaFspPaging(@cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on std.CountryId = m.CountryId and std.WgId = m.WgId 
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 

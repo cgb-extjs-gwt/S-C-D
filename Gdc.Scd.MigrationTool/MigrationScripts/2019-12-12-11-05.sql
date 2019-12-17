@@ -1,4 +1,8 @@
-﻿if OBJECT_ID('[Report].[spContract]') is not null
+﻿IF OBJECT_ID('Report.Contract') IS NOT NULL
+  DROP FUNCTION Report.Contract;
+go 
+
+if OBJECT_ID('[Report].[spContract]') is not null
     drop procedure [Report].[spContract];
 go
 
@@ -95,6 +99,8 @@ BEGIN
 
 end
 go
+
+update Report.Report set SqlFunc = 'Report.spContract' where upper(Name) = 'CONTRACT';
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CONTRACT');
 declare @index int = 0;

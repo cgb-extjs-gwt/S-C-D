@@ -1,50 +1,37 @@
-﻿if OBJECT_ID('[Report].[spContract]') is not null
-    drop procedure [Report].[spContract];
-go
+ALTER VIEW [InputAtoms].[WgSogView] as 
+    select wg.*
+         , sog.Name as Sog
+         , sog.Description as SogDescription
+    from InputAtoms.Wg wg
+    left join InputAtoms.Sog sog on sog.id = wg.SogId
+    where wg.DeactivatedDateTime is null
+GO
 
-CREATE PROCEDURE [Report].[spContract]
+IF OBJECT_ID('Report.Contract') IS NOT NULL
+  DROP FUNCTION Report.Contract;
+go 
+
+CREATE FUNCTION Report.Contract
 (
-    @cnt          dbo.ListID readonly,
-    @wg           dbo.ListID readonly,
+    @cnt          bigint,
+    @wg           bigint,
     @av           bigint,
     @reactiontime bigint,
     @reactiontype bigint,
     @loc          bigint,
-    @pro          bigint,
-    @lastid       bigint,
-    @limit        int
+    @pro          bigint
 )
+RETURNS TABLE 
 AS
-BEGIN
+RETURN (
+        WITH CountryCte as (
+        select c.*, cur.Name as Currency, er.Value as ExchangeRate
+        from InputAtoms.Country c 
+        left join [References].Currency cur on cur.Id = c.CurrencyId
+        left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
-
-    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
-
-    declare @durTable dbo.ListId; insert into @durTable(id) select id from Dependencies.Duration where IsProlongation = 0 and Value = 5;
-
-    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
-
-    declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
-
-    declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
-
-    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
-
-    declare @countries table (
-          Id bigint not null
-        , Name nvarchar(128)
-        , Currency nvarchar(16)
-        , ExchangeRate float
-    );
-
-    insert into @countries
-    select c.Id, c.Name, cur.Name as Currency, er.Value as ExchangeRate
-    from InputAtoms.Country c 
-    left join [References].Currency cur on cur.Id = c.CurrencyId
-    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
-
-    where exists(select * from @cnt where Id = c.Id);
-
+        where c.id = @cnt        
+    )
     select 
            m.Id
          , c.Name              as Country
@@ -73,9 +60,9 @@ BEGIN
           , wg.ServiceTypes               as PortfolioType
           , wg.Sog             as Sog
 
-    FROM Portfolio.GetBySlaPaging(@cnt, @wg, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, @lastId, @limit) m
+    FROM Portfolio.GetBySlaSingle(@cnt, @wg, @av, (select id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro) m
 
-    INNER JOIN @countries c on c.Id = m.CountryId
+    INNER JOIN CountryCte c on c.Id = m.CountryId
 
     INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
 
@@ -91,10 +78,9 @@ BEGIN
 
     LEFT JOIN Fsp.HwStandardWarranty stdw ON stdw.Country = m.CountryId and stdw.Wg = m.WgId
 
-    LEFT JOIN Hardware.ManualCost mc on mc.PortfolioId = m.Id;
-
-end
-go
+    left join Hardware.ManualCost mc on mc.PortfolioId = m.Id
+)
+GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CONTRACT');
 declare @index int = 0;
@@ -149,9 +135,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 1), 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 1), 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 0), 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
 set @index = @index + 1;
@@ -162,4 +148,5 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive');
+
 

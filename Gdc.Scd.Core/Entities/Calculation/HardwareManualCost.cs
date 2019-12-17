@@ -43,5 +43,11 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public double? ServiceTP_Released { get; private set; }
 
         public DateTime? ReleaseDate { get; set; }
+
+        //ReleaseUserId hack for correct save
+        //TODO: remove ReleaseUserId
+        public long? ReleaseUserId { get; set; }
+        public User ReleaseUser { get; set; }
+
     }
 }

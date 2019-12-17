@@ -6,6 +6,8 @@ CREATE PROCEDURE [Hardware].[SpGetCosts]
     @approved     bit,
     @local        bit,
     @cnt          dbo.ListID readonly,
+    @fsp          nvarchar(255),
+    @hasFsp       bit,
     @wg           dbo.ListID readonly,
     @av           dbo.ListID readonly,
     @dur          dbo.ListID readonly,
@@ -29,6 +31,7 @@ BEGIN
                rownum
              , Id
 
+             , Fsp
              , Country
              , Currency
              , ExchangeRate
@@ -75,10 +78,13 @@ BEGIN
              , DealerDiscount                                as DealerDiscount
                                                        
              , ReleaseDate                                    
+             , ReleaseUserName
+             , ReleaseUserEmail
+
              , ChangeUserName                                as ChangeUserName
              , ChangeUserEmail                               as ChangeUserEmail
 
-        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
+        from Hardware.GetCosts2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
         order by rownum
         
     end
@@ -89,6 +95,7 @@ BEGIN
                rownum
              , Id
 
+             , Fsp
              , Country
              , 'EUR' as Currency
              , ExchangeRate
@@ -135,10 +142,14 @@ BEGIN
              , DealerDiscount                
                                              
              , ReleaseDate                                    
+             , ReleaseUserName
+             , ReleaseUserEmail
+
              , ChangeUserName                
              , ChangeUserEmail               
 
-        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
+        from Hardware.GetCosts2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
         order by rownum
     end
 END
+GO

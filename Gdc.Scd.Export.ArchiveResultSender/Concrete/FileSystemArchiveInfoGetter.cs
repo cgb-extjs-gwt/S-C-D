@@ -1,13 +1,9 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Dto;
+using Gdc.Scd.Export.ArchiveResultSender.Abstract;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.Core.Dto;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Export.ArchiveResultSender.Abstract;
-using NLog;
 
 namespace Gdc.Scd.Export.ArchiveResultSender.Concrete
 {

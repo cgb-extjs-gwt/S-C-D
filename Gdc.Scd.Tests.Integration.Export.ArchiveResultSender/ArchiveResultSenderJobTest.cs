@@ -1,43 +1,41 @@
-﻿using Gdc.Scd.Import.Logistics;
+﻿using Gdc.Scd.Export.ArchiveResultSender;
 using Gdc.Scd.Tests.Integration.Import.Logistics.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
 
-namespace Gdc.Scd.Tests.Integration.Import.Logistics
+namespace Gdc.Scd.Tests.Integration.Export.ArchiveResultSender
 {
-    public class LogisticsJobTest : LogisticsJob
+    public class ArchiveResultSenderJobTest : ArchiveResultSenderJob
     {
         private FakeNotify notify;
 
         private FakeLogger fakeLogger;
 
-        private FakeLogisticsImportService fakeImport;
+        private FakeArchiveResultService fakeArchive;
 
-        public LogisticsJobTest() : base(null, null) { }
+        public ArchiveResultSenderJobTest() : base(null, null) { }
 
         [SetUp]
         public void Setup()
         {
-            log = null;
-            notify = null;
             fakeLogger = new FakeLogger();
-            fakeImport = new FakeLogisticsImportService() { error = null };
+            fakeArchive = new FakeArchiveResultService() { error = null };
 
             log = fakeLogger;
-            logistic = fakeImport;
+            archive = fakeArchive;
         }
 
         [TestCase]
         public void WhoAmI_String_Test()
         {
-            Assert.AreEqual("LogisticsImportJob", WhoAmI());
+            Assert.AreEqual("ArchiveResultSenderJob", WhoAmI());
         }
 
         [TestCase]
         public void OutputShouldReturnTrueResultIfAllOkTest()
         {
-            fakeImport.error = null;
+            fakeArchive.error = null;
             var r = Output();
             Assert.True(r.Result);
             Assert.True(r.IsSuccess);
@@ -46,7 +44,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Logistics
         [TestCase]
         public void OutputShouldReturnFalseResultIfErrorOccuredTest()
         {
-            fakeImport.error = new Exception();
+            fakeArchive.error = new Exception();
             var r = Output();
             Assert.True(r.Result);
             Assert.False(r.IsSuccess);
@@ -55,22 +53,22 @@ namespace Gdc.Scd.Tests.Integration.Import.Logistics
         [TestCase]
         public void OutputShouldNotifyIfErrorOccured()
         {
-            fakeImport.error = new Exception("Error here");
+            fakeArchive.error = new Exception("Error here");
 
             Output();
 
-            Assert.AreEqual("Logistics Import completed unsuccessfully. Please find details below.", notify.Msg);
+            Assert.AreEqual("Unexpected error occured", notify.Msg);
             Assert.AreEqual("Error here", notify.Error.Message);
         }
 
         [TestCase]
         public void OutputShouldLogErrorIfErrorOccured()
         {
-            fakeImport.error = new Exception("Error here");
+            fakeArchive.error = new Exception("Error here");
 
             Output();
 
-            Assert.AreEqual("Logistics Import completed unsuccessfully. Please find details below.", fakeLogger.Message);
+            Assert.AreEqual("Unexpected error occured", fakeLogger.Message);
             Assert.AreEqual("Error here", fakeLogger.Exception.Message);
         }
 
