@@ -14,7 +14,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
         public AfrJob()
         {
             var kernel = Module.CreateKernel();
-            
+
             this.log = kernel.Get<ILogger>();
             this.afr = kernel.Get<AfrService>();
         }
