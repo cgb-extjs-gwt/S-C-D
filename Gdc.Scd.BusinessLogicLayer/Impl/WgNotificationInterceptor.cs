@@ -37,7 +37,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     this.notifyChannel.Send(admin.Login, message);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 //TODO: need add logging
             }

@@ -29,7 +29,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Logistics
         }
 
         [TestCase]
-        public void WhoAmI_Should_Return_PorJob_String_Test()
+        public void WhoAmI_String_Test()
         {
             Assert.AreEqual("LogisticsImportJob", WhoAmI());
         }

@@ -1,53 +1,45 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Helpers;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Export.ArchiveResultSender.Abstract;
-using Ninject;
+using System;
 
 namespace Gdc.Scd.Export.ArchiveResultSender
 {
     public class ArchiveResultService
     {
-        public ILogger<LogLevel> Logger { get; private set; }
-        public IArchiveInfoGetter ArchiveInfoGetter { get; private set; }
-        public IEmailService EmailService { get; private set; }
+        private ILogger log;
 
-        public ArchiveResultService()
+        private IArchiveInfoGetter archive;
+
+        private IEmailService email;
+
+        public ArchiveResultService(
+                IArchiveInfoGetter archive,
+                IEmailService email,
+                ILogger log
+            )
         {
-            NinjectExt.IsConsoleApplication = true;
-            IKernel kernel = CreateKernel();
-            Logger = kernel.Get<ILogger<LogLevel>>();
-            ArchiveInfoGetter = kernel.Get<IArchiveInfoGetter>();
-            EmailService = kernel.Get<IEmailService>();
+            this.archive = archive;
+            this.email = email;
+            this.log = log;
         }
 
-        public void Process()
+        public virtual void Run()
         {
             var periodStart = DateTime.Now.AddDays(-6).Date;
             var periodEnd = DateTime.Now.Date.AddTicks(-1).AddDays(1);
-            
-            Logger.Log(LogLevel.Info, $"Generating archive result report for {periodStart.ToString(Config.DateFormat)} - {periodEnd.ToString(Config.DateFormat)}");
-            Logger.Log(LogLevel.Info, $"Getting folder info from {Config.ScdFolder}");
 
-            var info = ArchiveInfoGetter.GetArchiveResults(periodStart, periodEnd);
-            Logger.Log(LogLevel.Info, $"{info.Count} folders were received.");
-            Logger.Log(LogLevel.Info, $"Sending report message to {Config.MailTo}");
-            EmailService.SendArchiveResultEmail(info, Config.MailTo, Config.MailFrom,
+            log.Info($"Generating archive result report for {periodStart.ToString(Config.DateFormat)} - {periodEnd.ToString(Config.DateFormat)}");
+            log.Info($"Getting folder info from {Config.ScdFolder}");
+
+            var info = archive.GetArchiveResults(periodStart, periodEnd);
+            log.Info($"{info.Count} folders were received.");
+            log.Info($"Sending report message to {Config.MailTo}");
+            email.SendArchiveResultEmail(info, Config.MailTo, Config.MailFrom,
                 periodStart.ToString(Config.DateFormat),
                 periodEnd.ToString(Config.DateFormat));
 
-            Logger.Log(LogLevel.Info, "Email was sent successfully");
-        }
-
-        private StandardKernel CreateKernel()
-        {
-            return new StandardKernel(new Module());
+            log.Info("Email was sent successfully");
         }
     }
 }

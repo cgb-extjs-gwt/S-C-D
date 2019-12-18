@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Gdc.Scd.Export.CdCs.Dto
 {
     public class SlaCollection : List<SlaDto>
     {
+        private static readonly Type TYPE_STR = typeof(string);
+
         private DataTable dt;
 
         public SlaCollection(int count) : base(count) { }
@@ -15,13 +18,13 @@ namespace Gdc.Scd.Export.CdCs.Dto
             {
                 var tbl = new DataTable();
 
-                tbl.Columns.Add("Wg", typeof(string));
-                tbl.Columns.Add("Availability", typeof(string));
-                tbl.Columns.Add("Duration", typeof(string));
-                tbl.Columns.Add("ReactionTime", typeof(string));
-                tbl.Columns.Add("ReactionType", typeof(string));
-                tbl.Columns.Add("ServiceLocation", typeof(string));
-                tbl.Columns.Add("ProActiveSla", typeof(string));
+                tbl.Columns.Add("Wg", TYPE_STR);
+                tbl.Columns.Add("Availability", TYPE_STR);
+                tbl.Columns.Add("Duration", TYPE_STR);
+                tbl.Columns.Add("ReactionTime", TYPE_STR);
+                tbl.Columns.Add("ReactionType", TYPE_STR);
+                tbl.Columns.Add("ServiceLocation", TYPE_STR);
+                tbl.Columns.Add("ProActiveSla", TYPE_STR);
 
                 var rows = tbl.Rows;
                 for (var i = 0; i < Count; i++)

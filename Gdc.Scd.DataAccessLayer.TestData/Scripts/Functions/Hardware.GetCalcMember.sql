@@ -24,6 +24,7 @@ RETURN
 
             --SLA
 
+            , m.Fsp
             , m.CountryId          
             , std.Country
             , std.CurrencyId
@@ -165,7 +166,11 @@ RETURN
             , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTC     / std.ExchangeRate) end as ServiceTCManual                   
             , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTP     / std.ExchangeRate) end as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
+
             , man.ReleaseDate                           as ReleaseDate
+            , u2.Name                                   as ReleaseUserName
+            , u2.Email                                  as ReleaseUserEmail
+
             , man.ChangeDate                            
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
@@ -200,5 +205,7 @@ RETURN
     LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.Id
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
+
+    LEFT JOIN dbo.[User] u2 on u2.Id = man.ReleaseUserId
 )
-GO
+go

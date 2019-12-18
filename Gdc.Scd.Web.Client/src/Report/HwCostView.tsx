@@ -42,7 +42,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ReleaseDate',
+            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ReleaseUserName', 'ChangeUserEmail', 'ReleaseDate',
 
             { name: 'roFsp', calculate: readonly('Fsp') },
             { name: 'roCountry', calculate: readonly('Country') },
@@ -68,7 +68,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             { name: 'roDealerDiscount', calculate: readonly('DealerDiscount') },
             { name: 'roDealerPriceCalc', calculate: readonly('DealerPriceCalc') },
 
-            { name: 'roChangeUserCalc', calculate: readonly('ChangeUserCalc') },
+            { name: 'roReleaseUserCalc', calculate: readonly('ReleaseUserCalc') },
             { name: 'roReleaseDate', calculate: readonly('ReleaseDate') },
 
             { name: 'roOtherDirect', calculate: readonly('OtherDirect') },
@@ -102,12 +102,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
             },
             {
-                name: 'ChangeUserCalc',
+                name: 'ReleaseUserCalc',
                 calculate: function (d) {
                     let result: string = '';
                     if (d) {
-                        if (d.ChangeUserName) {
-                            result += d.ChangeUserName;
+                        if (d.ReleaseUserName) {
+                            result += d.ReleaseUserName;
                         }
                     }
                     return result;
@@ -273,8 +273,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="WG" width="50" dataIndex="roWg" />
                         <Column text="Avail." width="50" dataIndex="roAvailability" />
                         <Column text="Duration" dataIndex="roDuration" />
-                        <Column text="Reaction type" width="8%" dataIndex="roReactionType" />
-                        <Column text="Reaction time" width="8%" dataIndex="roReactionTime" />
+                        <Column text="Reaction type" maxWidth="85" dataIndex="roReactionType" />
+                        <Column text="Reaction time" maxWidth="85" dataIndex="roReactionTime" />
                         <Column text="Service location" dataIndex="ServiceLocation" renderer={locationRenderer} />
                         <Column text="ProActive SLA" dataIndex="roProActiveSla" />
                         <Column text="STDW duration" dataIndex="roStdWarranty" renderer={yearRenderer} />
@@ -302,7 +302,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
-                        <Column text="Change user" minWidth="60" maxWidth="90" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Release user" minWidth="60" maxWidth="90" dataIndex="ReleaseUserCalc" renderer={emptyRenderer} />
                         <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />

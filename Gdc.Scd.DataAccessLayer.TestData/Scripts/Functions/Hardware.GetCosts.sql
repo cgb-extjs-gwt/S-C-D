@@ -93,6 +93,7 @@ RETURN
 
          --SLA
 
+         , m.Fsp
          , m.CountryId
          , m.Country
          , m.CurrencyId
@@ -174,11 +175,13 @@ RETURN
          , m.ServiceTP_Released
 
          , m.ReleaseDate
+         , m.ReleaseUserName
+         , m.ReleaseUserEmail
+
          , m.ChangeDate
          , m.ChangeUserName
          , m.ChangeUserEmail
 
        from CostCte6 m
 )
-
 go

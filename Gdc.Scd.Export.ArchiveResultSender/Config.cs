@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NLog.Internal;
-using System.Configuration;
-
-namespace Gdc.Scd.Export.ArchiveResultSender
+﻿namespace Gdc.Scd.Export.ArchiveResultSender
 {
     public static class Config
     {
         public static string MailTo { get; }
-        public static  string ScdFolder { get; }
+        public static string ScdFolder { get; }
         public static string DateFormat { get; }
         public static string MailFrom { get; set; }
 
