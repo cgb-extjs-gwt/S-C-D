@@ -66,10 +66,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AfrJob.cs" />
     <Compile Include="AfrService.cs" />
     <Compile Include="ImportConstants.cs" />
     <Compile Include="Module.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
