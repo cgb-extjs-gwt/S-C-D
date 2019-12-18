@@ -32,7 +32,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
         {
             try
             {
-                contract.UploadCentralContractGroups();
+                contract.Run();
                 return Result(true);
             }
             catch (Exception ex)

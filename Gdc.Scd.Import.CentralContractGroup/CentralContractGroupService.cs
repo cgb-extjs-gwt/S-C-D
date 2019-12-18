@@ -25,7 +25,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
             this.Logger = log;
         }
 
-        public virtual void UploadCentralContractGroups()
+        public virtual void Run()
         {
             Logger.Info(ImportConstants.START_PROCESS);
             

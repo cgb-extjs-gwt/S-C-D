@@ -9,7 +9,7 @@ namespace Gdc.Scd.Tests.Integration.Import.CentralContractGroup.Testings
 
         public FakeCentralContractGroupService() : base(null, null, null) { }
 
-        public override void UploadCentralContractGroups()
+        public override void Run()
         {
             if (error != null)
             {
