@@ -7,7 +7,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
 {
     public class AfrJob
     {
-        protected Gdc.Scd.Core.Interfaces.ILogger log;
+        protected ILogger log;
 
         protected AfrService afr;
 
