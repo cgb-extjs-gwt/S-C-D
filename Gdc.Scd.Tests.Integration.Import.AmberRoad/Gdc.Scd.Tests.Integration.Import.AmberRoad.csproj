@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AmberRoadJobTest.cs" />
+    <Compile Include="AmberRoadServiceTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Testings\FakeAmberRoadService.cs" />
