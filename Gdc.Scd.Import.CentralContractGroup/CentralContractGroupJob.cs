@@ -3,25 +3,28 @@ using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
 
-namespace Gdc.Scd.Import.AmberRoad
+namespace Gdc.Scd.Import.CentralContractGroup
 {
-    public class AmberRoadJob
+    public class CentralContractGroupJob
     {
         protected ILogger log;
 
-        protected AmberRoadService amber;
+        protected CentralContractGroupService contract;
 
-        public AmberRoadJob()
+        public CentralContractGroupJob()
         {
             var kernel = Module.CreateKernel();
 
-            this.amber = kernel.Get<AmberRoadService>();
             this.log = kernel.Get<ILogger>();
+            this.contract = kernel.Get<CentralContractGroupService>();
         }
 
-        protected AmberRoadJob(AmberRoadService amber, ILogger log)
+        protected CentralContractGroupJob(
+                CentralContractGroupService contract,
+                ILogger log
+            )
         {
-            this.amber = amber;
+            this.contract = contract;
             this.log = log;
         }
 
@@ -29,7 +32,7 @@ namespace Gdc.Scd.Import.AmberRoad
         {
             try
             {
-                amber.Run();
+                contract.UploadCentralContractGroups();
                 return Result(true);
             }
             catch (Exception ex)
@@ -47,7 +50,7 @@ namespace Gdc.Scd.Import.AmberRoad
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "AmberRoadJob";
+            return "CentralContractGroupJob";
         }
 
         public OperationResult<bool> Result(bool ok)
