@@ -43,7 +43,8 @@ export class EditGrid extends React.Component<EditGridProps> {
     public shouldComponentUpdate(nextProps: EditGridProps) {
         return (
             this.props.url != nextProps.url ||
-            this.props.valueColumn.currency != nextProps.valueColumn.currency
+            this.props.valueColumn.currency != nextProps.valueColumn.currency ||
+            this.props.valueColumn.selectedItems != nextProps.valueColumn.selectedItems
         );
     }
 

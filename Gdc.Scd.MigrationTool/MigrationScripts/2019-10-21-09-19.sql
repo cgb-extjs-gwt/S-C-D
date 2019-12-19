@@ -1,5 +1,3 @@
-ALTER DATABASE SCD_2 SET RECOVERY SIMPLE
-GO 
 
 if OBJECT_ID('dbo.spDropTable') is not null
     drop procedure dbo.spDropTable;
@@ -2942,5 +2940,3 @@ IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
   DROP FUNCTION Hardware.GetReinsurance;
 GO
 
-ALTER DATABASE SCD_2 SET RECOVERY FULL
-GO 

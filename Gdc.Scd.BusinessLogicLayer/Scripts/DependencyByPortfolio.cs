@@ -15,7 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Scripts
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+    #line 1 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
     public partial class DependencyByPortfolio : DependencyByPortfolioBase
     {
@@ -27,70 +27,70 @@ namespace Gdc.Scd.BusinessLogicLayer.Scripts
         {
             this.Write("\r\nwith cte as (\r\n    SELECT p.");
             
-            #line 4 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 4 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(field));
             
             #line default
             #line hidden
             this.Write("\r\n    FROM Portfolio.LocalPortfolio p\r\n    where p.CountryId = ");
             
-            #line 6 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 6 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(countryID));
             
             #line default
             #line hidden
             this.Write("\r\n    group by p.");
             
-            #line 7 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 7 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(field));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n    union \r\n\r\n    select std.");
             
-            #line 11 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 11 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(field));
             
             #line default
             #line hidden
             this.Write("\r\n    from Fsp.HwStandardWarranty std\r\n    where std.Country = ");
             
-            #line 13 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 13 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(countryID));
             
             #line default
             #line hidden
             this.Write("\r\n    group by std.");
             
-            #line 14 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 14 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(field));
             
             #line default
             #line hidden
             this.Write("\r\n)\r\nselect t.Id, t.Name\r\nfrom Dependencies.");
             
-            #line 17 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 17 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency));
             
             #line default
             #line hidden
             this.Write(" t \r\nwhere exists(select * from cte where ");
             
-            #line 18 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 18 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(field));
             
             #line default
             #line hidden
             this.Write(" = t.Id) ");
             
-            #line 18 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 18 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
  if(disabled) { 
             
             #line default
             #line hidden
             this.Write(" and t.IsDisabled = 0 ");
             
-            #line 18 "C:\Dev\SCD\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
+            #line 18 "C:\Users\BorisovaE\Repos\SCD2.0\Gdc.Scd.BusinessLogicLayer\Scripts\DependencyByPortfolio.tt"
  } 
             
             #line default
