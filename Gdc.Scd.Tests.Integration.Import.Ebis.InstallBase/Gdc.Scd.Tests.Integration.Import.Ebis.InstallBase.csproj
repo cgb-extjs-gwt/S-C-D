@@ -53,15 +53,15 @@
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fakes\FakeDataBaseConfigHandler.cs" />
     <Compile Include="Fakes\FakeFileDownloader.cs" />
+    <Compile Include="Fakes\FakeInstallBaseService.cs" />
+    <Compile Include="InstallBaseJobTest.cs" />
     <Compile Include="InstallBaseServiceTest.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -96,6 +96,14 @@
     <ProjectReference Include="..\Gdc.Scd.Import.Ebis.InstallBase\Gdc.Scd.Import.Ebis.InstallBase.csproj">
       <Project>{9c4864ad-d649-4a6e-9c1e-45a9beb8fd75}</Project>
       <Name>Gdc.Scd.Import.Ebis.InstallBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
+      <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
+      <Name>Gdc.Scd.Spooler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Tests.Util\Gdc.Scd.Tests.Util.csproj">
+      <Project>{920E1683-41C8-4C7C-AA52-E976FEAA4D2D}</Project>
+      <Name>Gdc.Scd.Tests.Util</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
