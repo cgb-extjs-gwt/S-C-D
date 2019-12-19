@@ -602,7 +602,9 @@
     <Content Include="MigrationScripts\2019-11-28-12-45.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-12-03-15-15.sql" />
+    <Content Include="MigrationScripts\2019-12-03-15-15.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="MigrationScripts\2019-12-11-19-31.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
