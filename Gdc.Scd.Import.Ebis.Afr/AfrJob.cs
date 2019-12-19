@@ -29,7 +29,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
         {
             try
             {
-                afr.UploadAfrInfo();
+                afr.Run();
                 return Result(true);
             }
             catch (Exception ex)

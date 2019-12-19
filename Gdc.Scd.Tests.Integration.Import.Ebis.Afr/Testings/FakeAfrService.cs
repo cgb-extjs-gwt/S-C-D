@@ -9,7 +9,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Ebis.Afr.Testings
 
         public FakeAfrService() : base(null, null, null) { }
 
-        public override void UploadAfrInfo()
+        public override void Run()
         {
             if (error != null)
             {

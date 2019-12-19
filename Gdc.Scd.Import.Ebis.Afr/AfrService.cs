@@ -23,7 +23,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
             this.Logger = Logger;
         }
 
-        public virtual void UploadAfrInfo()
+        public virtual void Run()
         {
             Logger.Info(ImportConstants.START_PROCESS);
             Logger.Info(ImportConstants.CONFIG_READ_START);
