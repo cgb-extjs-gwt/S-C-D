@@ -43,19 +43,6 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/portfolio', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: PortfolioView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/portfolio/edit', component: PortfolioEditView, permission: Permissions.PORTFOLIO },
     { path: '/portfolio/history', component: PortfolioHistoryView, permission: Permissions.PORTFOLIO },
-    {
-        path: '/portfolio/pivot-grid', 
-        text: 'Portfolio pivot grids', 
-        iconCls: 'x-fa fa-suitcase', 
-        disabled: true, 
-        component: null,
-        isMenuItem: true,
-        permission: Permissions.PORTFOLIO,
-        children: [
-            { path: '/portfolio/pivot-grid/local', text: 'Local', component: PortfolioPivotGrid.Local, isMenuItem: true, permission: Permissions.PORTFOLIO },
-            { path: '/portfolio/pivot-grid/principal', text: 'Principal', component: PortfolioPivotGrid.Principal, isMenuItem: true, permission: Permissions.PORTFOLIO },
-        ]
-    },
     { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
