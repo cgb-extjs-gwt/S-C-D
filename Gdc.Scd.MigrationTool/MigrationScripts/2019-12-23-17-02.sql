@@ -666,3 +666,169 @@ VALUES
            ,@typeNumber
            ,NULL)
 GO
+
+--ALTER CALC PARAMETER HARDWARE NOT APPROVED
+ALTER FUNCTION [Report].[CalcParameterHwNotApproved]
+(
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @duration     bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint
+)
+RETURNS TABLE 
+AS
+RETURN (
+    select    
+                m.Id
+              , m.Country
+              , m.WgDescription
+              , m.Wg
+              , m.SogDescription
+              , m.SCD_ServiceType
+              , m.Sla
+              , m.ServiceLocation
+              , m.ReactionTime
+              , m.ReactionType
+              , m.Availability
+
+             --FSP
+              , m.Fsp
+              , m.FspDescription
+
+              --cost blocks
+
+              , m.LabourCost as LabourCost
+              , m.TravelCost as TravelCost
+              , m.PerformanceRate as PerformanceRate
+              , m.TravelTime
+              , m.RepairTime
+              , m.OnsiteHourlyRate as OnsiteHourlyRate
+
+              , m.AvailabilityFee as AvailabilityFee
+      
+              , m.TaxAndDutiesW as TaxAndDutiesW
+
+              , m.MarkupOtherCost as MarkupOtherCost
+              , m.MarkupFactorOtherCost as MarkupFactorOtherCost
+
+              , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
+              , m.MarkupStandardWarranty as MarkupStandardWarranty
+      
+              , m.AFR1
+              , m.AFR2
+              , m.AFR3
+              , m.AFR4
+              , m.AFR5
+              , m.AFRP1
+
+              , m.[1stLevelSupportCosts]
+              , m.[2ndLevelSupportCosts]
+           
+              , m.ReinsuranceFlatfee1
+              , m.ReinsuranceFlatfee2
+              , m.ReinsuranceFlatfee3
+              , m.ReinsuranceFlatfee4
+              , m.ReinsuranceFlatfee5
+              , m.ReinsuranceFlatfeeP1
+              , m.ReinsuranceUpliftFactor_4h_24x7 as ReinsuranceUpliftFactor_4h_24x7
+              , m.ReinsuranceUpliftFactor_4h_9x5 as ReinsuranceUpliftFactor_4h_9x5
+              , m.ReinsuranceUpliftFactor_NBD_9x5 as ReinsuranceUpliftFactor_NBD_9x5
+
+              , m.MaterialCostWarranty
+              , m.MaterialCostOow
+
+              , m.Duration
+
+              , m.FieldServiceCost1
+              , m.FieldServiceCost2
+              , m.FieldServiceCost3
+              , m.FieldServiceCost4
+              , m.FieldServiceCost5
+              , m.FieldServiceCostP1
+
+              , m.StandardHandling
+              , m.HighAvailabilityHandling
+              , m.StandardDelivery
+              , m.ExpressDelivery
+              , m.TaxiCourierDelivery
+              , m.ReturnDeliveryFactory 
+
+              , m.LogisticsHandling
+
+             , m.LogisticTransportcost
+
+            , m.Currency
+			, m.TimeAndMaterialShare
+			, m.IB_per_Country
+			, m.IB_per_PLA
+    from Report.GetParameterHw(0, @cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
+)
+GO
+
+DECLARE @ReportId bigint;
+SELECT @ReportId = Id FROM [Report].[Report] WHERE Name = 'Calculation-Parameter-hw-not-approved'
+
+DECLARE @typeNumber bigint;
+SELECT @typeNumber = Id FROM [Report].[ReportColumnType] WHERE Name = 'number'
+
+UPDATE [SCD_2].[Report].[ReportColumn]
+SET [Index] = [Index] + 1
+WHERE ReportId = @ReportId AND [Index] > 18
+
+UPDATE [SCD_2].[Report].[ReportColumn]
+SET [Index] = [Index] + 2
+WHERE ReportId = @ReportId AND [Index] > 48
+
+INSERT INTO [Report].[ReportColumn]
+           ([AllowNull]
+           ,[Flex]
+           ,[Index]
+           ,[Name]
+           ,[ReportId]
+           ,[Text]
+           ,[TypeId]
+           ,[Format])
+VALUES
+           (1, 1, 19, 'TimeAndMaterialShare'
+           ,@ReportId 
+           ,'Time And Material Share'
+           ,@typeNumber
+           ,NULL)
+
+INSERT INTO [Report].[ReportColumn]
+           ([AllowNull]
+           ,[Flex]
+           ,[Index]
+           ,[Name]
+           ,[ReportId]
+           ,[Text]
+           ,[TypeId]
+           ,[Format])
+VALUES
+           (1, 1, 49, 'IB_per_PLA'
+           ,@ReportId 
+           ,'IB per Cluster PLA'
+           ,@typeNumber
+           ,NULL)
+
+
+INSERT INTO [Report].[ReportColumn]
+           ([AllowNull]
+           ,[Flex]
+           ,[Index]
+           ,[Name]
+           ,[ReportId]
+           ,[Text]
+           ,[TypeId]
+           ,[Format])
+VALUES
+           (1, 1, 50, 'IB_per_Country'
+           ,@ReportId 
+           ,'IB per Country'
+           ,@typeNumber
+           ,NULL)
+GO
