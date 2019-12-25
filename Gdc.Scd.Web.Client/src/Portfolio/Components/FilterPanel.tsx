@@ -13,10 +13,17 @@ Ext.require('Ext.panel.Collapser');
 
 const SELECT_MAX_HEIGHT: string = '200px';
 
+export interface SelectedIds {
+    wgs?: number[],
+    countries?: number[]
+}
+
 export interface FilterPanelProps extends PanelProps {
     isCountryUser: boolean;
     hideCountry?: boolean
+    seletedIds?: SelectedIds
     onSearch(filter: PortfolioFilterModel): void;
+    onSetDefaultValues?();
 }
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
@@ -45,6 +52,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     private dictSrv: IDictService;
 
+    private setDefaultValueCount = 0;
+
     public constructor(props: any) {
         super(props);
         this.init();
@@ -67,6 +76,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
             userCls: 'multiselect-filter',
             margin: "0 0 2px 0"
         };
+        const seletedIds = this.props.seletedIds || {};
+
         return (
             <Container layout="vbox" height="100%" docked="right">     
                 <Panel {...this.props}
@@ -88,11 +99,19 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                         {
                             this.props.hideCountry 
                                 ? <div/>
-                                : <MultiSelectField ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames} label='Country'/>
+                                : <MultiSelectField 
+                                    ref={x => this.country = x} 
+                                    {...multiProps} 
+                                    hideCheckbox={false} 
+                                    store={this.dictSrv.getUserCountryNames} 
+                                    label='Country' 
+                                    selectedItemIds={seletedIds.countries}
+                                    onSetDefaultValue={this.onSetDefaultValues}
+                                />
                         }
                         <Panel title='Asset(WG)'
                             {...panelProps}>
-                            <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getHardwareWg} />
+                            <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getHardwareWg} selectedItemIds={seletedIds.wgs} onSetDefaultValue={this.onSetDefaultValues}/>
                         </Panel>
                         <Panel title='Availability'
                             {...panelProps}>
@@ -144,6 +163,12 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
             isGlobalPortfolio: this.getChecked(this.globPort),
             isMasterPortfolio: this.getChecked(this.masterPort),
             isCorePortfolio: this.getChecked(this.corePort)
+        }
+    }
+
+    private onSetDefaultValues = () => {
+        if (++this.setDefaultValueCount == 2) {
+            this.props.onSetDefaultValues && this.props.onSetDefaultValues();
         }
     }
 

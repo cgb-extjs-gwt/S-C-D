@@ -4,7 +4,7 @@ import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl, buildMvcUrl, post } from "../Common/Services/Ajax";
-import { FilterPanel } from "./Components/FilterPanel";
+import { FilterPanel, SelectedIds } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 import { PortfolioFilterModel } from "./Model/PortfolioFilterModel";
@@ -26,8 +26,6 @@ export class PortfolioView extends React.Component<any, any> {
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 100,
-        autoLoad: true,
-
         proxy: {
             type: 'ajax',
             api: {
@@ -52,14 +50,13 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     public render() {
-
         let isLocalPortfolio = this.isLocalPortfolio();
         let isCountryUser = this.state.isCountryUser;
+        const selectedIds = this.buildSelectedIds();
 
         return (
             <Container scrollable={true}>
-
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser} />
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser} seletedIds={selectedIds} onSetDefaultValues={this.reload}/>
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
@@ -73,8 +70,11 @@ export class PortfolioView extends React.Component<any, any> {
                     width="100%"
                     height="100%"
                     selectable="multi"
-                    plugins={['pagingtoolbar']}>
-
+                    plugins={['pagingtoolbar']}
+                    masked={{
+                        xtype: "loadmask"
+                    }}
+                >
                     <NullStringColumn hidden={!isLocalPortfolio && !isCountryUser} flex="1" text="Country" dataIndex="country" />
 
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
@@ -96,7 +96,22 @@ export class PortfolioView extends React.Component<any, any> {
 
     public componentDidMount() {
         this.filter = this.refs.filter as FilterPanel;
-        this.reload();
+        (this.grid as any).setMasked(true);
+    }
+
+    private buildSelectedIds(): SelectedIds {
+        const queryData = Ext.Object.fromQueryString(this.props.location.search);
+
+        return {
+            wgs: convertToIds(queryData.wg),
+            countries: convertToIds(queryData.c)
+        };
+
+        function convertToIds(value: any) {
+            const array: any[] = Array.isArray(value) ? value : [value];
+
+            return array.map(x => +x).filter(x => Number.isInteger(x));
+        }
     }
 
     private init() {
@@ -146,7 +161,7 @@ export class PortfolioView extends React.Component<any, any> {
         handleRequest(p);
     }
 
-    private reload() {
+    private reload = () => {
         ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
 

@@ -12,6 +12,10 @@ export interface MultiSelectProps extends ListProps {
     store(): Promise<NamedId[]>;
 
     hideCheckbox?: boolean;
+
+    selectedItemIds?: number[];
+
+    onSetDefaultValue?();
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
@@ -49,6 +53,23 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         if (this.props.value) {
             this.lst.select(+this.props.value);
         }
+        
+        if (this.props.selectedItemIds && this.props.selectedItemIds.length > 0){
+            const idSet = new Set<number>(this.props.selectedItemIds);
+            const records = [];
+
+            this.lst.getStore().each(record => {
+                if (idSet.has(record.data.id)){
+                    records.push(record);
+                }
+
+                return records.length != idSet.size;
+            });
+
+            this.lst.select(records);
+        }
+
+        this.props.onSetDefaultValue && this.props.onSetDefaultValue();
     }
 
     public render() {
