@@ -4,8 +4,16 @@ using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase
 {
-    public class InstallBaseServiceTest : InstallBaseService
+    public class InstallBaseServiceTest 
     {
+        private InstallBaseService testing;
+
+        public InstallBaseServiceTest() 
+        {
+            var kernel = CreateKernel();
+            testing = kernel.Get<InstallBaseService>();
+        }
+
         [TestCase]
         public void RunFullImportTest()
         {
@@ -15,10 +23,10 @@ namespace Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase
                 System.IO.Directory.Delete(path, true);
             }
 
-            UploadInstallBaseInfo();
+            testing.UploadInstallBaseInfo();
         }
 
-        protected override StandardKernel CreateKernel()
+        protected StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),
