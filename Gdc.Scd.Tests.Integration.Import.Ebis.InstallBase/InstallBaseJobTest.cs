@@ -4,7 +4,7 @@ using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
 
-namespace Gdc.Scd.Tests.Integration.Import.Ebis.Afr
+namespace Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase
 {
     public class InstallBaseJobTest : InstallBaseJob
     {
