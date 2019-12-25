@@ -81,6 +81,7 @@ BEGIN
              , ReleaseUserName
              , ReleaseUserEmail
 
+             , ChangeDate
              , ChangeUserName                                as ChangeUserName
              , ChangeUserEmail                               as ChangeUserEmail
 
@@ -145,6 +146,7 @@ BEGIN
              , ReleaseUserName
              , ReleaseUserEmail
 
+             , ChangeDate
              , ChangeUserName                
              , ChangeUserEmail               
 
