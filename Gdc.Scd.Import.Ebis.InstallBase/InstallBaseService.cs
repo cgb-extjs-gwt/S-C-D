@@ -1,49 +1,44 @@
 ﻿using Gdc.Scd.Core.Enums;
-using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Core.Interfaces;
-using Ninject;
-using NLog;
 
 namespace Gdc.Scd.Import.Ebis.InstallBase
 {
     public class InstallBaseService
     {
-        public IConfigHandler ConfigHandler { get; protected set; }
-        public IImportManager ImportManager { get; set; }
-        public ILogger<LogLevel> Logger { get; protected set; }
+        private IConfigHandler ConfigHandler;
 
-        public InstallBaseService()
+        private IImportManager ImportManager;
+
+        private ILogger Logger;
+
+        public InstallBaseService(
+                IConfigHandler ConfigHandler,
+                IImportManager ImportManager,
+                ILogger Logger
+            )
         {
-            NinjectExt.IsConsoleApplication = true;
-            IKernel kernel = CreateKernel();
-            ConfigHandler = kernel.Get<IConfigHandler>();
-            ImportManager = kernel.Get<IImportManager>();
-            Logger = kernel.Get<ILogger<LogLevel>>();
+            this.ConfigHandler = ConfigHandler;
+            this.ImportManager = ImportManager;
+            this.Logger = Logger;
         }
 
-        public void UploadInstallBaseInfo()
+        public virtual void UploadInstallBaseInfo()
         {
-            Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
-            Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
+            Logger.Info( ImportConstants.START_PROCESS);
+            
+            Logger.Info( ImportConstants.CONFIG_READ_START);
             var configuration = ConfigHandler.ReadConfiguration(ImportSystems.EBIS_INSTALL_BASE);
-            Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_END);
+            Logger.Info( ImportConstants.CONFIG_READ_END);
+            
             var result = ImportManager.ImportData(configuration);
             if (!result.Skipped)
             {
-                Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
+                Logger.Info( ImportConstants.UPDATING_CONFIGURATION);
                 ConfigHandler.UpdateImportResult(configuration, result.ModifiedDateTime);
             }
-            Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
-        }
 
-        protected virtual StandardKernel CreateKernel()
-        {
-            return new StandardKernel(
-                new Scd.Core.Module(),
-                new Scd.DataAccessLayer.Module(),
-                new Scd.BusinessLogicLayer.Module(),
-                new Module());
+            Logger.Info( ImportConstants.END_PROCESS);
         }
     }
 }

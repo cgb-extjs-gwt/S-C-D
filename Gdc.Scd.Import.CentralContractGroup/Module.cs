@@ -1,14 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
-using Gdc.Scd.BusinessLogicLayer.Impl;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.Core.Meta.Impl;
-using Gdc.Scd.Core.Meta.Interfaces;
-using Gdc.Scd.DataAccessLayer.Helpers;
-using Gdc.Scd.DataAccessLayer.Impl;
-using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Impl;
@@ -25,7 +18,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
         public override void Load()
         {
             Bind<ImportRepository<Wg>>().ToSelf().InSingletonScope();
-            Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
+            Bind<ILogger<LogLevel>, Gdc.Scd.Core.Interfaces.ILogger>().To<Core.Impl.Logger>().InSingletonScope();
             Bind<IDataAccessManager>().To<SqlManager>()
                 .InSingletonScope()
                 .WithConstructorArgument("connectionString", 
@@ -34,7 +27,19 @@ namespace Gdc.Scd.Import.CentralContractGroup
             Bind<IImportManager>().To<DbImportManager<CentralContractGroupDto>>().InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(CentralContractGroupUploader)).InSingletonScope();
 
-            this.Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope(); 
+            Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+
+            Bind<CentralContractGroupService>().ToSelf();
+        }
+
+        public static StandardKernel CreateKernel()
+        {
+            NinjectExt.IsConsoleApplication = true;
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new Scd.DataAccessLayer.Module(),
+                new Scd.BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

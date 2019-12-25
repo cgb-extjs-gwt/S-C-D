@@ -1,13 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
-using Gdc.Scd.BusinessLogicLayer.Impl;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.Core.Meta.Impl;
-using Gdc.Scd.Core.Meta.Interfaces;
-using Gdc.Scd.DataAccessLayer.Helpers;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
@@ -16,11 +10,6 @@ using Gdc.Scd.Import.Core.Interfaces;
 using Ninject;
 using Ninject.Modules;
 using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.SfabImport
 {
@@ -32,7 +21,7 @@ namespace Gdc.Scd.Import.SfabImport
             Bind(typeof(IRepository<Sog>)).To(typeof(ImportRepository<Sog>)).InSingletonScope();
             Bind(typeof(IRepository<SFab>)).To(typeof(ImportRepository<SFab>)).InSingletonScope();
             
-            Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
+            Bind<ILogger<LogLevel>, Gdc.Scd.Core.Interfaces.ILogger>().To<Core.Impl.Logger>().InSingletonScope();
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
@@ -41,6 +30,18 @@ namespace Gdc.Scd.Import.SfabImport
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
             
             Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+
+            Bind<SFabService>().ToSelf();
+        }
+
+        public static StandardKernel CreateKernel()
+        {
+            NinjectExt.IsConsoleApplication = true;
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new Scd.DataAccessLayer.Module(),
+                new Scd.BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }
