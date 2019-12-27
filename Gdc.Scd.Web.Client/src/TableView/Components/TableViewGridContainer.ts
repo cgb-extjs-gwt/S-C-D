@@ -1,22 +1,23 @@
-import { connect, connectAdvanced } from "react-redux";
+import { connectAdvanced } from "react-redux";
 import { CommonState } from "../../Layout/States/AppStates";
-import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { findMeta, getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
+import { ColumnInfo, ColumnType, FilterItem } from "../../Common/States/ColumnInfo";
+import { getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
 import { NamedId } from "../../Common/States/CommonStates";
-import { CostBlockMeta, FieldType, CostElementMeta, CostMetaData, InputLevelMeta } from "../../Common/States/CostMetaStates";
+import { FieldType, CostElementMeta, CostMetaData, InputLevelMeta } from "../../Common/States/CostMetaStates";
 import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
-import { CommonAction } from "../../Common/Actions/CommonActions";
 import { loadTableViewInfo, editRecord, resetChanges, saveTableViewToServer } from "../Actions/TableViewActions";
 import { TableViewInfo, DataInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { Dispatch } from "redux";
-import { StoreOperation, Model } from "../../Common/States/ExtStates";
+import { StoreOperation, Model, Store } from "../../Common/States/ExtStates";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
-import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 import { TableViewGridActions, TableViewGrid, TableViewGridProps } from "./TableViewGrid";
 import { buildCostElementColumn } from "../../Common/Helpers/ColumnInfoHelper";
 import { ApiUrls } from "../../Common/Components/AjaxDynamicGrid";
+import { RouteComponentProps } from "react-router";
+import { VALUE_DATA_INDEX, CHECKED_DATA_INDEX } from "../../Common/Components/LocalDynamicGrid";
+import { toArray } from "../../Common/Helpers/ArrayHelper";
 
 const buildProps = (() => {
     let oldMeta: CostMetaData;
@@ -206,7 +207,7 @@ const buildActions = (() => {
     let oldTableViewInfo: TableViewInfo | {} = {};
     let editRecords: TableViewRecord[];
     
-    return (state: CommonState, dispatch: Dispatch) => {
+    return (state: CommonState, dispatch: Dispatch, ownProps: TableViewGridContainerProps) => {
         let newActions: TableViewGridActions;
         const newTableViewInfo = state.pages.tableView.info;
 
@@ -215,14 +216,14 @@ const buildActions = (() => {
         if (oldTableViewInfo == newTableViewInfo) {
             newActions = oldActions;
         } else {
-            newActions = oldActions = buildTableViewGridActions(newTableViewInfo, dispatch);
+            newActions = oldActions = buildTableViewGridActions(newTableViewInfo, dispatch, ownProps);
             oldTableViewInfo = newTableViewInfo;
         }
         
         return newActions;
     }
 
-    function buildTableViewGridActions (tableViewInfo: TableViewInfo, dispatch: Dispatch) { 
+    function buildTableViewGridActions (tableViewInfo: TableViewInfo, dispatch: Dispatch, ownProps: TableViewGridContainerProps) { 
         const buildSaveFn = (isApproving: boolean) => () => dispatch(saveTableViewToServer({ isApproving: isApproving }));
 
         return <TableViewGridActions>{
@@ -269,7 +270,7 @@ const buildActions = (() => {
             onSave: buildSaveFn(false),
             onApprove: buildSaveFn(true),
             onCancel: () => dispatch(resetChanges()),
-            onLoadData: (store, records) => {
+            onLoadData: (store, records, filterStores) => {
                 if (editRecords && editRecords.length > 0) {
                     for (const editRecord of editRecords) {
                         const record = records.find(item => isEqualCoordinates(item.data, editRecord));
@@ -281,7 +282,39 @@ const buildActions = (() => {
                         }
                     }
                 }
+
+                setFiltersByUrl(filterStores, ownProps);
             },
+        }
+
+        function setFiltersByUrl(filterStores: Map<string, Store<FilterItem>>, router: RouteComponentProps) {
+            if (router.history.location.search) {
+                const queryData = Ext.Object.fromQueryString(router.location.search);
+
+                Object.keys(queryData).map(key => key.toLowerCase()).forEach(dataIndex => {
+                    const store = filterStores.get(dataIndex);
+
+                    if (store) {
+                        const selectedRecordsSet = new Set<Model<FilterItem>>();
+
+                        toArray(queryData[dataIndex]).forEach(value => {
+                            const record = store.findRecord(VALUE_DATA_INDEX, value, 0, false, false, true);
+
+                            if (record) {
+                                selectedRecordsSet.add(record);
+                            }
+                        });
+
+                        store.each(record => {
+                            if (!selectedRecordsSet.has(record)) {
+                                record.set(CHECKED_DATA_INDEX, false);
+                            }
+                        });
+
+                        router.history.push(router.history.location.pathname);
+                    }
+                });
+            }
         }
     }
 })()
@@ -292,10 +325,11 @@ const buildPropsActions = (() => {
     let oldPropsActions: TableViewGridProps;
     let oldOnSelectionChange: Function;
 
-    return (dispatch: Dispatch, state: CommonState, { onSelectionChange }: TableViewGridContainerProps) => {
+    return (dispatch: Dispatch, state: CommonState, ownProps: TableViewGridContainerProps) => {
         let propsActions: TableViewGridProps;
         const props = buildProps(state);
-        const actions = buildActions(state, dispatch);
+        const actions = buildActions(state, dispatch, ownProps);
+        const { onSelectionChange } = ownProps;
 
         if (oldProps == props && oldActions == actions && oldOnSelectionChange == onSelectionChange) {
             propsActions = oldPropsActions;
@@ -315,7 +349,7 @@ const buildPropsActions = (() => {
     }
 })()
 
-export interface TableViewGridContainerProps {
+export interface TableViewGridContainerProps extends RouteComponentProps {
     onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
 }
 

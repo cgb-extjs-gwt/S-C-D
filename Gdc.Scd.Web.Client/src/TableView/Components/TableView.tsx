@@ -6,8 +6,9 @@ import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer
 import { HistoryButtonView } from "../../History/Components/HistoryButtonView";
 import { Model } from "../../Common/States/ExtStates";
 import { TableViewRecord } from "../States/TableViewRecord";
+import { RouteComponentProps } from "react-router";
 
-export interface TableViewProps {
+export interface TableViewProps extends RouteComponentProps {
     buildHistotyDataLoadUrl(selection: Model<TableViewRecord>[], selectedDataIndex: string): string
 }
 
@@ -47,7 +48,7 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
                     <QualtityGateSetWindowContainer position={{ top: '25%', left: '25%'}}/>
                 </Toolbar>
 
-                <TableViewGridContainer onSelectionChange={this.onSelectionChange} />
+                <TableViewGridContainer {...this.props} onSelectionChange={this.onSelectionChange} />
             </Container>
         );
     }

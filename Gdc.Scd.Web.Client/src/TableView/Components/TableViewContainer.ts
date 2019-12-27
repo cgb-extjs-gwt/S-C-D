@@ -33,5 +33,5 @@ export const TableViewContainer = connect<TableViewProps, {}, {}, CommonState>(
         buildHistotyDataLoadUrl: tableView.info
             ? (selection, selectedDataIndex) => buildHistotyDataLoadUrl(appMetaData, tableView.info, selection, selectedDataIndex)
             : () => ''
-    })
+    } as TableViewProps)
 )(TableView)

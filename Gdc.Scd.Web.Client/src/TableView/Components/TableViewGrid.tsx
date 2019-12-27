@@ -5,7 +5,7 @@ import { TableViewRecord } from "../States/TableViewRecord";
 import { SaveToolbar } from "../../Common/Components/SaveToolbar";
 import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
 import { DynamicGrid } from "../../Common/Components/DynamicGrid";
-import { DynamicGridProps, DynamicGridActions } from "../../Common/Components/Props/DynamicGridProps";
+import { DynamicGridActions } from "../../Common/Components/Props/DynamicGridProps";
 import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { objectPropsEqual } from "../../Common/Helpers/CommonHelpers";
 import { Model } from "../../Common/States/ExtStates";

@@ -5,8 +5,8 @@ import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
 import * as React from "react";
 import { ToolbarDynamicGridProps } from "./Props/DynamicGridProps";
 
-const CHECKED_DATA_INDEX = 'checked'
-const VALUE_DATA_INDEX = 'value'
+export const CHECKED_DATA_INDEX = 'checked'
+export const VALUE_DATA_INDEX = 'value'
 
 interface FilterDataItem {
     store: Store<FilterItem>
@@ -18,7 +18,7 @@ interface FilterDataItem {
 export interface LocalDynamicGridActions<T=any> {
     onUpdateRecord?: StoreUpdateEventFn<T>
     onUpdateRecordSet? (records: Model<T>[], operation: StoreOperation, dataIndex: string)
-    onLoadData?(store: Store<T>, records: Model<T>[])
+    onLoadData?(store: Store<T>, records: Model<T>[], filterStores: Map<string, Store<FilterItem>>)
 }
 
 export interface LocalDynamicGridProps<T=any> extends ToolbarDynamicGridProps, LocalDynamicGridActions<T>  {
@@ -155,9 +155,17 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     private onDataStoreLoad(store: Store, records: Model[]) {
         const { onLoadData } = this.props;
 
-        this.fillFilterData();
-
-        onLoadData && onLoadData(store, records);
+        this.fillFilterData(() => {
+            if (onLoadData) {
+                const filterStores = new Map<string, Store<FilterItem>>();
+    
+                this.filterDatas.forEach((filterDataItem, dataIndex) => {
+                    filterStores.set(dataIndex.toLowerCase(), filterDataItem.store)
+                });
+    
+                onLoadData(store, records, filterStores);
+            }
+        });
     }
 
     private onDataStoreUpdate(store, record, operation, modifiedFieldNames, details) {
@@ -299,7 +307,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         }
     }
 
-    private fillFilterData() {
+    private fillFilterData(calback?: () => void) {
         if (this.executeFillFilterData) {
             this.executeFillFilterData = false;
 
@@ -313,6 +321,8 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                 this.updateFilterData(dataSets);
 
                 this.executeFillFilterData = true;
+
+                calback && calback();
             });
         }
     }

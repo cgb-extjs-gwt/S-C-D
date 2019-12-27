@@ -35,6 +35,7 @@ export interface Store<T=any> {
     remove(record: Model<T>)
     removeAll()
     findBy(fn: (record: Model<T>) => boolean, scope?, start?: number)
+    findRecord(fieldName: string, value: string, startIndex?: number, anyMatch?: boolean, caseSensitive?: boolean, exactMatch?: boolean): Model<T>
     loadData(data: Model<T>[] | { [key: string]: any }[], append?: boolean)
     each(fn: (record: Model<T>) => any, scope?, includeFilterd?: boolean)
     filterBy(fn: (record: Model<T>) => boolean, scope?)
@@ -45,7 +46,7 @@ export interface Store<T=any> {
     sync(options: { 
         callback?()
     })
-    getById(id)
+    getById(id): Model<T>
     getAt(index: number)
 }
 

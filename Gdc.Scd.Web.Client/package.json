@@ -14,6 +14,7 @@
     "@extjs/ext-react": "^6.5.1",
     "@extjs/ext-react-pivot": "^6.5.3",
     "@extjs/reactor": "^1.1.1",
+    "@types/react-router": "^4.4.0",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
