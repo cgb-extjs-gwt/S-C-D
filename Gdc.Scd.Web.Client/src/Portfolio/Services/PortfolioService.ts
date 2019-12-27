@@ -1,7 +1,8 @@
-import { post } from "../../Common/Services/Ajax";
+import { post, buildMvcUrl } from "../../Common/Services/Ajax";
 import { PortfolioEditModel } from "../Model/PortfolioEditModel";
 import { IPortfolioService } from "./IPortfolioService";
 import { DictFactory } from "../../Dict/Services/DictFactory";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export class PortfolioService implements IPortfolioService {
     private controllerName: string;
@@ -20,6 +21,14 @@ export class PortfolioService implements IPortfolioService {
 
     public denyById(cnt: string[], ids: string[]): Promise<any> {
         return post(this.controllerName, 'denylocal', { countryId: cnt, items: ids });
+    }
+
+    public buildGetNewWgsUrl() {
+        return buildMvcUrl(this.controllerName, 'GetNewWgs');
+    }
+
+    public notifyCountryUsers(wgs: NamedId<number>[]) {
+        return post(this.controllerName, 'NotifyCountryUsers', wgs);
     }
 
     private postSequential(action: string, row: PortfolioEditModel): Promise<any> {

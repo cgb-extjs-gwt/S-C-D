@@ -11,6 +11,7 @@ import { PortfolioFilterModel } from "./Model/PortfolioFilterModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { NotifyButtonContainer } from "./Components/NotifyButtonContainer";
 
 export class PortfolioView extends React.Component<any, any> {
 
@@ -62,6 +63,7 @@ export class PortfolioView extends React.Component<any, any> {
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
                     <Button iconCls="x-fa fa-undo" text="Deny combinations" ui="decline" disabled={!isLocalPortfolio} handler={this.onDeny} />
                     <Button iconCls="x-fa fa-history" text="History" ui="forward" handler={this.onViewHistory} />
+                    <NotifyButtonContainer />
                 </Toolbar>
 
                 <Grid
