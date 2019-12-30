@@ -1,28 +1,31 @@
 import { connect } from "react-redux";
-import { NotifyButtonProps, NotifyButtonView } from "./NotifyButtonView";
+import { NotifyButtonProps, NotifyButtonView, NotifyButtonActions } from "./NotifyButtonView";
 import { CommonState } from "../../Layout/States/AppStates";
 import * as Permissions from "../../Common/Constants/Permissions";
 import { PortfolioService } from "../Services/PortfolioService";
-import { NotifyGridActions } from "./NotifyGrid";
 
 const portfolioService = new PortfolioService();
 
-export const NotifyButtonContainer = connect<NotifyButtonProps, NotifyGridActions, {}, CommonState>(
+export const NotifyButtonContainer = connect<NotifyButtonProps, NotifyButtonActions, {}, CommonState>(
     ({ app }) => ({
         isVisible: !!app.userRoles.find(userRole => userRole.permissions.includes(Permissions.ADMIN)),
         dataLoadUrl: portfolioService.buildGetNewWgsUrl()
     }),
     dispatch => ({
-        onWindowNotifyButtonClick: (selectedItems, store) => {
+        onDialogNotifyButtonClick: (selectedItems, store, notifyButton) => {
             if (selectedItems.length == 0) {
                 Ext.Msg.alert('Message', 'Please select warranty groups');
             } else {
+                notifyButton.showDialogMask();
+
                 portfolioService.notifyCountryUsers(selectedItems).then(
                     () => {
+                        notifyButton.hideDialogMask();
                         Ext.Msg.alert('Message', 'Notification successful');
                         store.reload();
                     },
                     () => {
+                        notifyButton.hideDialogMask();
                         Ext.Msg.alert('Error', 'An error occurred during the notification');
                     }
                 );

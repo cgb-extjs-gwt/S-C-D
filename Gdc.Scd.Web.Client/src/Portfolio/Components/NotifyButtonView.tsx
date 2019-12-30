@@ -1,9 +1,17 @@
 import * as React from "react";
 import { Button, Container, Dialog } from "@extjs/ext-react";
 import { NotifyGrid, NotifyGridProps, NotifyGridActions } from "./NotifyGrid";
+import { shomMask, hideMask } from "../../Common/Helpers/MaskHelper";
+import { NamedId } from "../../Common/States/CommonStates";
+import { Store } from "../../Common/States/ExtStates";
 
-export interface NotifyButtonProps extends NotifyGridProps, NotifyGridActions {
+export interface NotifyButtonActions {
+    onDialogNotifyButtonClick?(selectedItems: NamedId<number>[], store: Store, notifyButton: NotifyButtonView)
+}
+
+export interface NotifyButtonProps extends NotifyButtonActions {
     isVisible: boolean
+    dataLoadUrl: string
 }
 
 export interface NotifyButtonState {
@@ -11,6 +19,8 @@ export interface NotifyButtonState {
 }
 
 export class NotifyButtonView extends React.PureComponent<NotifyButtonProps, NotifyButtonState> {
+    private dialog;
+    
     constructor(props: NotifyButtonProps) {
         super(props);
 
@@ -20,7 +30,7 @@ export class NotifyButtonView extends React.PureComponent<NotifyButtonProps, Not
     }
 
     public render() {
-        const { isVisible } = this.props;
+        const { isVisible, dataLoadUrl } = this.props;
         const { isVisibleNotifyWindow } = this.state;
 
         return (
@@ -29,6 +39,7 @@ export class NotifyButtonView extends React.PureComponent<NotifyButtonProps, Not
                 {
                     isVisibleNotifyWindow &&
                     <Dialog 
+                        ref={this.setDialogRef}
                         displayed={isVisibleNotifyWindow} 
                         title="New Warranty groups" 
                         closable 
@@ -43,11 +54,23 @@ export class NotifyButtonView extends React.PureComponent<NotifyButtonProps, Not
                         left="10%"
                         onClose={this.hideNotifyWindow}
                     >
-                        <NotifyGrid {...this.props}/>
+                        <NotifyGrid dataLoadUrl={dataLoadUrl} onNotifyButtonClick={this.onDialogNotifyButtonClick}/>
                     </Dialog>
                 }
             </Container>
         )
+    }
+
+    public showDialogMask() {
+        shomMask(this.dialog);
+    }
+
+    public hideDialogMask() {
+        hideMask(this.dialog);
+    }
+
+    private setDialogRef = dialog => {
+        this.dialog = dialog;
     }
 
     private showNotifyWindow = () => {
@@ -56,5 +79,11 @@ export class NotifyButtonView extends React.PureComponent<NotifyButtonProps, Not
 
     private hideNotifyWindow = () => {
         this.setState({ isVisibleNotifyWindow: false });
+    }
+
+    private onDialogNotifyButtonClick = (selectedItems: NamedId<number>[], store: Store) => {
+        const { onDialogNotifyButtonClick } = this.props;
+
+        onDialogNotifyButtonClick && onDialogNotifyButtonClick(selectedItems, store, this);
     }
 }

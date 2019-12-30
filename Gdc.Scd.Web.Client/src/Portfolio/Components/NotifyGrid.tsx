@@ -8,7 +8,7 @@ const DATA_DATA_INDEX = 'data';
 const NAME_DATA_INDEX = 'name';
 
 export interface NotifyGridActions {
-    onWindowNotifyButtonClick?(selectedItems: NamedId<number>[], store: Store)
+    onNotifyButtonClick?(selectedItems: NamedId<number>[], store: Store)
 }
 
 export interface NotifyGridProps extends NotifyGridActions {
@@ -34,7 +34,7 @@ export class NotifyGrid extends React.PureComponent<NotifyGridProps> {
                 <CheckColumn dataIndex={CHECK_DATA_INDEX} groupable={false} sortable={false}/>
                 <Column dataIndex={NAME_DATA_INDEX} flex={1} text="Name" groupable={false}/>
                 <Toolbar docked="bottom" layout={{type: 'vbox', align: 'center'}}>
-                    <Button text="Notify Country users" handler={this.onWindowNotifyClick} />
+                    <Button text="Notify Country users" handler={this.onNotifyButtonClick} />
                 </Toolbar>
             </Grid>
         );
@@ -76,8 +76,8 @@ export class NotifyGrid extends React.PureComponent<NotifyGridProps> {
         });
     }
 
-    private onWindowNotifyClick = () => {
-        const { onWindowNotifyButtonClick } = this.props;
+    private onNotifyButtonClick = () => {
+        const { onNotifyButtonClick: onWindowNotifyButtonClick } = this.props;
 
         if (onWindowNotifyButtonClick) {
             const selectedItems: NamedId<number>[] = [];
