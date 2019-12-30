@@ -42,7 +42,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ReleaseUserName', 'ChangeUserEmail', 'ReleaseDate',
+            'Id',
+            SELECTED_FIELD,
+            'ListPrice',
+            'DealerDiscount',
+
+            'ReleaseUserName',
+            'ReleaseDate',
+            
+            'ChangeDate',
+            'ChangeUserName',
+            'ChangeUserEmail',
 
             { name: 'roFsp', calculate: readonly('Fsp') },
             { name: 'roCountry', calculate: readonly('Country') },
@@ -70,6 +80,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             { name: 'roReleaseUserCalc', calculate: readonly('ReleaseUserCalc') },
             { name: 'roReleaseDate', calculate: readonly('ReleaseDate') },
+
+            { name: 'roChangeUserCalc', calculate: readonly('ChangeUserCalc') },
+            { name: 'roChangeDate', calculate: readonly('ChangeDate') },
 
             { name: 'roOtherDirect', calculate: readonly('OtherDirect') },
 
@@ -104,13 +117,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             {
                 name: 'ReleaseUserCalc',
                 calculate: function (d) {
-                    let result: string = '';
-                    if (d) {
-                        if (d.ReleaseUserName) {
-                            result += d.ReleaseUserName;
-                        }
-                    }
-                    return result;
+                    return d && d.ReleaseUserName ? d.ReleaseUserName : '';
+                }
+            },
+            {
+                name: 'ChangeUserCalc',
+                calculate: function (d) {
+                    return d && d.ChangeUserName ? d.ChangeUserName : '';
                 }
             }
         ],
@@ -301,6 +314,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
                         <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
+
+                        <Column text="Change user" minWidth="60" maxWidth="90" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Change date" dataIndex="roChangeDate" renderer={ddMMyyyyRenderer} />
 
                         <Column text="Release user" minWidth="60" maxWidth="90" dataIndex="ReleaseUserCalc" renderer={emptyRenderer} />
                         <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />

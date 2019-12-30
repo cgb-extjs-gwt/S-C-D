@@ -9,6 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public int Number => 130;
 
+
         public string Description => "Fix release price, add release user id'";
 
         public Migration_2019_12_03_15_15(IRepositorySet repositorySet)

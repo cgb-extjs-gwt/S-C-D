@@ -54,23 +54,14 @@
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AmberRoadImportService.cs" />
+    <Compile Include="AmberRoadJob.cs" />
+    <Compile Include="AmberRoadService.cs" />
     <Compile Include="ImportConstants.cs" />
     <Compile Include="Module.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -103,10 +94,6 @@
     <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
       <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
       <Name>Gdc.Scd.Spooler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Tests.BusinessLogicLayer\Gdc.Scd.Tests.BusinessLogicLayer.csproj">
-      <Project>{28974cf0-7147-43fb-9978-2fa104edbad9}</Project>
-      <Name>Gdc.Scd.Tests.BusinessLogicLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

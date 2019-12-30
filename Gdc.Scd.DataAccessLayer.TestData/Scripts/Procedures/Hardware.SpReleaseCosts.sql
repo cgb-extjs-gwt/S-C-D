@@ -26,14 +26,14 @@ BEGIN
 	--TODO: @portfolioIds case to be fixed in a future release 
 
 	UPDATE mc
-	SET [ServiceTP1_Released]  = case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) end,
-		[ServiceTP2_Released]  = case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) end,
-		[ServiceTP3_Released]  = case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) end,
-		[ServiceTP4_Released]  = case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) end,
-		[ServiceTP5_Released]  = case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) end,
-		[ServiceTP1P_Released] = case when dur.IsProlongation = 1                    then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)            end,
+	SET [ServiceTP1_Released]  = case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) end * costs.ExchangeRate,
+		[ServiceTP2_Released]  = case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) end * costs.ExchangeRate,
+		[ServiceTP3_Released]  = case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) end * costs.ExchangeRate,
+		[ServiceTP4_Released]  = case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) end * costs.ExchangeRate,
+		[ServiceTP5_Released]  = case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) end * costs.ExchangeRate,
+		[ServiceTP1P_Released] = case when dur.IsProlongation = 1                    then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)            end * costs.ExchangeRate,
 
-		[ServiceTP_Released]   = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
+		[ServiceTP_Released]   = COALESCE(costs.ServiceTPManual, costs.ServiceTP) * costs.ExchangeRate,
 
 		[ReleaseUserId] = @usr,
         [ReleaseDate] = @now
@@ -41,7 +41,6 @@ BEGIN
 	FROM [Hardware].[ManualCost] mc
 	JOIN #temp costs on mc.PortfolioId = costs.Id
 	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
-	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
 
 	INSERT INTO [Hardware].[ManualCost] (
                 [PortfolioId], 
@@ -53,20 +52,21 @@ BEGIN
             @usr, 
             @now,
 
-			case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) end,
-			case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) end,
-			case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) end,
-			case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) end,
-			case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) end,
-			case when dur.IsProlongation = 1                    then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)            end,
-            COALESCE(costs.ServiceTPManual, costs.ServiceTP)
+			case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) end * costs.ExchangeRate,
+			case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) end * costs.ExchangeRate,
+			case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) end * costs.ExchangeRate,
+			case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) end * costs.ExchangeRate,
+			case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) end * costs.ExchangeRate,
+			case when dur.IsProlongation = 1                    then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P)            end * costs.ExchangeRate,
+            COALESCE(costs.ServiceTPManual, costs.ServiceTP) * costs.ExchangeRate
 
-	FROM [Hardware].[ManualCost] mc
-	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
+	FROM #temp costs
 	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
-	where mc.PortfolioId is null and (costs.ServiceTPManual is not null or costs.ServiceTP is not null)
+	where not exists(select * from Hardware.ManualCost where PortfolioId = costs.Id) 
+            and COALESCE(costs.ServiceTPManual, costs.ServiceTP) is not null
 
 	DROP table #temp
    
 END
-go
+GO
+
