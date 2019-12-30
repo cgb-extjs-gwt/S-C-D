@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -65,6 +66,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     .SelectMany(user => user.UserRoles)
                     .Where(userRole => userRole.Country != null)
                     .Select(userRole => userRole.Country);
+        }
+
+        public IQueryable<User> GetCountryKeyUsers()
+        {
+            return 
+                this.userRepository.GetAllWithRoles()
+                                   .Where(user => user.UserRoles.Any(userRole => userRole.Role.Name == RoleConstants.CountryKeyUser));
         }
 
         private IQueryable<Role> GetUserRoles(string userLogin)

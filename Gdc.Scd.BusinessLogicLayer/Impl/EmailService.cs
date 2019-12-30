@@ -98,6 +98,44 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.Send("New warranty groups", body.ToString(), emails);
         }
 
+        public void SendPortfolioNotifications(Wg[] wgs, User[] users, string portfolioUrl)
+        {
+            var emailCountryGroups =
+                 users.Select(user => new
+                      {
+                        user.Email,
+                        CountryIds = 
+                            user.UserRoles.Where(userRole => userRole.CountryId.HasValue)
+                                          .Select(userRole => userRole.CountryId.Value)
+                                          .OrderBy(x => x)
+                                          .ToArray()
+                      })
+                      .GroupBy(info => string.Join(",", info.CountryIds));
+
+            foreach (var emailInfos in emailCountryGroups)
+            {
+                var emailInfoArray = emailInfos.ToArray();
+                var countryIds = emailInfoArray[0].CountryIds;
+                var message = BuildMessage(countryIds);
+                var emails = emailInfoArray.Select(info => info.Email).ToArray();
+
+                this.Send("SCD", message, emails);
+            }
+
+            string BuildMessage(long[] countryIds)
+            {
+                var wgNames = string.Concat(wgs.Select(wg => $"<li>{wg.Name}</li>"));
+                var wgIdParams = wgs.Select(wg => $"wg={wg.Id}");
+                var countryIdParams = countryIds.Select(countryId => $"c={countryId}");
+                var queryParams = string.Join("&", wgIdParams.Concat(countryIdParams));
+
+                return string.Concat(
+                    $"{RoleConstants.ScdAdmin} finished editing the portfolio by warranty groups:",
+                    $"<ul>{wgNames}</ul>",
+                    $"<a href=\"{portfolioUrl}?{queryParams}\">Link on Portfolio</a>");
+            }
+        }
+
         private void Send(
             string subject, 
             string htmlBody, 

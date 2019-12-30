@@ -24,7 +24,7 @@ export class PortfolioService implements IPortfolioService {
     }
 
     public buildGetNewWgsUrl() {
-        return buildMvcUrl(this.controllerName, 'GetNewWgs');
+        return buildMvcUrl(this.controllerName, 'GetNotNotified');
     }
 
     public notifyCountryUsers(wgs: NamedId<number>[]) {

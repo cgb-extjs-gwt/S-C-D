@@ -8,6 +8,7 @@ using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,19 +28,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserService userService;
 
+        private readonly IWgService wgService;
+
+        private readonly IEmailService emailService;
+
         public PortfolioService(
                 IRepositorySet repositorySet,
                 IRepository<LocalPortfolio> localRepo,
                 IRepository<PrincipalPortfolio> principalRepo,
                 IRepository<PortfolioHistory> historyRepo,
-                IUserService userService
-            )
+                IUserService userService,
+                IWgService wgService,
+                IEmailService emailService)
         {
             this.repositorySet = repositorySet;
             this.localRepo = localRepo;
             this.principalRepo = principalRepo;
             this.historyRepo = historyRepo;
             this.userService = userService;
+            this.wgService = wgService;
+            this.emailService = emailService;
         }
 
         public bool CanEdit(User usr, PortfolioRuleSetDto m)
@@ -175,6 +183,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             .PagingAsync(start, limit);
 
             return (result, count);
+        }
+
+        public void NotifyCountryUsers(long[] wgIds, string portfolioUrl)
+        {
+            var wgs = this.wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).ToArray();
+            var users = this.userService.GetCountryKeyUsers().ToArray();
+
+            this.emailService.SendPortfolioNotifications(wgs, users, portfolioUrl);
+
+            foreach (var wg in wgs)
+            {
+                wg.IsNotified = true;
+            }
+
+            this.wgService.Save(wgs);
         }
 
         private void UpdatePortfolio(User changeUser, PortfolioRuleSetDto m, bool deny)

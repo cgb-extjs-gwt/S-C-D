@@ -4,6 +4,8 @@ using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Web.Server.Impl;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -14,9 +16,12 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         private readonly IPortfolioService portfolioService;
 
-        public PortfolioController(IPortfolioService portfolioService)
+        private readonly IWgService wgService;
+
+        public PortfolioController(IPortfolioService portfolioService, IWgService wgService)
         {
             this.portfolioService = portfolioService;
+            this.wgService = wgService;
         }
 
         [HttpPost]
@@ -61,6 +66,27 @@ namespace Gdc.Scd.Web.Server.Controllers
             return portfolioService
                     .GetHistory(filter.Start, filter.Limit)
                     .ContinueWith(x => new DataInfo<PortfolioHistoryDto> { Items = x.Result.items, Total = x.Result.total });
+        }
+
+        [HttpGet]
+        public IEnumerable<NamedId> GetNotNotified()
+        {
+            return
+                this.wgService.GetNotNotified()
+                              .Select(wg => new NamedId
+                              {
+                                  Id = wg.Id,
+                                  Name = wg.Name
+                              });
+        }
+
+        [HttpPost]
+        public void NotifyCountryUsers(NamedId[] wgDtos)
+        {
+            var wgIds = wgDtos.Select(wg => wg.Id).ToArray();
+            var portfolioUrl = $"{this.Request.RequestUri.Authority}/scd/portfolio";
+
+            this.portfolioService.NotifyCountryUsers(wgIds, portfolioUrl);
         }
 
         private bool IsRangeValid(int start, int limit)

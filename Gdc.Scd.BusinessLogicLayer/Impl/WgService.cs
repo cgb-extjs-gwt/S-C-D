@@ -29,5 +29,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             return origin.GetAll().Include(wg => wg.Sog).Where(wg => wg.IsSoftware == false && !wg.DeactivatedDateTime.HasValue);
         }
+
+        public IQueryable<Wg> GetNotNotified()
+        {
+            return 
+                this.GetAll()
+                    .Where(wg => !wg.IsNotified)
+                    .OrderBy(wg => wg.Name);
+        }
     }
 }

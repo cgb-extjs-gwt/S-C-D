@@ -48,5 +48,7 @@ namespace Gdc.Scd.Core.Entities
         public long? CentralContractGroupId { get; set; }
 
         public bool PsmRelease { get; set; }
+
+        public bool IsNotified { get; set; }
     }
 }
