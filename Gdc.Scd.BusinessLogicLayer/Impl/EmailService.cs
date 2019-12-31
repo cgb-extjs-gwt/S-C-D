@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
@@ -15,6 +17,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class EmailService : IEmailService
     {
+        private readonly string SmtpHost;
+
+        private readonly string EmailSenderAddress;
+
+        private readonly string WebApplicationHost;
+
         private readonly DomainMeta domainMeta;
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
@@ -23,14 +31,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly SmtpClient client;
 
-        private readonly IUserRepository userRepository;
-
         public EmailService()
         {
+            this.SmtpHost = ConfigurationManager.AppSettings["SmtpHost"] ?? "imrpool.fs.fujitsu.com";
+            this.EmailSenderAddress = ConfigurationManager.AppSettings["EmailSenderAddress"] ?? "SCD_Admin@ts.fujitsu.com";
+            this.WebApplicationHost = ConfigurationManager.AppSettings["WebApplicationHost"] ?? "intranet.g02.fujitsu.local/scd";
+
             this.client = new SmtpClient
             {
                 Port = 25,
-                Host = "imrpool.fs.fujitsu.com",
+                Host = this.SmtpHost,
                 Timeout = 10000,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
             };
@@ -39,14 +49,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public EmailService(
             DomainMeta domainMeta, 
             DomainEnitiesMeta domainEnitiesMeta, 
-            ISqlRepository sqlRepository, 
-            IUserRepository userRepository)
+            ISqlRepository sqlRepository)
          : this()
         {
             this.domainMeta = domainMeta;
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.sqlRepository = sqlRepository;
-            this.userRepository = userRepository;
         }
 
         public async Task SendApprovalMailAsync(CostBlockHistory history)
@@ -81,25 +89,48 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.Send($"Result of Archiving {periodStart}/{periodEnd}", body, toAddresses, emailFrom);
         }
 
-        public void SendNewWgEmail(IEnumerable<Wg> wgs, IEnumerable<string> emails)
+        public void SendNewWgEmail(Wg[] wgs, User[] admins, User[] prsPsms)
         {
-            var body = new StringBuilder("New warranty groups were added:");
-            body.AppendLine();
+            const string Subject = "New warranty groups";
 
-            body.AppendLine("<ul>");
+            var messageBuilder = BuildMessageBuilder();
+            var adminMessage = messageBuilder.ToString();
 
-            foreach (var wg in wgs)
+            this.Send(Subject, adminMessage, admins);
+
+            var tableViewUrl = $"{this.WebApplicationHost}/table-view";
+            var link = BuildLink(tableViewUrl, "Centrla Data Input", new Dictionary<string, IEnumerable>
             {
-                body.AppendLine($"<li>{wg.Name}</li>");
+                ["wg"] = wgs.Select(wg => wg.Name)
+            });
+
+            var prsPsmMessage = messageBuilder.AppendLine(link).ToString();
+
+            this.Send(Subject, prsPsmMessage, prsPsms);
+
+            StringBuilder BuildMessageBuilder()
+            {
+                var stringBuilder = new StringBuilder("New warranty groups were added:");
+                stringBuilder.AppendLine();
+
+                stringBuilder.AppendLine("<ul>");
+
+                foreach (var wg in wgs)
+                {
+                    stringBuilder.AppendLine($"<li>{wg.Name}</li>");
+                }
+
+                stringBuilder.AppendLine("</ul>");
+
+                return stringBuilder;
             }
-
-            body.AppendLine("</ul>");
-
-            this.Send("New warranty groups", body.ToString(), emails);
         }
 
-        public void SendPortfolioNotifications(Wg[] wgs, User[] users, string portfolioUrl)
+        public void SendPortfolioNotifications(Wg[] wgs, User[] users)
         {
+            var wgIds = wgs.Select(wg => wg.Id).ToArray();
+            var wgNames = string.Concat(wgs.Select(wg => $"<li>{wg.Name}</li>"));
+
             var emailCountryGroups =
                  users.Select(user => new
                       {
@@ -124,24 +155,51 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             string BuildMessage(long[] countryIds)
             {
-                var wgNames = string.Concat(wgs.Select(wg => $"<li>{wg.Name}</li>"));
-                var wgIdParams = wgs.Select(wg => $"wg={wg.Id}");
-                var countryIdParams = countryIds.Select(countryId => $"c={countryId}");
-                var queryParams = string.Join("&", wgIdParams.Concat(countryIdParams));
+                var portfolioUrl = $"{this.WebApplicationHost}/portfolio";
+                var link = BuildLink(portfolioUrl, "Link on Portfolio", new Dictionary<string, IEnumerable>
+                {
+                    ["wg"] = wgIds,
+                    ["c"] = countryIds
+                });
 
                 return string.Concat(
                     $"{RoleConstants.ScdAdmin} finished editing the portfolio by warranty groups:",
                     $"<ul>{wgNames}</ul>",
-                    $"<a href=\"{portfolioUrl}?{queryParams}\">Link on Portfolio</a>");
+                    link);
             }
+        }
+
+        private string BuildLink(string url, string text, IDictionary<string, IEnumerable> queryParams = null)
+        {
+            if (queryParams != null)
+            {
+                var urlPrams = 
+                    queryParams.Select(keyValue => new
+                               {
+                                 keyValue.Key,
+                                 Value = keyValue.Value.OfType<object>().ToArray()
+                               })
+                               .Where(keyValue => keyValue.Value.Length > 0)
+                               .SelectMany(keyValue => keyValue.Value.Select(value => $"{keyValue.Key}={value}"));
+
+
+                url = $"{url}?{string.Join("&", urlPrams)}";
+            }
+
+            return $"<a href=\"{url}\">{text}</a>";
         }
 
         private void Send(
             string subject, 
             string htmlBody, 
             IEnumerable<string> toAddresses, 
-            string fromAddress = "SCD_Admin@ts.fujitsu.com")
+            string fromAddress = null)
         {
+            if (fromAddress == null)
+            {
+                fromAddress = this.EmailSenderAddress;
+            }
+
             var mailMessage = new MailMessage
             {
                 From = new MailAddress(fromAddress),
@@ -156,6 +214,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             this.client.Send(mailMessage);
+        }
+
+        private void Send(
+            string subject,
+            string htmlBody,
+            IEnumerable<User> targetUsers,
+            string fromAddress = null)
+        {
+            var emails = targetUsers.Select(user => user.Email);
+
+            this.Send(subject, htmlBody, emails, fromAddress);
         }
 
         private async Task<string> GenerateDetailedBodyAsync(CostBlockHistory history)

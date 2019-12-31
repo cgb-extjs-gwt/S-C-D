@@ -14,5 +14,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         IQueryable<Country> GetCurrentUserCountries();
 
         IQueryable<User> GetCountryKeyUsers();
+
+        IQueryable<User> GetAdmins();
+
+        IQueryable<User> GetPrsPsmUsers();
     }
 }

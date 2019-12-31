@@ -84,9 +84,8 @@ namespace Gdc.Scd.Web.Server.Controllers
         public void NotifyCountryUsers(NamedId[] wgDtos)
         {
             var wgIds = wgDtos.Select(wg => wg.Id).ToArray();
-            var portfolioUrl = $"{this.Request.RequestUri.Authority}/scd/portfolio";
 
-            this.portfolioService.NotifyCountryUsers(wgIds, portfolioUrl);
+            this.portfolioService.NotifyCountryUsers(wgIds);
         }
 
         private bool IsRangeValid(int start, int limit)

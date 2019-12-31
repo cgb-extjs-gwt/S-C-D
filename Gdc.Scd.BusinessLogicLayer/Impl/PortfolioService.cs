@@ -8,7 +8,6 @@ using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -185,19 +184,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        public void NotifyCountryUsers(long[] wgIds, string portfolioUrl)
+        public void NotifyCountryUsers(long[] wgIds)
         {
-            var wgs = this.wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).ToArray();
-            var users = this.userService.GetCountryKeyUsers().ToArray();
-
-            this.emailService.SendPortfolioNotifications(wgs, users, portfolioUrl);
-
-            foreach (var wg in wgs)
+            if (wgIds.Length > 0)
             {
-                wg.IsNotified = true;
-            }
+                var wgs = this.wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).ToArray();
+                var users = this.userService.GetCountryKeyUsers().ToArray();
 
-            this.wgService.Save(wgs);
+                this.emailService.SendPortfolioNotifications(wgs, users);
+
+                foreach (var wg in wgs)
+                {
+                    wg.IsNotified = true;
+                }
+
+                this.wgService.Save(wgs);
+            }
         }
 
         private void UpdatePortfolio(User changeUser, PortfolioRuleSetDto m, bool deny)

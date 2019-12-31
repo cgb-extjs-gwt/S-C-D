@@ -16,6 +16,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<(PortfolioHistoryDto[] items, int total)> GetHistory(int start, int limit);
 
-        void NotifyCountryUsers(long[] wgIds, string portfolioUrl);
+        void NotifyCountryUsers(long[] wgIds);
     }
 }

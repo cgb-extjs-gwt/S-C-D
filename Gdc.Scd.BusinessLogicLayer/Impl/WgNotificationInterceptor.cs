@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Interfaces;
+using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -13,22 +11,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly INotifyChannel notifyChannel;
 
-        private readonly IUserRepository userRepository;
+        private readonly IUserService userService;
 
-        public WgNotificationInterceptor(IEmailService emailService, INotifyChannel notifyChannel, IUserRepository userRepository)
+        public WgNotificationInterceptor(IEmailService emailService, INotifyChannel notifyChannel, IUserService userService)
         {
             this.emailService = emailService;
             this.notifyChannel = notifyChannel;
-            this.userRepository = userRepository;
+            this.userService = userService;
         }
 
         public void Handle(Wg[] items)
         {
             try
             {
-                var admins = this.userRepository.GetAdmins();
+                var admins = this.userService.GetAdmins().ToArray();
+                var prsPsms = this.userService.GetPrsPsmUsers().ToArray();
 
-                this.emailService.SendNewWgEmail(items, admins.Select(admin => admin.Email));
+                this.emailService.SendNewWgEmail(items, admins, prsPsms);
 
                 var message = $"New warranty groups were added: {string.Join(", ", items.Select(item => item.Name))}";
 

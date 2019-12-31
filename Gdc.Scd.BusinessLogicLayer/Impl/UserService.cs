@@ -70,9 +70,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IQueryable<User> GetCountryKeyUsers()
         {
+            return
+                this.GetUsersByRole(
+                    this.userRepository.GetAllWithRoles(),
+                    RoleConstants.CountryKeyUser);
+        }
+
+        public IQueryable<User> GetAdmins()
+        {
+            return
+                this.GetAll()
+                    .Where(
+                        user => user.UserRoles.Any(
+                            userRole => userRole.Role.RolePermissions.Any(
+                                rolePerm => rolePerm.Permission.Name == PermissionConstants.Admin)));
+        }
+
+        public IQueryable<User> GetPrsPsmUsers()
+        {
             return 
-                this.userRepository.GetAllWithRoles()
-                                   .Where(user => user.UserRoles.Any(userRole => userRole.Role.Name == RoleConstants.CountryKeyUser));
+                this.GetUsersByRole(
+                    this.GetAll(), 
+                    RoleConstants.PrsPsm);
         }
 
         private IQueryable<Role> GetUserRoles(string userLogin)
@@ -82,6 +101,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     .Where(user => user.Login == userLogin)
                     .SelectMany(user => user.UserRoles)
                     .Select(userRole => userRole.Role);
+        }
+
+        private IQueryable<User> GetUsersByRole(IQueryable<User> query, string roleName)
+        {
+            return query.Where(user => user.UserRoles.Any(userRole => userRole.Role.Name == roleName));
         }
     }
 }
