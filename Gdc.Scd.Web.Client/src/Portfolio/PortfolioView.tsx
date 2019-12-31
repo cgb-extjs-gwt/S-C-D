@@ -12,8 +12,11 @@ import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { NotifyButtonContainer } from "./Components/NotifyButtonContainer";
+import { toArray } from "../Common/Helpers/ArrayHelper";
+import { RouteComponentProps } from "react-router";
+import { hasQueryParams, deleteQueryParams } from "../Common/Helpers/RouterHelper";
 
-export class PortfolioView extends React.Component<any, any> {
+export class PortfolioView extends React.Component<RouteComponentProps> {
 
     private grid: Grid;
 
@@ -57,7 +60,7 @@ export class PortfolioView extends React.Component<any, any> {
 
         return (
             <Container scrollable={true}>
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser} seletedIds={selectedIds} onSetDefaultValues={this.reload}/>
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser} seletedIds={selectedIds} onSetDefaultValues={this.onFilterSetDefaultValues}/>
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
@@ -102,17 +105,19 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     private buildSelectedIds(): SelectedIds {
-        const queryData = Ext.Object.fromQueryString(this.props.location.search);
+        const result: SelectedIds = {};
 
-        return {
-            wgs: convertToIds(queryData.wg),
-            countries: convertToIds(queryData.c)
-        };
+        if (hasQueryParams(this.props)) {
+            const queryData = Ext.Object.fromQueryString(this.props.location.search);
+
+            result.wgs = convertToIds(queryData.wg);
+            result.countries = convertToIds(queryData.c);
+        } 
+
+        return result;
 
         function convertToIds(value: any) {
-            const array: any[] = Array.isArray(value) ? value : [value];
-
-            return array.map(x => +x).filter(x => Number.isInteger(x));
+            return toArray(value).map(x => +x).filter(x => Number.isInteger(x));
         }
     }
 
@@ -185,5 +190,11 @@ export class PortfolioView extends React.Component<any, any> {
 
     private getSelectedRows(): string[] {
         return ExtDataviewHelper.getGridSelected(this.grid, 'id');
+    }
+    
+    private onFilterSetDefaultValues = () => {
+        deleteQueryParams(this.props)
+
+        this.reload();
     }
 }

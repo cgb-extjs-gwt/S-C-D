@@ -18,6 +18,7 @@ import { ApiUrls } from "../../Common/Components/AjaxDynamicGrid";
 import { RouteComponentProps } from "react-router";
 import { VALUE_DATA_INDEX, CHECKED_DATA_INDEX } from "../../Common/Components/LocalDynamicGrid";
 import { toArray } from "../../Common/Helpers/ArrayHelper";
+import { hasQueryParams, deleteQueryParams } from "../../Common/Helpers/RouterHelper";
 
 const buildProps = (() => {
     let oldMeta: CostMetaData;
@@ -288,7 +289,7 @@ const buildActions = (() => {
         }
 
         function setFiltersByUrl(filterStores: Map<string, Store<FilterItem>>, router: RouteComponentProps) {
-            if (router.history.location.search) {
+            if (hasQueryParams(router)) {
                 const queryData = Ext.Object.fromQueryString(router.location.search);
 
                 Object.keys(queryData).map(key => key.toLowerCase()).forEach(dataIndex => {
@@ -311,7 +312,7 @@ const buildActions = (() => {
                             }
                         });
 
-                        router.history.push(router.history.location.pathname);
+                        deleteQueryParams(router);
                     }
                 });
             }
