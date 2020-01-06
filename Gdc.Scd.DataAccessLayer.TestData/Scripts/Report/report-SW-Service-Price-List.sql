@@ -61,15 +61,13 @@ begin
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 0
 
-    join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
-										 and fsp.DurationId = sw.Year
-										 and fsp.SwDigitId = sw.SwDigit
-										 and fsp.Name is not null
-    join InputAtoms.SwLicense lic on fsp.SwLicenseId = lic.id
-								     and lic.Description is not null
+    join Fsp.SwFspCodeTranslation fsp on fsp.Id = sw.FspId 
+
+    join InputAtoms.SwDigitLicense diglic on diglic.SwDigitId = dig.Id and diglic.SwFspCode = fsp.Name
+    join InputAtoms.SwLicense lic on diglic.SwLicenseId = lic.Id
     return
 end
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SW-SERVICE-PRICE-LIST');
 declare @index int = 0;

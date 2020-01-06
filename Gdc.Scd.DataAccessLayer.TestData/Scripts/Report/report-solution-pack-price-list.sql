@@ -57,16 +57,14 @@ begin
     join Dependencies.Availability av on av.id = sw.Availability
     join Dependencies.Year y on y.Id = sw.Year
 
-    join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
-                                          and fsp.AvailabilityId = sw.Availability
-                                          and fsp.DurationId = sw.Year
+    join Fsp.SwFspCodeTranslation fsp on fsp.Id = sw.FspId 
 
-    left join InputAtoms.SwDigitLicense dl on dl.SwDigitId = dig.Id
-    left join InputAtoms.SwLicense lic on lic.Id = dl.SwLicenseId
+    join InputAtoms.SwDigitLicense diglic on diglic.SwDigitId = dig.Id and diglic.SwFspCode = fsp.Name
+    join InputAtoms.SwLicense lic on diglic.SwLicenseId = lic.Id
 
     return
 end
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SOLUTIONPACK-PRICE-LIST');
 declare @index int = 0;
