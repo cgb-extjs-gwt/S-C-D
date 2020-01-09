@@ -46,7 +46,10 @@ begin
 
     insert into @tbl
     select 
-              lic.Description as LicenseDescription
+              (select top(1) Description
+                    from InputAtoms.SwLicense lic
+                    where exists(select * from InputAtoms.SwDigitLicense dl where SwFspCode = sw.Fsp and SwDigitId = dig.Id and SwLicenseId = lic.Id)
+                ) as LicenseDescription
             , sog.Name as Sog
             , fsp.Name as Fsp
 
@@ -63,8 +66,6 @@ begin
 
     join Fsp.SwFspCodeTranslation fsp on fsp.Id = sw.FspId 
 
-    join InputAtoms.SwDigitLicense diglic on diglic.SwDigitId = dig.Id and diglic.SwFspCode = fsp.Name
-    join InputAtoms.SwLicense lic on diglic.SwLicenseId = lic.Id
     return
 end
 go
