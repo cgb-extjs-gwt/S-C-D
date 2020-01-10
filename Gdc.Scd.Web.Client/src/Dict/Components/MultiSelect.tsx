@@ -45,8 +45,10 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         sorters.remove(this.nameField);
         sorters.add(this.nameField);
         //
-        this.props.store().then(x => store.setData(x));
-        store.on('datachanged', this.setDefaultValue);
+        this.props.store().then(x => {
+            store.setData(x);
+            this.setDefaultValue()
+        });
     }
 
     private setDefaultValue = () => {
