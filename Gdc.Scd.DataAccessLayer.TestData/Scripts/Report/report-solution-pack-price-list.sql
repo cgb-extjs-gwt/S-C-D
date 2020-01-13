@@ -7,8 +7,7 @@ CREATE FUNCTION [Report].[SolutionPackPriceList]
     @digit bigint
 )
 RETURNS @tbl TABLE (
-      License nvarchar(max) NULL
-    , SogDescription nvarchar(max) NULL
+      SogDescription nvarchar(max) NULL
     , Sog nvarchar(max) NULL
 
     , Availability nvarchar(255) NULL
@@ -36,8 +35,7 @@ begin
         where sw.SwDigit not in (select DigitId from SoftwareSolution.ProActiveDigits)
     )
     insert into @tbl
-    select    lic.Name as License
-            , sog.Description as SogDescription
+    select    sog.Description as SogDescription
             , sog.Name as Sog
 
             , av.Name as Availability
@@ -59,9 +57,6 @@ begin
 
     join Fsp.SwFspCodeTranslation fsp on fsp.Id = sw.FspId 
 
-    join InputAtoms.SwDigitLicense diglic on diglic.SwDigitId = dig.Id and diglic.SwFspCode = fsp.Name
-    join InputAtoms.SwLicense lic on diglic.SwLicenseId = lic.Id
-
     return
 end
 go
@@ -71,8 +66,6 @@ declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'License', 'SW Product Order no.', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'SogDescription', 'Infrastructure Solution', 1, 1);
 set @index = @index + 1;
