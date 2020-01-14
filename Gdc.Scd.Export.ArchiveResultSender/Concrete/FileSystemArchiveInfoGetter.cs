@@ -1,11 +1,11 @@
-﻿using Gdc.Scd.Core.Dto;
-using Gdc.Scd.Export.ArchiveResultSender.Abstract;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Gdc.Scd.Core.Dto;
+using Gdc.Scd.Export.ArchiveResultSenderJob.Abstract;
 
-namespace Gdc.Scd.Export.ArchiveResultSender.Concrete
+namespace Gdc.Scd.Export.ArchiveResultSenderJob.Concrete
 {
     public class FileSystemArchiveInfoGetter : IArchiveInfoGetter
     {        

@@ -1,9 +1,11 @@
-﻿using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.IO;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using Gdc.Scd.Export.ArchiveJob.Dto;
+using Gdc.Scd.Export.ArchiveJob.Helpers;
 
-namespace Gdc.Scd.Export.Archive.Procedures
+namespace Gdc.Scd.Export.ArchiveJob.Procedures
 {
     public class GetExcelArchive
     {

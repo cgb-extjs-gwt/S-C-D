@@ -1,20 +1,16 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using System;
+﻿using System;
 using System.IO;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Export.Archive;
+using Gdc.Scd.Export.ArchiveJob.Dto;
 
-namespace Gdc.Scd.Export.Archive
+namespace Gdc.Scd.Export.ArchiveJob
 {
     public class ArchiveService
     {
         private IArchiveRepository repo;
 
         private ILogger logger;
-        private object p;
-
-        public ArchiveService(object p)
-        {
-            this.p = p;
-        }
 
         public ArchiveService(IArchiveRepository repo, ILogger logger)
         {

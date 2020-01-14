@@ -3,7 +3,7 @@ using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
 
-namespace Gdc.Scd.Export.ArchiveResultSender
+namespace Gdc.Scd.Export.ArchiveResultSenderJob
 {
     public class ArchiveResultSenderJob
     {

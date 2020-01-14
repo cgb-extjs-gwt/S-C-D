@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.Export.ArchiveResultSender;
+﻿using Gdc.Scd.Export.ArchiveResultSenderJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.ArchiveResultSender
 {

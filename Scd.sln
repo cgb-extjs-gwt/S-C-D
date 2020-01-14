@@ -58,11 +58,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.BusinessLogic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.MigrationTool", "Gdc.Scd.MigrationTool\Gdc.Scd.MigrationTool.csproj", "{D9A9C773-1E12-43C2-A665-711277962C00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.Archive", "Gdc.Scd.Export.Archive\Gdc.Scd.Export.Archive.csproj", "{D8DAE070-26E3-451A-8611-8A2756342D49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.ArchiveJob", "Gdc.Scd.Export.Archive\Gdc.Scd.Export.ArchiveJob.csproj", "{D8DAE070-26E3-451A-8611-8A2756342D49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.Export.Archive", "Gdc.Scd.Tests.Integration.Export.Archive\Gdc.Scd.Tests.Integration.Export.Archive.csproj", "{2ED69B18-C56A-4836-9F04-AC24461C6FEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.ArchiveResultSender", "Gdc.Scd.Export.ArchiveResultSender\Gdc.Scd.Export.ArchiveResultSender.csproj", "{FA1F3056-AD29-4F38-8553-15E690079280}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.ArchiveResultSenderJob", "Gdc.Scd.Export.ArchiveResultSender\Gdc.Scd.Export.ArchiveResultSenderJob.csproj", "{FA1F3056-AD29-4F38-8553-15E690079280}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase", "Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase\Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase.csproj", "{8C1102E1-3077-42D5-B0F5-0F473159BD25}"
 EndProject

@@ -1,11 +1,11 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Export.ArchiveResultSender.Abstract;
-using Gdc.Scd.Export.ArchiveResultSender.Concrete;
+using Gdc.Scd.Export.ArchiveResultSenderJob.Abstract;
+using Gdc.Scd.Export.ArchiveResultSenderJob.Concrete;
 using Ninject;
 using Ninject.Modules;
 
-namespace Gdc.Scd.Export.ArchiveResultSender
+namespace Gdc.Scd.Export.ArchiveResultSenderJob
 {
     public class Module : NinjectModule
     {

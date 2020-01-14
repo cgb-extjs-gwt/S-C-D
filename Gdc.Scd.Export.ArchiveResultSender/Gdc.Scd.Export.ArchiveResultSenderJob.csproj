@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FA1F3056-AD29-4F38-8553-15E690079280}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Gdc.Scd.Export.ArchiveResultSender</RootNamespace>
-    <AssemblyName>Gdc.Scd.Export.ArchiveResultSender</AssemblyName>
+    <RootNamespace>Gdc.Scd.Export.ArchiveResultSenderJob</RootNamespace>
+    <AssemblyName>Gdc.Scd.Export.ArchiveResultSenderJob</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

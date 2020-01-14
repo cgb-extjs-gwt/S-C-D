@@ -1,9 +1,11 @@
-﻿using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.Archive.Procedures;
-using System;
+﻿using System;
 using System.IO;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Export.Archive;
+using Gdc.Scd.Export.ArchiveJob.Dto;
+using Gdc.Scd.Export.ArchiveJob.Procedures;
 
-namespace Gdc.Scd.Export.Archive.Impl
+namespace Gdc.Scd.Export.ArchiveJob.Impl
 {
     public class ArchiveRepository : IArchiveRepository
     {

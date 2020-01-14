@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.Archive.Impl;
+using Gdc.Scd.Export.ArchiveJob.Impl;
 using Gdc.Scd.Import.Core.Impl;
 using Ninject;
 using Ninject.Modules;

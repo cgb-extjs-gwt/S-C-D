@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Export.Archive;
+using Gdc.Scd.Export.ArchiveJob.Dto;
 using System.IO;
 using System.Linq;
 

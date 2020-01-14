@@ -74,7 +74,9 @@
     <Compile Include="Testings\FileArchiveRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -88,9 +90,9 @@
       <Project>{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Export.Archive\Gdc.Scd.Export.Archive.csproj">
+    <ProjectReference Include="..\Gdc.Scd.Export.Archive\Gdc.Scd.Export.ArchiveJob.csproj">
       <Project>{D8DAE070-26E3-451A-8611-8A2756342D49}</Project>
-      <Name>Gdc.Scd.Export.Archive</Name>
+      <Name>Gdc.Scd.Export.ArchiveJob</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
       <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>

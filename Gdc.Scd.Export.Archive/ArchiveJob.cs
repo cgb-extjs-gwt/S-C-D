@@ -1,9 +1,10 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using System;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Export.Archive;
 using Gdc.Scd.OperationResult;
 using Ninject;
-using System;
 
-namespace Gdc.Scd.Export.Archive
+namespace Gdc.Scd.Export.ArchiveJob
 {
     public class ArchiveJob
     {

@@ -1,8 +1,9 @@
 ﻿using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Archive;
-using Gdc.Scd.Export.Archive.Impl;
 using System.IO;
 using System.Reflection;
+using Gdc.Scd.Export.ArchiveJob.Impl;
+using Gdc.Scd.Export.ArchiveJob.Dto;
 
 namespace Gdc.Scd.Tests.Integration.Export.Archive
 {

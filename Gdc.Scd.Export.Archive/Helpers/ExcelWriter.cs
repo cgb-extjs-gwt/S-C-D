@@ -1,9 +1,9 @@
-﻿using ClosedXML.Excel;
-using System;
+﻿using System;
 using System.Data.Common;
 using System.IO;
+using ClosedXML.Excel;
 
-namespace Gdc.Scd.Export.Archive
+namespace Gdc.Scd.Export.ArchiveJob.Helpers
 {
     public class ExcelWriter : IDisposable
     {

@@ -1,8 +1,8 @@
-﻿using Gdc.Scd.Export.ArchiveResultSender;
-using Gdc.Scd.Tests.Integration.Import.Logistics.Testings;
+﻿using Gdc.Scd.Tests.Integration.Import.Logistics.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
+using Gdc.Scd.Export.ArchiveResultSenderJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.ArchiveResultSender
 {
