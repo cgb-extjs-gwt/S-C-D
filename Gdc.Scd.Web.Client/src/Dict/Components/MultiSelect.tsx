@@ -69,6 +69,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
             });
 
             this.lst.select(records);
+            this.onListClick();
         }
 
         this.props.onSetDefaultValue && this.props.onSetDefaultValue();
