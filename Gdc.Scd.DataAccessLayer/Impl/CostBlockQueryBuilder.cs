@@ -53,6 +53,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             string BuildApprovedColumnAlias(string costElementId) => $"{costElementId}_IsApproved";
 
+            string BuildCountValueColumnAlias(string costElementId) => $"{costElementId}_CountValue";
+
             QueryColumnInfo BuildApprovedColumn(FieldMeta valueField)
             {
                 var valueApprovedField = queryData.CostBlock.CostElementsApprovedFields[valueField];
@@ -73,12 +75,30 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                                     SqlOperators.IsNull(valueColumn)
                                                                 .And(SqlOperators.IsNull(valueApprovedColumn)))
                                                 .ToSqlBuilder(),
-                                Then = new RawSqlBuilder("1")
+                                Then = new ValueSqlBuilder(true)
                             }
                         },
-                        Else = new RawSqlBuilder("0")
+                        Else = new ValueSqlBuilder(false)
                     },
                     alias);
+            }
+
+            QueryColumnInfo BuildCountValueColumn(FieldMeta valueField)
+            {
+                return new QueryColumnInfo(
+                    new CaseSqlBuilder
+                    {
+                        Cases = new[]
+                        {
+                            new CaseItem
+                            {
+                                When = SqlOperators.IsNull(valueField.Name).ToSqlBuilder(),
+                                Then = new ValueSqlBuilder(string.Empty)
+                            },
+                        },
+                        Else = new ColumnSqlBuilder(valueField.Name)
+                    },
+                    BuildCountValueColumnAlias(valueField.Name));
             }
 
             GroupBySqlHelper BuildInnerQuery()
@@ -88,7 +108,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     queryData.CostElementInfos.Select(costElementInfo => queryData.CostBlock.CostElementsFields[costElementInfo.CostElementId])
                              .SelectMany(valueField => new BaseColumnInfo[]
                              {
-                                 new ColumnInfo(valueField.Name),
+                                 new ColumnInfo(valueField),
+                                 BuildCountValueColumn(valueField),
                                  BuildApprovedColumn(valueField)
                              })
                              .Concat(selectGroupByColumns)
@@ -105,7 +126,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var valueField = queryData.CostBlock.CostElementsFields[costElementInfo.CostElementId];
                 var maxValueColumn = SqlFunctions.Min(valueField, costBlockAlias, costElementInfo.ValueColumnAlias);
-                var countColumn = SqlFunctions.Count(valueField.Name, true, costBlockAlias, costElementInfo.CountColumnAlias);
+                var countValueColumnAlias = BuildCountValueColumnAlias(valueField.Name);
+                var countColumn = SqlFunctions.Count(countValueColumnAlias, true, costBlockAlias, costElementInfo.CountColumnAlias);
                 var approvedColumnAlias = BuildApprovedColumnAlias(valueField.Name);
                 var approvedColumn = SqlFunctions.Min(approvedColumnAlias, costBlockAlias, costElementInfo.IsApprovedColumnAlias);
 

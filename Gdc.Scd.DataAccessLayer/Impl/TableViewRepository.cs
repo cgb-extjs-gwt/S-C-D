@@ -76,14 +76,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     foreach (var costElementInfo in costBlockInfo.CostElementInfos)
                     {
-                        record.Data.Add(
-                            costElementInfo.DataIndex,
-                            new TableViewCellData
-                            {
-                                Value = reader[costElementInfo.ValueColumn],
-                                Count = (int)reader[costElementInfo.CountColumn],
-                                IsApproved = (int)reader[costElementInfo.IsApprovedColumn] == 1
-                            });
+                        var value = reader[costElementInfo.ValueColumn];
+
+                        var cellData = new TableViewCellData
+                        {
+                            Value = value == DBNull.Value ? null : value,
+                            Count = (int)reader[costElementInfo.CountColumn],
+                            IsApproved = (int)reader[costElementInfo.IsApprovedColumn] == 1
+                        };
+
+                        record.Data.Add(costElementInfo.DataIndex, cellData);
                     }
                 }
 
