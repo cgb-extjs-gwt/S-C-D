@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Gdc.Scd.Export.CdCs.Helpers
+namespace Gdc.Scd.Export.CdCsJob.Helpers
 {
     public static class StreamHelper
     {

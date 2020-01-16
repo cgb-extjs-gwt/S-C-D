@@ -2,11 +2,11 @@
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using Gdc.Scd.Export.CdCs.Dto;
+using Gdc.Scd.Export.CdCsJob.Dto;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Gdc.Scd.Export.CdCs.Procedures
+namespace Gdc.Scd.Export.CdCsJob.Procedures
 {
     public class GetHddRetentionCosts
     {

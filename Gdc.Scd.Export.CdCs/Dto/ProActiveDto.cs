@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Export.CdCs.Dto
+﻿namespace Gdc.Scd.Export.CdCsJob.Dto
 {
     public class ProActiveDto
     {

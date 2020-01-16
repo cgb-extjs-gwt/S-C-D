@@ -8,11 +8,12 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	DECLARE @notEscapedTableName nvarchar(500) = @tableName;
     set @tableName = REPLACE(REPLACE(@tableName, '[', ''), ']', '');
 
 	--RUN ENABLE TRIGGER
 	DECLARE @cmd AS nvarchar(MAX)
-	SET @cmd = N'ENABLE TRIGGER ALL ON ' + @tableName
+	SET @cmd = N'ENABLE TRIGGER ALL ON ' + @notEscapedTableName
 	EXEC sp_executesql @cmd
 
 	--CALCULATE PRIMARY KEY COLUMN
@@ -33,9 +34,9 @@ BEGIN
 	WHERE id=OBJECT_ID(@tableName) AND [name] != @primaryKey
 	
 	--UPDATE COLUMN TO RUN TRIGGER
-	SET @cmd = N'UPDATE ' + @tableName + 
+	SET @cmd = N'UPDATE ' + @notEscapedTableName + 
 	             ' SET '+ @columnToUpdate + ' = ' + @columnToUpdate + 
-				 ' WHERE ' + @primaryKey + ' = (SELECT TOP(1) ' + @primaryKey + ' FROM ' + @tableName+')';
+				 ' WHERE ' + @primaryKey + ' = (SELECT TOP(1) ' + @primaryKey + ' FROM ' + @notEscapedTableName +')';
 	EXEC sp_executesql @cmd
 END
 

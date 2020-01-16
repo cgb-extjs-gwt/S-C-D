@@ -1,12 +1,12 @@
 ﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Export.CdCs.Dto;
-using Gdc.Scd.Export.CdCs.Helpers;
+using Gdc.Scd.Export.CdCsJob.Dto;
+using Gdc.Scd.Export.CdCsJob.Helpers;
 using Microsoft.SharePoint.Client;
 using System.IO;
 using System.Net;
 using SharePointFile = Microsoft.SharePoint.Client.File;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCsJob
 {
     public class SharePointClient
     {

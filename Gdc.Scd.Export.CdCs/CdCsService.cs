@@ -1,12 +1,12 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.CdCs.Dto;
-using Gdc.Scd.Export.CdCs.Helpers;
-using Gdc.Scd.Export.CdCs.Procedures;
+using Gdc.Scd.Export.CdCsJob.Dto;
+using Gdc.Scd.Export.CdCsJob.Helpers;
+using Gdc.Scd.Export.CdCsJob.Procedures;
 using System.IO;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCsJob
 {
     public class CdCsService
     {

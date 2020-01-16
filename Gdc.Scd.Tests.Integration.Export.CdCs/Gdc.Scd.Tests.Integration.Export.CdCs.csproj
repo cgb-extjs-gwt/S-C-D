@@ -76,9 +76,9 @@
       <Project>{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Export.CdCs\Gdc.Scd.Export.CdCs.csproj">
+    <ProjectReference Include="..\Gdc.Scd.Export.CdCs\Gdc.Scd.Export.CdCsJob.csproj">
       <Project>{7479E275-0666-47BA-AD26-10285A0F1E75}</Project>
-      <Name>Gdc.Scd.Export.CdCs</Name>
+      <Name>Gdc.Scd.Export.CdCsJob</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
       <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>

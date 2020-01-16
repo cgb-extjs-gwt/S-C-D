@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
-namespace Gdc.Scd.Export.CdCs.Procedures
+namespace Gdc.Scd.Export.CdCsJob.Procedures
 {
     public class CommonService
     {

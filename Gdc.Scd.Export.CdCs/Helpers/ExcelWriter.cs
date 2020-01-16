@@ -1,10 +1,10 @@
 ﻿using ClosedXML.Excel;
-using Gdc.Scd.Export.CdCs.Dto;
+using Gdc.Scd.Export.CdCsJob.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Gdc.Scd.Export.CdCs.Helpers
+namespace Gdc.Scd.Export.CdCsJob.Helpers
 {
     public class ExcelWriter : IDisposable
     {
