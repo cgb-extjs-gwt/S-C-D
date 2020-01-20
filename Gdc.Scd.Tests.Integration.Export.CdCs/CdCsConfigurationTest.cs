@@ -1,5 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Export.CdCs.Helpers;
+using Gdc.Scd.Export.CdCsJob.Helpers;
 using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs

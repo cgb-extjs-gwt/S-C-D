@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.Export.CdCs;
+﻿using Gdc.Scd.Export.CdCsJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {
