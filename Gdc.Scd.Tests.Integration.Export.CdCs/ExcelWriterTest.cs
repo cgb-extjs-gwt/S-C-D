@@ -1,5 +1,5 @@
-﻿using Gdc.Scd.Export.CdCs.Dto;
-using Gdc.Scd.Export.CdCs.Helpers;
+﻿using Gdc.Scd.Export.CdCsJob.Dto;
+using Gdc.Scd.Export.CdCsJob.Helpers;
 using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;

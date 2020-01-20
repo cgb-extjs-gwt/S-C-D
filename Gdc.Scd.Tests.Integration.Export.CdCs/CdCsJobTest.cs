@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.Export.CdCs;
+﻿using Gdc.Scd.Export.CdCsJob;
 using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;

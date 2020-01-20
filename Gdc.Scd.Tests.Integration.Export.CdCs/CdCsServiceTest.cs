@@ -1,5 +1,5 @@
 ﻿using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.CdCs;
+using Gdc.Scd.Export.CdCsJob;
 using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using Gdc.Scd.Tests.Util;
 using Ninject;
@@ -17,7 +17,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
 
         public CdCsServiceTest()
         {
-            kernel = Gdc.Scd.Export.CdCs.Module.CreateKernel();
+            kernel = Gdc.Scd.Export.CdCsJob.Module.CreateKernel();
             repo = kernel.Get<IRepositorySet>();
 
             testing = new CdCsService(repo, new FileSharePointClient(), new FakeLogger());
