@@ -1,5 +1,5 @@
 ﻿using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.CdCs.Procedures;
+using Gdc.Scd.Export.CdCsJob.Procedures;
 using Ninject;
 using NUnit.Framework;
 
@@ -15,7 +15,7 @@ namespace Gdc.Scd.Tests.Integration.Export.CdCs
 
         public ProcedureTest()
         {
-            kernel = Gdc.Scd.Export.CdCs.Module.CreateKernel();
+            kernel = Gdc.Scd.Export.CdCsJob.Module.CreateKernel();
             repo = kernel.Get<IRepositorySet>();
         }
 

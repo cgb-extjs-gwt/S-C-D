@@ -1,5 +1,5 @@
-﻿using Gdc.Scd.Export.CdCs;
-using System;
+﻿using System;
+using Gdc.Scd.Export.CdCsJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
 {

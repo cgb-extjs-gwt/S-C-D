@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Export.CdCs;
-using Gdc.Scd.Export.CdCs.Dto;
+using Gdc.Scd.Export.CdCsJob;
+using Gdc.Scd.Export.CdCsJob.Dto;
 using Gdc.Scd.Tests.Util;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs.Testings
