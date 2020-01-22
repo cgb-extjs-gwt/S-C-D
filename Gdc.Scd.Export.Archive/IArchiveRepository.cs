@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Gdc.Scd.Export.ArchiveJob.Dto;
+using System.IO;
 
 namespace Gdc.Scd.Export.Archive
 {

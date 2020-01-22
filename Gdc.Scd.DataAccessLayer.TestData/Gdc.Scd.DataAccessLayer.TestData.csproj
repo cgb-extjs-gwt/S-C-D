@@ -70,8 +70,15 @@
     <None Remove="Scripts\Report\report-solutionpack-proactive-costing.sql" />
     <None Remove="Scripts\Report\report-SW-param-overview.sql" />
     <None Remove="Scripts\Report\report-SW-Service-Price-List-detail.sql" />
+    <None Remove="Scripts\SODA\GetHw.sql" />
     <None Remove="Scripts\triggers.sql" />
     <None Remove="Scripts\Report\report-user-role.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\SODA\GetHw.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

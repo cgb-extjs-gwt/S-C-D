@@ -1,8 +1,8 @@
-﻿using Gdc.Scd.Export.CdCs.Dto;
+﻿using Gdc.Scd.Export.CdCsJob.Dto;
 using System.Configuration;
 using System.Net;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCsJob
 {
     public static class Config
     {

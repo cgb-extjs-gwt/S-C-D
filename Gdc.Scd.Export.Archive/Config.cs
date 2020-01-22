@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Gdc.Scd.Export.Archive
+namespace Gdc.Scd.Export.ArchiveJob
 {
     public static class Config
     {

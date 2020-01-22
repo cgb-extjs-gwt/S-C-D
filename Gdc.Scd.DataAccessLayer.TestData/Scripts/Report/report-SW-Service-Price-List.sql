@@ -46,7 +46,10 @@ begin
 
     insert into @tbl
     select 
-              lic.Description as LicenseDescription
+              (select top(1) Description
+                    from InputAtoms.SwLicense lic
+                    where exists(select * from InputAtoms.SwDigitLicense dl where SwFspCode = sw.Fsp and SwDigitId = dig.Id and SwLicenseId = lic.Id)
+                ) as LicenseDescription
             , sog.Name as Sog
             , fsp.Name as Fsp
 
@@ -61,15 +64,11 @@ begin
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 0
 
-    join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
-										 and fsp.DurationId = sw.Year
-										 and fsp.SwDigitId = sw.SwDigit
-										 and fsp.Name is not null
-    join InputAtoms.SwLicense lic on fsp.SwLicenseId = lic.id
-								     and lic.Description is not null
+    join Fsp.SwFspCodeTranslation fsp on fsp.Id = sw.FspId 
+
     return
 end
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SW-SERVICE-PRICE-LIST');
 declare @index int = 0;

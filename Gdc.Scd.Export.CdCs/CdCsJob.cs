@@ -4,7 +4,7 @@ using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCsJob
 {
     public class CdCsJob
     {

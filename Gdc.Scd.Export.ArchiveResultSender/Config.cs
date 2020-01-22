@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Export.ArchiveResultSender
+﻿namespace Gdc.Scd.Export.ArchiveResultSenderJob
 {
     public static class Config
     {

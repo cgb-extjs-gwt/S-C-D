@@ -7,8 +7,8 @@
     <ProjectGuid>{D8DAE070-26E3-451A-8611-8A2756342D49}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gdc.Scd.Export.Archive</RootNamespace>
-    <AssemblyName>Gdc.Scd.Export.Archive</AssemblyName>
+    <RootNamespace>Gdc.Scd.Export.ArchiveJob</RootNamespace>
+    <AssemblyName>Gdc.Scd.Export.ArchiveJob</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

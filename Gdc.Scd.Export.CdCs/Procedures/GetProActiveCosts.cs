@@ -1,11 +1,11 @@
 ﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using Gdc.Scd.Export.CdCs.Dto;
+using Gdc.Scd.Export.CdCsJob.Dto;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 
-namespace Gdc.Scd.Export.CdCs.Procedures
+namespace Gdc.Scd.Export.CdCsJob.Procedures
 {
     public class GetProActiveCosts
     {

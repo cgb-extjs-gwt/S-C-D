@@ -1,9 +1,9 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Export.ArchiveResultSender.Abstract;
 using System;
+using Gdc.Scd.Export.ArchiveResultSenderJob.Abstract;
 
-namespace Gdc.Scd.Export.ArchiveResultSender
+namespace Gdc.Scd.Export.ArchiveResultSenderJob
 {
     public class ArchiveResultService
     {

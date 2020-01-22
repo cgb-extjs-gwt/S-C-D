@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Export.Archive;
 using System;
+using Gdc.Scd.Export.ArchiveJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.Archive
 {

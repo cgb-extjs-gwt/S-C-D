@@ -1,8 +1,9 @@
-﻿using Gdc.Scd.DataAccessLayer.Interfaces;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Export.ArchiveJob.Dto;
 
-namespace Gdc.Scd.Export.Archive.Procedures
+namespace Gdc.Scd.Export.ArchiveJob.Procedures
 {
     public class GetCountries
     {

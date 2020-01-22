@@ -32,7 +32,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 throw new FileNotFoundException(ImportConstants.COULD_NOT_FIND_FILE, info.File);
             var fileName = Path.GetFileName(filePath);
             File.Copy(filePath, 
-                Path.Combine(info.ProcessedFilePath, $"{Path.GetFileNameWithoutExtension(fileName)}_{DateTime.Now.ToShortDateString()}{Path.GetExtension(fileName)}"), true);
+                Path.Combine(info.ProcessedFilePath, $"{Path.GetFileNameWithoutExtension(fileName)}_{DateTime.Now:dd.MM.yyyy}{Path.GetExtension(fileName)}"), true);
             File.Delete(filePath);
         }
 

@@ -1,4 +1,4 @@
-﻿IF OBJECT_ID('Report.StandardWarranty') IS NOT NULL
+IF OBJECT_ID('Report.StandardWarranty') IS NOT NULL
   DROP FUNCTION Report.StandardWarranty;
 go 
 
@@ -98,4 +98,4 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 set @index = @index + 1;                                                                        
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wgstandard', 1), 'wg', 'Warranty Group');
 set @index = @index + 1;                                                                        
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('boolean', 0), 'islocal', 'Local Currency');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('boolean', 0), 'islocal', 'Show in Local Currency');

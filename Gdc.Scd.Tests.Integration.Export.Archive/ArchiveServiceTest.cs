@@ -1,7 +1,9 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Archive;
-using Gdc.Scd.Export.Archive.Impl;
+using Gdc.Scd.Export.ArchiveJob;
+using Gdc.Scd.Export.ArchiveJob.Dto;
+using Gdc.Scd.Export.ArchiveJob.Impl;
 using Gdc.Scd.Tests.Util;
 using Ninject;
 using NUnit.Framework;

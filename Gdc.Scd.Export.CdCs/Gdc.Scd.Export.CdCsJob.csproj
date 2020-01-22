@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{7479E275-0666-47BA-AD26-10285A0F1E75}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Gdc.Scd.Export.CdCs</RootNamespace>
-    <AssemblyName>Gdc.Scd.Export.CdCs</AssemblyName>
+    <RootNamespace>Gdc.Scd.Export.CdCsJob</RootNamespace>
+    <AssemblyName>Gdc.Scd.Export.CdCsJob</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -65,7 +65,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     Id = reader.GetInt64(0),
                     Name = reader.GetString(1),
-                    Value = valueCount == 1 ? reader.GetValue(2) : null,
+                    Value = valueCount == 1 && !reader.IsDBNull(2) ? reader.GetValue(2) : null,
                     ValueCount = valueCount,
                     IsApproved = reader.GetInt32(4) == 1
                 };

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCsJob
 {
     public class ConfigHandler
     {

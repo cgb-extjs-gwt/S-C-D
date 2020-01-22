@@ -3,11 +3,11 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Export.CdCs.Procedures;
+using Gdc.Scd.Export.CdCsJob.Procedures;
 using Ninject;
 using Ninject.Modules;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCsJob
 {
     public class Module : NinjectModule
     {

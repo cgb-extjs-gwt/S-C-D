@@ -1,6 +1,6 @@
 ﻿using ClosedXML.Excel;
 
-namespace Gdc.Scd.Export.CdCs.Helpers
+namespace Gdc.Scd.Export.CdCsJob.Helpers
 {
     public static class ExcelHelper
     {

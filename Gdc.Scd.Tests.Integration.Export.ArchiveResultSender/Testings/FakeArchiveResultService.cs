@@ -1,5 +1,5 @@
-﻿using Gdc.Scd.Export.ArchiveResultSender;
-using System;
+﻿using System;
+using Gdc.Scd.Export.ArchiveResultSenderJob;
 
 namespace Gdc.Scd.Tests.Integration.Import.Logistics.Testings
 {

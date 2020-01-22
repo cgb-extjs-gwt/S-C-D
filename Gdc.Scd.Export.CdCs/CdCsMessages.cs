@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Export.CdCs
+﻿namespace Gdc.Scd.Export.CdCsJob
 {
     public static class CdCsMessages
     {       
