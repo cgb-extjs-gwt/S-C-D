@@ -96,7 +96,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 Then = new ValueSqlBuilder(string.Empty)
                             },
                         },
-                        Else = new ColumnSqlBuilder(valueField.Name)
+                        Else = SqlFunctions.Convert(new ColumnSqlBuilder(valueField.Name), TypeCode.String)
                     },
                     BuildCountValueColumnAlias(valueField.Name));
             }

@@ -1,4 +1,4 @@
-﻿import { Button, Container, NumberField, Panel, PanelProps, TextField } from "@extjs/ext-react";
+﻿import { Button, Container, NumberField, Panel, PanelProps, TextField, CheckBoxField } from "@extjs/ext-react";
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
@@ -127,6 +127,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.SWDIGITSOG:
                 return <SwDigitSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} itemTpl={fillSogInfo} />;
 
+            case AutoFilterType.BOOLEAN:
+                return <CheckBoxField key={index} ref={model.name} name={model.name} boxLabel={model.text} checked={false} bodyAlign="left" />;
+
             case AutoFilterType.TEXT:
             default:
                 return <TextField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
@@ -202,12 +205,13 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
                 let f = this.refs[item.name] as any;
 
-                if (f.getValue()) {
+                if (item.type === AutoFilterType.BOOLEAN) {
+                    result[item.name] = f.getChecked();
+                } else if (f.getValue()) {
                     result[item.name] = f.getValue();
                 }
             }
         }
-
         return result;
     }
 
