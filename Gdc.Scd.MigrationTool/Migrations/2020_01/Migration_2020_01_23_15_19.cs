@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 140;
+        public int Number => 141;
 
         public string Description => "Fix proactive calculation, set zero for proactive(none)";
 
@@ -18,7 +18,6 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public void Execute()
         {
-            this.repositorySet.ExecuteFromFile("2020-01-22-09-28.sql");
             this.repositorySet.ExecuteFromFile("2020-01-23-15-19.sql");
         }
     }

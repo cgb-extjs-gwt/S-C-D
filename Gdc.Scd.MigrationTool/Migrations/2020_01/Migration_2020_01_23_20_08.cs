@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 141;
+        public int Number => 142;
 
         public string Description => "Fix InputAtoms.WgSogView view creation";
 
