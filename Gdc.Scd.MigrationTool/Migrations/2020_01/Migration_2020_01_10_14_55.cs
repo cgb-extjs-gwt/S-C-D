@@ -2,7 +2,6 @@
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.MigrationTool.Interfaces;
 using System.Linq;
 
@@ -14,7 +13,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 139;
+        public int Number => 777777777;
 
         public string Description => "Performance";
 
@@ -27,19 +26,11 @@ namespace Gdc.Scd.MigrationTool.Migrations
         public void Execute()
         {
             var queries =
-                this.meta.RelatedItemsHistories.Select(meta => new CreateIndexSqlBuilder
-                {
-                    Name = $"IX_{meta.Schema}_{meta.Name}_{meta.CostBlockHistoryField.Name}",
-                    Schema = meta.Schema,
-                    Table = meta.Name,
-                    Columns = new[]
-                    {
-                        new IndexColumn
-                        {
-                            ColumnName = meta.CostBlockHistoryField.Name
-                        }
-                    }
-                });
+                this.meta.RelatedItemsHistories.Select(
+                    meta => Sql.CreateIndexIfNotExists(
+                        $"IX_{meta.Schema}_{meta.Name}_{meta.CostBlockHistoryField.Name}", 
+                        meta, 
+                        new[] { new IndexColumn(meta.CostBlockHistoryField.Name) }));
 
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
