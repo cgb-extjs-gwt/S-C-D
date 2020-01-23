@@ -1,1 +1,0 @@
-﻿update Report.Report set Title = 'Availabiltiy Fee_Report' where UPPER(name) = 'FLAT-FEE-REPORTS'
