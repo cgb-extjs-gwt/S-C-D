@@ -12,7 +12,7 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 140;
+        public int Number => 139;
 
         public string Description => "Add local currency to Standard Report";
 
