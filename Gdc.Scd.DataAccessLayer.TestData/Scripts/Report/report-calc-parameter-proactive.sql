@@ -2,7 +2,7 @@
   DROP FUNCTION Report.CalcParameterProActive;
 go 
 
-CREATE FUNCTION Report.CalcParameterProActive
+CREATE FUNCTION [Report].[CalcParameterProActive]
 (
     @cnt bigint,
     @wg bigint
@@ -33,7 +33,8 @@ RETURN
 	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 
-    where pro.Country = @cnt
+    where pro.Deactivated = 0
+	and pro.Country = @cnt
       and (@wg is null or pro.Wg = @wg)
 )
 GO
