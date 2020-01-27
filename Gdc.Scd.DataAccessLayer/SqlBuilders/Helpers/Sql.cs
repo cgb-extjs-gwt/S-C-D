@@ -275,6 +275,90 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return DisableEnableTrigger(meta, DispabelEnableType.Enable);
         }
 
+        public static SqlHelper If(ISqlBuilder condition, ISqlBuilder query, ISqlBuilder elseQuery = null)
+        {
+            return new SqlHelper(new IfElseSqlBuilder
+            {
+                Condition = condition,
+                TrueQuery = query,
+                FalseQuery = elseQuery
+            });
+        }
+
+        public static SqlHelper If(SqlHelper condition, SqlHelper query, SqlHelper elseQuery = null)
+        {
+            return If(condition.ToSqlBuilder(), query.ToSqlBuilder(), elseQuery?.ToSqlBuilder());
+        }
+
+        public static SqlHelper CreateIndex(
+            string indexName, 
+            string tableName, 
+            string shemaName, 
+            IEnumerable<IndexColumn> columns,
+            IEnumerable<string> includeColumns = null,
+            IndexType type  = IndexType.Nonclustered)
+        {
+            return new SqlHelper(new CreateIndexSqlBuilder
+            {
+                Name = indexName,
+                Schema = shemaName,
+                Table = tableName,
+                Type = type,
+                Columns = columns,
+                IncludeColumns = includeColumns
+            });
+        }
+
+        public static SqlHelper CreateIndex(
+           string indexName,
+           BaseEntityMeta meta,
+           IEnumerable<IndexColumn> columns,
+           IEnumerable<string> includeColumns = null,
+           IndexType type = IndexType.Nonclustered)
+        {
+            return CreateIndex(indexName, meta.Name, meta.Schema, columns, includeColumns, type);
+        }
+
+        public static SqlHelper CreateIndexIfNotExists(
+            string indexName,
+            string tableName,
+            string shemaName,
+            IEnumerable<IndexColumn> columns,
+            IEnumerable<string> includeColumns = null,
+            IndexType type = IndexType.Nonclustered)
+        {
+            return If(
+                SqlOperators.NotExists(BuildSelectIndexQuery()),
+                CreateIndex(indexName, tableName, shemaName, columns, includeColumns, type));
+
+            ISqlBuilder BuildSelectIndexQuery()
+            {
+                var objectIdColumn = new ColumnSqlBuilder("object_id");
+                var objectIdValue = new ObjectIdSqlBuilder($"{shemaName}.{tableName}");
+
+                return
+                    Sql.Select()
+                       .From("indexes", "sys")
+                       .Where(
+                            ConditionHelper.And(
+                                SqlOperators.Equals("Name", indexName),
+                                SqlOperators.Equals(objectIdColumn, objectIdValue)))
+                       .ToSqlBuilder();
+            }
+        }
+
+        public static SqlHelper CreateIndexIfNotExists(
+            string indexName,
+            BaseEntityMeta meta,
+            IEnumerable<IndexColumn> columns,
+            IEnumerable<FieldMeta> includeFields = null,
+            IndexType type = IndexType.Nonclustered)
+        {
+            var includeColumns = includeFields?.Select(field => field.Name);
+
+            return CreateIndexIfNotExists(indexName, meta.Name, meta.Schema, columns, includeColumns, type);
+        }
+
         private static SelectIntoSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)
         {
             var selectBuilder = new SelectSqlBuilder
