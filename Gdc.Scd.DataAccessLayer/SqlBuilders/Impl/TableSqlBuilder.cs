@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+using System.Text;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
@@ -10,6 +9,22 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         public string DataBase { get; set; }
 
         public string Schema { get; set; }
+
+        public TableSqlBuilder()
+        {
+        }
+
+        public TableSqlBuilder(string tableName, string schema = null, string database = null)
+        {
+            this.Name = tableName;
+            this.Schema = schema;
+            this.DataBase = database;
+        }
+
+        public TableSqlBuilder(BaseEntityMeta meta, string database = null)
+            : this(meta.Name, meta.Schema, database)
+        {
+        }
 
         public override string Build(SqlBuilderContext context)
         {

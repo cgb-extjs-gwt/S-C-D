@@ -256,8 +256,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return In(column, valuesQuery.ToSqlBuilder(), table);
         }
 
-
-
         public static ConditionHelper Between(ISqlBuilder column, ISqlBuilder begin, ISqlBuilder end, bool isNot = false)
         {
             return new ConditionHelper(new BetweenSqlBuilder
@@ -276,6 +274,26 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             var endSqlBuilder = new RawSqlBuilder(end.ToString());
 
             return Between(columnSqlBuilder, beginSqlBuilder, endSqlBuilder, isNot);
+        }
+
+        public static ConditionHelper Exists(ISqlBuilder query)
+        {
+            return CreateConditionHelper<ExistsSqlBuilder>(query);
+        }
+
+        public static ConditionHelper Exists(SqlHelper query)
+        {
+            return CreateConditionHelper<ExistsSqlBuilder>(query);
+        }
+
+        public static ConditionHelper NotExists(ISqlBuilder query)
+        {
+            return CreateConditionHelper<NotExistsSqlBuilder>(query);
+        }
+
+        public static ConditionHelper NotExists(SqlHelper query)
+        {
+            return CreateConditionHelper<NotExistsSqlBuilder>(query);
         }
 
         public static T BinaryOperator<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
@@ -368,6 +386,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             var result = new ConditionHelper(binOperator);
 
             return result;
+        }
+
+        private static ConditionHelper CreateConditionHelper<T>(ISqlBuilder query) where T : BaseQuerySqlBuilder, new()
+        {
+            return new ConditionHelper(new T
+            {
+                Query = query
+            });
+        }
+
+        private static ConditionHelper CreateConditionHelper<T>(SqlHelper query) where T : BaseQuerySqlBuilder, new()
+        {
+            return CreateConditionHelper<T>(query.ToSqlBuilder());
         }
     }
 }
