@@ -8,17 +8,17 @@ using System.Linq;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2020_01_10_14_55 : IMigrationAction
+    public class Migration_2020_01_27_15_25 : IMigrationAction
     {
         private readonly DomainEnitiesMeta meta;
 
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 777777777;
+        public int Number => 145;
 
         public string Description => "Performance";
 
-        public Migration_2020_01_10_14_55(IRepositorySet repositorySet, DomainEnitiesMeta meta)
+        public Migration_2020_01_27_15_25(IRepositorySet repositorySet, DomainEnitiesMeta meta)
         {
             this.repositorySet = repositorySet;
             this.meta = meta;
