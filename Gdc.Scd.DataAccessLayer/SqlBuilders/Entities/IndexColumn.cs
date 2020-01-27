@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 {
@@ -16,6 +17,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
         {
             this.ColumnName = columnName;
             this.SortDirection = sortDirection;
+        }
+
+        public IndexColumn(FieldMeta field, SortDirection sortDirection = SortDirection.Asc)
+            : this(field.Name, sortDirection)
+        {
         }
     }
 }

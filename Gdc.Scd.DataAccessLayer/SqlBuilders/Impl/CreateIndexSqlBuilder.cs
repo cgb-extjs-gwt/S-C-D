@@ -15,6 +15,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public IEnumerable<IndexColumn> Columns { get; set; }
 
+        public IEnumerable<string> IncludeColumns { get; set; }
+
         public override string Build(SqlBuilderContext context)
         {
             var type = this.Type.ToString().ToUpper();
@@ -25,9 +27,20 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             };
 
             var name = this.GetSqlName(this.Name);
-            var columns = this.Columns.Select(column => this.BuildColumn(column, context));
+            var columns = string.Join(", ", this.Columns.Select(column => this.BuildColumn(column, context)));
+            var table = tableSqlBuilder.Build(context);
 
-            return $"CREATE {type} INDEX {name} ON {Environment.NewLine}{tableSqlBuilder.Build(context)} {Environment.NewLine}({string.Join(", ", columns)})";
+            var query = $"CREATE {type} INDEX {name} ON {Environment.NewLine}{table} {Environment.NewLine}({columns})";
+
+            if (this.IncludeColumns != null)
+            {
+                var includeColumns =
+                    this.IncludeColumns.Select(column => new ColumnSqlBuilder(column).Build(context));
+
+                query += $"{Environment.NewLine}INCLUDE({string.Join(", ", includeColumns)})";
+            }
+
+            return query;
         }
 
         private string BuildColumn(IndexColumn column, SqlBuilderContext context)

@@ -295,6 +295,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             string tableName, 
             string shemaName, 
             IEnumerable<IndexColumn> columns,
+            IEnumerable<string> includeColumns = null,
             IndexType type  = IndexType.Nonclustered)
         {
             return new SqlHelper(new CreateIndexSqlBuilder
@@ -303,7 +304,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 Schema = shemaName,
                 Table = tableName,
                 Type = type,
-                Columns = columns
+                Columns = columns,
+                IncludeColumns = includeColumns
             });
         }
 
@@ -311,9 +313,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
            string indexName,
            BaseEntityMeta meta,
            IEnumerable<IndexColumn> columns,
+           IEnumerable<string> includeColumns = null,
            IndexType type = IndexType.Nonclustered)
         {
-            return CreateIndex(indexName, meta.Name, meta.Schema, columns, type);
+            return CreateIndex(indexName, meta.Name, meta.Schema, columns, includeColumns, type);
         }
 
         public static SqlHelper CreateIndexIfNotExists(
@@ -321,11 +324,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             string tableName,
             string shemaName,
             IEnumerable<IndexColumn> columns,
+            IEnumerable<string> includeColumns = null,
             IndexType type = IndexType.Nonclustered)
         {
             return If(
                 SqlOperators.NotExists(BuildSelectIndexQuery()),
-                CreateIndex(indexName, tableName, shemaName, columns, type));
+                CreateIndex(indexName, tableName, shemaName, columns, includeColumns, type));
 
             ISqlBuilder BuildSelectIndexQuery()
             {
@@ -347,9 +351,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             string indexName,
             BaseEntityMeta meta,
             IEnumerable<IndexColumn> columns,
+            IEnumerable<FieldMeta> includeFields = null,
             IndexType type = IndexType.Nonclustered)
         {
-            return CreateIndexIfNotExists(indexName, meta.Name, meta.Schema, columns, type);
+            var includeColumns = includeFields?.Select(field => field.Name);
+
+            return CreateIndexIfNotExists(indexName, meta.Name, meta.Schema, columns, includeColumns, type);
         }
 
         private static SelectIntoSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)
