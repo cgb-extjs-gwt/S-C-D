@@ -91,10 +91,11 @@ BEGIN
                   m.ProActiveSla as ServiceType
 
             , null as PlausiCheck
-            , null as PortfolioType
+            , wg.ServiceTypes as PortfolioType
             , m.Sog
 
     from cte2 m
+    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
