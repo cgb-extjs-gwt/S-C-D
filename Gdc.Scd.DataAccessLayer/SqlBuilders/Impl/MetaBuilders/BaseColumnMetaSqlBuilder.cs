@@ -10,10 +10,20 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         where T : FieldMeta
     {
         public T Field { get; set; }
+
         FieldMeta IColumnMetaSqlBuilder.Field
         {
             get => this.Field;
             set => this.Field = (T)value;
+        }
+
+        protected BaseColumnMetaSqlBuilder()
+        {
+        }
+
+        protected BaseColumnMetaSqlBuilder(T field)
+        {
+            this.Field = field;
         }
 
         public virtual string Build(SqlBuilderContext context)

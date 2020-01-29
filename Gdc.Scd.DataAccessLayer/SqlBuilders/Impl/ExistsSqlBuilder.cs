@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 
-namespace Gdc.Scd.DataAccessLayer.SqlBuilders
+namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
     public class ExistsSqlBuilder : BaseQuerySqlBuilder
     {

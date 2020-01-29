@@ -16,14 +16,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         public string Build(SqlBuilderContext context)
         {
             var condition = this.Condition.Build(context);
-            var trueQuery = this.TrueQuery.Build(context);
-            var query = $"IF {condition}{Environment.NewLine}{trueQuery}";
+            var trueQuery = new BeginEndSqlBuilder(this.TrueQuery).Build(context);
+            var query = $"IF {condition} {trueQuery}";
 
             if (this.FalseQuery != null)
             {
-                var falseQuery = this.FalseQuery.Build(context);
+                var falseQuery = new BeginEndSqlBuilder(this.FalseQuery).Build(context);
 
-                query += $"ELSE{Environment.NewLine}{falseQuery}";
+                query += $"ELSE {falseQuery}";
             }
 
             return query;
