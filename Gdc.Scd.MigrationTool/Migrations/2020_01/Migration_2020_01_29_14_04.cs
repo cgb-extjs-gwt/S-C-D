@@ -18,7 +18,7 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
 
         public int Number => 777777777;
 
-        public string Description => "Add 'LastModification' and 'PreviousVersion' columns in costblocks";
+        public string Description => "Add 'PreviousVersion' column in costblocks";
 
         public Migration_2020_01_29_14_04(DomainEnitiesMeta meta, IRepositorySet repositorySet)
         {
@@ -31,14 +31,13 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
             var queires = 
                 this.meta.CostBlocks.SelectMany(costBlock => new ISqlBuilder[]
                 {
-                    BuildCheckCostBlockPrimaryKeyQuery(costBlock),
+                    BuildCheckCostBlockUniqueConstarintQuery(costBlock),
                     new AlterTableSqlBuilder(costBlock)
                     {
                         Query = new AddColumnsSqlBuilder
                         {
                             Columns = new ISqlBuilder[]
                             {
-                                new SimpleColumnMetaSqlBuilder(costBlock.LastCoordinateModificationDateField),
                                 new ReferenceColumnMetaSqlBuilder(costBlock.PreviousVersionField)
                             }
                         }
@@ -52,31 +51,27 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
 
             this.repositorySet.ExecuteSql(Sql.Queries(queires));
 
-            ISqlBuilder BuildCheckCostBlockPrimaryKeyQuery(CostBlockEntityMeta costBlock)
+            ISqlBuilder BuildCheckCostBlockUniqueConstarintQuery(CostBlockEntityMeta costBlock)
             {
-                var primaryKeyNotExistsQuery =
+                var uniqueNotExistsQuery =
                     SqlOperators.NotExists(
                         Sql.Select()
                            .From("TABLE_CONSTRAINTS", "INFORMATION_SCHEMA")
                            .Where(new Dictionary<string, IEnumerable<object>>
                            {
-                               ["CONSTRAINT_TYPE"] = new object[] { "PRIMARY KEY" },
+                               ["CONSTRAINT_TYPE"] = new object[] { "PRIMARY KEY", "UNIQUE" },
                                ["TABLE_SCHEMA"] = new object[] { costBlock.Schema },
                                ["TABLE_NAME"] = new object[] { costBlock.Name },
-                           }));
+                           }))
+                           .ToSqlBuilder();
 
-                var createPrimaryKeyQuery = Sql.Queries(new ISqlBuilder[]
+                var createUniqueConstrainQuery = new AlterTableSqlBuilder(costBlock)
                 {
-                    new DropIndexSqlBuilder($"IX_{costBlock.Schema}_{costBlock.Name}", costBlock),
-                    new CreateColumnConstraintMetaSqlBuilder
-                    {
-                        Meta = costBlock,
-                        Field = IdFieldMeta.DefaultId
-                    }
-                });
+                    Query = new RawSqlBuilder($"ADD CONSTRAINT AK_{costBlock.Schema}{costBlock.Name}_{costBlock.IdField.Name} UNIQUE ({costBlock.IdField.Name})")
+                };
 
                 return
-                    Sql.If(primaryKeyNotExistsQuery, createPrimaryKeyQuery)
+                    Sql.If(uniqueNotExistsQuery, createUniqueConstrainQuery)
                        .ToSqlBuilder();
             }
         }

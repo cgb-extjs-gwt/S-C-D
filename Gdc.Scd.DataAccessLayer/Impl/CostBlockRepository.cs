@@ -427,10 +427,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     {
                         column = new ColumnInfo(costBlock.IdField.Name, UpdatedRowsTable, fieldName);
                     }
-                    else if (fieldName == costBlock.LastCoordinateModificationDateField.Name)
-                    {
-                        column = new QueryColumnInfo(new ParameterSqlBuilder(coordinateModificationDate), fieldName);
-                    }
                     else
                     {
                         var table = updateOption.NewCoordinates.ContainsKey(fieldName)
@@ -446,17 +442,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             SqlHelper BuildDeactivateOldCoordiantesRowsQuery()
             {
-                var coordModifColumn = new ValueUpdateColumnInfo(costBlock.LastCoordinateModificationDateField, coordinateModificationDate);
-                var deactivateColumn = new ValueUpdateColumnInfo(costBlock.DeletedDateField, coordinateModificationDate);
-
                 return
-                    Sql.Update(costBlock, coordModifColumn, deactivateColumn)
-                       .From(costBlock)
-                       .Where(
-                            SqlOperators.In(
-                                costBlock.IdField.Name,
-                                Sql.Select(costBlock.IdField.Name).From(UpdatedRowsTable)));
+                    this.BuildUpdateDeletedDateQuery(costBlock)
+                        .From(costBlock)
+                        .Where(
+                             SqlOperators.In(
+                                 costBlock.IdField.Name,
+                                 Sql.Select(costBlock.IdField.Name).From(UpdatedRowsTable)));
             }
+        }
+
+        private UpdateSqlHelper BuildUpdateDeletedDateQuery(CostBlockEntityMeta costBlockMeta)
+        {
+            return Sql.Update(costBlockMeta, new ValueUpdateColumnInfo(costBlockMeta.DeletedDateField.Name, DateTime.UtcNow));
         }
 
         private SqlHelper BuildDeleteRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
@@ -472,13 +470,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 new ColumnInfo(field.Name, costBlockMeta.Name))));
 
             return
-                Sql.Update(costBlockMeta, new ValueUpdateColumnInfo(costBlockMeta.DeletedDateField.Name, DateTime.UtcNow))
-                   .FromQuery(
-                        Sql.Except(
-                            this.BuildSelectFromCostBlockQuery(costBlockMeta),
-                            this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta)),
-                        DeletedCoordinateTable)
-                   .Where(condition);
+                this.BuildUpdateDeletedDateQuery(costBlockMeta)
+                    .FromQuery(
+                         Sql.Except(
+                             this.BuildSelectFromCostBlockQuery(costBlockMeta),
+                             this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta)),
+                         DeletedCoordinateTable)
+                    .Where(condition);
         }
 
         private SelectJoinSqlHelper BuildSelectFromCoordinateTalbeQuery(CostBlockEntityMeta costBlockMeta)
