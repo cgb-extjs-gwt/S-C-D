@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -7,6 +6,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System.Collections.Generic;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -66,12 +66,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
+            var editDateColumn = new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName);
             var createdDateCondition =
                 SqlOperators.LessOrEqual(
                     new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockMeta.Name),
-                    new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName));
+                    editDateColumn);
 
-            var deletedDateCondition = SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name);
+            var deletedDateCondition = 
+                ConditionHelper.OrBrackets(
+                    SqlOperators.LessOrEqual(
+                        editDateColumn,
+                        new ColumnInfo(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name)),
+                    SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name)
+                );
+
             var costBlockJoinCondition = createdDateCondition.And(deletedDateCondition);
 
             if (options != null)
