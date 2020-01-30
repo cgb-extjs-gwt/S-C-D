@@ -10,6 +10,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
     {
         public CommandParameterInfo ParamInfo { get; set; }
 
+        public ParameterSqlBuilder()
+        {
+        }
+
+        public ParameterSqlBuilder(object value)
+        {
+            this.ParamInfo = new CommandParameterInfo(value);
+        }
+
         public string Build(SqlBuilderContext context)
         {
             return context.GetParameterName(this.ParamInfo.Value);
