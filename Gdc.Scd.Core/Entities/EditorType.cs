@@ -5,6 +5,7 @@
         CostEditor,
         TableView,
         CostImport,
-        Migration
+        Migration,
+        Test
     }
 }

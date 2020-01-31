@@ -9,12 +9,20 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 {
     public static class NinjectExtensions
     {
-        public static void RegisterEntity<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder = null) where T : class, IIdentifiable
+        public static void RegisterEntity<T>(this IKernel kernel) 
+            where T : class, IIdentifiable
+        {
+            RegisterEntity<T>(kernel, null);
+        }
+
+        public static void RegisterEntity<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder) 
+            where T : class, IIdentifiable
         {
             EntityFrameworkRepositorySet.RegisteredEntities.Add(typeof(T), entityTypeBuilder);
         }
 
-        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder) where T : class, IIdentifiable
+        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder) 
+            where T : class, IIdentifiable
         {
             kernel.RegisterEntity<T>(builder =>
             {
@@ -24,12 +32,14 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             });
         }
 
-        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName) where T : class, IIdentifiable
+        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName) 
+            where T : class, IIdentifiable
         {
             kernel.RegisterEntityAsUnique<T>(fieldName, null);
         }
 
-        public static void RegisterEntityAsUniqueName<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder = null) where T : NamedId
+        public static void RegisterEntityAsUniqueName<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder = null) 
+            where T : NamedId
         {
             kernel.RegisterEntityAsUnique<T>(nameof(NamedId.Name), entityTypeBuilder);
         }

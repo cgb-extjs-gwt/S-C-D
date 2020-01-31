@@ -81,6 +81,9 @@
     <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject.Web.Common, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.Common.3.3.1\lib\net45\Ninject.Web.Common.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
@@ -128,6 +131,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Identity.cs" />
+    <Compile Include="Impl\FakePrincipalProvider.cs" />
     <Compile Include="CostBlock\SetUpCostBlockTest.cs" />
     <Compile Include="CostBlock\Constants\TestConstants.cs" />
     <Compile Include="CostBlock\Entities\Dependency1.cs" />
@@ -140,6 +145,7 @@
     <Compile Include="CostBlock\Entities\SimpleInputLevel2.cs" />
     <Compile Include="CostBlock\Entities\SimpleInputLevel3.cs" />
     <Compile Include="CostBlock\Impl\CoordinateEntityMetaProvider.cs" />
+    <Compile Include="Entities\Principal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

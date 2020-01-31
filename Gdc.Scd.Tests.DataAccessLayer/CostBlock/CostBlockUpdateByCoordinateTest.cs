@@ -170,42 +170,6 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
             Assert.AreEqual(10 * 11, rowCount, $"Cost block must have {10 * 11} rows");
         }
 
-        private IEnumerable<T> BuildNamedIds<T>(
-            int count = 10,
-            int start = 1,
-            Action<T, int> prepareAction = null,
-            string namePrefix = "Test") where T : NamedId, new()
-        {
-            var items = Enumerable.Range(start, count).Select(index => new T
-            {
-                Name = namePrefix + index
-            });
-
-            if (prepareAction != null)
-            {
-                items = items.Select((item, index) =>
-                {
-                    prepareAction(item, index);
-
-                    return item;
-                });
-            }
-
-            return items;
-        }
-
-        private void AddNamedIds<T>(
-            int count = 10,
-            int start = 1,
-            Action<T, int> prepareAction = null,
-            string namePrefix = "Test") where T : NamedId, new()
-        {
-            var items = this.BuildNamedIds<T>(count, start, prepareAction, namePrefix);
-
-            this.RepositorySet.GetRepository<T>().Save(items);
-            this.RepositorySet.Sync();
-        }
-
         private async Task<int> RowCount(BaseEntityMeta meta)
         {
             var countQuery = Sql.Select(SqlFunctions.Count()).From(meta);
