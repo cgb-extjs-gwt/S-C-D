@@ -2,9 +2,9 @@
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using Gdc.Scd.Tests.DataAccessLayer.CostBlock.Entities;
+using Gdc.Scd.Tests.Common.CostBlock.Entities;
 
-namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock.Impl
+namespace Gdc.Scd.Tests.Common.CostBlock.Impl
 {
     public class CoordinateEntityMetaProvider : ICoordinateEntityMetaProvider
     {
