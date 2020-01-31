@@ -54,7 +54,11 @@ BEGIN
              , TaxAndDutiesW                 * ExchangeRate  as TaxAndDutiesW
              , TaxAndDutiesOow               * ExchangeRate  as TaxAndDutiesOow
              , Reinsurance                   * ExchangeRate  as Reinsurance
+             
+             , ReActiveTC                    * ExchangeRate  as ReActiveTC
+             , ReActiveTP                    * ExchangeRate  as ReActiveTP
              , ProActive                     * ExchangeRate  as ProActive
+             
              , ServiceSupportCost            * ExchangeRate  as ServiceSupportCost
 
              , MaterialW                     * ExchangeRate  as MaterialW
@@ -65,8 +69,9 @@ BEGIN
              , LocalServiceStandardWarranty  * ExchangeRate  as LocalServiceStandardWarranty
              , LocalServiceStandardWarrantyManual  * ExchangeRate  as LocalServiceStandardWarrantyManual
              , Credits                       * ExchangeRate  as Credits
-             , ServiceTC                     * ExchangeRate  as ServiceTC
-             , ServiceTP                     * ExchangeRate  as ServiceTP
+             
+             , FullServiceTC                 * ExchangeRate  as ServiceTC
+             , FullServiceTP                 * ExchangeRate  as ServiceTP
 
              , ServiceTCManual               * ExchangeRate  as ServiceTCManual
              , ServiceTPManual               * ExchangeRate  as ServiceTPManual
@@ -119,7 +124,11 @@ BEGIN
              , TaxAndDutiesW                 
              , TaxAndDutiesOow               
              , Reinsurance                   
-             , ProActive                     
+
+             , ReActiveTC 
+             , ReActiveTP 
+             , ProActive  
+
              , ServiceSupportCost            
 
              , MaterialW                     
@@ -130,8 +139,9 @@ BEGIN
              , LocalServiceStandardWarranty  
              , LocalServiceStandardWarrantyManual
              , Credits                       
-             , ServiceTC                     
-             , ServiceTP                     
+
+             , FullServiceTC as ServiceTC 
+             , FullServiceTP as ServiceTP 
 
              , ServiceTCManual               
              , ServiceTPManual               
@@ -154,4 +164,4 @@ BEGIN
         order by rownum
     end
 END
-GO
+go
