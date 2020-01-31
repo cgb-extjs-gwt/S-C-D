@@ -192,8 +192,8 @@ RETURN
          , m.ServiceTC as ReActiveTC
          , m.ServiceTP as ReActiveTP
 
-         , m.ServiceTC + m.ProActive as FullServiceTC
-         , m.ServiceTP + m.ProActive as FullServiceTP
+         , m.ServiceTC + coalesce(m.ProActive, 0) as FullServiceTC
+         , m.ServiceTP + coalesce(m.ProActive, 0) as FullServiceTP
 
     from CostCte7 m
 )
