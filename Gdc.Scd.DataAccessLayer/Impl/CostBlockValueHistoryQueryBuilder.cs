@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System.Collections.Generic;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -6,7 +7,6 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System.Collections.Generic;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -65,28 +65,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-
-            var editDateColumn = new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName);
-            var createdDateCondition =
-                SqlOperators.LessOrEqual(
-                    new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockMeta.Name),
-                    editDateColumn);
-
-            var deletedDateCondition = 
-                ConditionHelper.OrBrackets(
-                    SqlOperators.LessOrEqual(
-                        editDateColumn,
-                        new ColumnInfo(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name)),
-                    SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name)
-                );
-
-            var costBlockJoinCondition = createdDateCondition.And(deletedDateCondition);
-
-            if (options != null)
-            {
-                costBlockJoinCondition = 
-                    costBlockJoinCondition.And(this.BuildCostBlockJoinCondition(historyContext, costBlockMeta, options));
-            }
+            var costBlockCurrentCoordinates = $"{costBlockMeta.Name}_CurrentCoordinates";
+            var costBlockJoinCondition = BuildCostBlockJoinCondition();
 
             foreach (var relatedMeta in costBlockMeta.HistoryMeta.RelatedMetas)
             {
@@ -110,7 +90,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             query =
                 query.Join(costBlockMeta.HistoryMeta, costBlockMeta.HistoryMeta.CostBlockHistoryField.Name)
-                     .Join(costBlockMeta, costBlockJoinCondition);
+                     .Join(costBlockMeta, costBlockJoinCondition, JoinType.Inner, costBlockCurrentCoordinates)
+                     .Join(costBlockMeta, BuildCostBlockPreviousCoordinates());
 
             if (options != null)
             {
@@ -118,6 +99,81 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return query;
+
+            ConditionHelper BuildCostBlockJoinCondition()
+            {
+                var costBlockHistoryMeta = this.domainEnitiesMeta.CostBlockHistory;
+                var createdDateCondition =
+                    SqlOperators.LessOrEqual(
+                        new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockCurrentCoordinates),
+                        new ColumnInfo(costBlockHistoryMeta.EditDateField, costBlockHistoryMeta));
+
+                var deletedDateCondition = SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockCurrentCoordinates);
+                var condition = createdDateCondition.And(deletedDateCondition);
+
+                if (options != null)
+                {
+                    condition =
+                        condition.And(BuildOptionCostBlockJoinCondition());
+                }
+
+                return condition;
+
+                ConditionHelper BuildOptionCostBlockJoinCondition()
+                {
+                    var conditions = new List<ConditionHelper>();
+
+                    if (options.IsUseRegionCondition && historyContext.RegionInputId.HasValue)
+                    {
+                        var costElement = this.domainMeta.GetCostElement(historyContext);
+                        var regionCondition = SqlOperators.Equals(
+                            new ColumnInfo(costElement.RegionInput.Id, costBlockCurrentCoordinates),
+                            new ColumnInfo(costBlockHistoryMeta.ContextRegionInputIdField, costBlockHistoryMeta));
+
+                        conditions.Add(regionCondition);
+                    }
+
+                    switch (options.InputLevelJoinType)
+                    {
+                        case InputLevelJoinType.HistoryContext:
+                            var inputLevelCondition = SqlOperators.Equals(
+                                new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
+                                new ColumnInfo(historyContext.InputLevelId, costBlockCurrentCoordinates));
+
+                            conditions.Add(inputLevelCondition);
+                            break;
+
+                        case InputLevelJoinType.All:
+                            var costElementMeta = this.domainMeta.GetCostElement(historyContext);
+                            var inputLevelConditions = new List<ConditionHelper>();
+
+                            foreach (var inputLevel in costElementMeta.InputLevels)
+                            {
+                                inputLevelConditions.Add(
+                                    SqlOperators.Equals(
+                                        new ColumnInfo(inputLevel.Id, costBlockMeta.HistoryMeta.Name),
+                                        new ColumnInfo(inputLevel.Id, costBlockCurrentCoordinates)));
+                            }
+
+                            conditions.Add(ConditionHelper.OrBrackets(inputLevelConditions));
+                            break;
+                    }
+
+                    return ConditionHelper.And(conditions);
+                }
+            }
+
+            ConditionHelper BuildCostBlockPreviousCoordinates()
+            {
+                return
+                    ConditionHelper.Or(
+                        SqlOperators.Equals(
+                            new ColumnInfo(costBlockMeta.ActualVersionField, costBlockCurrentCoordinates),
+                            new ColumnInfo(costBlockMeta.ActualVersionField, costBlockMeta)),
+                        SqlOperators.Equals(
+                            new ColumnInfo(costBlockMeta.IdField, costBlockCurrentCoordinates),
+                            new ColumnInfo(costBlockMeta.IdField, costBlockMeta)));
+            }
         }
 
         public SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
@@ -162,48 +218,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return query.Where(whereCondition);
         }
 
-        private ConditionHelper BuildCostBlockJoinCondition(CostElementContext historyContext, CostBlockEntityMeta costBlockMeta, JoinHistoryValueQueryOptions options)
-        {
-            var conditions = new List<ConditionHelper>();
-
-            if (options.IsUseRegionCondition && historyContext.RegionInputId.HasValue)
-            {
-                var region = this.domainMeta.GetCostElement(historyContext).RegionInput;
-                var historyRegionIdName = $"{nameof(CostBlockHistory.Context)}_{nameof(CostElementContext.RegionInputId)}";
-                var regionCondition = SqlOperators.Equals(
-                        new ColumnInfo(historyRegionIdName, nameof(CostBlockHistory)),
-                        new ColumnInfo(region.Id, costBlockMeta.Name));
-
-                conditions.Add(regionCondition);
-            }
-
-            switch (options.InputLevelJoinType)
-            {
-                case InputLevelJoinType.HistoryContext:
-                    var inputLevelCondition = SqlOperators.Equals(
-                        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
-                        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name));
-
-                    conditions.Add(inputLevelCondition);
-                    break;
-
-                case InputLevelJoinType.All:
-                    var costElementMeta = this.domainMeta.GetCostElement(historyContext);
-                    var inputLevelConditions = new List<ConditionHelper>();
-
-                    foreach (var inputLevel in costElementMeta.InputLevels)
-                    {
-                        inputLevelConditions.Add(
-                            SqlOperators.Equals(
-                                new ColumnInfo(inputLevel.Id, costBlockMeta.HistoryMeta.Name),
-                                new ColumnInfo(inputLevel.Id, costBlockMeta.Name)));
-                    }
-
-                    conditions.Add(ConditionHelper.OrBrackets(inputLevelConditions));
-                    break;
-            }
-
-            return ConditionHelper.And(conditions);
-        }
+        
     }
 }

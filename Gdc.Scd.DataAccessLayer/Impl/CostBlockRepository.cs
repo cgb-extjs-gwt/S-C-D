@@ -344,117 +344,74 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildUpdateCostBlockByUpdateOptionQuery(CostBlockEntityMeta costBlock, UpdateQueryOption updateOption)
         {
-            const string UpdatedRowsTable = "#UpdatedRows";
-
-            var coordinateModificationDate = DateTime.UtcNow;
+            var oldCoordinatesFilter =
+                updateOption.OldCoordinates.ToDictionary(
+                    keyValue => keyValue.Key,
+                    keyValue => new object[] { keyValue.Value } as IEnumerable<object>);
 
             return Sql.Queries(new SqlHelper[]
             {
-                BuildCreateUpdatedRowsTableQuery(),
-                BuildInsertNewCoordinatesRowsQuery(),
-                BuildDeactivateOldCoordiantesRowsQuery(),
-                Sql.DropTable(UpdatedRowsTable)
+                BuildInsertOldCoordinatesRowsQuery(),
+                BuildUpdateCoordinatesQuery()
             });
 
-            SqlHelper BuildCreateUpdatedRowsTableQuery()
+            T BuildGetOldCoordinatesQuery<T>(IFromSqlHelper<IWhereSqlHelper<T>> query)
             {
-                var oldCoordinatesFilter =
-                    updateOption.OldCoordinates.ToDictionary(
-                        keyValue => keyValue.Key,
-                        keyValue => new object[] { keyValue.Value } as IEnumerable<object>);
-
                 return
-                    Sql.Select()
-                       .Into(UpdatedRowsTable)
-                       .From(costBlock)
-                       .WhereNotDeleted(costBlock, oldCoordinatesFilter);
+                    query.From(costBlock)
+                         .WhereNotDeleted(costBlock, oldCoordinatesFilter);
             }
 
-            SqlHelper BuildInsertNewCoordinatesRowsQuery()
+            SqlHelper BuildInsertOldCoordinatesRowsQuery()
             {
-                const string CoordianteTable = "Coordinates";
-
                 var costBlockFieldNames =
                     costBlock.AllFields.Where(field => field != costBlock.IdField)
                                        .Select(field => field.Name)
                                        .ToArray();
 
-                var oldCoordinateInfos = 
-                    updateOption.OldCoordinates.Select(keyValue => new
-                                               {
-                                                   CoordinateId = keyValue.Key,
-                                                   ColumnName = $"Old_{keyValue.Key}",
-                                                   keyValue.Value
-                                               })
-                                               .ToArray();
-
-                var newCoordinateInfos =
-                    updateOption.NewCoordinates.Select(keyValue => new
-                                               {
-                                                   CoordinateId = keyValue.Key,
-                                                   ColumnName = keyValue.Key,
-                                                   keyValue.Value
-                                               })
-                                               .ToArray();
-
-                var coordinateColumns =
-                    oldCoordinateInfos.Concat(newCoordinateInfos)
-                                      .Select(info => new QueryColumnInfo(new ParameterSqlBuilder(info.Value), info.ColumnName))
-                                      .ToArray();
-
-                var joinByOldCoordinateCondition =
-                    ConditionHelper.And(
-                        oldCoordinateInfos.Select(
-                            info => SqlOperators.Equals(
-                                new ColumnInfo(info.ColumnName, CoordianteTable), 
-                                new ColumnInfo(info.CoordinateId, UpdatedRowsTable))));
-
                 return
                     Sql.Insert(costBlock, costBlockFieldNames)
                        .Query(
-                            Sql.Select(costBlockFieldNames.Select(BuildNewValueColumn).ToArray())
-                               .From(UpdatedRowsTable)
-                               .JoinQuery(
-                                    Sql.Select(coordinateColumns),
-                                    joinByOldCoordinateCondition,
-                                    CoordianteTable));
+                            BuildGetOldCoordinatesQuery(
+                                Sql.Select(costBlockFieldNames.Select(BuildNewValueColumn).ToArray())));
 
                 BaseColumnInfo BuildNewValueColumn(string fieldName)
                 {
                     BaseColumnInfo column;
 
-                    if (fieldName == costBlock.PreviousVersionField.Name)
+                    if (fieldName == costBlock.ActualVersionField.Name)
                     {
-                        column = new ColumnInfo(costBlock.IdField.Name, UpdatedRowsTable, fieldName);
+                        column = new ColumnInfo(costBlock.IdField.Name, null, fieldName);
+                    }
+                    else if (fieldName == costBlock.DeletedDateField.Name)
+                    {
+                        column = new QueryColumnInfo(new ParameterSqlBuilder(DateTime.UtcNow), fieldName);
                     }
                     else
                     {
-                        var table = updateOption.NewCoordinates.ContainsKey(fieldName)
-                            ? CoordianteTable
-                            : UpdatedRowsTable;
-
-                        column = new ColumnInfo(fieldName, table);
+                        column = new ColumnInfo(fieldName);
                     }
 
                     return column;
                 }
             }
 
-            SqlHelper BuildDeactivateOldCoordiantesRowsQuery()
+            SqlHelper BuildUpdateCoordinatesQuery()
             {
-                return
-                    this.BuildUpdateDeletedDateQuery(costBlock)
-                        .From(costBlock)
-                        .Where(
-                             SqlOperators.In(
-                                 costBlock.IdField.Name,
-                                 Sql.Select(costBlock.IdField.Name).From(UpdatedRowsTable)));
-            }
-        }
+                var updateColumns =
+                    updateOption.NewCoordinates.Select(coord => new ValueUpdateColumnInfo(coord.Key, coord.Value))
+                                               .Cast<BaseUpdateColumnInfo>()
+                                               .Concat(new BaseUpdateColumnInfo[]
+                                               {
+                                                   new QueryUpdateColumnInfo(
+                                                       costBlock.ActualVersionField.Name, 
+                                                       new ColumnSqlBuilder(costBlock.IdField.Name))
+                                               })
+                                               .ToArray();
 
-        private UpdateSqlHelper BuildUpdateDeletedDateQuery(CostBlockEntityMeta costBlockMeta)
-        {
-            return Sql.Update(costBlockMeta, new ValueUpdateColumnInfo(costBlockMeta.DeletedDateField.Name, DateTime.UtcNow));
+                return BuildGetOldCoordinatesQuery(
+                    Sql.Update(costBlock, updateColumns));
+            }
         }
 
         private SqlHelper BuildDeleteRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
@@ -470,13 +427,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 new ColumnInfo(field.Name, costBlockMeta.Name))));
 
             return
-                this.BuildUpdateDeletedDateQuery(costBlockMeta)
-                    .FromQuery(
-                         Sql.Except(
-                             this.BuildSelectFromCostBlockQuery(costBlockMeta),
-                             this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta)),
-                         DeletedCoordinateTable)
-                    .Where(condition);
+                Sql.Update(costBlockMeta, new ValueUpdateColumnInfo(costBlockMeta.DeletedDateField.Name, DateTime.UtcNow))
+                   .FromQuery(
+                        Sql.Except(
+                            this.BuildSelectFromCostBlockQuery(costBlockMeta),
+                            this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta)),
+                        DeletedCoordinateTable)
+                   .Where(condition);
         }
 
         private SelectJoinSqlHelper BuildSelectFromCoordinateTalbeQuery(CostBlockEntityMeta costBlockMeta)

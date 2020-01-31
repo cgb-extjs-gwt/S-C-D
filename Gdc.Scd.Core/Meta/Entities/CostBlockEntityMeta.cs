@@ -15,7 +15,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public SimpleFieldMeta DeletedDateField { get; } = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime) { IsNullOption = true };
 
-        public ReferenceFieldMeta PreviousVersionField { get; }
+        public ReferenceFieldMeta ActualVersionField { get; }
 
         public CostBlockMeta DomainMeta { get; }
 
@@ -32,7 +32,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
                 yield return this.CreatedDateField;
                 yield return this.DeletedDateField;
-                yield return this.PreviousVersionField;
+                yield return this.ActualVersionField;
             }
         }
 
@@ -40,7 +40,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             : base(name, shema)
         {
             this.DomainMeta = meta;
-            this.PreviousVersionField = new ReferenceFieldMeta("PreviousVersion", this, this.IdField.Name)
+            this.ActualVersionField = new ReferenceFieldMeta("ActualVersion", this, this.IdField.Name)
             {
                 IsNullOption = true
             };

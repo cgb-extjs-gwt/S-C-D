@@ -18,7 +18,7 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
 
         public int Number => 777777777;
 
-        public string Description => "Add 'PreviousVersion' column in costblocks";
+        public string Description => "Add 'ActualVersion' column in costblocks";
 
         public Migration_2020_01_29_14_04(DomainEnitiesMeta meta, IRepositorySet repositorySet)
         {
@@ -38,14 +38,14 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_01
                         {
                             Columns = new ISqlBuilder[]
                             {
-                                new ReferenceColumnMetaSqlBuilder(costBlock.PreviousVersionField)
+                                new ReferenceColumnMetaSqlBuilder(costBlock.ActualVersionField)
                             }
                         }
                     },
                     new CreateColumnConstraintMetaSqlBuilder
                     {
                         Meta = costBlock,
-                        Field = costBlock.PreviousVersionField.Name
+                        Field = costBlock.ActualVersionField.Name
                     }
                 });
 
