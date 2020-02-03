@@ -73,15 +73,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 if (relatedMeta.Name != historyContext.InputLevelId)
                 {
                     var joinCondition = SqlOperators.Equals(
-                        new ColumnInfo(costBlockMeta.HistoryMeta.CostBlockHistoryField.Name, costBlockMeta.HistoryMeta.Name),
-                        new ColumnInfo(relatedMeta.CostBlockHistoryField.Name, relatedMeta.Name));
+                        new ColumnInfo(costBlockMeta.HistoryMeta.CostBlockHistoryField, costBlockMeta.HistoryMeta),
+                        new ColumnInfo(relatedMeta.CostBlockHistoryField, relatedMeta));
 
                     query = query.Join(relatedMeta, joinCondition);
 
                     var isNullCondition = SqlOperators.IsNull(relatedMeta.RelatedItemField.Name, relatedMeta.Name);
                     var equalCondition = SqlOperators.Equals(
-                        new ColumnInfo(relatedMeta.RelatedItemField.Name, relatedMeta.Name),
-                        new ColumnInfo(relatedMeta.RelatedItemField.Name, costBlockMeta.Name));
+                        new ColumnInfo(relatedMeta.RelatedItemField, relatedMeta),
+                        new ColumnInfo(relatedMeta.RelatedItemField, costBlockCurrentCoordinates));
 
                     costBlockJoinCondition = costBlockJoinCondition.And(
                         ConditionHelper.OrBrackets(isNullCondition, equalCondition));
@@ -217,7 +217,5 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             return query.Where(whereCondition);
         }
-
-        
     }
 }
