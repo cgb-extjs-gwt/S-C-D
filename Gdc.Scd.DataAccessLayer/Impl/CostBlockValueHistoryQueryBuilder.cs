@@ -108,8 +108,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockCurrentCoordinates),
                         new ColumnInfo(costBlockHistoryMeta.EditDateField, costBlockHistoryMeta));
 
-                var deletedDateCondition = SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockCurrentCoordinates);
-                var condition = createdDateCondition.And(deletedDateCondition);
+                var deletedDateCondition = ConditionHelper.Or(
+                    SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockCurrentCoordinates),
+                    SqlOperators.IsNotNull(costBlockMeta.ActualVersionField.Name, costBlockCurrentCoordinates));
+                    
+                var condition = createdDateCondition.AndBrackets(deletedDateCondition);
 
                 if (options != null)
                 {
