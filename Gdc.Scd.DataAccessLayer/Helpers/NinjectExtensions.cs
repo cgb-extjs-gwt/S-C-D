@@ -18,7 +18,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static void RegisterEntity<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder) 
             where T : class, IIdentifiable
         {
-            EntityFrameworkRepositorySet.RegisteredEntities.Add(typeof(T), entityTypeBuilder);
+            EntityFrameworkRepositorySet.RegisteredEntities[typeof(T)] = entityTypeBuilder;
         }
 
         public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder) 

@@ -14,6 +14,12 @@
 
         public const string SimpleInputLevel3Id = "SimpleInputLevel3";
 
+        public const string RelatedInputLevel1Id = "RelatedInputLevel1";
+
+        public const string RelatedInputLevel2Id = "RelatedInputLevel2";
+
+        public const string RelatedInputLevel3Id = "RelatedInputLevel3";
+
         public const string Dependency1Id = "Dependency1";
 
         public const string Dependency2Id = "Dependency2";

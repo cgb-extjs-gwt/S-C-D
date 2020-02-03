@@ -8,5 +8,7 @@ namespace Gdc.Scd.Tests.Common.CostBlock.Entities
     public class RelatedInputLevel3 : NamedId
     {
         public long RelatedInputLevel2Id { get; set; }
+
+        public RelatedInputLevel2 RelatedInputLevel2 { get; set; }
     }
 }

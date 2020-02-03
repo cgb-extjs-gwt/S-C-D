@@ -147,7 +147,18 @@ namespace Gdc.Scd.Tests.Common.CostBlock
         protected T GetFirstItem<T>()
             where T : class, IIdentifiable, new()
         {
-            return this.RepositorySet.GetRepository<T>().GetAll().First();
+            return this.GetItemByIndex<T>(0);
+        }
+
+        protected T GetItemByIndex<T>(int index)
+            where T : class, IIdentifiable, new()
+        {
+            return
+                this.RepositorySet.GetRepository<T>()
+                                  .GetAll()
+                                  .OrderBy(item => item.Id)
+                                  .Skip(index)
+                                  .First();
         }
     }
 }
