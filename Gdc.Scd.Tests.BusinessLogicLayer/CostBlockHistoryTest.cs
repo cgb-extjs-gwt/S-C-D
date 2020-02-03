@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -9,6 +10,8 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Tests.Common.CostBlock;
 using Gdc.Scd.Tests.Common.CostBlock.Constants;
 using Gdc.Scd.Tests.Common.CostBlock.Entities;
+using Gdc.Scd.Tests.Common.Entities;
+using Gdc.Scd.Tests.Common.Impl;
 using Ninject;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -25,14 +28,61 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
         {
             base.Init();
 
-            this.AddNamedIds<Dependency1>(10);
-            this.AddNamedIds<SimpleInputLevel1>(10);
-            this.AddNamedIds<SimpleInputLevel2>(10);
-            this.AddNamedIds<SimpleInputLevel3>(10);
+            AddCostBlockData();
+            AddUser();
 
-            var costBlockMeta = this.GetCostBlock1Meta();
+            void AddCostBlockData()
+            {
+                this.AddNamedIds<Dependency1>(10);
+                this.AddNamedIds<SimpleInputLevel1>(10);
+                this.AddNamedIds<SimpleInputLevel2>(10);
+                this.AddNamedIds<SimpleInputLevel3>(10);
 
-            this.CostBlockRepository.UpdateByCoordinates(costBlockMeta);
+                var costBlockMeta = this.GetCostBlock1Meta();
+
+                this.CostBlockRepository.UpdateByCoordinates(costBlockMeta);
+            }
+
+            void AddUser()
+            {
+                const string TestUserLogin = "test";
+
+                this.Ioc.Get<IUserService>().Save(new User
+                {
+                    Name = TestUserLogin,
+                    Login = TestUserLogin,
+                    Email = TestUserLogin,
+                    UserRoles = new List<UserRole>
+                    {
+                        new UserRole
+                        {
+                            Role = new Role
+                            {
+                                Name = RoleConstants.ScdAdmin,
+                                RolePermissions = new List<RolePermission>
+                                {
+                                    new RolePermission
+                                    {
+                                        Permission = new Permission
+                                        {
+                                            Name = PermissionConstants.Admin
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                FakePrincipalProvider.CurrentPrincipal = new Principal
+                {
+                    Identity = new Identity
+                    {
+                        IsAuthenticated = true,
+                        Name = TestUserLogin
+                    }
+                };
+            }
         }
 
         [TearDown]
@@ -137,11 +187,16 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
             ioc.Bind<IQualityGateSevice>().To<QualityGateSevice>().InTransientScope();
             ioc.Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InTransientScope();
             ioc.Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InTransientScope();
-            ioc.Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InTransientScope();
             ioc.Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InTransientScope();
             ioc.Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InTransientScope();
+            ioc.Bind<IUserRepository>().To<UserRepository>().InTransientScope();
+            ioc.Bind<ISqlRepository>().To<SqlRepository>().InTransientScope();
+            ioc.Bind<IQualityGateRepository>().To<QualityGateRepository>().InTransientScope();
+            ioc.Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InTransientScope();
 
             ioc.RegisterEntity<User>();
+            ioc.RegisterEntity<Currency>();
+            ioc.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(CostElementContext), nameof(CostBlockHistory.Context)));
         }
 
         private CostBlockEntityMeta GetCostBlock1Meta()

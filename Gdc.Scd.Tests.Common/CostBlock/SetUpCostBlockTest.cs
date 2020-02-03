@@ -67,7 +67,7 @@ namespace Gdc.Scd.Tests.Common.CostBlock
             ioc.Bind<BaseColumnMetaSqlBuilder<CreatedDateTimeFieldMeta>>().To<CreatedDateTimeColumnMetaSqlBuilder>().InTransientScope();
             ioc.Bind<CreateTableMetaSqlBuilder>().To<CreateTableMetaSqlBuilder>().InTransientScope();
             ioc.Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
-            ioc.Bind<IPrincipalProvider>().To<FakePrincipalProvider>().InSingletonScope();
+            ioc.Bind<IPrincipalProvider, FakePrincipalProvider>().To<FakePrincipalProvider>().InSingletonScope();
 
             ioc.RegisterEntity<Dependency1>();
             ioc.RegisterEntity<Dependency2>();
