@@ -12,16 +12,15 @@ CREATE PROCEDURE [Report].[spLocapGlobalSupportApproved]
     @rtime   dbo.ListID readonly,
     @rtype   dbo.ListID readonly,
     @loc     dbo.ListID readonly,
-    @pro     dbo.ListID readonly,
     @lastid  int,
     @limit   int
 )
 AS
 BEGIN
+    declare @pro dbo.ListId; insert into @pro(id) select id from Dependencies.ProActiveSla where UPPER(ExternalName) = 'NONE';
     exec Report.spLocapGlobalSupport 1, @cnt, @sog, @wg, @av, @dur, @rtime, @rtype, @loc, @pro, @lastid, @limit;
 END
 GO
-
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = ('Locap-Global-Support-approved'));
 declare @index int = 0;
@@ -78,6 +77,4 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontype'    , 1), 'rtype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation' , 1), 'loc', 'Service location');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive'       , 1), 'pro', 'ProActive');
 

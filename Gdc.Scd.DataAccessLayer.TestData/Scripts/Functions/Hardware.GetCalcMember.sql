@@ -141,14 +141,17 @@ RETURN
                 end as MarkupFactorOtherCost                
 
             --####### PROACTIVE COST ###################
-            , std.LocalRemoteAccessSetup + dur.Value * (
-                          std.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                
-                        + std.LocalPreparation * proSla.LocalPreparationShcRepetition                      
-                        + std.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition
-                        + std.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition
-                        + std.Travel * proSla.TravellingTimeRepetition                                     
-                        + std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition          
-                    ) as ProActive
+            , case when proSla.Name = '0' 
+                    then 0 --we don't calc proactive(none)
+                    else std.LocalRemoteAccessSetup + dur.Value * (
+                                      std.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                
+                                    + std.LocalPreparation * proSla.LocalPreparationShcRepetition                      
+                                    + std.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition
+                                    + std.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition
+                                    + std.Travel * proSla.TravellingTimeRepetition                                     
+                                    + std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition          
+                                )
+                end as ProActive
 
             , std.LocalServiceStandardWarranty
             , std.LocalServiceStandardWarrantyManual

@@ -21,11 +21,11 @@ RETURNS TABLE
 AS
 RETURN (
     select    Country
-            , case when @local = 1 then c.Name else 'EUR' end as Currency
+            , case when @local = 1 then Currency else 'EUR' end as Currency
 
             , costs.Fsp
 
-            , sog.Name as SOG
+            , Sog as SOG
             , Wg
             , Availability
             , Duration
@@ -43,7 +43,11 @@ RETURN (
             , case when @local = 1 then TaxAndDutiesW * costs.ExchangeRate else TaxAndDutiesW end as TaxAndDutiesW
             , case when @local = 1 then TaxAndDutiesOow * costs.ExchangeRate else TaxAndDutiesOow end as TaxAndDutiesOow
             , case when @local = 1 then Reinsurance * costs.ExchangeRate else Reinsurance end as Reinsurance
+
+            , case when @local = 1 then ReActiveTC * costs.ExchangeRate else ReActiveTC end as ReActiveTC
+            , case when @local = 1 then ReActiveTP * costs.ExchangeRate else ReActiveTP end as ReActiveTP
             , case when @local = 1 then ProActive * costs.ExchangeRate else ProActive end as ProActive
+
             , case when @local = 1 then ServiceSupportCost * costs.ExchangeRate else ServiceSupportCost end as ServiceSupportCost
                                                           
             , case when @local = 1 then MaterialW * costs.ExchangeRate else MaterialW end as MaterialW
@@ -51,10 +55,11 @@ RETURN (
             , case when @local = 1 then FieldServiceCost * costs.ExchangeRate else FieldServiceCost end as FieldServiceCost
             , case when @local = 1 then Logistic * costs.ExchangeRate else Logistic end as Logistic
             , case when @local = 1 then OtherDirect * costs.ExchangeRate else OtherDirect end as OtherDirect
-            , coalesce(LocalServiceStandardWarrantyManual, LocalServiceStandardWarranty) * iif(@local = 1, costs.ExchangeRate, 1) as LocalServiceStandardWarranty
+            , case when @local = 1 then costs.ExchangeRate else 1 end * coalesce(LocalServiceStandardWarrantyManual, LocalServiceStandardWarranty) as LocalServiceStandardWarranty
             , case when @local = 1 then Credits * costs.ExchangeRate else Credits end as Credits
-            , case when @local = 1 then ServiceTC * costs.ExchangeRate else ServiceTC end as ServiceTC
-            , case when @local = 1 then ServiceTP * costs.ExchangeRate else ServiceTP end as ServiceTP
+            
+            , case when @local = 1 then FullServiceTC * costs.ExchangeRate else FullServiceTC end as ServiceTC
+            , case when @local = 1 then FullServiceTP * costs.ExchangeRate else FullServiceTP end as ServiceTP
                                                           
             , case when @local = 1 then ServiceTCManual * costs.ExchangeRate else ServiceTCManual end as ServiceTCManual
             , case when @local = 1 then ServiceTPManual * costs.ExchangeRate else ServiceTPManual end as ServiceTPManual
@@ -72,9 +77,6 @@ RETURN (
             , ReleaseDate
 
     from Hardware.GetCosts2(@approved, @country, @fsp, @hasFsp, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
-    join [References].Currency c on c.Id = costs.CurrencyId
-    join InputAtoms.Wg wg on wg.id = costs.WgId
-    LEFT JOIN InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 
 GO
@@ -130,6 +132,11 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialW', 'Material cost iW period', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialOow', 'Material cost OOW period', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTC', 'ReActive TC (calc)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTP', 'ReActive TP (calc)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ProActive', 'ProActive', 1, 1);
 

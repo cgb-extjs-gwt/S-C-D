@@ -89,101 +89,113 @@ RETURN
                 , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
 
         from CostCte5 m
-    )    
-    select m.rownum
-         , m.Id
+    )
+    , CostCte7 as (
+        select m.rownum
+             , m.Id
 
-         --SLA
+             --SLA
 
-         , m.Fsp
-         , m.CountryId
-         , m.Country
-         , m.CurrencyId
-         , m.Currency
-         , m.ExchangeRate
-         , m.SogId
-         , m.Sog
-         , m.WgId
-         , m.Wg
-         , m.AvailabilityId
-         , m.Availability
-         , m.DurationId
-         , m.Duration
-         , m.Year
-         , m.IsProlongation
-         , m.ReactionTimeId
-         , m.ReactionTime
-         , m.ReactionTypeId
-         , m.ReactionType
-         , m.ServiceLocationId
-         , m.ServiceLocation
-         , m.ProActiveSlaId
+             , m.Fsp
+             , m.CountryId
+             , m.Country
+             , m.CurrencyId
+             , m.Currency
+             , m.ExchangeRate
+             , m.SogId
+             , m.Sog
+             , m.WgId
+             , m.Wg
+             , m.AvailabilityId
+             , m.Availability
+             , m.DurationId
+             , m.Duration
+             , m.Year
+             , m.IsProlongation
+             , m.ReactionTimeId
+             , m.ReactionTime
+             , m.ReactionTypeId
+             , m.ReactionType
+             , m.ServiceLocationId
+             , m.ServiceLocation
+             , m.ProActiveSlaId
 
-         , m.ProActiveSla
+             , m.ProActiveSla
 
-         , m.Sla
-         , m.SlaHash
+             , m.Sla
+             , m.SlaHash
 
-         , m.StdWarranty
-         , m.StdWarrantyLocation
+             , m.StdWarranty
+             , m.StdWarrantyLocation
 
-         --Cost
+             --Cost
 
-         , m.AvailabilityFee * m.Year as AvailabilityFee
-         , m.TaxAndDutiesW
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.TaxOow1, m.TaxOow2, m.TaxOow3, m.TaxOow4, m.TaxOow5, m.TaxOow1P) as TaxAndDutiesOow
+             , m.AvailabilityFee * m.Year as AvailabilityFee
+             , m.TaxAndDutiesW
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.TaxOow1, m.TaxOow2, m.TaxOow3, m.TaxOow4, m.TaxOow5, m.TaxOow1P) as TaxAndDutiesOow
 
 
-         , m.Reinsurance
-         , m.ProActive
-         , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
+             , m.Reinsurance
+             , m.ProActive
+             , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
 
-         , m.MaterialW
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
+             , m.MaterialW
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
 
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.FieldServiceCost1, m.FieldServiceCost2, m.FieldServiceCost3, m.FieldServiceCost4, m.FieldServiceCost5, m.FieldServiceCost1P) as FieldServiceCost
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.Logistic1, m.Logistic2, m.Logistic3, m.Logistic4, m.Logistic5, m.Logistic1P) as Logistic
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.FieldServiceCost1, m.FieldServiceCost2, m.FieldServiceCost3, m.FieldServiceCost4, m.FieldServiceCost5, m.FieldServiceCost1P) as FieldServiceCost
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.Logistic1, m.Logistic2, m.Logistic3, m.Logistic4, m.Logistic5, m.Logistic1P) as Logistic
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
        
-         , m.LocalServiceStandardWarranty
-         , m.LocalServiceStandardWarrantyManual
+             , m.LocalServiceStandardWarranty
+             , m.LocalServiceStandardWarrantyManual
        
-         , m.Credits
+             , m.Credits
 
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
 
-         , m.ServiceTC1
-         , m.ServiceTC2
-         , m.ServiceTC3
-         , m.ServiceTC4
-         , m.ServiceTC5
-         , m.ServiceTC1P
+             , m.ServiceTC1
+             , m.ServiceTC2
+             , m.ServiceTC3
+             , m.ServiceTC4
+             , m.ServiceTC5
+             , m.ServiceTC1P
 
-         , m.ServiceTP1
-         , m.ServiceTP2
-         , m.ServiceTP3
-         , m.ServiceTP4
-         , m.ServiceTP5
-         , m.ServiceTP1P
+             , m.ServiceTP1
+             , m.ServiceTP2
+             , m.ServiceTP3
+             , m.ServiceTP4
+             , m.ServiceTP5
+             , m.ServiceTP1P
 
-         , m.ListPrice
-         , m.DealerDiscount
-         , m.DealerPrice
-         , m.ServiceTCManual
-         , m.ServiceTPManual
-         , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
-         , coalesce(m.ServiceTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTPResult
-         , m.ServiceTP_Released
+             , m.ListPrice
+             , m.DealerDiscount
+             , m.DealerPrice
+             , m.ServiceTCManual
+             , m.ServiceTPManual
+             , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
+             , coalesce(m.ServiceTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTPResult
+             , m.ServiceTP_Released
 
-         , m.ReleaseDate
-         , m.ReleaseUserName
-         , m.ReleaseUserEmail
+             , m.ReleaseDate
+             , m.ReleaseUserName
+             , m.ReleaseUserEmail
 
-         , m.ChangeDate
-         , m.ChangeUserName
-         , m.ChangeUserEmail
+             , m.ChangeDate
+             , m.ChangeUserName
+             , m.ChangeUserEmail
 
-       from CostCte6 m
+           from CostCte6 m
+    )
+    select m.*
+         
+         , m.ServiceTC as ReActiveTC
+         , m.ServiceTP as ReActiveTP
+
+         , m.ServiceTC + coalesce(m.ProActive, 0) as FullServiceTC
+         , m.ServiceTP + coalesce(m.ProActive, 0) as FullServiceTP
+
+    from CostCte7 m
 )
-GO
+
+go

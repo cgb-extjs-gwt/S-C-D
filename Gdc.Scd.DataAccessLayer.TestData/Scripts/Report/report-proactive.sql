@@ -60,7 +60,7 @@ BEGIN
                 , fsp.ServiceDescription as FspDescription
 
         from cte m
-        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla and fsp.IsStandardWarranty <> 1
     )
     select    m.Id
             , m.Country

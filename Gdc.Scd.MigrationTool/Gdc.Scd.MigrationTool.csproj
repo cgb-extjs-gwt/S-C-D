@@ -214,11 +214,16 @@
     <Compile Include="Migrations\2019_12\Migration_2019_12_25_09_20.cs" />
     <Compile Include="Migrations\2019_12\Migration_2019_12_25_17_03.cs" />
     <Compile Include="Migrations\2019_12\Migration_2019_12_30_11_40.cs" />
-    <Compile Include="Migrations\2020_01\Migration_2020_01_27_15_25.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_06_14_33.cs" />
-    <Compile Include="Migrations\2020_01\Migration_2020_01_22_09_28.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_20.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_29_14_04.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_22_09_28.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_23_15_19.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_23_20_08.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_24_13_34.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_27_14_10.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_27_15_25.cs" />
+    <Compile Include="Migrations\2020_01\Migration_2020_01_31_10_40.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -641,6 +646,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2020-01-22-09-28.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-01-23-15-19.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-01-23-20-08.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-01-24-13-34.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-01-27-14-10.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-01-31-10-40.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">

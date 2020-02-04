@@ -81,16 +81,19 @@ begin
             , case when CanStoreListAndDealerPrices = 1 then man.DealerPrice        / c.ExchangeRate end    as DealerPrice                 
 
             --####### PROACTIVE COST ###############################################################################################################################
-            , pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved + dur.Value * (
+            , case when proSla.Name = '0' 
+                    then 0 --we don't calc proactive(none)
+                    else pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved + dur.Value * (
 
-                          pro.LocalRegularUpdateReadyEffort_Approved        * proSla.LocalRegularUpdateReadyRepetition        * pro.OnSiteHourlyRate_Approved       
-                        + pro.LocalPreparationShcEffort_Approved            * proSla.LocalPreparationShcRepetition            * pro.OnSiteHourlyRate_Approved         
-                        + pro.LocalRemoteShcCustomerBriefingEffort_Approved * proSla.LocalRemoteShcCustomerBriefingRepetition * pro.OnSiteHourlyRate_Approved
-                        + pro.LocalOnSiteShcCustomerBriefingEffort_Approved * proSla.LocalOnsiteShcCustomerBriefingRepetition * pro.OnSiteHourlyRate_Approved
-                        + pro.TravellingTime_Approved                       * proSla.TravellingTimeRepetition                 * pro.OnSiteHourlyRate_Approved                   
-                        + pro.CentralExecutionShcReportCost_Approved        * proSla.CentralExecutionShcReportRepetition          
+                                  pro.LocalRegularUpdateReadyEffort_Approved        * proSla.LocalRegularUpdateReadyRepetition        * pro.OnSiteHourlyRate_Approved       
+                                + pro.LocalPreparationShcEffort_Approved            * proSla.LocalPreparationShcRepetition            * pro.OnSiteHourlyRate_Approved         
+                                + pro.LocalRemoteShcCustomerBriefingEffort_Approved * proSla.LocalRemoteShcCustomerBriefingRepetition * pro.OnSiteHourlyRate_Approved
+                                + pro.LocalOnSiteShcCustomerBriefingEffort_Approved * proSla.LocalOnsiteShcCustomerBriefingRepetition * pro.OnSiteHourlyRate_Approved
+                                + pro.TravellingTime_Approved                       * proSla.TravellingTimeRepetition                 * pro.OnSiteHourlyRate_Approved                   
+                                + pro.CentralExecutionShcReportCost_Approved        * proSla.CentralExecutionShcReportRepetition          
 
-                    ) as ProActive
+                            ) 
+                end as ProActive
             --######################################################################################################################################################
             , man.ReleaseDate                           as ReleaseDate
             , u.Name                                    as UserName
