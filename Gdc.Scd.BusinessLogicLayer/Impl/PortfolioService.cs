@@ -189,9 +189,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (wgIds.Length > 0)
             {
                 var wgs = this.wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).ToArray();
-                var users = this.userService.GetCountryKeyUsers().ToArray();
+                var toUsers = this.userService.GetAdmins().ToArray();
+                var bccUsers = this.userService.GetCountryKeyUsers().ToArray();
 
-                this.emailService.SendPortfolioNotifications(wgs, users);
+                this.emailService.SendPortfolioNotifications(wgs, toUsers, bccUsers);
 
                 foreach (var wg in wgs)
                 {
