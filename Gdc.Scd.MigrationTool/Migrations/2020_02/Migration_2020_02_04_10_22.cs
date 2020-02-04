@@ -8,19 +8,19 @@ using Gdc.Scd.MigrationTool.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Gdc.Scd.MigrationTool.Migrations._2020_01
+namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2020_01_29_14_04 : IMigrationAction
+    public class Migration_2020_02_04_10_22 : IMigrationAction
     {
         private readonly DomainEnitiesMeta meta;
 
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 777777777;
+        public int Number => 147;
 
         public string Description => "Add 'ActualVersion' column in costblocks";
 
-        public Migration_2020_01_29_14_04(DomainEnitiesMeta meta, IRepositorySet repositorySet)
+        public Migration_2020_02_04_10_22(DomainEnitiesMeta meta, IRepositorySet repositorySet)
         {
             this.meta = meta;
             this.repositorySet = repositorySet;
