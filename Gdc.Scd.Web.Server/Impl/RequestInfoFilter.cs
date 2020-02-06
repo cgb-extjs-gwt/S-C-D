@@ -2,11 +2,15 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Web.Server.Entities;
 using System;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http.Controllers;
+using System.Web.Http.Filters;
 
 namespace Gdc.Scd.Web.Server.Impl
 {
-    public class RequestInfoFilter : IActionFilter, IExceptionFilter
+    public class RequestInfoFilter : System.Web.Mvc.IActionFilter, System.Web.Mvc.IExceptionFilter, IActionFilter, IExceptionFilter
     {
         private const string RequestInfoContextKey = "RequestInfo";
 
@@ -14,41 +18,111 @@ namespace Gdc.Scd.Web.Server.Impl
 
         private readonly IDomainService<RequestInfo> requestInfoService;
 
+        bool IFilter.AllowMultiple => false;
+
         public RequestInfoFilter(IPrincipalProvider principalProvider, IDomainService<RequestInfo> requestInfoService)
         {
             this.principalProvider = principalProvider;
             this.requestInfoService = requestInfoService;
         }
 
-        public void OnActionExecuting(ActionExecutingContext filterContext)
+        void System.Web.Mvc.IActionFilter.OnActionExecuting(System.Web.Mvc.ActionExecutingContext filterContext)
         {
-            var request = filterContext.HttpContext.Request;
-            var principal = this.principalProvider.GetCurrenctPrincipal();
-            var requestInfo = new RequestInfo
+            try
             {
-                DateTime = DateTime.UtcNow,
-                RequestType = request.RequestType,
-                Host = request.Url.Authority,
-                Url = request.RawUrl,
-                UserLogin = principal.Identity.Name
-            };
+                var request = filterContext.HttpContext.Request;
+                var requestInfo = this.BuildRequestInfo(request.RequestType, request.Url);
 
-            filterContext.HttpContext.Items.Add(RequestInfoContextKey, requestInfo);
+                filterContext.HttpContext.Items.Add(RequestInfoContextKey, requestInfo);
+            }
+            catch
+            { 
+            }
         }
 
-        public void OnActionExecuted(ActionExecutedContext filterContext)
+        void System.Web.Mvc.IActionFilter.OnActionExecuted(System.Web.Mvc.ActionExecutedContext filterContext)
         {
-            var requestInfo = this.GetRequestInfo(filterContext);
+            try
+            {
+                var requestInfo = this.GetRequestInfo(filterContext);
 
-            requestInfo.Duration = (long)(DateTime.UtcNow - requestInfo.DateTime).TotalMilliseconds;
-
-            this.SaveRequestInfo(requestInfo);
+                this.SaveRequestInfo(requestInfo);
+            }
+            catch
+            { 
+            }
         }
 
-        public void OnException(ExceptionContext filterContext)
+        void System.Web.Mvc.IExceptionFilter.OnException(System.Web.Mvc.ExceptionContext filterContext)
         {
-            var requestInfo = this.GetRequestInfo(filterContext);
-            var exception = GetLastLevelException(filterContext.Exception);
+            try
+            {
+                var requestInfo = this.GetRequestInfo(filterContext);
+
+                this.SaveRequestInfo(requestInfo, filterContext.Exception);
+            }
+            catch
+            {
+            }
+        }
+
+        async Task<HttpResponseMessage> IActionFilter.ExecuteActionFilterAsync(
+            HttpActionContext actionContext, 
+            CancellationToken cancellationToken, 
+            Func<Task<HttpResponseMessage>> continuation)
+        {
+            RequestInfo requestInfo = null;
+
+            try
+            {
+                var request = actionContext.Request;
+                
+                requestInfo = this.BuildRequestInfo(request.Method.Method, request.RequestUri);
+
+                actionContext.Request.Properties[RequestInfoContextKey] = requestInfo;
+            }
+            catch
+            {
+            }
+
+            var result = await continuation();
+
+            try
+            {
+                this.SaveRequestInfo(requestInfo);
+            }
+            catch
+            {
+            }
+
+            return result;
+        }
+
+        async Task IExceptionFilter.ExecuteExceptionFilterAsync(
+            HttpActionExecutedContext actionExecutedContext, 
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var requestInfo = (RequestInfo)actionExecutedContext.ActionContext.Request.Properties[RequestInfoContextKey];
+
+                this.SaveRequestInfo(requestInfo, actionExecutedContext.Exception);
+            }
+            catch
+            {
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private RequestInfo GetRequestInfo(System.Web.Mvc.ControllerContext context)
+        {
+            return (RequestInfo)context.HttpContext.Items[RequestInfoContextKey];
+        }
+
+        private void SaveRequestInfo(RequestInfo requestInfo, Exception exception)
+        {
+            exception = GetLastLevelException(exception);
 
             requestInfo.Error = string.Concat(
                 exception.Message,
@@ -69,14 +143,26 @@ namespace Gdc.Scd.Web.Server.Impl
             }
         }
 
-        private RequestInfo GetRequestInfo(ControllerContext context)
-        {
-            return (RequestInfo)context.HttpContext.Items[RequestInfoContextKey];
-        }
-
         private void SaveRequestInfo(RequestInfo requestInfo)
         {
+            requestInfo.Duration = (long)(DateTime.UtcNow - requestInfo.DateTime).TotalMilliseconds;
+
             this.requestInfoService.Save(requestInfo);
+        }
+
+        private RequestInfo BuildRequestInfo(string requestType, Uri uri)
+        {
+            var principal = this.principalProvider.GetCurrenctPrincipal();
+
+            return new RequestInfo
+            {
+                DateTime = DateTime.UtcNow,
+                RequestType = requestType,
+                Host = uri.Authority,
+                QueryPath = uri.AbsolutePath,
+                QueryParams = string.IsNullOrWhiteSpace(uri.Query) ? null : uri.Query,
+                UserLogin = principal.Identity.Name
+            };
         }
     }
 }

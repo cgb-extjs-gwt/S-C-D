@@ -17,7 +17,9 @@ namespace Gdc.Scd.Web.Server.Entities
 
         public string Host { get; set; }
 
-        public string Url { get; set; }
+        public string QueryPath { get; set; }
+
+        public string QueryParams { get; set; }
 
         public string Error { get; set; }
     }

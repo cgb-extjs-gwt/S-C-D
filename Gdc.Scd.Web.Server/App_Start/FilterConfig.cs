@@ -2,13 +2,14 @@
 using Gdc.Scd.Web.Server.Impl;
 using System;
 using System.Configuration;
+using System.Web.Http.Filters;
 using System.Web.Mvc;
 
 namespace Gdc.Scd.Web.Server
 {
     public class FilterConfig
     {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+        public static void RegisterGlobalFilters(GlobalFilterCollection mvcFilters, HttpFilterCollection apiFilters)
         {
             var requestLoggingStr = ConfigurationManager.AppSettings[nameof(RequestLogging)];
             if (requestLoggingStr != null)
@@ -16,11 +17,11 @@ namespace Gdc.Scd.Web.Server
                 var requestLogging = (RequestLogging)Enum.Parse(typeof(RequestLogging), requestLoggingStr, true);
                 if (requestLogging == RequestLogging.Enable)
                 {
-                    filters.Add(DependencyResolver.Current.GetService<RequestInfoFilter>());
+                    apiFilters.Add(DependencyResolver.Current.GetService<RequestInfoFilter>());
                 }
             }
             
-            filters.Add(new HandleErrorAttribute());
+            mvcFilters.Add(new HandleErrorAttribute());
         }
     }
 }

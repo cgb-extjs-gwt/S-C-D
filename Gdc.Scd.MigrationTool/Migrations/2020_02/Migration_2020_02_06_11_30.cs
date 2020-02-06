@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 777777777;
+        public int Number => 148;
 
         public string Description => "Add 'RequestInfo' table";
 
@@ -27,7 +27,8 @@ namespace Gdc.Scd.MigrationTool.Migrations
 	                [UserLogin] NVARCHAR(MAX) NOT NULL,
 	                [RequestType] NVARCHAR(MAX) NOT NULL,
 	                [Host] NVARCHAR(MAX) NOT NULL,
-	                [Url] NVARCHAR(MAX) NOT NULL,
+	                [QueryPath] NVARCHAR(MAX) NOT NULL,
+	                [QueryParams] NVARCHAR(MAX),
 	                [Error] NVARCHAR(MAX)
                 )");
         }
