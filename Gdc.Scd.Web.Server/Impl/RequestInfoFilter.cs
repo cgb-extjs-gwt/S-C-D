@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Web.Server.Entities;
+using Ninject;
 using System;
 using System.Net.Http;
 using System.Threading;
@@ -16,14 +17,14 @@ namespace Gdc.Scd.Web.Server.Impl
 
         private readonly IPrincipalProvider principalProvider;
 
-        private readonly IDomainService<RequestInfo> requestInfoService;
+        private readonly IKernel ioc;
 
         bool IFilter.AllowMultiple => false;
 
-        public RequestInfoFilter(IPrincipalProvider principalProvider, IDomainService<RequestInfo> requestInfoService)
+        public RequestInfoFilter(IPrincipalProvider principalProvider, IKernel ioc)
         {
             this.principalProvider = principalProvider;
-            this.requestInfoService = requestInfoService;
+            this.ioc = ioc;
         }
 
         void System.Web.Mvc.IActionFilter.OnActionExecuting(System.Web.Mvc.ActionExecutingContext filterContext)
@@ -147,7 +148,7 @@ namespace Gdc.Scd.Web.Server.Impl
         {
             requestInfo.Duration = (long)(DateTime.UtcNow - requestInfo.DateTime).TotalMilliseconds;
 
-            this.requestInfoService.Save(requestInfo);
+            this.ioc.Get<IDomainService<RequestInfo>>().Save(requestInfo);
         }
 
         private RequestInfo BuildRequestInfo(string requestType, Uri uri)
