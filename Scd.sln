@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.DataAccessLayer", "Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj", "{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}"
 EndProject
