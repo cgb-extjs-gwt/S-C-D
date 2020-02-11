@@ -108,7 +108,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
             IEnumerable<SqlHelper> BuildCreateCostEditorIndexQueries(CostBlockEntityMeta meta)
             {
-                var costElements = meta.DomainMeta.CostElements;
+                var costElements = meta.SliceDomainMeta.CostElements;
                 var costElementGroups =
                     costElements.Where(costEl => costEl.RegionInput != null && costEl.Dependency != null)
                                 .GroupBy(costEl => new

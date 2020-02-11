@@ -23,22 +23,6 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
     [TestFixture]
     public class CostBlockHistoryTest : SetUpCostBlockTest
     {
-        private CostBlockEntityMeta CostBlock1Meta
-        {
-            get
-            {
-                return this.Meta.GetCostBlockEntityMeta(TestConstants.Application1Id, TestConstants.CostBlock1Id);
-            }
-        }
-
-        private CostBlockEntityMeta CostBlock2Meta
-        {
-            get
-            {
-                return this.Meta.GetCostBlockEntityMeta(TestConstants.Application1Id, TestConstants.CostBlock2Id);
-            }
-        }
-
         [SetUp]
         public override void Init()
         {
@@ -97,10 +81,13 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
         [Test]
         public async Task SimpleHistoryTest()
         {
-            this.AddDataToCostBlock1();
+            this.AddDataToCostBlock1(TestConstants.SimpleCostElementId);
 
             var historyChecker = this.Ioc.Get<HistoryChecker>();
-            var costBlockMeta = this.CostBlock1Meta;
+            var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+                TestConstants.Application1Id, 
+                TestConstants.CostBlock1Id,
+                TestConstants.SimpleCostElementId);;
 
             historyChecker.CostBlockMeta = costBlockMeta;
             historyChecker.CostElementContext = new CostElementContext
@@ -127,10 +114,13 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
         [Test]
         public async Task DifferentInputLevelsHistoryTest()
         {
-            this.AddDataToCostBlock1();
+            this.AddDataToCostBlock1(TestConstants.SimpleCostElementId);
 
             var historyChecker = this.Ioc.Get<HistoryChecker>();
-            var costBlockMeta = this.CostBlock1Meta;
+            var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+                TestConstants.Application1Id, 
+                TestConstants.CostBlock1Id,
+                TestConstants.SimpleCostElementId);;
 
             historyChecker.CostBlockMeta = costBlockMeta;
             historyChecker.CostElementContext = new CostElementContext
@@ -163,7 +153,7 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
         [Test]
         public async Task ChangeCoordinatesHistoryTest()
         {
-            this.AddDataToCostBlock2();
+            this.AddDataToCostBlock2(TestConstants.SimpleCostElementId);
 
             var dependency2Item = this.GetFirstItem<Dependency2>();
             var relatedInputLevel3Service = this.Ioc.Get<IDomainService<RelatedInputLevel3>>();
@@ -191,7 +181,10 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
                 long newRelatedInputLevel2Id)
             {
                 var historyChecker = this.Ioc.Get<HistoryChecker>();
-                var costBlockMeta = this.CostBlock2Meta;
+                var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+                    TestConstants.Application1Id, 
+                    TestConstants.CostBlock2Id, 
+                    TestConstants.SimpleCostElementId);
 
                 historyChecker.CostBlockMeta = costBlockMeta;
                 historyChecker.CostElementContext = new CostElementContext
@@ -261,17 +254,19 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
             ioc.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(CostElementContext), nameof(CostBlockHistory.Context)));
         }
 
-        private void AddDataToCostBlock1()
+        private void AddDataToCostBlock1(string costElementId)
         {
             this.AddNamedIds<Dependency1>(10);
             this.AddNamedIds<SimpleInputLevel1>(10);
             this.AddNamedIds<SimpleInputLevel2>(10);
             this.AddNamedIds<SimpleInputLevel3>(10);
 
-            this.CostBlockRepository.UpdateByCoordinates(this.CostBlock1Meta);
+            var costBlock = this.Meta.GetCostBlockEntityMeta(TestConstants.Application1Id, TestConstants.CostBlock1Id, costElementId);
+            
+            this.CostBlockRepository.UpdateByCoordinates(costBlock);
         }
 
-        private void AddDataToCostBlock2()
+        private void AddDataToCostBlock2(string costElementId)
         {
             this.AddNamedIds<Dependency2>(10);
             this.AddNamedIds<RelatedInputLevel1>(
@@ -288,7 +283,10 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
                         }).ToList();
                 });
 
-            this.CostBlockRepository.UpdateByCoordinates(this.CostBlock2Meta);
+            var costBlock =
+                this.Meta.GetCostBlockEntityMeta(TestConstants.Application1Id, TestConstants.CostBlock2Id, costElementId);
+
+            this.CostBlockRepository.UpdateByCoordinates(costBlock);
         }
 
         private class HistoryChecker

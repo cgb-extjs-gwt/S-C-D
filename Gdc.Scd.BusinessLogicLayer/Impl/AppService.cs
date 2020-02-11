@@ -131,7 +131,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 if (inputLevelMeta != null)
                 {
                     inputLevelDto.HasFilter = true;
-                    inputLevelDto.FilterName = inputLevelMeta.Name;
+                    inputLevelDto.FilterName = inputLevelMeta.Caption;
                 }
 
                 inputLevelDtos.Add(inputLevelDto);

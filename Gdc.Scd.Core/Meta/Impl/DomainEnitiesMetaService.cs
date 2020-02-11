@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -41,36 +42,24 @@ namespace Gdc.Scd.Core.Meta.Impl
             var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas()).ToArray();
             var metaFactory = new CoordinateMetaFactory(customCoordinateMetas);
 
-            foreach (var costBlockMeta in domainMeta.CostBlocks)
+            var tableGroups =
+                domainMeta.CostBlocks.SelectMany(
+                    costBlock => costBlock.ApplicationIds.SelectMany(
+                        applicationId => costBlock.CostElements.Select(
+                            costElement => new CostElementInfo(applicationId, costBlock, costElement)))
+                                     .GroupBy(
+                                        info => info.CostElement.Table == null 
+                                            ? new { Schema = info.ApplicationId, Name = info.CostBlock.Id }
+                                            : new { info.CostElement.Table.Schema, info.CostElement.Table.Name }));
+
+            foreach (var tableGroup in tableGroups)
             {
-                foreach (var applicationId in costBlockMeta.ApplicationIds)
-                {
-                    var costBlockEntity = new CostBlockEntityMeta(costBlockMeta, costBlockMeta.Id, applicationId);
-
-                    foreach (var inputLevelMeta in costBlockMeta.InputLevels)
-                    {
-                        this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
-                    }
-
-                    foreach (var costElementMeta in costBlockMeta.CostElements)
-                    {
-                        this.BuildCostElement(costElementMeta, costBlockEntity, domainEnitiesMeta);
-
-                        if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
-                        {
-                            this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
-                        }
-
-                        if (costElementMeta.RegionInput != null && !costBlockEntity.InputLevelFields.Contains(costElementMeta.RegionInput.Id))
-                        {
-                            this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta, metaFactory);
-                        }
-                    }
-
-                    domainEnitiesMeta.CostBlocks.Add(costBlockEntity);
-
-                    this.BuildCostBlockHistory(costBlockEntity, domainEnitiesMeta);
-                }
+                this.BuildCostBlockMeta(
+                    tableGroup.ToArray(), 
+                    tableGroup.Key.Name, 
+                    tableGroup.Key.Schema, 
+                    metaFactory, 
+                    domainEnitiesMeta);
             }
 
             domainEnitiesMeta.OtherMetas.AddRange(
@@ -88,11 +77,48 @@ namespace Gdc.Scd.Core.Meta.Impl
             return domainEnitiesMeta;
         }
 
+        private void BuildCostBlockMeta(
+            CostElementInfo[] costElementInfos,
+            string costBlockName,
+            string costBlockSchema, 
+            CoordinateMetaFactory metaFactory, 
+            DomainEnitiesMeta domainEnitiesMeta)
+        {
+            var costElements = costElementInfos.Select(info => info.CostElement);
+            var sliceMeta = new CostBlockMeta(costElements);
+            var costBlockEntity = new CostBlockEntityMeta(sliceMeta, costBlockName, costBlockSchema);
+
+            foreach (var inputLevelMeta in sliceMeta.InputLevels)
+            {
+                this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
+            }
+
+            foreach (var costElementMeta in sliceMeta.CostElements)
+            {
+                this.BuildCostElement(costElementMeta, costBlockEntity, domainEnitiesMeta);
+
+                if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
+                {
+                    this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
+                }
+
+                if (costElementMeta.RegionInput != null && !costBlockEntity.InputLevelFields.Contains(costElementMeta.RegionInput.Id))
+                {
+                    this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta, metaFactory);
+                }
+            }
+
+            var costElementIds = costElementInfos.Select(info => info.GetElementIdentifier());
+
+            domainEnitiesMeta.AddCostBlock(costElementIds, costBlockEntity);
+
+            this.BuildCostBlockHistory(costBlockEntity, domainEnitiesMeta);
+        }
+
         private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
             if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
             {
-                var dependencyFullName = BaseEntityMeta.BuildFullName(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
                 var dependencyEntity = metaFactory.GetMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
 
                 if (!domainEnitiesMeta.Dependencies.Contains(dependencyEntity))
@@ -109,7 +135,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private void BuildInputLevels(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
-            var inputLevelFullName = BaseEntityMeta.BuildFullName(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
             var inputLevelEntity = metaFactory.GetMeta(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
 
             if (!domainEnitiesMeta.InputLevels.Contains(inputLevelEntity))
@@ -291,6 +316,27 @@ namespace Gdc.Scd.Core.Meta.Impl
                 }
 
                 return meta;
+            }
+        }
+
+        private class CostElementInfo
+        {
+            public string ApplicationId { get; private set; }
+
+            public CostBlockMeta CostBlock { get; private set; }
+
+            public CostElementMeta CostElement { get; private set; }
+
+            public CostElementInfo(string applicationId, CostBlockMeta costBlockMeta, CostElementMeta costElementMeta)
+            {
+                this.ApplicationId = applicationId;
+                this.CostBlock = costBlockMeta;
+                this.CostElement = costElementMeta;
+            }
+
+            public CostElementIdentifier GetElementIdentifier()
+            {
+                return new CostElementIdentifier(this.ApplicationId, this.CostBlock.Id, this.CostElement.Id);
             }
         }
     }

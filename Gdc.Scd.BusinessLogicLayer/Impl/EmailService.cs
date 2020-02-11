@@ -222,8 +222,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var infos = new List<string>
             {
-                $"</br><b>Cost Block: {costBlock.Name}</br>",
-                $"Cost Element: {costElement.Name}</br>",
+                $"</br><b>Cost Block: {costBlock.Caption}</br>",
+                $"Cost Element: {costElement.Caption}</br>",
             };
 
             if (history.Context.RegionInputId.HasValue)

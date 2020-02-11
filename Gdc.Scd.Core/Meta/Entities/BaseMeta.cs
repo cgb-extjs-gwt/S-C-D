@@ -7,7 +7,7 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public string Id { get; set; }
 
-        public string Name { get; set; }
+        public string Caption { get; set; }
 
         public virtual object Clone()
         {

@@ -229,7 +229,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private IDictionary<string, long[]> BuildFilter(CostBlockEntityMeta costBlockMeta, CostImportContext context)
         {
             var filter = new Dictionary<string, long[]>();
-            var costElement = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costElement = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (context.DependencyItemId.HasValue)
             {

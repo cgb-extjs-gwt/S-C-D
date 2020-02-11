@@ -131,9 +131,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             else
             {
                 var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+                var qualityGate = costBlockMeta.GetQualityGate(history.Context.CostElementId);
 
                 options.CustomCheckColumns =
-                    this.BuildQualityGateQueryCheckColumns(costBlockMeta, options)
+                    this.BuildQualityGateQueryCheckColumns(costBlockMeta, options, qualityGate)
                         .Select(column => SqlFunctions.Min(column.Alias, ResultQualityGateTable, column.Alias));
 
                 query = this.BuildQualityGateQuery(history.Context, options);
@@ -200,8 +201,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private SqlHelper BuildQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-
-            var checkColumns = this.BuildQualityGateQueryCheckColumns(costBlockMeta, options);
+            var qualityGate = costBlockMeta.GetQualityGate(historyContext.CostElementId);
+            var checkColumns = this.BuildQualityGateQueryCheckColumns(costBlockMeta, options, qualityGate);
             var domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId);
             var resultQualityGateTableColumns = 
                 domainCoordinateFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
@@ -278,9 +279,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Sql.With(qualityQateResultQuery, wihtQueries.ToArray());
         }
 
-        private List<QueryColumnInfo> BuildQualityGateQueryCheckColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options)
+        private List<QueryColumnInfo> BuildQualityGateQueryCheckColumns(
+            CostBlockEntityMeta costBlockMeta, 
+            QualityGateQueryOptions options,
+            QualityGate qualityGate)
         {
-            var qualityGate = costBlockMeta.DomainMeta.QualityGate;
             var periodCheckColumn = BuildCheckResultColumn(
                 InnerQualityGateTable,
                 OldValueColumn,
@@ -327,7 +330,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 columns.Add(new ColumnInfo(HistoryValueIdColumn, ResultQualityGateTable));
             }
 
-            var costElement = costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId];
+            var costElement = costBlockMeta.SliceDomainMeta.CostElements[historyContext.CostElementId];
             var fields = costElement.SortInputLevel().Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
             var dependencyField = costBlockMeta.GetDomainDependencyField(historyContext.CostElementId);
             if (dependencyField != null)
@@ -356,7 +359,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var costElementColumn = new ColumnInfo(approvedCostElement.Name, costBlockMeta.Name);
 
-            if (costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].IsCountryCurrencyCost)
+            if (costBlockMeta.SliceDomainMeta.CostElements[historyContext.CostElementId].IsCountryCurrencyCost)
             {
                 var exchangeRateMeta = this.domainEnitiesMeta.ExchangeRate;
                 var exchangeRateColumn = new ColumnInfo(exchangeRateMeta.Value.Name, exchangeRateMeta.Name);

@@ -6,7 +6,6 @@ using Gdc.Scd.Tests.Common.CostBlock;
 using Gdc.Scd.Tests.Common.CostBlock.Constants;
 using Gdc.Scd.Tests.Common.CostBlock.Entities;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +32,8 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
         {
             var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
                 TestConstants.Application1Id,
-                TestConstants.CostBlock1Id);
+                TestConstants.CostBlock1Id,
+                TestConstants.SimpleCostElementId);
 
             var rowCount = await this.RowCount(costBlockMeta);
 
@@ -55,7 +55,7 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
                 CostBlockMeta = costBlockMeta,
                 InputLevel = nameof(SimpleInputLevel2),
                 InputLevelItemId = this.RepositorySet.GetRepository<SimpleInputLevel2>().GetAll().Select(item => item.Id).First(),
-                CostElement = "SimpleCostElement",
+                CostElement = TestConstants.SimpleCostElementId,
                 Value = 777
             };
 
@@ -86,7 +86,8 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
         {
             var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
                 TestConstants.Application1Id,
-                TestConstants.CostBlock2Id);
+                TestConstants.CostBlock2Id,
+                TestConstants.SimpleCostElementId);
 
             var rowCount = await this.RowCount(costBlockMeta);
 
@@ -119,7 +120,7 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
                 CostBlockMeta = costBlockMeta,
                 InputLevel = nameof(RelatedInputLevel2),
                 InputLevelItemId = relatedInputLevel2Item.Id,
-                CostElement = "SimpleCostElement",
+                CostElement = TestConstants.SimpleCostElementId,
                 Value = 777
             };
 

@@ -84,7 +84,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var option = new QualityGateOption();
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.HasInputLevel(MetaConstants.WgInputLevelName))
             {

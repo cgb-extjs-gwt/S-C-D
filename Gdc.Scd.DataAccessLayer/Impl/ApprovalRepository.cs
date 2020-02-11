@@ -60,11 +60,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 InputLevelJoinType inputLevelJoinType;
                 IEnumerable<ReferenceFieldMeta> domainCoordinateFields;
 
-                var costElementMeta = costBlockMeta.DomainMeta.CostElements[history.Context.CostElementId];
+                var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[history.Context.CostElementId];
 
                 if (historyValueId.HasValue)
                 {
-                    var inputLevel = costElementMeta.InputLevels.Last();
+                    var inputLevel = costElementMeta.SortInputLevel().Last();
 
                     inputLevelId = inputLevel.Id;
                     inputLevelJoinType = InputLevelJoinType.All;

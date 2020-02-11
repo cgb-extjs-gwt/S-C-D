@@ -15,7 +15,7 @@ namespace Gdc.Scd.Core.Meta.Impl
     {
         private const string NoneValue = "_none_";
 
-        private const string NameAttributeName = "Name";
+        private const string IdAttributeName = "Id";
 
         private const string CaptionAttributeName = "Caption";
 
@@ -31,13 +31,21 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string ApplicationNodeName = "Application";
 
+        private const string TableListNodeName = "Tables";
+
+        private const string TableNodeName = "Table";
+
+        private const string TableNameAttributeName = "Name";
+
+        private const string TableShemaAttributeName = "Shema";
+
         private const string CostElementListNodeName = "Elements";
 
         private const string CostElementNodeName = "Element";
 
         private const string CostElementDescriptionNodeName = "Description";
 
-        private const string DomainMetaConfigKey = "DomainMetaFile";
+        private const string CostElementTableIdAttributeNodeName = "TableId";
 
         private const string InputLevelListNodeName = "InputLevels";
 
@@ -77,7 +85,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string RoleNodeName = "Role";
 
-        private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
+        private readonly Regex idRegex = new Regex(@"^[a-zA-Z][a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
         public DomainMeta Get()
         {
@@ -135,28 +143,34 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Cost elements node not found");
             }
 
+            var qualityGateNode = node.Element(QualityGateNodeName);
+            var qualityGate = qualityGateNode == null
+                ? defination.QualityGate
+                : this.BuildQualityGate(qualityGateNode);
+
             var costElements =
                 costElementListNode.Elements(CostElementNodeName)
-                                   .Select(costElement => this.BuildCostElementMeta(costElement, defination));
+                                   .Select(costElement => this.BuildCostElementMeta(costElement, defination, qualityGate));
 
             costBlockMeta.CostElements = new MetaCollection<CostElementMeta>(costElements);
 
             costBlockMeta.ApplicationIds =
                 this.BuildItemCollectionByDomainInfo(node.Element(ApplicationListNodeName), ApplicationNodeName, defination.Applications)
-                    .Select(application => application.Id);
+                    .Select(application => application.Id)
+                    .ToArray();
 
-            var qualityGateNode = node.Element(QualityGateNodeName);
-
-            costBlockMeta.QualityGate = qualityGateNode == null 
-                ? defination.QualityGate 
-                : this.BuildQualityGate(qualityGateNode);
+            if (costBlockMeta.ApplicationIds.Length > 1 &&
+                costBlockMeta.CostElements.Any(costElement => costElement.Table != null))
+            {
+                throw new NotSupportedException($"Multiple applications not supported for cost elemnts with table definition");
+            }
 
             return costBlockMeta;
         }
 
-        private CostElementMeta BuildCostElementMeta(XElement node, DomainDefination defination)
+        private CostElementMeta BuildCostElementMeta(XElement node, DomainDefination defination, QualityGate qualityGate)
         {
-            var nameAttr = node.Attribute(NameAttributeName);
+            var nameAttr = node.Attribute(IdAttributeName);
             if (nameAttr == null)
             {
                 throw new Exception("Cost element name attribute not found");
@@ -165,6 +179,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             var costElementMeta = this.BuildMeta<CostElementMeta>(node);
 
             costElementMeta.Description = this.BuildCostElementDescription(node);
+            costElementMeta.QualityGate = qualityGate;
 
             costElementMeta.InputLevelMetaInfos =
                 this.BuildInputLevelMetaInfos(node.Element(InputLevelListNodeName), defination.InputLevels);
@@ -207,6 +222,17 @@ namespace Gdc.Scd.Core.Meta.Impl
             if (countryReadOnlyColumnAttribute != null)
             {
                 costElementMeta.CountryReadOnlyColumn = countryReadOnlyColumnAttribute.Value;
+            }
+
+            var tableIdAttribute = node.Attribute(CostElementTableIdAttributeNodeName);
+            if (tableIdAttribute != null)
+            {
+                costElementMeta.Table = defination.Tables[tableIdAttribute.Value];
+
+                if (costElementMeta.Table == null)
+                {
+                    throw new Exception($"Table id '{tableIdAttribute.Value}' not found");
+                }
             }
 
             return costElementMeta;
@@ -313,43 +339,37 @@ namespace Gdc.Scd.Core.Meta.Impl
             return description;
         }
 
-        private T BuildMeta<T>(XElement node) where T : BaseMeta, new()
+        private string GetId(XElement node, string idAttributeName = IdAttributeName)
         {
-            var nameAttr = node.Attribute(NameAttributeName);
-            if (nameAttr == null)
+            var idAttr = node.Attribute(IdAttributeName);
+            if (idAttr == null)
             {
-                throw new Exception("Name attribute not found");
+                throw new Exception($"{IdAttributeName} attribute not found");
             }
 
-            this.CheckId(nameAttr.Value);
-
-            var captionAttr = node.Attribute(CaptionAttributeName);
-            var meta = new T
+            if (string.IsNullOrWhiteSpace(idAttr.Value) || !this.idRegex.IsMatch(idAttr.Value))
             {
-                Id = nameAttr.Value,
-                Name = captionAttr == null ? nameAttr.Value : captionAttr.Value
-            };
+                throw new Exception($"Invalid BaseDomainMeta id '{idAttr.Value}'");
+            }
 
-            return meta;
+            return idAttr.Value;
         }
 
-        private DomainInfo<InputLevelMeta> BuildInputLevelDomainInfo(XElement node)
+        private T BuildMeta<T>(XElement node) where T : BaseMeta, new()
         {
-            var inputLevels = this.BuildStoreTypedFilterableDomainInfo<InputLevelMeta>(node, InputLevelNodeName);
+            var id = this.GetId(node);
+            var captionAttr = node.Attribute(CaptionAttributeName);
             
-            var index = 0;
-
-            foreach(var inputLevel in inputLevels.Items)
+            return new T
             {
-                inputLevel.LevelNumber = index++;
-            }
-
-            return inputLevels;
+                Id = id,
+                Caption = captionAttr == null ? id : captionAttr.Value
+            };
         }
 
         private DomainDefination BuildDomainDefination(XElement node)
         {
-            var inputLevels = this.BuildInputLevelDomainInfo(node.Element(InputLevelListNodeName));
+            var inputLevels = BuildInputLevelDomainInfo(node.Element(InputLevelListNodeName));
 
             var qualityGateNode = node.Element(QualityGateNodeName);
             if (qualityGateNode != null)
@@ -360,101 +380,119 @@ namespace Gdc.Scd.Core.Meta.Impl
             return new DomainDefination
             {
                 InputLevels = inputLevels,
-                RegionInputs = this.BuildDomainInfo<InputLevelMeta>(node.Element(RegionInputListNodeName), InputLevelNodeName, inputLevels.Items),
-                Dependencies = this.BuildStoreTypedDomainInfo<DependencyMeta>(node.Element(DependencyListNodeName), DependencyNodeName),
-                Applications = this.BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName),
-                QualityGate = this.BuildQualityGate(qualityGateNode)
+                RegionInputs = BuildDomainInfoByItems(node.Element(RegionInputListNodeName), InputLevelNodeName, inputLevels.Items),
+                Dependencies = BuildStoreTypedDomainInfo<DependencyMeta>(node.Element(DependencyListNodeName), DependencyNodeName),
+                Applications = BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName),
+                QualityGate = this.BuildQualityGate(qualityGateNode), 
+                Tables = BuildTableMetas()
             };
-        }
 
-        private T BuildMetaItem<T>(XElement node) where T : BaseMeta, new()
-        {
-            var nameAttribute = node.Attribute(NameAttributeName);
-            var captionAttribute = node.Attribute(CaptionAttributeName);
-
-            this.CheckId(nameAttribute.Value);
-
-            return new T
+            DomainInfo<InputLevelMeta> BuildInputLevelDomainInfo(XElement inputLevelNode)
             {
-                Id = nameAttribute.Value,
-                Name = captionAttribute == null ? nameAttribute.Value : captionAttribute.Value
-            };
-        }
+                var inputLevelMetas = BuildStoreTypedFilterableDomainInfo<InputLevelMeta>(inputLevelNode, InputLevelNodeName);
 
-        private T BuildStoreTypedMeta<T>(XElement node) where T : BaseMeta, IStoreTyped, new()
-        {
-            var meta = this.BuildMeta<T>(node);
+                var index = 0;
 
-            var typeAttr = node.Attribute(TypeAttributeName);
-            if (typeAttr != null)
-            {
-                meta.StoreType = StoreType.View;
+                foreach (var inputLevel in inputLevelMetas.Items)
+                {
+                    inputLevel.LevelNumber = index++;
+                }
+
+                return inputLevelMetas;
+
+                DomainInfo<T> BuildStoreTypedFilterableDomainInfo<T>(XElement listNode, string itemNodeName)
+                    where T : BaseMeta, IStoreTyped, IFilterable, new()
+                {
+                    var items = listNode.Elements(itemNodeName).Select(BuildStoreTypedFilterable);
+
+                    return BuildDomainInfoByItems(listNode, itemNodeName, items);
+
+                    T BuildStoreTypedFilterable(XElement nodeItem)
+                    {
+                        var element = BuildStoreTypedMeta<T>(nodeItem);
+
+                        var filterAttr = nodeItem.Attribute(FilterAttributeName);
+                        element.HideFilter = false;
+                        if (filterAttr != null)
+                        {
+                            if (bool.TryParse(filterAttr.Value, out bool filterValue))
+                                element.HideFilter = filterValue;
+                        }
+
+                        return element;
+                    }
+                }
             }
 
-            return meta;
-        }
-
-        private T BuildStoreTypedFilterable<T>(XElement node) where T : BaseMeta, IStoreTyped, IFilterable, new()
-        {
-            var element = BuildStoreTypedMeta<T>(node);
-
-            var filterAttr = node.Attribute(FilterAttributeName);
-            element.HideFilter = false;
-            if (filterAttr != null)
+            DomainInfo<T> BuildDomainInfoByItems<T>(XElement listNode, string itemNodeName, IEnumerable<T> items) where T : BaseMeta, new()
             {
-                if (bool.TryParse(filterAttr.Value, out bool filterValue))
-                    element.HideFilter = filterValue;
+                var domainInfo = new DomainInfo<T>();
+
+                domainInfo.Items.AddRange(items);
+
+                var defaultNode = listNode.Element(DefaultNodeName);
+                if (defaultNode != null)
+                {
+                    var defaultItems =
+                        defaultNode.Elements(itemNodeName)
+                                   .Select(nodeItem => domainInfo.Items[nodeItem.Value]);
+
+                    domainInfo.DefaultItems.AddRange(defaultItems);
+                }
+
+                return domainInfo;
             }
 
-            return element;
-        }
-
-        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName, IEnumerable<T> items) where T : BaseMeta, new()
-        {
-            var domainInfo = new DomainInfo<T>();
-
-            domainInfo.Items.AddRange(items);
-
-            var defaultNode = listNode.Element(DefaultNodeName);
-            if (defaultNode != null)
+            DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseMeta, new()
             {
-                var defaultItems =
-                    defaultNode.Elements(itemNodeName)
-                               .Select(node => domainInfo.Items[node.Value]);
+                var items = listNode.Elements(itemNodeName).Select(this.BuildMeta<T>);
 
-                domainInfo.DefaultItems.AddRange(defaultItems);
+                return BuildDomainInfoByItems(listNode, itemNodeName, items);
             }
 
-            return domainInfo;
-        }
-
-        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseMeta, new()
-        {
-            var items = listNode.Elements(itemNodeName).Select(this.BuildMetaItem<T>);
-
-            return this.BuildDomainInfo(listNode, itemNodeName, items);
-        }
-
-        private DomainInfo<T> BuildStoreTypedDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseMeta, IStoreTyped, new()
-        {
-            var items = listNode.Elements(itemNodeName).Select(this.BuildStoreTypedMeta<T>);
-
-            return this.BuildDomainInfo(listNode, itemNodeName, items);
-        }
-
-        private DomainInfo<T> BuildStoreTypedFilterableDomainInfo<T>(XElement listNode, string itemNodeName) 
-            where T : BaseMeta, IStoreTyped, IFilterable, new()
-        {
-            var items = listNode.Elements(itemNodeName).Select(this.BuildStoreTypedFilterable<T>);
-
-            return this.BuildDomainInfo(listNode, itemNodeName, items);
-        } 
-
-        private void CheckId(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id) || !this.idRegex.IsMatch(id))
+            DomainInfo<T> BuildStoreTypedDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseMeta, IStoreTyped, new()
             {
-                throw new Exception($"Invalid BaseDomainMeta id '{id}'");
+                var items = listNode.Elements(itemNodeName).Select(BuildStoreTypedMeta<T>);
+
+                return BuildDomainInfoByItems(listNode, itemNodeName, items);
+            }
+
+            T BuildStoreTypedMeta<T>(XElement nodeItem) where T : BaseMeta, IStoreTyped, new()
+            {
+                var meta = this.BuildMeta<T>(nodeItem);
+
+                var typeAttr = nodeItem.Attribute(TypeAttributeName);
+                if (typeAttr != null)
+                {
+                    meta.StoreType = StoreType.View;
+                }
+
+                return meta;
+            }
+
+            MetaCollection<TableMeta> BuildTableMetas()
+            {
+                var result = new MetaCollection<TableMeta>();
+
+                var tablesNode = node.Element(TableListNodeName);
+                if (tablesNode != null)
+                {
+                    result.AddRange(tablesNode.Elements(TableNodeName).Select(BuildTableMeta));
+                }
+
+                return result;
+
+                TableMeta BuildTableMeta(XElement tableMetaNode)
+                {
+                    var shemaAttribute = tableMetaNode.Attribute(TableShemaAttributeName);
+
+                    return new TableMeta
+                    {
+                        Id = this.GetId(tableMetaNode),
+                        Schema = shemaAttribute == null ? MetaConstants.DefaultSchema : shemaAttribute.Value,
+                        Name = this.GetId(tableMetaNode, TableNameAttributeName)
+                    };
+                }
             }
         }
 
@@ -472,8 +510,8 @@ namespace Gdc.Scd.Core.Meta.Impl
                 }
 
                 var periodCoeffNode = node.Element(PeriodCoeffNodeName);
-                if (regionCoeffNode != null &&
-                    double.TryParse(regionCoeffNode.Value, out var periodCoeff))
+                if (periodCoeffNode != null &&
+                    double.TryParse(periodCoeffNode.Value, out var periodCoeff))
                 {
                     qualityGate.PeriodCoeff = periodCoeff;
                 }
@@ -500,6 +538,8 @@ namespace Gdc.Scd.Core.Meta.Impl
             public DomainInfo<ApplicationMeta> Applications { get; set; }
 
             public QualityGate QualityGate { get; set; }
+
+            public MetaCollection<TableMeta> Tables { get; set; }
         }
     }
 }

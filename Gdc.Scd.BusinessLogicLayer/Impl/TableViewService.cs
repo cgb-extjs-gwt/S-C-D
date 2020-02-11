@@ -137,7 +137,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
 
             var costBlockMeta = this.meta.GetCostBlockEntityMeta(historyContext);
-            var inputLevel = costBlockMeta.DomainMeta.GetMaxInputLevel(coordinates.Keys);
+            var inputLevel = costBlockMeta.SliceDomainMeta.GetMaxInputLevel(coordinates.Keys);
 
             historyContext.InputLevelId = inputLevel.Id;
 
@@ -163,7 +163,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             foreach (var costBlock in this.meta.CostBlocks)
             {
                 var fieldNames =
-                    (from costElement in costBlock.DomainMeta.CostElements
+                    (from costElement in costBlock.SliceDomainMeta.CostElements
                      where costElement.TableViewRoles != null && user.Roles.Any(role => costElement.TableViewRoles.Contains(role.Name))
                      select costElement.Id).ToArray();
 

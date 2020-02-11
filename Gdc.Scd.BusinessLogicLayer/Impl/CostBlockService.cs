@@ -73,7 +73,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 foreach (var editContextGroup in editContextGroups)
                 {
                     var costBlock = this.meta.GetCostBlockEntityMeta(editContextGroup.Key);
-                    var regionInputId = costBlock.DomainMeta.CostElements[editContextGroup.Key.CostElementId].RegionInput?.Id;
+                    var regionInputId = costBlock.SliceDomainMeta.CostElements[editContextGroup.Key.CostElementId].RegionInput?.Id;
 
                     IEnumerable<EditItemSet> editItemSets = null;
 
@@ -197,7 +197,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<NamedId>> GetDependencyItems(CostElementContext context)
         {
             var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.Dependency == null)
             {
@@ -222,7 +222,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IEnumerable<NamedId> regions = null;
 
             var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.RegionInput != null)
             {
@@ -294,7 +294,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                 CostElementId = costElementGroup.Key
                             };
 
-                            var inputRegionInfo = editInfo.Meta.DomainMeta.CostElements[costElementGroup.Key].RegionInput;
+                            var inputRegionInfo = editInfo.Meta.SliceDomainMeta.CostElements[costElementGroup.Key].RegionInput;
                             if (inputRegionInfo != null)
                             {
                                 var inputRegionIdColumn = inputRegionInfo.Id;
@@ -329,7 +329,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IDictionary<string, long[]> coordinateFilter,
                 CostBlockEntityMeta meta)
             {
-                var maxInputLevelMeta = meta.DomainMeta.GetMaxInputLevel(coordinateFilter.Keys);
+                var maxInputLevelMeta = meta.SliceDomainMeta.GetMaxInputLevel(coordinateFilter.Keys);
                 var filterKeys = coordinateFilter.Keys.Where(coordinateId => coordinateId != maxInputLevelMeta.Id).ToArray();
                 var key = string.Join(
                     "_",

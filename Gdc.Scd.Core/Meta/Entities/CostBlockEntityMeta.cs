@@ -17,7 +17,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public ReferenceFieldMeta ActualVersionField { get; }
 
-        public CostBlockMeta DomainMeta { get; }
+        public CostBlockMeta SliceDomainMeta { get; }
 
         public override IEnumerable<FieldMeta> AllFields
         {
@@ -36,10 +36,10 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        public CostBlockEntityMeta(CostBlockMeta meta, string name, string shema = null)
+        public CostBlockEntityMeta(CostBlockMeta sliceMeta, string name, string shema)
             : base(name, shema)
         {
-            this.DomainMeta = meta;
+            this.SliceDomainMeta = sliceMeta;
             this.ActualVersionField = new ReferenceFieldMeta("ActualVersion", this, this.IdField.Name)
             {
                 IsNullOption = true
@@ -57,14 +57,14 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IEnumerable<ReferenceFieldMeta> GetDomainInputLevelFields(string costElementId)
         {
-            return this.GetDomainInputLevelFields(this.DomainMeta.CostElements[costElementId]);
+            return this.GetDomainInputLevelFields(this.SliceDomainMeta.CostElements[costElementId]);
         }
 
         public ReferenceFieldMeta GetDomainDependencyField(string costElementId)
         {
             ReferenceFieldMeta dependencyField = null;
 
-            var costElement = this.DomainMeta.CostElements[costElementId];
+            var costElement = this.SliceDomainMeta.CostElements[costElementId];
             if (costElement.Dependency != null)
             {
                 dependencyField = this.DependencyFields[costElement.Dependency.Id];
@@ -75,7 +75,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IEnumerable<ReferenceFieldMeta> GetDomainCoordinateFields(string costElementId)
         {
-            var costElement = this.DomainMeta.CostElements[costElementId];
+            var costElement = this.SliceDomainMeta.CostElements[costElementId];
             
             foreach (var inputLevelField in this.GetDomainInputLevelFields(costElement))
             {
@@ -86,6 +86,11 @@ namespace Gdc.Scd.Core.Meta.Entities
             {
                 yield return this.DependencyFields[costElement.Dependency.Id];
             }
+        }
+
+        public QualityGate GetQualityGate(string costElementId)
+        {
+            return this.SliceDomainMeta.CostElements[costElementId].QualityGate;
         }
 
         public ReferenceFieldMeta GetDomainCoordinateField(string costElementId, string fieldName)

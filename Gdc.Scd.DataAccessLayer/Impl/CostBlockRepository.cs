@@ -82,10 +82,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     CostBlock = costBlock,
                     RegionIds = 
-                        costBlock.DomainMeta.CostElements.Where(costElement => costElement.RegionInput != null)
-                                                         .GroupBy(costElement => costElement.RegionInput.Id)
-                                                         .Select(group => group.Key)
-                                                         .ToArray()
+                        costBlock.SliceDomainMeta.CostElements.Where(costElement => costElement.RegionInput != null)
+                                                              .GroupBy(costElement => costElement.RegionInput.Id)
+                                                              .Select(group => group.Key)
+                                                              .ToArray()
                 });
 
             var queries = new List<ISqlBuilder>();
@@ -246,9 +246,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             const string NewRowsTableName = "NewRows";
             const string ValuesTableName = "Values";
 
-            var lastInputLevel = costBlockMeta.DomainMeta.InputLevels.Last();
+            var lastInputLevel = costBlockMeta.SliceDomainMeta.InputLevels.Last();
             var valuesQueryCoordinateFields = 
-                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Name)
+                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Caption)
                                               .ToArray();
 
             var insertedFieldNames = 

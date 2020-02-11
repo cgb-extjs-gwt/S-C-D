@@ -1,17 +1,17 @@
 <SCDConfiguration>
     <InputLevels>
-        <InputLevel Name="Country"/>
-        <InputLevel Name="NonEmeiaCountry" Caption="Country" Type="View"/>
-        <InputLevel Name="ClusterRegion" Caption="Region"/>
-        <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
-        <InputLevel Name="Company" Caption="Company"/>
-        <InputLevel Name="Pla" Caption="PLA"/>
-        <InputLevel Name="CentralContractGroup" Caption="Central Contract Group" HideFilter = "true"/>
-        <InputLevel Name="Sfab" Caption="SFAB"/>
-        <InputLevel Name="Wg" Caption="WG"/>
-        <InputLevel Name="Sog" Caption="SOG"/>
-        <InputLevel Name="SwDigit" Caption="SW Digit"/>
-        <InputLevel Name="RoleCode" Caption="Role Code"/>
+        <InputLevel Id="Country"/>
+        <InputLevel Id="NonEmeiaCountry" Caption="Country" Type="View"/>
+        <InputLevel Id="ClusterRegion" Caption="Region"/>
+        <InputLevel Id="ClusterPla" Caption="Cluster Pla"/>
+        <InputLevel Id="Company" Caption="Company"/>
+        <InputLevel Id="Pla" Caption="PLA"/>
+        <InputLevel Id="CentralContractGroup" Caption="Central Contract Group" HideFilter = "true"/>
+        <InputLevel Id="Sfab" Caption="SFAB"/>
+        <InputLevel Id="Wg" Caption="WG"/>
+        <InputLevel Id="Sog" Caption="SOG"/>
+        <InputLevel Id="SwDigit" Caption="SW Digit"/>
+        <InputLevel Id="RoleCode" Caption="Role Code"/>
 
         <Default>
             <InputLevel>Country</InputLevel>
@@ -38,29 +38,34 @@
     </QualityGate>
 
     <Dependencies>
-        <Dependency Name="Year"/>
-        <Dependency Name="Duration"/>
-        <Dependency Name="ServiceLocation" Caption="Service location"/>
-        <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
-        <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
-        <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
-        <Dependency Name="Availability" Caption="Availability"/>
-        <Dependency Name="DurationAvailability" Caption="Duration Availability" Type="View"/>
-        <Dependency Name="ProActiveSla" Caption="Pro Active SLA"/>
+        <Dependency Id="Year"/>
+        <Dependency Id="Duration"/>
+        <Dependency Id="ServiceLocation" Caption="Service location"/>
+        <Dependency Id="ReactionTimeType" Caption="Reaction" Type="View"/>
+        <Dependency Id="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
+        <Dependency Id="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
+        <Dependency Id="Availability" Caption="Availability"/>
+        <Dependency Id="DurationAvailability" Caption="Duration Availability" Type="View"/>
+        <Dependency Id="ProActiveSla" Caption="Pro Active SLA"/>
     </Dependencies>
 
     <Applications>
-        <Application Name="Hardware"/>
-        <Application Name="SoftwareSolution" Caption="Software &amp; Solution"/>
+        <Application Id="Hardware"/>
+        <Application Id="SoftwareSolution" Caption="Software &amp; Solution"/>
     </Applications>
 
-    <Blocks>
-        <Block Name="AFR">
+    <Tables>
+        <Table Id="FieldServiceCalc" Shema="Hardware" Name="FieldServiceCalc"/>
+        <Table Id="FieldServiceTimeCalc" Shema="Hardware" Name="FieldServiceTimeCalc"/>
+    </Tables>
+
+  <Blocks>
+        <Block Id="AFR">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="AFR"  Caption="AFR (%)" InputOption="ManuallyAutomatically" RegionInput="_none_" Dependency="Year">
+                <Element Id="AFR"  Caption="AFR (%)" InputOption="ManuallyAutomatically" RegionInput="_none_" Dependency="Year">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -75,12 +80,12 @@
             </Elements>
         </Block>
 
-        <Block Name="FieldServiceCost" Caption="Field Service Cost">
+        <Block Id="FieldServiceCost" Caption="Field Service Cost">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_">
+                <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
@@ -92,7 +97,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Name="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
+                <Element Id="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -101,7 +106,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation">
+                <Element Id="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -111,7 +116,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation">
+                <Element Id="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -121,7 +126,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -131,7 +136,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -148,12 +153,12 @@
             </QualityGate>
         </Block>
 
-        <Block Name="ServiceSupportCost" Caption="Service Support Cost">
+        <Block Id="ServiceSupportCost" Caption="Service Support Cost">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manually">
+                <Element Id="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                     </InputLevels>
@@ -165,8 +170,8 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <!--<Element Name="InstalledBase" Caption="Installed base country" InputOption="Reference"/>-->
-                <Element Name="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
+                <!--<Element Id="InstalledBase" Caption="Installed base country" InputOption="Reference"/>-->
+                <Element Id="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
                     <InputLevels>
                         <InputLevel>ClusterPla</InputLevel>
                     </InputLevels>
@@ -178,7 +183,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country" CountryReadOnlyColumn="CanOverride2ndLevelSupportLocal">
+                <Element Id="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country" CountryReadOnlyColumn="CanOverride2ndLevelSupportLocal">
                     <InputLevels>
                         <InputLevel>ClusterPla</InputLevel>
                     </InputLevels>
@@ -193,12 +198,12 @@
             </Elements>
         </Block>
 
-        <Block Name="LogisticsCosts" Caption="Logistics Costs">
+        <Block Id="LogisticsCosts" Caption="Logistics Costs">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -209,7 +214,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -220,7 +225,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -231,7 +236,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -242,7 +247,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -253,7 +258,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -267,12 +272,12 @@
             </Elements>
         </Block>
 
-        <Block Name="AvailabilityFee" Caption="Availability fee">
+        <Block Id="AvailabilityFee" Caption="Availability fee">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually">
+                <Element Id="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -285,7 +290,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
+                <Element Id="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
@@ -300,7 +305,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="StockValueFj" Caption="Stock value in country FJ" InputOption="Manually">
+                <Element Id="StockValueFj" Caption="Stock value in country FJ" InputOption="Manually">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
@@ -315,7 +320,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="StockValueMv" Caption="Stock value in country MV" InputOption="Manually">
+                <Element Id="StockValueMv" Caption="Stock value in country MV" InputOption="Manually">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
@@ -330,7 +335,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
+                <Element Id="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Company</InputLevel>
@@ -344,7 +349,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+                <Element Id="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
@@ -356,7 +361,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+                <Element Id="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
@@ -368,7 +373,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+                <Element Id="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -379,7 +384,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="JapanBuy" Caption="Japan Buy" InputOption="Manually">
+                <Element Id="JapanBuy" Caption="Japan Buy" InputOption="Manually">
                     <TypeOption Type="Flag"/>
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
@@ -396,12 +401,12 @@
             </Elements>
         </Block>
 
-        <Block Name="InstallBase" Caption="Installed base">
+        <Block Id="InstallBase" Caption="Installed base">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManuallyAutomatically" RegionInput="Country">
+                <Element Id="InstalledBaseCountry" Caption="Installed base country" InputOption="ManuallyAutomatically" RegionInput="Country">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -416,12 +421,12 @@
             </Elements>
         </Block>
 
-        <Block Name="MarkupOtherCosts" Caption="Markup other costs">
+        <Block Id="MarkupOtherCosts" Caption="Markup other costs">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+                <Element Id="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -431,7 +436,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+                <Element Id="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -441,7 +446,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                <Element Id="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -451,35 +456,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-                    <TypeOption Type="CountryCurrencyCost"/>
-                    <CostEditor>
-                        <Roles>
-                            <Role>Country Finance Director</Role>
-                            <Role>Country key user</Role>
-                            <Role>SCD Admin</Role>
-                        </Roles>
-                    </CostEditor>
-                </Element>
-            </Elements>
-        </Block>
-
-        <Block Name="MarkupStandardWaranty" Caption="Markup standard warranty">
-            <Applications>
-                <Application>Hardware</Application>
-            </Applications>
-            <Elements>
-                <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually">
-                    <TypeOption Type="Percent"/>
-                    <CostEditor>
-                        <Roles>
-                            <Role>Country Finance Director</Role>
-                            <Role>Country key user</Role>
-                            <Role>SCD Admin</Role>
-                        </Roles>
-                    </CostEditor>
-                </Element>
-                <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
+                <Element Id="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -492,12 +469,40 @@
             </Elements>
         </Block>
 
-        <Block Name="MaterialCostWarrantyEmeia" Caption="Material cost Warranty EMEIA">
+        <Block Id="MarkupStandardWaranty" Caption="Markup standard warranty">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="_none_">
+                <Element Id="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually">
+                    <TypeOption Type="Percent"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="MaterialCostWarrantyEmeia" Caption="Material cost Warranty EMEIA">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -509,7 +514,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Name="MaterialCostIw" Caption="Material cost iW EMEIA" InputOption="ManuallyAutomatically" RegionInput="_none_">
+                <Element Id="MaterialCostIw" Caption="Material cost iW EMEIA" InputOption="ManuallyAutomatically" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -524,12 +529,12 @@
             </Elements>
         </Block>
 
-        <Block Name="MaterialCostWarranty" Caption="Material cost">
+        <Block Id="MaterialCostWarranty" Caption="Material cost">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="NonEmeiaCountry">
+                <Element Id="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="NonEmeiaCountry">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -540,7 +545,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="MaterialCostIw" Caption="Material cost iW" InputOption="Manually" RegionInput="NonEmeiaCountry">
+                <Element Id="MaterialCostIw" Caption="Material cost iW" InputOption="Manually" RegionInput="NonEmeiaCountry">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -554,12 +559,12 @@
             </Elements>
         </Block>
 
-        <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
+        <Block Id="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManuallyAutomatically">
+                <Element Id="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManuallyAutomatically">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>RoleCode</InputLevel>
@@ -575,12 +580,12 @@
             </Elements>
         </Block>
 
-        <Block Name="HddRetention" Caption="HDD Retention">
+        <Block Id="HddRetention" Caption="HDD Retention">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="HddFr" Caption="HDD FR (%)" InputOption="Manually" Dependency="Year" RegionInput="_none_">
+                <Element Id="HddFr" Caption="HDD FR (%)" InputOption="Manually" Dependency="Year" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -591,7 +596,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Name="HddMaterialCost" Caption="HDD Material Cost" InputOption="Manually" RegionInput="_none_">
+                <Element Id="HddMaterialCost" Caption="HDD Material Cost" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -605,12 +610,12 @@
             </Elements>
         </Block>
 
-        <Block Name="Reinsurance">
+        <Block Id="Reinsurance">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
+                <Element Id="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -622,7 +627,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Duration">
+                <Element Id="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Duration">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -633,7 +638,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Name="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor (%)" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
+                <Element Id="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor (%)" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
@@ -647,12 +652,12 @@
             </Elements>
         </Block>
 
-        <Block Name="ProActive" Caption="ProActive">
+        <Block Id="ProActive" Caption="ProActive">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -661,7 +666,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -670,7 +675,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -679,7 +684,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
@@ -693,7 +698,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Name="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -702,7 +707,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -711,7 +716,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -720,7 +725,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -733,12 +738,12 @@
             </Elements>
         </Block>
 
-        <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
+        <Block Id="SwSpMaintenance" Caption="SW / SP Maintenance">
             <Applications>
                 <Application>SoftwareSolution</Application>
             </Applications>
             <Elements>
-                <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manually" RegionInput="_none_">
+                <Element Id="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sfab</InputLevel>
@@ -752,7 +757,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
+                <Element Id="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel Hide="True">Sfab</InputLevel>
                         <InputLevel>SwDigit</InputLevel>
@@ -765,7 +770,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+                <Element Id="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sfab</InputLevel>
@@ -779,7 +784,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
+                <Element Id="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sfab</InputLevel>
@@ -794,7 +799,7 @@
                     </CostEditor>
                     <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
                 </Element>
-                <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+                <Element Id="RecommendedSwSpMaintenanceListPrice" Caption="SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sfab</InputLevel>
@@ -808,7 +813,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+                <Element Id="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
                     <TypeOption Type="Percent"/>
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
@@ -823,7 +828,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share Reinsurance of SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+                <Element Id="ShareSwSpMaintenanceListPrice" Caption="Share Reinsurance of SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
                     <TypeOption Type="Percent"/>
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
@@ -838,7 +843,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manually" RegionInput="_none_">
+                <Element Id="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manually" RegionInput="_none_">
                     <TypeOption Type="Percent"/>
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
@@ -856,12 +861,12 @@
             </Elements>
         </Block>
 
-        <Block Name="ProActiveSw" Caption="ProActive">
+        <Block Id="ProActiveSw" Caption="ProActive">
             <Applications>
                 <Application>SoftwareSolution</Application>
             </Applications>
             <Elements>
-                <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -876,7 +881,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -891,7 +896,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -906,7 +911,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sog</InputLevel>
@@ -919,7 +924,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -934,7 +939,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -949,7 +954,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -964,7 +969,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
