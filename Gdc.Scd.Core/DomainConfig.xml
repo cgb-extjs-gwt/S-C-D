@@ -142,6 +142,7 @@
                     </CostEditor>
                 </Element>
                 <Element Name="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually">
+                  <TypeOption Type="Percent"/>
                     <CostEditor>
                       <Roles>
                         <Role>Country Finance Director</Role>
