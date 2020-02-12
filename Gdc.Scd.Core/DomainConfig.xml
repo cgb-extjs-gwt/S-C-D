@@ -141,6 +141,15 @@
                         </Roles>
                     </CostEditor>
                 </Element>
+                <Element Name="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually">
+                    <CostEditor>
+                      <Roles>
+                        <Role>Country Finance Director</Role>
+                        <Role>Country key user</Role>
+                        <Role>SCD Admin</Role>
+                      </Roles>
+                    </CostEditor>
+                </Element>
             </Elements>
             <QualityGate>
                 <CountryGroupCoeff>0.15</CountryGroupCoeff>
