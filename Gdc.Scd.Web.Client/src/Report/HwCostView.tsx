@@ -49,7 +49,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             'ReleaseUserName',
             'ReleaseDate',
-            
+
             'ChangeDate',
             'ChangeUserName',
             'ChangeUserEmail',
@@ -99,6 +99,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             { name: 'roTaxAndDutiesOow', calculate: readonly('TaxAndDutiesOow') },
             { name: 'roMaterialW', calculate: readonly('MaterialW') },
             { name: 'roMaterialOow', calculate: readonly('MaterialOow') },
+
+            { name: 'roReActiveTC', calculate: readonly('ReActiveTC') },
+            { name: 'roReActiveTP', calculate: readonly('ReActiveTP') },
             { name: 'roProActive', calculate: readonly('ProActive') },
 
             {
@@ -347,6 +350,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
                         <NumberColumn text="Material cost iW period" dataIndex="roMaterialW" />
                         <NumberColumn text="Material cost OOW period" dataIndex="roMaterialOow" />
+
+                        <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
+                        <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
                         <NumberColumn text="ProActive" dataIndex="roProActive" />
 
                     </Column>

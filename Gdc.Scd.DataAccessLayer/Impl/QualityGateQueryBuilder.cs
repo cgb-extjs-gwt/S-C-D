@@ -56,7 +56,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var countryMeta = this.domainEnitiesMeta.GetCountryEntityMeta();
 
-            this.qualityGateCountryGroupColumnName = countryMeta.QualityGateGroupField.Name;
+            this.qualityGateCountryGroupColumnName = countryMeta?.QualityGateGroupField.Name;
         }
 
         public SqlHelper BuildQualityGateQuery(

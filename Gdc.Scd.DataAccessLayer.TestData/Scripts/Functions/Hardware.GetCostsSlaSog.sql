@@ -85,8 +85,8 @@ RETURN
              , (sum(m.ProActive * ib.InstalledBaseCountryNorm)                                over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
              , (sum(case when m.ProActive <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
                                                                                             
-             , (First_value(m.ReleaseDate)                                                    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId order by ReleaseDate desc)) as ReleaseDate
-             , (First_value(m.ReleaseUserName)                                                over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId order by ReleaseDate desc)) as ReleaseUser
+             , m.ReleaseDate
+             , m.ReleaseUserName as ReleaseUser
 
              , m.ListPrice
              , m.DealerDiscount

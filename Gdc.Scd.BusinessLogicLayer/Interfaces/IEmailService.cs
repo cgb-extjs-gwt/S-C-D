@@ -18,6 +18,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         void SendNewWgEmail(Wg[] wgs, User[] admins, User[] prsPsms);
 
-        void SendPortfolioNotifications(Wg[] wgs, User[] users);
+        void SendPortfolioNotifications(Wg[] wgs, User[] toUsers, User[] bccUsers);
     }
 }

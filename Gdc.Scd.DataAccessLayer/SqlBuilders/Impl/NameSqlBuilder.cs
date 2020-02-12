@@ -13,7 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public abstract string Build(SqlBuilderContext context);
 
-        public IEnumerable<ISqlBuilder> GetChildrenBuilders()
+        public virtual IEnumerable<ISqlBuilder> GetChildrenBuilders()
         {
             return Enumerable.Empty<ISqlBuilder>();
         }

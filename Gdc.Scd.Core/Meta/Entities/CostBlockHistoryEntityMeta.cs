@@ -11,11 +11,15 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public SimpleFieldMeta EditDateField { get; } = new SimpleFieldMeta(nameof(CostBlockHistory.EditDate), TypeCode.DateTime);
 
+        public SimpleFieldMeta EditUserField { get; } = new SimpleFieldMeta(nameof(CostBlockHistory.EditUserId), TypeCode.UInt64);
+
         public SimpleFieldMeta ContextApplicationIdField { get; } = BuildContextField(nameof(CostElementContext.ApplicationId));
 
         public SimpleFieldMeta ContextCostBlockIdField { get; } = BuildContextField(nameof(CostElementContext.CostBlockId));
 
         public SimpleFieldMeta ContextCostElementIdField { get; } = BuildContextField(nameof(CostElementContext.CostElementId));
+
+        public SimpleFieldMeta ContextRegionInputIdField { get; } = BuildContextField(nameof(CostElementContext.RegionInputId), TypeCode.Int64);
 
         public override IEnumerable<FieldMeta> AllFields
         {
@@ -23,9 +27,11 @@ namespace Gdc.Scd.Core.Meta.Entities
             {
                 yield return this.IdField;
                 yield return this.EditDateField;
+                yield return this.EditUserField;
                 yield return this.ContextApplicationIdField;
                 yield return this.ContextCostBlockIdField;
                 yield return this.ContextCostElementIdField;
+                yield return this.ContextRegionInputIdField;
             }
         }
 
@@ -34,9 +40,9 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
         }
 
-        private static SimpleFieldMeta BuildContextField(string name)
+        private static SimpleFieldMeta BuildContextField(string name, TypeCode type = TypeCode.String)
         {
-            return new SimpleFieldMeta($"{nameof(CostBlockHistory.Context)}_{name}", TypeCode.String);
+            return new SimpleFieldMeta($"{nameof(CostBlockHistory.Context)}_{name}", type);
         }
     }
 }

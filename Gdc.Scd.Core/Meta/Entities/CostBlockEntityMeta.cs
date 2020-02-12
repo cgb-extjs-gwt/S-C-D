@@ -11,9 +11,11 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IDictionary<FieldMeta, FieldMeta> CostElementsApprovedFields { get; } = new Dictionary<FieldMeta, FieldMeta>();
 
-        public CreatedDateTimeFieldMeta CreatedDateField { get; set; } = new CreatedDateTimeFieldMeta();
+        public CreatedDateTimeFieldMeta CreatedDateField { get; } = new CreatedDateTimeFieldMeta();
 
-        public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime) { IsNullOption = true };
+        public SimpleFieldMeta DeletedDateField { get; } = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime) { IsNullOption = true };
+
+        public ReferenceFieldMeta ActualVersionField { get; }
 
         public CostBlockMeta DomainMeta { get; }
 
@@ -30,6 +32,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
                 yield return this.CreatedDateField;
                 yield return this.DeletedDateField;
+                yield return this.ActualVersionField;
             }
         }
 
@@ -37,6 +40,10 @@ namespace Gdc.Scd.Core.Meta.Entities
             : base(name, shema)
         {
             this.DomainMeta = meta;
+            this.ActualVersionField = new ReferenceFieldMeta("ActualVersion", this, this.IdField.Name)
+            {
+                IsNullOption = true
+            };
         }
 
         public FieldMeta GetApprovedCostElement(string costElementId)

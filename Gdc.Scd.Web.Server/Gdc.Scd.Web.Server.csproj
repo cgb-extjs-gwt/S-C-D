@@ -257,6 +257,8 @@
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
     <Compile Include="Entities\QualityGateResultDto.cs" />
+    <Compile Include="Entities\RequestInfo.cs" />
+    <Compile Include="Entities\RequestLogging.cs" />
     <Compile Include="Entities\UpdateValuesParam.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -268,6 +270,7 @@
     <Compile Include="Heplers\MimeTypes.cs" />
     <Compile Include="Heplers\QueryInfoHelper.cs" />
     <Compile Include="Impl\PrincipalProvider.cs" />
+    <Compile Include="Impl\RequestInfoFilter.cs" />
     <Compile Include="Impl\ScdAuthorizeAttribute.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

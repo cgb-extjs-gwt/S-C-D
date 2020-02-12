@@ -1,5 +1,8 @@
 ﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
@@ -31,6 +34,23 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 Sql = this.sqlBuilder.Build(context),
                 Parameters = context.GetParameters()
             };
+        }
+
+        public string ToSqlScript()
+        {
+            var queryData = this.ToQueryData();
+            var paramsQueries = queryData.Parameters.Select(param => new DeclareSqlBuiler
+            {
+                Name = param.Name,
+                DefaultValue = param.Value
+            });
+
+            var queries = new List<ISqlBuilder>(paramsQueries)
+            {
+                new RawSqlBuilder(queryData.Sql)
+            };
+
+            return Sql.Queries(queries).ToQueryData().Sql;
         }
     }
 }

@@ -62,14 +62,6 @@
             <Application>Application1</Application>
           </Applications>
           <Elements>
-            <!--<Element Name="CostElement1" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
-              <InputLevels>
-                <InputLevel>RelatedInputLevel1</InputLevel>
-                <InputLevel>RelatedInputLevel2</InputLevel>
-                <InputLevel>RelatedInputLevel3</InputLevel>
-              </InputLevels>
-            </Element>-->
-
             <Element Name="SimpleCostElement" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
               <InputLevels>
                 <InputLevel>RelatedInputLevel1</InputLevel>

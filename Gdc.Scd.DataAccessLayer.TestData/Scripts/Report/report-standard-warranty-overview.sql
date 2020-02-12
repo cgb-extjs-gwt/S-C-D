@@ -5,7 +5,8 @@ go
 CREATE FUNCTION Report.StandardWarranty
 (
     @cnt           bigint,
-    @wg dbo.ListID readonly
+    @wg dbo.ListID readonly,
+	@islocal	   bit
 )
 RETURNS @tbl TABLE (
       Country                      nvarchar(255)
@@ -23,6 +24,7 @@ RETURNS @tbl TABLE (
     , LocalServiceStandardWarrantyManual float
     , StandardWarrantyAndMaterial  float
     , StandardWarrantyManualAndMaterial  float
+	, Currency                     nvarchar(255)
 )
 AS
 begin
@@ -40,13 +42,13 @@ begin
          , dur.Name as Duration
          , std.StdWarrantyLocation as Location
 
-         , std.MaterialW
-         , std.LocalServiceStandardWarranty
-         , std.LocalServiceStandardWarrantyManual
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * std.MaterialW
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * std.LocalServiceStandardWarranty
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * std.LocalServiceStandardWarrantyManual
 
-         , std.MaterialW + std.LocalServiceStandardWarranty as StandardWarrantyAndMaterial
-         , std.MaterialW + std.LocalServiceStandardWarrantyManual as StandardWarrantyManualAndMaterial
-
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + std.LocalServiceStandardWarranty) as StandardWarrantyAndMaterial
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + std.LocalServiceStandardWarrantyManual) as StandardWarrantyManualAndMaterial
+		 , case when @islocal = 1 then std.Currency else 'EUR' end
     from Hardware.CalcStdw(1, @cntTbl, @wg) std
     join InputAtoms.Wg wg on wg.Id = std.WgId
     join InputAtoms.Pla pla on pla.Id = wg.PlaId
@@ -78,15 +80,15 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Location', 'Standard Warranty service location', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'MaterialW', 'Material Costs w/o tax & duties per warranty duration', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MaterialW', 'Material Costs w/o tax & duties per warranty duration', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarranty', 'Standard Warranty Costs local', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LocalServiceStandardWarranty', 'Standard Warranty Costs local', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarrantyManual', 'Standard Warranty Costs local(manual)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LocalServiceStandardWarrantyManual', 'Standard Warranty Costs local(manual)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'StandardWarrantyAndMaterial', 'Standard Warranty Costs (incl. Material Costs)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardWarrantyAndMaterial', 'Standard Warranty Costs (incl. Material Costs)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'StandardWarrantyManualAndMaterial', 'Standard Warranty Costs (incl. Material Costs, manual)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardWarrantyManualAndMaterial', 'Standard Warranty Costs (incl. Material Costs, manual)', 1, 1);
 
 ------------------------------------
 set @index = 0;
@@ -95,3 +97,5 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;                                                                        
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wgstandard', 1), 'wg', 'Warranty Group');
+set @index = @index + 1;                                                                        
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('boolean', 0), 'islocal', 'Local Currency');

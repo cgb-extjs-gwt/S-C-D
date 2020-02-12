@@ -1,4 +1,6 @@
-﻿namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
+﻿using Gdc.Scd.Core.Meta.Entities;
+
+namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 {
     public class ValueUpdateColumnInfo : BaseUpdateColumnInfo
     {
@@ -12,6 +14,11 @@
             : base(name)
         {
             this.Value = value;
+        }
+
+        public ValueUpdateColumnInfo(FieldMeta field, object value)
+            : this(field.Name, value)
+        {
         }
     }
 }

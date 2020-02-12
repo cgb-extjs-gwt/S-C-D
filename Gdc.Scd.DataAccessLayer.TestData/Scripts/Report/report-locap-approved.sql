@@ -11,7 +11,6 @@ CREATE PROCEDURE [Report].[spLocapApproved]
     @reactiontime bigint,
     @reactiontype bigint,
     @loc          bigint,
-    @pro          bigint,
     @lastid       bigint,
     @limit        int
 )
@@ -43,7 +42,7 @@ BEGIN
 
     declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
 
-    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
+    declare @proTable dbo.ListId; insert into @proTable(id) select id from Dependencies.ProActiveSla where UPPER(ExternalName) = 'NONE';
 
     with cte as (
         select m.* 
@@ -92,15 +91,16 @@ BEGIN
                   m.ProActiveSla as ServiceType
 
             , null as PlausiCheck
-            , null as PortfolioType
+            , wg.ServiceTypes as PortfolioType
             , m.Sog
 
     from cte2 m
+    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
 END
-go
+GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-APPROVED');
 declare @index int = 0;
@@ -159,7 +159,5 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontype', 0), 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text, Value) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive', 1);
 
 GO

@@ -28,6 +28,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                     result = "[int]";
                     break;
 
+                case TypeCode.UInt64:
                 case TypeCode.Int64:
                     result = "[bigint]";
                     break;

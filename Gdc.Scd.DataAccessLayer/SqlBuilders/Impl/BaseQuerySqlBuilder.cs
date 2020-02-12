@@ -8,6 +8,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
     {
         public ISqlBuilder Query { get; set; }
 
+        protected BaseQuerySqlBuilder()
+        {
+        }
+
+        protected BaseQuerySqlBuilder(ISqlBuilder query)
+        {
+            this.Query = query;
+        }
+
         public abstract string Build(SqlBuilderContext context);
 
         public virtual IEnumerable<ISqlBuilder> GetChildrenBuilders()

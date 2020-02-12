@@ -126,47 +126,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void SendPortfolioNotifications(Wg[] wgs, User[] users)
+        public void SendPortfolioNotifications(Wg[] wgs, User[] toUsers, User[] bccUsers)
         {
             var wgIds = wgs.Select(wg => wg.Id).ToArray();
             var wgNames = string.Concat(wgs.Select(wg => $"<li>{wg.Name}</li>"));
-
-            var emailCountryGroups =
-                 users.Select(user => new
-                      {
-                        user.Email,
-                        CountryIds = 
-                            user.UserRoles.Where(userRole => userRole.CountryId.HasValue)
-                                          .Select(userRole => userRole.CountryId.Value)
-                                          .OrderBy(x => x)
-                                          .ToArray()
-                      })
-                      .GroupBy(info => string.Join(",", info.CountryIds));
-
-            foreach (var emailInfos in emailCountryGroups)
+            var portfolioUrl = $"{this.WebApplicationHost}/portfolio";
+            var link = BuildLink(portfolioUrl, "Link on Portfolio", new Dictionary<string, IEnumerable>
             {
-                var emailInfoArray = emailInfos.ToArray();
-                var countryIds = emailInfoArray[0].CountryIds;
-                var message = BuildMessage(countryIds);
-                var emails = emailInfoArray.Select(info => info.Email).ToArray();
+                ["wg"] = wgIds
+            });
 
-                this.Send("SCD", message, emails);
-            }
+            var message = string.Concat(
+                $"{RoleConstants.ScdAdmin} finished editing the portfolio by warranty groups:",
+                $"<ul>{wgNames}</ul>",
+                link);
 
-            string BuildMessage(long[] countryIds)
-            {
-                var portfolioUrl = $"{this.WebApplicationHost}/portfolio";
-                var link = BuildLink(portfolioUrl, "Link on Portfolio", new Dictionary<string, IEnumerable>
-                {
-                    ["wg"] = wgIds,
-                    ["c"] = countryIds
-                });
-
-                return string.Concat(
-                    $"{RoleConstants.ScdAdmin} finished editing the portfolio by warranty groups:",
-                    $"<ul>{wgNames}</ul>",
-                    link);
-            }
+            this.Send("Portfolio notification", message, toUsers, null, bccUsers);
         }
 
         private string BuildLink(string url, string text, IDictionary<string, IEnumerable> queryParams = null)
@@ -193,7 +168,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             string subject, 
             string htmlBody, 
             IEnumerable<string> toAddresses, 
-            string fromAddress = null)
+            string fromAddress = null,
+            IEnumerable<string> bccAddresses = null)
         {
             if (fromAddress == null)
             {
@@ -213,6 +189,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 mailMessage.To.Add(address);
             }
 
+            if (bccAddresses != null)
+            {
+                foreach (var address in bccAddresses)
+                {
+                    mailMessage.Bcc.Add(address);
+                }
+            }
+
             this.client.Send(mailMessage);
         }
 
@@ -220,11 +204,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             string subject,
             string htmlBody,
             IEnumerable<User> targetUsers,
-            string fromAddress = null)
+            string fromAddress = null,
+            IEnumerable<User> bccUsers = null)
         {
-            var emails = targetUsers.Select(user => user.Email);
+            var toEmails = GetEmails(targetUsers);
+            var bccEmails = GetEmails(bccUsers);
 
-            this.Send(subject, htmlBody, emails, fromAddress);
+            this.Send(subject, htmlBody, toEmails, fromAddress, bccEmails);
+
+            IEnumerable<string> GetEmails(IEnumerable<User> users) => users.Select(user => user.Email);
         }
 
         private async Task<string> GenerateDetailedBodyAsync(CostBlockHistory history)

@@ -1,8 +1,8 @@
-﻿using Gdc.Scd.Export.CdCsJob;
-using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
+﻿using Gdc.Scd.Tests.Integration.Export.CdCs.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
+using Gdc.Scd.Export.CdCsJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.CdCs
 {

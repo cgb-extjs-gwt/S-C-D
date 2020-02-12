@@ -127,7 +127,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
                 });
             }
 
-            return count == 1 ? formatFn(value) : `(${count} values)`;
+            return count == 1 || count == 0 ? formatFn(value) : `(${count} values)`;
         }
     }
 }

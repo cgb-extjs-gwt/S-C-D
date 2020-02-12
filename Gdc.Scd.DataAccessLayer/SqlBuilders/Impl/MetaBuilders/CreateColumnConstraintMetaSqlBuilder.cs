@@ -40,7 +40,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
         private string BuildAlterTable()
         {
-            return $"ALTER TABLE [{this.Meta.Schema}].[{this.Meta.Name}]";
+            var alterTableSqlBuilder = new AlterTableSqlBuilder(this.Meta)
+            {
+                Query = new RawSqlBuilder(string.Empty)
+            };
+
+            return alterTableSqlBuilder.Build(null);
         }
 
         private string BuildPimaryKeyConstraint(IdFieldMeta idField)
