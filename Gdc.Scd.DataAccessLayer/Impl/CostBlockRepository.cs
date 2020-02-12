@@ -124,7 +124,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
-        public async Task AddCostElements(IEnumerable<CostElementInfo> costElementInfos)
+        public void AddCostElements(IEnumerable<CostElementInfo> costElementInfos)
         {
             var queries =
                 costElementInfos.SelectMany(info => new[]
@@ -134,7 +134,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 })
                                 .ToList();
 
-            await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            this.repositorySet.ExecuteSql(Sql.Queries(queries));
 
             ISqlBuilder BuildAlterCostBlockQuery(CostElementInfo costElementInfo)
             {
@@ -159,6 +159,37 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 alterTableBuilder.NewFields = costElementInfo.CostElementIds;
 
                 return alterTableBuilder;
+            }
+        }
+
+        public void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks)
+        {
+            var queries = costBlocks.SelectMany(costBlock => new[]
+            {
+                BuildCreateTableQuery(costBlock),
+                this.BuildUpdateByCoordinatesQuery(costBlock),
+                BuildCreateTableQuery(costBlock.HistoryMeta)
+            });
+
+            this.repositorySet.ExecuteSql(Sql.Queries(queries));
+
+            SqlHelper BuildCreateTableQuery(BaseEntityMeta meta)
+            {
+                var createTableBuilder = this.serviceProvider.Get<CreateTableMetaSqlBuilder>();
+                createTableBuilder.Meta = meta;
+
+                var queryList = new List<ISqlBuilder>
+                {
+                    createTableBuilder
+                };
+
+                queryList.AddRange(meta.AllFields.Select(field => new CreateColumnConstraintMetaSqlBuilder 
+                {
+                    Meta = meta,
+                    Field = field.Name
+                }));
+
+                return Sql.Queries(queryList);
             }
         }
 

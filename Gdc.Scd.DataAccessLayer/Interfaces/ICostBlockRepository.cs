@@ -16,6 +16,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         void CreatRegionIndexes();
 
-        Task AddCostElements(IEnumerable<CostElementInfo> costElementInfos);
+        void AddCostElements(IEnumerable<CostElementInfo> costElementInfos);
+
+        void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks);
     }
 }
