@@ -6,17 +6,17 @@ using Gdc.Scd.MigrationTool.Interfaces;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2020_02_12_11_28 : IMigrationAction
+    public class Migration_2020_02_13_09_07 : IMigrationAction
     {
         private readonly ICostBlockRepository costBlockRepository;
         private readonly IRepositorySet repositorySet;
         private readonly DomainEnitiesMeta meta;
 
-        public int Number => 77777;
+        public int Number => 150;
 
         public string Description => "Add cost element 'OohUpliftFactor' in 'FieldServiceCost' cost block";
 
-        public Migration_2020_02_12_11_28(
+        public Migration_2020_02_13_09_07(
             ICostBlockRepository costBlockRepository, 
             IRepositorySet repositorySet, 
             DomainEnitiesMeta meta)
@@ -28,23 +28,23 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public void Execute()
         {
-//            const string UpliftFactorCostElement = "OohUpliftFactor";
+            const string UpliftFactorCostElement = "OohUpliftFactor";
 
-//            this.costBlockRepository.AddCostElements(new[]
-//            {
-//                new CostElementInfo
-//                {
-//                    Meta = this.meta.GetCostBlockEntityMeta(MetaConstants.HardwareSchema, "FieldServiceCost"),
-//                    CostElementIds = new[] { UpliftFactorCostElement }
-//                }
-//            });
+            this.costBlockRepository.AddCostElements(new[]
+            {
+                new CostElementInfo
+                {
+                    Meta = this.meta.GetCostBlockEntityMeta(MetaConstants.HardwareSchema, "FieldServiceCost"),
+                    CostElementIds = new[] { UpliftFactorCostElement }
+                }
+            });
 
-//            //ALTER TABLE [Hardware].[FieldServiceCalc] 
-//            this.repositorySet.ExecuteSql($@"
-//ALTER TABLE [Hardware].[FieldServiceCalc] 
-//ADD 
-//    [{UpliftFactorCostElement}] FLOAT NULL,
-//    [{UpliftFactorCostElement}_Approved] FLOAT NULL");
+            //ALTER TABLE [Hardware].[FieldServiceCalc] 
+            this.repositorySet.ExecuteSql($@"
+ALTER TABLE [Hardware].[FieldServiceCalc] 
+ADD 
+    [{UpliftFactorCostElement}] FLOAT NULL,
+    [{UpliftFactorCostElement}_Approved] FLOAT NULL");
 
             //TRIGGER [Hardware].[FieldServiceCost_Inserted]
             this.repositorySet.ExecuteSql(@"
