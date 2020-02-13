@@ -65,7 +65,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var costBlockCurrentCoordinates = $"{costBlockMeta.Name}_CurrentCoordinates";
+            //var costBlockCurrentCoordinates = $"{costBlockMeta.Name}_CurrentCoordinates";
+            var costBlockCurrentCoordinates = costBlockMeta.Name;
             var costBlockJoinCondition = BuildCostBlockJoinCondition();
 
             foreach (var relatedMeta in costBlockMeta.HistoryMeta.RelatedMetas)
@@ -90,8 +91,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             query =
                 query.Join(costBlockMeta.HistoryMeta, costBlockMeta.HistoryMeta.CostBlockHistoryField.Name)
-                     .Join(costBlockMeta, costBlockJoinCondition, JoinType.Inner, costBlockCurrentCoordinates)
-                     .Join(costBlockMeta, BuildCostBlockPreviousCoordinates());
+                     .Join(costBlockMeta, costBlockJoinCondition, JoinType.Inner, costBlockCurrentCoordinates);
+                     //.Join(costBlockMeta, BuildCostBlockPreviousCoordinates());
 
             if (options != null)
             {
