@@ -12,7 +12,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
         private readonly IRepositorySet repositorySet;
         private readonly DomainEnitiesMeta meta;
 
-        public int Number => 77777;
+        public int Number => 151;
 
         public string Description => "Add cost element 'Sar' in 'ServiceSupportCost' cost block";
 
