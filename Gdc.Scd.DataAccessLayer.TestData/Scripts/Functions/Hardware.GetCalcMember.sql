@@ -116,6 +116,7 @@ RETURN
 
             --##### SERVICE SUPPORT COST #########                                                                                               
             , std.ServiceSupportPerYear
+            , std.Sar
 
             --##### LOGISTICS COST #########                                                                                               
             , case when @approved = 0 

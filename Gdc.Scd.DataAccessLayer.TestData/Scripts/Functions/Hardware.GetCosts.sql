@@ -134,7 +134,7 @@ RETURN
 
          , m.Reinsurance
          , m.ProActive
-         , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
+         , Hardware.CalcServiceSupportCost(m.ServiceSupportPerYear, m.Sar, m.Year, m.StdWarranty,  m.IsProlongation) as ServiceSupportCost
 
          , m.MaterialW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
