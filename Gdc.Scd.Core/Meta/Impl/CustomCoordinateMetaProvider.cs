@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -7,7 +6,6 @@ using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.Core.Meta.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
