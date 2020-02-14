@@ -109,8 +109,14 @@ RETURN
 
                end as FieldServicePerYear
 
+            , case when @approved = 0 
+                then isnull(fsc.OohUpliftFactor, 0)
+                else isnull(fsc.OohUpliftFactor_Approved, 0)
+              end as OohUpliftFactor
+
             --##### SERVICE SUPPORT COST #########                                                                                               
             , std.ServiceSupportPerYear
+            , std.Sar
 
             --##### LOGISTICS COST #########                                                                                               
             , case when @approved = 0 
