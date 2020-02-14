@@ -102,20 +102,33 @@ RETURN
 
             --##### FIELD SERVICE COST #########                                                                                               
             , case when @approved = 0 
-
-                   then (1 - fst.TimeAndMaterialShare_norm) * (fsc.TravelCost + fsc.LabourCost + fst.PerformanceRate) / std.ExchangeRate + 
-                            fst.TimeAndMaterialShare_norm * ((fsc.TravelTime + fsc.repairTime) * std.OnsiteHourlyRates + fst.PerformanceRate / std.ExchangeRate) 
-
-                   else (1 - fst.TimeAndMaterialShare_norm_Approved) * (fsc.TravelCost_Approved + fsc.LabourCost_Approved + fst.PerformanceRate_Approved) / std.ExchangeRate + 
-                            fst.TimeAndMaterialShare_norm_Approved * ((fsc.TravelTime_Approved + fsc.repairTime_Approved) * std.OnsiteHourlyRates + fst.PerformanceRate_Approved / std.ExchangeRate) 
+				   then 
+						Hardware.CalcByFieldServicePerYear(
+							fst.TimeAndMaterialShare_norm, 
+							fsc.TravelCost, 
+							fsc.LabourCost, 
+							fst.PerformanceRate, 
+							std.ExchangeRate,
+							fsc.TravelTime,
+							fsc.repairTime,
+							std.OnsiteHourlyRates,
+							fsc.OohUpliftFactor,
+							m.AvailabilityId)
+					else
+						Hardware.CalcByFieldServicePerYear(
+							fst.TimeAndMaterialShare_norm_Approved, 
+							fsc.TravelCost_Approved, 
+							fsc.LabourCost_Approved, 
+							fst.PerformanceRate_Approved, 
+							std.ExchangeRate,
+							fsc.TravelTime_Approved,
+							fsc.repairTime_Approved,
+							std.OnsiteHourlyRates,
+							fsc.OohUpliftFactor_Approved,
+							m.AvailabilityId)
 
                end as FieldServicePerYear
 
-            , case when @approved = 0 
-                   then isnull(fsc.OohUpliftFactor, 0)
-                   else isnull(fsc.OohUpliftFactor_Approved, 0)
-              end as OohUpliftFactor
-   
             --##### SERVICE SUPPORT COST #########                                                                                               
             , std.ServiceSupportPerYear
             , std.Sar
