@@ -146,6 +146,16 @@
                         </Roles>
                     </CostEditor>
                 </Element>
+                <Element Name="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually">
+                  <TypeOption Type="Percent"/>
+                    <CostEditor>
+                      <Roles>
+                        <Role>Country Finance Director</Role>
+                        <Role>Country key user</Role>
+                        <Role>SCD Admin</Role>
+                      </Roles>
+                    </CostEditor>
+                </Element>
             </Elements>
             <QualityGate>
                 <CountryGroupCoeff>0.15</CountryGroupCoeff>
@@ -170,7 +180,6 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <!--<Element Id="InstalledBase" Caption="Installed base country" InputOption="Reference"/>-->
                 <Element Id="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
                     <InputLevels>
                         <InputLevel>ClusterPla</InputLevel>
@@ -193,6 +202,19 @@
                             <Role>Country key user</Role>
                             <Role>SCD Admin</Role>
                         </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="Sar" Caption="Service Attach Rate Factor" InputOption="Manually" RegionInput="ClusterRegion">
+                    <TypeOption Type="Percent"/>
+                    <InputLevels>
+                      <InputLevel>ClusterPla</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                      <Roles>
+                        <Role>GTS user</Role>
+                        <Role>PRS Finance</Role>
+                        <Role>SCD Admin</Role>
+                      </Roles>
                     </CostEditor>
                 </Element>
             </Elements>

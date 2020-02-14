@@ -1,53 +1,31 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+using Ninject;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 {
-    public class CreateTableMetaSqlBuilder : ISqlBuilder
+    public class CreateTableMetaSqlBuilder : BaseTableMetaSqlBuilder
     {
-        private readonly IKernel serviceProvider;
-
-        public BaseEntityMeta Meta { get; set; }
-
         public CreateTableMetaSqlBuilder(IKernel serviceProvider)
+            : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
         }
 
-        public string Build(SqlBuilderContext context)
+        public override string Build(SqlBuilderContext context)
         {
+            var columns =
+                this.Meta.AllFields.Select(this.GetFieldSqlBuilder)
+                                   .Select(builder => builder.Build(context));
+
             return
                 $@"
                     CREATE TABLE [{this.Meta.Schema}].[{this.Meta.Name}](
-                        {this.BuildColumnsSql()}
+                        {string.Join($",{Environment.NewLine}", columns)}
                     )
                 ";
-        }
-
-        public IEnumerable<ISqlBuilder> GetChildrenBuilders()
-        {
-            return Enumerable.Empty<ISqlBuilder>();
-        }
-
-        private string BuildColumnsSql()
-        {
-            var columns = new List<string>();
-
-            foreach (var field in this.Meta.AllFields)
-            {
-                var columnBuilderType = typeof(BaseColumnMetaSqlBuilder<>).MakeGenericType(field.GetType());
-                var columnBuilder = (IColumnMetaSqlBuilder)this.serviceProvider.Get(columnBuilderType);
-                columnBuilder.Field = field;
-
-                columns.Add(columnBuilder.Build(null));
-            }
-
-            return string.Join($",{Environment.NewLine}", columns);
         }
     }
 }

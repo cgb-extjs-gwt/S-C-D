@@ -64,6 +64,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<BaseColumnMetaSqlBuilder<ReferenceFieldMeta>>().To<ReferenceColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<CreatedDateTimeFieldMeta>>().To<CreatedDateTimeColumnMetaSqlBuilder>().InTransientScope();
             Bind<CreateTableMetaSqlBuilder>().To<CreateTableMetaSqlBuilder>().InTransientScope();
+            Bind<AlterTableMetaSqlBuilder>().To<AlterTableMetaSqlBuilder>().InTransientScope();
             Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
             Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>().InTransientScope();

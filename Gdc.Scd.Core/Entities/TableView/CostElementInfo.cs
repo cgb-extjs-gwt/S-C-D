@@ -7,6 +7,6 @@ namespace Gdc.Scd.DataAccessLayer.Entities
     {
         public CostBlockEntityMeta Meta { get; set; }
 
-        public IEnumerable<string> CostElementIds { get; set; }
+        public string[] CostElementIds { get; set; }
     }
 }
