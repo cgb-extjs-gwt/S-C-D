@@ -32,21 +32,8 @@ namespace Gdc.Scd.MigrationTool.Migrations
                 this.meta.CostBlocks.SelectMany(costBlock => new ISqlBuilder[]
                 {
                     BuildCheckCostBlockUniqueConstarintQuery(costBlock),
-                    new AlterTableSqlBuilder(costBlock)
-                    {
-                        Query = new AddColumnsSqlBuilder
-                        {
-                            Columns = new ISqlBuilder[]
-                            {
-                                new ReferenceColumnMetaSqlBuilder(costBlock.ActualVersionField)
-                            }
-                        }
-                    },
-                    new CreateColumnConstraintMetaSqlBuilder
-                    {
-                        Meta = costBlock,
-                        Field = costBlock.ActualVersionField.Name
-                    }
+                    BuildCheckAddActualColumnQuery(costBlock),
+                    
                 });
 
             this.repositorySet.ExecuteSql(Sql.Queries(queires));
@@ -72,6 +59,47 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
                 return
                     Sql.If(uniqueNotExistsQuery, createUniqueConstrainQuery)
+                       .ToSqlBuilder();
+            }
+
+            ISqlBuilder BuildCheckAddActualColumnQuery(CostBlockEntityMeta costBlock)
+            {
+                var columnNotExistsQuery =
+                    SqlOperators.NotExists(
+                        Sql.Select()
+                           .From("columns", "sys")
+                           .Where(
+                                ConditionHelper.And(
+                                    SqlOperators.Equals("Name", costBlock.ActualVersionField.Name),
+                                    SqlOperators.Equals(
+                                        new ColumnSqlBuilder("Object_ID"), 
+                                        new RawSqlBuilder($"Object_ID('{costBlock.Schema}.{costBlock.Name}')")))));
+
+                var addColumnQuery = new AlterTableSqlBuilder(costBlock)
+                {
+                    Query = new AddColumnsSqlBuilder
+                    {
+                        Columns = new ISqlBuilder[]
+                        {
+                            new ReferenceColumnMetaSqlBuilder(costBlock.ActualVersionField)
+                        }
+                    }
+                };
+
+                var createConstraintQuery = new CreateColumnConstraintMetaSqlBuilder
+                {
+                    Meta = costBlock,
+                    Field = costBlock.ActualVersionField.Name
+                };
+
+                var queries = Sql.Queries(new ISqlBuilder[] 
+                { 
+                    addColumnQuery, 
+                    createConstraintQuery 
+                });
+
+                return
+                    Sql.If(columnNotExistsQuery.ToSqlBuilder(), queries.ToSqlBuilder())
                        .ToSqlBuilder();
             }
         }
