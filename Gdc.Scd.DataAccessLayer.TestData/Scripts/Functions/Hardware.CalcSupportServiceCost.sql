@@ -15,7 +15,7 @@ BEGIN
 	DECLARE @result FLOAT
 
 	IF @sar IS NULL OR @isProlongation = 1
-		SET @result = @serviceSupportCost
+		SET @result = @serviceSupportCost * @durationYear
 	ELSE
 		SET @result = 
 			@standardWarrantyYear * @serviceSupportCost * (1 - @sar / 100) + 

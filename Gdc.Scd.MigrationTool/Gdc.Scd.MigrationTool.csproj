@@ -217,6 +217,7 @@
     <Compile Include="Migrations\2020_01\Migration_2020_01_06_14_33.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_20.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_18_25.cs" />
+    <Compile Include="Migrations\2020_02\Migration_2020_02_18_14_03 .cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_13_52.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_13_09_43.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_13_09_07.cs" />
