@@ -17,9 +17,7 @@ BEGIN
 	IF @sar IS NULL OR @isProlongation = 1
 		SET @result = @serviceSupportCost * @durationYear
 	ELSE
-		SET @result = 
-			@standardWarrantyYear * @serviceSupportCost * (1 - @sar / 100) + 
-			(@durationYear - @standardWarrantyYear) * @serviceSupportCost * @sar / 100
+		SET @result = @durationYear * @serviceSupportCost * @sar / 100
 
     RETURN @result
 END
