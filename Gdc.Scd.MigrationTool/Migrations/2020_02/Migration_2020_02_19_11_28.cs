@@ -1,8 +1,45 @@
-﻿IF OBJECT_ID('[Hardware].[CalcStdw]') IS NOT NULL
-    DROP FUNCTION [Hardware].[CalcStdw]
-GO
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.MigrationTool.Interfaces;
 
-CREATE FUNCTION [Hardware].[CalcStdw](
+namespace Gdc.Scd.MigrationTool.Migrations
+{
+    public class Migration_2020_02_19_11_28 : IMigrationAction
+    {
+        private readonly IRepositorySet repositorySet;
+
+        public int Number => 155;
+
+        public string Description => "'ServiceSupportCost' calculation improvment ('SAR')";
+
+        public Migration_2020_02_19_11_28(IRepositorySet repositorySet)
+        {
+            this.repositorySet = repositorySet;
+        }
+
+        public void Execute()
+        {
+            //FUNCTION [Hardware].[CalcLocSrvStandardWarranty]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
+    @fieldServiceCost float,
+    @srvSupportCost   float,
+    @logisticCost     float,
+    @taxAndDutiesW    float,
+    @afr              float,
+    @fee              float,
+    @markupFactor     float,
+    @markup           float,
+    @sarCoeff         float
+)
+RETURNS float
+AS
+BEGIN
+    return (Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr + @fee) * @sarCoeff;
+END");
+
+            //FUNCTION [Hardware].[CalcStdw]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcStdw](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
     @wg             dbo.ListID READONLY
@@ -508,5 +545,30 @@ BEGIN
     from CostCte3 m;
 
     RETURN;
-END
-go
+END");
+
+            //FUNCTION [Hardware].[CalcServiceSupportCost]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcServiceSupportCost]
+(
+	@serviceSupportCost FLOAT,
+	@sar FLOAT,
+	@durationYear INT = 0,
+	@standardWarrantyYear INT = 0,
+	@isProlongation BIT = 0
+)
+RETURNS FLOAT
+AS
+BEGIN
+	DECLARE @result FLOAT
+
+	IF @sar IS NULL OR @isProlongation = 1
+		SET @result = @serviceSupportCost * @durationYear
+	ELSE
+		SET @result = @durationYear * @serviceSupportCost * @sar / 100
+
+    RETURN @result
+END");
+        }
+    }
+}
