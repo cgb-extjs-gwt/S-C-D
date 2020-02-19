@@ -92,7 +92,6 @@ RETURNS @tbl TABLE  (
         , TaxAndDuties1P               float
 
         , ServiceSupportPerYear        float
-        , Sar                          float
         , LocalServiceStandardWarranty float
         , LocalServiceStandardWarrantyManual float
         
@@ -395,7 +394,6 @@ BEGIN
                , TaxAndDuties1P       
 
                , ServiceSupportPerYear
-               , Sar
                , LocalServiceStandardWarranty 
                , LocalServiceStandardWarrantyManual
                
@@ -487,8 +485,7 @@ BEGIN
             , m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
             , m.TaxAndDutiesOrZero * m.matO1P as TaxAndDuties1P
 
-            , m.ServiceSupportPerYear
-            , m.Sar
+            , case when  m.Sar is null then m.ServiceSupportPerYear else m.ServiceSupportPerYear * m.Sar / 100 end as ServiceSupportPerYear
 
             , m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5 as LocalServiceStandardWarranty
             , m.ManualStandardWarranty as LocalServiceStandardWarrantyManual
