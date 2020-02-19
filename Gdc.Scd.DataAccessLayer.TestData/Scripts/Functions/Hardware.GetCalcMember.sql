@@ -128,7 +128,7 @@ RETURN
                end as FieldServicePerYear
 
             --##### SERVICE SUPPORT COST #########                                                                                               
-            , std.ServiceSupportPerYear
+            , case when dur.IsProlongation = 1 then std.ServiceSupportPerYearWithoutSar else std.ServiceSupportPerYear end as ServiceSupportPerYear
 
             --##### LOGISTICS COST #########                                                                                               
             , case when @approved = 0 
