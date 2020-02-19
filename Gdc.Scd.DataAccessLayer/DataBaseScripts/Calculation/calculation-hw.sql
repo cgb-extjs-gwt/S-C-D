@@ -543,7 +543,7 @@ CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
 RETURNS float
 AS
 BEGIN
-    return (Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr + @fee) * @sarCoeff;
+    return Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost * @sarCoeff + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr + @fee;
 END
 GO
 
