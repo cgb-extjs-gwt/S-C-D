@@ -20,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public IDictionary<string, long[]> BuildRegionFilter(CostElementContext context, IEnumerable<Country> userCountries = null)
         {
             var filter = new Dictionary<string, long[]>();
-            var costBlock = this.meta.GetCostBlockEntityMeta(context);
+            var costBlock = this.meta.CostBlocks[context];
 
             if (costBlock.ContainsCoordinateField(MetaConstants.CountryInputLevelName) && userCountries != null)
             {
@@ -127,7 +127,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private CostElementMeta GetCostElement(CostEditorContext context)
         {
-            var costBlock = this.meta.GetCostBlockEntityMeta(context);
+            var costBlock = this.meta.CostBlocks[context];
 
             return costBlock.SliceDomainMeta.CostElements[context.CostElementId];
         }

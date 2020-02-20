@@ -83,7 +83,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public QualityGateOption GetQualityGateOption(ICostElementIdentifier context, EditorType editorType)
         {
             var option = new QualityGateOption();
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[context];
             var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.HasInputLevel(MetaConstants.WgInputLevelName))

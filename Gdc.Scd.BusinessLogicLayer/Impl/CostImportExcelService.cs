@@ -107,7 +107,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var errors = new List<string>();
 
-            var costBlockMeta = this.metas.GetCostBlockEntityMeta(context);
+            var costBlockMeta = this.metas.CostBlocks[context];
             var inputLevelField = costBlockMeta.InputLevelFields[context.InputLevelId];
 
             var inputLevelItems =

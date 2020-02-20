@@ -20,11 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserService userService;
 
-        private readonly IRepositorySet repositorySet;
-
         private readonly ICostBlockHistoryService costBlockHistoryService;
-
-        private readonly IQualityGateSevice qualityGateSevice;
 
         private readonly IDomainService<Wg> wgService;
 
@@ -37,9 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public TableViewService(
             ITableViewRepository tableViewRepository, 
             IUserService userService, 
-            IRepositorySet repositorySet,
             ICostBlockHistoryService costBlockHistoryService,
-            IQualityGateSevice qualityGateSevice,
             IDomainService<Wg> wgService,
             IRoleCodeService roleCodeService,
             ICostBlockService costBlockService,
@@ -47,9 +41,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             this.tableViewRepository = tableViewRepository;
             this.userService = userService;
-            this.repositorySet = repositorySet;
             this.costBlockHistoryService = costBlockHistoryService;
-            this.qualityGateSevice = qualityGateSevice;
             this.wgService = wgService;
             this.roleCodeService = roleCodeService;
             this.costBlockService = costBlockService;
@@ -136,7 +128,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 CostElementId = costElementId.CostElementId
             };
 
-            var costBlockMeta = this.meta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.meta.CostBlocks[historyContext];
             var inputLevel = costBlockMeta.SliceDomainMeta.GetMaxInputLevel(coordinates.Keys);
 
             historyContext.InputLevelId = inputLevel.Id;

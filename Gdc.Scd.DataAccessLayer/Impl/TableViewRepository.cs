@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -174,10 +175,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var queries = new List<SqlHelper>();
             var fieldDictionary = costElementInfos.ToDictionary(
-                info => info.Meta.Name,
+                info => info.Meta.FullName,
                 info => new
                 {
-                    Meta = info.Meta,
+                    info.Meta,
                     FieldsHashSet = new HashSet<string>(info.CostElementIds)
                 });
 
@@ -188,9 +189,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         {
                             record.Coordinates,
                             EditFieldId = DeserializeDataIndex(keyValue.Key),
-                            Value = keyValue.Value.Value,
+                            keyValue.Value.Value,
                         }))
-                      .GroupBy(editInfo => editInfo.EditFieldId.CostBlockId);
+                      .GroupBy(editInfo => editInfo.EditFieldId.CostBlockFullName);
 
             foreach(var editInfoGroup in editInfoGroups)
             {
@@ -200,7 +201,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     {
                         if (!info.FieldsHashSet.Contains(rawEditInfo.EditFieldId.CostElementId))
                         {
-                            throw new Exception($"Invalid cost element '{rawEditInfo.EditFieldId.CostElementId}' from costblock '{rawEditInfo.EditFieldId.CostBlockId}'");
+                            throw new Exception($"Invalid cost element '{rawEditInfo.EditFieldId.CostElementId}' from costblock '{rawEditInfo.EditFieldId.CostBlockFullName}'");
                         }
                     }
 
@@ -216,7 +217,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             var dependencyField = info.Meta.GetDomainDependencyField(rawEditInfo.EditFieldId.CostElementId);
                             if (dependencyField == null)
                             {
-                                throw new Exception($"Invalid dependency '{rawEditInfo.EditFieldId.CostElementId}' from costblock '{rawEditInfo.EditFieldId.CostBlockId}'");
+                                throw new Exception($"Invalid dependency '{rawEditInfo.EditFieldId.CostElementId}' from costblock '{rawEditInfo.EditFieldId.CostBlockFullName}'");
                             }
 
                             dependencyId = dependencyField.Name;
@@ -297,8 +298,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     TempTable = tempTable,
                     From = new
                     {
-                        Meta = costBlockInfo.Meta,
-                        Alias = costBlockInfo.Alias
+                        costBlockInfo.Meta,
+                        costBlockInfo.Alias
                     },
                     Query = this.costBlockQueryBuilder.BuildSelectQuery(new CostBlockSelectQueryData
                     {
@@ -394,9 +395,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Sql.Queries(queryList);
         }
 
-        private static string SerializeDataIndex(string costBlockId, string costElementId, long? dependencyItemId = null)
+        private static string SerializeDataIndex(string costBlockFullName, string costElementId, long? dependencyItemId = null)
         {
-            var result = $"{costBlockId}{AliasSeparator}{costElementId}";
+            var result = $"{costBlockFullName}{AliasSeparator}{costElementId}";
 
             if (dependencyItemId.HasValue)
             {
@@ -406,7 +407,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        private static (string CostBlockId, string CostElementId, long? DependencyItemId) DeserializeDataIndex(string value)
+        private static (string CostBlockFullName, string CostElementId, long? DependencyItemId) DeserializeDataIndex(string value)
         {
             var values = value.Split(AliasSeparator);
             var costBlockId = values[0];
@@ -454,7 +455,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                     costElementInfo.Meta, 
                                     costElementId, 
                                     costElementId, 
-                                    SerializeDataIndex(costElementInfo.Meta.CostBlockId, costElementId)));
+                                    SerializeDataIndex(costElementInfo.Meta.FullName, costElementId)));
 
                         result.DataInfos.Add(new CostBlockQueryInfo
                         {
@@ -473,7 +474,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                         costElementInfo.Meta,
                                         costElementId,
                                         $"{costElementId}_{item.Id}",
-                                        SerializeDataIndex(costElementInfo.Meta.CostBlockId, costElementId, item.Id)));
+                                        SerializeDataIndex(costElementInfo.Meta.FullName, costElementId, item.Id)));
 
                             result.DataInfos.Add(new DependencyItemCostBlockQueryInfo
                             {
@@ -492,9 +493,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             DataColumnInfo BuildDataColumnInfo(CostBlockEntityMeta meta, string costElementId, string name, string dataIndex)
             {
-                return new DataColumnInfo
+                var costElementIdentifier = this.metas.CostBlocks.GetCostElementIdentifier(meta, costElementId);
+
+                return new DataColumnInfo(costElementIdentifier)
                 {
-                    CostElementId = costElementId,
                     DataIndex = dataIndex,
                     ValueColumn = $"{meta.Name}_{name}_value",
                     CountColumn = $"{meta.Name}_{name}_count",
@@ -567,10 +569,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             public IEnumerable<AdditionalDataInfo> AdditionalDataInfos { get; set; }
         }
 
-        private class DataColumnInfo
+        private class DataColumnInfo : CostElementIdentifier
         {
-            public string CostElementId { get; set; }
-
             public string DataIndex { get; set; }
 
             public string ValueColumn { get; set; }
@@ -578,6 +578,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             public string CountColumn { get; set; }
 
             public string IsApprovedColumn { get; set; }
+
+            public DataColumnInfo(ICostElementIdentifier costElementIdentifier)
+                : base(costElementIdentifier)
+            {
+            }
         }
 
         private class CostBlockQueryInfo
@@ -590,10 +595,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public virtual DataInfo BuildDataInfo(DataColumnInfo dataColumnInfo)
             {
-                return new DataInfo
+                return new DataInfo(dataColumnInfo)
                 {
-                    ApplicationId = this.Meta.ApplicationId,
-                    CostBlockId = this.Meta.CostBlockId,
                     CostElementId = dataColumnInfo.CostElementId,
                     DataIndex = this.GetDataIndex(dataColumnInfo)
                 };
@@ -601,7 +604,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             protected virtual string GetDataIndex(DataColumnInfo dataColumnInfo)
             {
-                return SerializeDataIndex(this.Meta.CostBlockId, dataColumnInfo.CostElementId);
+                return SerializeDataIndex(this.Meta.FullName, dataColumnInfo.CostElementId);
             }
         }
 
@@ -622,7 +625,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             protected override string GetDataIndex(DataColumnInfo dataColumnInfo)
             {
-                return SerializeDataIndex(this.Meta.CostBlockId, dataColumnInfo.CostElementId, this.DependencyItemId);
+                return SerializeDataIndex(this.Meta.FullName, dataColumnInfo.CostElementId, this.DependencyItemId);
             }
         }
 

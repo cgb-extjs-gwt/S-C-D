@@ -26,7 +26,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             const string ValueColumnName = "value";
 
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
 
             ColumnInfo costElementColumn;
 
@@ -64,7 +64,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public TQuery BuildJoinHistoryValueQuery<TQuery>(CostElementContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             //var costBlockCurrentCoordinates = $"{costBlockMeta.Name}_CurrentCoordinates";
             var costBlockCurrentCoordinates = costBlockMeta.Name;
             var costBlockJoinCondition = BuildCostBlockJoinCondition();
@@ -198,7 +198,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             query = this.BuildJoinHistoryValueQuery(history.Context, query, options);
 
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var whereCondition =
                 SqlOperators.Equals(
                     costBlockMeta.HistoryMeta.CostBlockHistoryField.Name,

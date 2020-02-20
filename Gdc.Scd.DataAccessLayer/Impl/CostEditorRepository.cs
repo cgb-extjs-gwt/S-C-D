@@ -35,7 +35,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[context];
             var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
             var queryData = new CostBlockSelectQueryData
             {

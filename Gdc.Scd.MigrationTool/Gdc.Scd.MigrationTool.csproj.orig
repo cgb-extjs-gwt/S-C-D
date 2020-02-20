@@ -217,9 +217,12 @@
     <Compile Include="Migrations\2020_01\Migration_2020_01_06_14_33.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_20.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_18_25.cs" />
-    <Compile Include="Migrations\2020_02\Migration_2020_02_14_12_07.cs" />
+<<<<<<< Updated upstream
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_21_45.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_17_28.cs" />
+=======
+    <Compile Include="Migrations\2020_02\Migration_2020_02_14_12_07.cs" />
+>>>>>>> Stashed changes
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_12_53.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_11_28.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_18_14_03.cs" />

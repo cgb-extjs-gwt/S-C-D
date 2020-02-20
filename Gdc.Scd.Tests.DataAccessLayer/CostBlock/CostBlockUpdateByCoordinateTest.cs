@@ -30,10 +30,10 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
         [Test]
         public async Task SimpleInputLevelsTest()
         {
-            var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+            var costBlockMeta = this.Meta.CostBlocks[
                 TestConstants.Application1Id,
                 TestConstants.CostBlock1Id,
-                TestConstants.SimpleCostElementId);
+                TestConstants.SimpleCostElementId];
 
             var rowCount = await this.RowCount(costBlockMeta);
 
@@ -84,10 +84,10 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
         [Test]
         public async Task RelatedInputLevelsTest()
         {
-            var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+            var costBlockMeta = this.Meta.CostBlocks[
                 TestConstants.Application1Id,
                 TestConstants.CostBlock2Id,
-                TestConstants.SimpleCostElementId);
+                TestConstants.SimpleCostElementId];
 
             var rowCount = await this.RowCount(costBlockMeta);
 
@@ -209,7 +209,7 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
                 SELECT 
                     COUNT(*) 
                 FROM 
-                    [{queryInfo.CostBlockMeta.ApplicationId}].[{queryInfo.CostBlockMeta.Name}] 
+                    [{queryInfo.CostBlockMeta.Schema}].[{queryInfo.CostBlockMeta.Name}] 
                 WHERE 
                     [{queryInfo.InputLevel}] = {queryInfo.InputLevelItemId} AND
                     [{queryInfo.CostElement}] = {queryInfo.Value}");

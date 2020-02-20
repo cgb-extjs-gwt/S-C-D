@@ -57,6 +57,7 @@
     <Tables>
         <Table Id="FieldServiceCalc" Shema="Hardware" Name="FieldServiceCalc"/>
         <Table Id="FieldServiceTimeCalc" Shema="Hardware" Name="FieldServiceTimeCalc"/>
+        <Table Id="FieldServiceUpliftFactor" Shema="Hardware" Name="FieldServiceUpliftFactor"/>
     </Tables>
 
   <Blocks>
@@ -146,7 +147,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually">
+                <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" TableId="FieldServiceUpliftFactor">
                   <TypeOption Type="Percent"/>
                     <CostEditor>
                       <Roles>

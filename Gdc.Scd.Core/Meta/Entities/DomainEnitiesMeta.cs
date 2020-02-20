@@ -1,24 +1,19 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Constants;
-using Gdc.Scd.Core.Meta.Helpers;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
     public class DomainEnitiesMeta
     {
-        private readonly MetaCollection<CostBlockEntityMeta> costBlocks;
-        private readonly Dictionary<CostElementIdentifier, CostBlockEntityMeta> costBlockMapping;
-
         public BaseEntityMeta this[string fullName]
         {
             get
             {
                 return
-                    this.costBlocks[fullName] ??
+                    this.CostBlocks[fullName] ??
                     this.Dependencies[fullName] ??
                     this.InputLevels[fullName] ??
                     this.OtherMetas[fullName] ??
@@ -27,7 +22,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        public IEnumerable<CostBlockEntityMeta> CostBlocks => this.costBlocks;
+        public CostBlockEntityMetaCollection CostBlocks { get; } = new CostBlockEntityMetaCollection();
 
         public MetaCollection<NamedEntityMeta> Dependencies { get; } = new MetaCollection<NamedEntityMeta>();
 
@@ -84,30 +79,6 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        public DomainEnitiesMeta()
-        {
-            this.costBlocks = new MetaCollection<CostBlockEntityMeta>();
-            this.costBlockMapping = new Dictionary<CostElementIdentifier, CostBlockEntityMeta>();
-        }
-
-        public void AddCostBlock(CostElementIdentifier costElementIdentifier, CostBlockEntityMeta costBlockEntityMeta)
-        {
-            this.costBlockMapping.Add(costElementIdentifier, costBlockEntityMeta);
-
-            if (!this.costBlocks.Contains(costBlockEntityMeta))
-            {
-                this.costBlocks.Add(costBlockEntityMeta);
-            }
-        }
-
-        public void AddCostBlock(IEnumerable<CostElementIdentifier> costElementIdentifiers, CostBlockEntityMeta costBlockEntityMeta)
-        {
-            foreach (var costElementIdentifier in costElementIdentifiers)
-            {
-                this.AddCostBlock(costElementIdentifier, costBlockEntityMeta);
-            }
-        }
-
         public BaseEntityMeta GetEntityMeta(string name, string schema = null)
         {
             var fullName = BaseEntityMeta.BuildFullName(name, schema);
@@ -151,25 +122,6 @@ namespace Gdc.Scd.Core.Meta.Entities
             var fullName = BaseEntityMeta.BuildFullName(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
 
             return this.InputLevels[fullName] as WgEnityMeta;
-        }
-
-        public CostBlockEntityMeta GetCostBlockEntityMeta(CostElementIdentifier costElementIdentifier)
-        {
-            return this.costBlockMapping[costElementIdentifier];
-        }
-
-        public CostBlockEntityMeta GetCostBlockEntityMeta(ICostElementIdentifier costElementIdentifier)
-        {
-            return 
-                this.GetCostBlockEntityMeta(
-                    costElementIdentifier.ApplicationId,
-                    costElementIdentifier.CostBlockId,
-                    costElementIdentifier.CostElementId);
-        }
-
-        public CostBlockEntityMeta GetCostBlockEntityMeta(string applicationId, string costBlockId, string costElementId)
-        {
-            return this.GetCostBlockEntityMeta(new CostElementIdentifier(applicationId, costBlockId, costElementId));
         }
 
         public EntityMeta GetPortfolioMeta(PortfolioType portfolioType)

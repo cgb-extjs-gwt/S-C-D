@@ -6,7 +6,12 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public CostElementMeta GetCostElement(ICostElementIdentifier costElementIdentifier)
         {
-            return this.CostBlocks[costElementIdentifier.CostBlockId].CostElements[costElementIdentifier.CostElementId];
+            return this.GetCostElement(costElementIdentifier.CostBlockId, costElementIdentifier.CostElementId);
+        }
+
+        public CostElementMeta GetCostElement(string costBlockId, string costElementId)
+        {
+            return this.CostBlocks[costBlockId].CostElements[costElementId];
         }
     }
 }

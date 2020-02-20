@@ -84,10 +84,10 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
             this.AddDataToCostBlock1(TestConstants.SimpleCostElementId);
 
             var historyChecker = this.Ioc.Get<HistoryChecker>();
-            var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+            var costBlockMeta = this.Meta.CostBlocks[
                 TestConstants.Application1Id, 
                 TestConstants.CostBlock1Id,
-                TestConstants.SimpleCostElementId);;
+                TestConstants.SimpleCostElementId];
 
             historyChecker.CostBlockMeta = costBlockMeta;
             historyChecker.CostElementContext = new CostElementContext
@@ -117,10 +117,10 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
             this.AddDataToCostBlock1(TestConstants.SimpleCostElementId);
 
             var historyChecker = this.Ioc.Get<HistoryChecker>();
-            var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+            var costBlockMeta = this.Meta.CostBlocks[
                 TestConstants.Application1Id, 
                 TestConstants.CostBlock1Id,
-                TestConstants.SimpleCostElementId);;
+                TestConstants.SimpleCostElementId];
 
             historyChecker.CostBlockMeta = costBlockMeta;
             historyChecker.CostElementContext = new CostElementContext
@@ -181,10 +181,10 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
                 long newRelatedInputLevel2Id)
             {
                 var historyChecker = this.Ioc.Get<HistoryChecker>();
-                var costBlockMeta = this.Meta.GetCostBlockEntityMeta(
+                var costBlockMeta = this.Meta.CostBlocks[
                     TestConstants.Application1Id, 
                     TestConstants.CostBlock2Id, 
-                    TestConstants.SimpleCostElementId);
+                    TestConstants.SimpleCostElementId];
 
                 historyChecker.CostBlockMeta = costBlockMeta;
                 historyChecker.CostElementContext = new CostElementContext
@@ -261,7 +261,7 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
             this.AddNamedIds<SimpleInputLevel2>(10);
             this.AddNamedIds<SimpleInputLevel3>(10);
 
-            var costBlock = this.Meta.GetCostBlockEntityMeta(TestConstants.Application1Id, TestConstants.CostBlock1Id, costElementId);
+            var costBlock = this.Meta.CostBlocks[TestConstants.Application1Id, TestConstants.CostBlock1Id, costElementId];
             
             this.CostBlockRepository.UpdateByCoordinates(costBlock);
         }
@@ -284,7 +284,7 @@ namespace Gdc.Scd.Tests.BusinessLogicLayer
                 });
 
             var costBlock =
-                this.Meta.GetCostBlockEntityMeta(TestConstants.Application1Id, TestConstants.CostBlock2Id, costElementId);
+                this.Meta.CostBlocks[TestConstants.Application1Id, TestConstants.CostBlock2Id, costElementId];
 
             this.CostBlockRepository.UpdateByCoordinates(costBlock);
         }

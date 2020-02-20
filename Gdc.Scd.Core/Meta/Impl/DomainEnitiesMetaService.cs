@@ -110,7 +110,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             var costElementIds = costElementInfos.Select(info => info.GetElementIdentifier());
 
-            domainEnitiesMeta.AddCostBlock(costElementIds, costBlockEntity);
+            domainEnitiesMeta.CostBlocks.Add(costElementIds, costBlockEntity);
 
             this.BuildCostBlockHistory(costBlockEntity, domainEnitiesMeta);
         }
@@ -334,9 +334,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                 this.CostElement = costElementMeta;
             }
 
-            public CostElementIdentifier GetElementIdentifier()
+            public CostElementIdentifierKey GetElementIdentifier()
             {
-                return new CostElementIdentifier(this.ApplicationId, this.CostBlock.Id, this.CostElement.Id);
+                return new CostElementIdentifierKey(this.ApplicationId, this.CostBlock.Id, this.CostElement.Id);
             }
         }
     }

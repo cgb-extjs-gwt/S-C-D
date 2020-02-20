@@ -34,7 +34,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
             {
                 new CostElementInfo
                 {
-                    Meta = this.meta.GetCostBlockEntityMeta(MetaConstants.HardwareSchema, "FieldServiceCost"),
+                    Meta = this.meta.CostBlocks[MetaConstants.HardwareSchema, "FieldServiceCost"],
                     CostElementIds = new[] { UpliftFactorCostElement }
                 }
             });

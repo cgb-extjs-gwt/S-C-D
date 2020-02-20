@@ -40,7 +40,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var query = BuildQuery();
             
             var maxInputLevelId = this.GetMaxInputLevelId(history, historyValueId);
@@ -135,7 +135,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<int> Approve(CostBlockHistory history)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var costElementField = costBlockMeta.CostElementsFields[history.Context.CostElementId];
             var historyValueColumn = new ColumnSqlBuilder
             {
@@ -162,7 +162,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, userCountyGroupCheck, historyValueId, costBlockFilter);
 
             var maxInputLevelId = this.GetMaxInputLevelId(history, historyValueId);

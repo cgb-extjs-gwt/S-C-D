@@ -36,7 +36,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var values = editItems.Select(editItem => new object[] { history.Id, editItem.Id, editItem.Value });
 
             var insertValueQuery =
@@ -79,7 +79,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<DataInfo<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
 
             var historyEditUserIdColumnName = $"{nameof(CostBlockHistory.EditUser)}{nameof(User.Id)}";
             var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditUserId));

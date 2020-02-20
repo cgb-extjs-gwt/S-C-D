@@ -32,7 +32,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
             {
                 new CostElementInfo
                 {
-                    Meta = this.meta.GetCostBlockEntityMeta(MetaConstants.HardwareSchema, "ServiceSupportCost"),
+                    Meta = this.meta.CostBlocks[MetaConstants.HardwareSchema, "ServiceSupportCost"],
                     CostElementIds = new[] { "Sar" }
                 }
             });
