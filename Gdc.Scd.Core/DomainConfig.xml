@@ -199,7 +199,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Name="Sar" Caption="Service Attach Rate Factor" InputOption="Manually" RegionInput="ClusterRegion">
+                <Element Name="Sar" Caption="Service Attach Rate Factor" InputOption="Manually" RegionInput="Country">
                     <TypeOption Type="Percent"/>
                     <InputLevels>
                       <InputLevel>ClusterPla</InputLevel>
