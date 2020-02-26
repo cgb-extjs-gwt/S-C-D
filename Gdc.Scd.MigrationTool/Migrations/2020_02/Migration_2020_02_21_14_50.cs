@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2020_02_21_14_50 : IMigrationAction
+    public class Migration_2020_02_21_14_50 //: IMigrationAction
     {
         private readonly IRepositorySet repositorySet;
 
