@@ -1,8 +1,9 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using System;
 
 namespace Gdc.Scd.Core.Entities
 {
-    public class CostElementIdentifier : ICostElementIdentifier
+    public class CostElementIdentifier : ICostElementIdentifier, ICloneable
     {
         public string ApplicationId { get; set; }
 
@@ -26,6 +27,11 @@ namespace Gdc.Scd.Core.Entities
             this.ApplicationId = costElementIdentifier.ApplicationId;
             this.CostBlockId = costElementIdentifier.CostBlockId;
             this.CostElementId = costElementIdentifier.CostElementId;
+        }
+        
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }

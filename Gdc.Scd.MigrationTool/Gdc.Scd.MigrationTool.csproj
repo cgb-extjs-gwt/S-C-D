@@ -218,6 +218,8 @@
     <Compile Include="Migrations\2020_01\Migration_2020_01_20.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_18_25.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_12_07.cs" />
+    <Compile Include="Migrations\2020_02\Migration_2020_02_26_11_04.cs" />
+    <Compile Include="Migrations\2020_02\Migration_2020_02_21_14_50.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_21_45.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_17_28.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_12_53.cs" />

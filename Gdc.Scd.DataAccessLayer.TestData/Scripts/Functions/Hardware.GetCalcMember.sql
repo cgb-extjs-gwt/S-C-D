@@ -171,14 +171,14 @@ RETURN
                                 )
                 end as ProActive
 
-            , std.LocalServiceStandardWarranty
+            , case when dur.IsProlongation = 1 then std.LocalServiceStandardWarrantyWithoutSar else std.LocalServiceStandardWarranty end as LocalServiceStandardWarranty
             , std.LocalServiceStandardWarrantyManual
-            , std.Credit1
-            , std.Credit2
-            , std.Credit3
-            , std.Credit4
-            , std.Credit5
-            , std.Credits
+            , case when dur.IsProlongation = 1 then std.Credit1WithoutSar else std.Credit1 end as Credit1
+            , case when dur.IsProlongation = 1 then std.Credit2WithoutSar else std.Credit2 end as Credit2
+            , case when dur.IsProlongation = 1 then std.Credit3WithoutSar else std.Credit3 end as Credit3
+            , case when dur.IsProlongation = 1 then std.Credit4WithoutSar else std.Credit4 end as Credit4
+            , case when dur.IsProlongation = 1 then std.Credit5WithoutSar else std.Credit5 end as Credit5
+            , case when dur.IsProlongation = 1 then std.CreditsWithoutSar else std.Credits end as Credits
 
             --########## MANUAL COSTS ################
             , man.ListPrice          / std.ExchangeRate as ListPrice                   

@@ -6,7 +6,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table(MetaConstants.CostBlockHistoryTableName, Schema = MetaConstants.HistorySchema)]
-    public class CostBlockHistory : IIdentifiable
+    public class CostBlockHistory : IIdentifiable, ICloneable
     {
         private User editUser;
 
@@ -63,5 +63,14 @@ namespace Gdc.Scd.Core.Entities
         public string QualityGateErrorExplanation { get; set; }
 
         public EditorType EditorType { get; set; }
+
+        public object Clone()
+        {
+            var costBlockHistory = (CostBlockHistory)this.MemberwiseClone();
+
+            costBlockHistory.Context = (CostElementContext)this.Context.Clone();
+
+            return costBlockHistory;
+        }
     }
 }
