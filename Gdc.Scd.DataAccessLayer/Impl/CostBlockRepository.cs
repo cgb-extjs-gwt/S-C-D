@@ -66,7 +66,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
             }
 
-            return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            var result = 0;
+
+            if (queries.Count > 0)
+            {
+                result = await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            }
+
+            return result;
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,

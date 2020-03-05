@@ -137,6 +137,67 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.Update(editInfos, approvalOption, editorType, editItemContexts);
         }
 
+        public async Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType)
+        {
+            var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
+            var approvalOption = new ApprovalOption
+            {
+                TurnOffNotification = true,
+            };
+
+            var approvedEditInfos = 
+                editInfos.Select(editInfo => new EditInfo
+                         { 
+                            Meta = editInfo.Meta,
+                            ValueInfos = 
+                                editInfo.ValueInfos.Select(valueInfo => BuildValuesInfoWithApprovedFields(editInfo.Meta, valueInfo))
+                                                   .ToArray()
+                         })
+                         .ToArray();
+
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    await this.costBlockRepository.Update(approvedEditInfos);
+
+                    foreach (var editItemContext in editItemContexts)
+                    {
+                        await this.costBlockHistoryService.SaveAsApproved(
+                            editItemContext.Context, 
+                            editItemContext.EditItems, 
+                            approvalOption, 
+                            editItemContext.Filter, 
+                            editorType);
+                    }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
+
+            ValuesInfo BuildValuesInfoWithApprovedFields(CostBlockEntityMeta meta, ValuesInfo valuesInfo)
+            {
+                var apprvedValues =
+                    valuesInfo.Values.Select(
+                        keyValue =>
+                            new KeyValuePair<string, object>(
+                                meta.GetApprovedCostElement(keyValue.Key).Name,
+                                keyValue.Value));
+
+                return new ValuesInfo
+                {
+                    CoordinateFilter = valuesInfo.CoordinateFilter,
+                    Values = valuesInfo.Values.Concat(apprvedValues).ToDictionary(x => x.Key, x => x.Value)
+                };
+            }
+        }
+
         public async Task UpdateByCoordinatesAsync(
             IEnumerable<CostBlockEntityMeta> costBlockMetas,
             IEnumerable<UpdateQueryOption> updateOptions = null)

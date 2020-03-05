@@ -33,6 +33,8 @@ namespace Gdc.Scd.CopyDataTool
         {
             if (config.CopyManualCosts)
             {
+                Console.WriteLine("Manual costs coppying...");
+
                 var userRepository = kernel.Get<IRepository<TE.User>>();
                 var changedUser = userRepository.GetAll().FirstOrDefault(user => user.Login == config.EditUser);
 
@@ -41,6 +43,8 @@ namespace Gdc.Scd.CopyDataTool
 
                 //UpdateStandardWarrantyManual(changedUser);
                 UpdateHardwareManualCosts(changedUser);
+
+                Console.WriteLine("Сopying completed");
             }
         }
 
@@ -109,7 +113,10 @@ namespace Gdc.Scd.CopyDataTool
 
                 var manualCosts = new List<HardwareManualCost>();
 
+                Console.WriteLine("Creating portfolio...");
                 CreatePortfolio(sourcePortfolio, targetPortfolioRepo, context.PrincipalPortfolio);
+                Console.WriteLine("Portfolio created");
+                Console.WriteLine("Manual costs coppying...");
 
                 foreach (var mc in sourceManualCosts)
                 {
@@ -123,11 +130,11 @@ namespace Gdc.Scd.CopyDataTool
                     //manualCost.ServiceTC = mc.ServiceTC;
                     manualCost.ServiceTP = mc.ServiceTP;
                     //manualCost.ReleaseDate = mc.ReleaseDate;
-                    //manualCost.ServiceTP1_Released = mc.ServiceTP1_Released;
-                    //manualCost.ServiceTP2_Released = mc.ServiceTP2_Released;
-                    //manualCost.ServiceTP3_Released = mc.ServiceTP3_Released;
-                    //manualCost.ServiceTP4_Released = mc.ServiceTP4_Released;
-                    //manualCost.ServiceTP5_Released = mc.ServiceTP5_Released;
+                    manualCost.ServiceTP1_Released = mc.ServiceTP1_Released;
+                    manualCost.ServiceTP2_Released = mc.ServiceTP2_Released;
+                    manualCost.ServiceTP3_Released = mc.ServiceTP3_Released;
+                    manualCost.ServiceTP4_Released = mc.ServiceTP4_Released;
+                    manualCost.ServiceTP5_Released = mc.ServiceTP5_Released;
                     manualCost.ChangeUser = editor;
                     
 

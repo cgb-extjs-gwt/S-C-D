@@ -20,6 +20,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         CostBlockHistory SaveAsApproved(long historyId);
 
+        Task<CostBlockHistory> SaveAsApproved(
+            CostElementContext context,
+            IEnumerable<EditItem> editItems,
+            ApprovalOption approvalOption,
+            IDictionary<string, long[]> filter,
+            EditorType editorType);
+
         CostBlockHistory SaveAsRejected(long historyId, string rejectedMessage);
     }
 }
