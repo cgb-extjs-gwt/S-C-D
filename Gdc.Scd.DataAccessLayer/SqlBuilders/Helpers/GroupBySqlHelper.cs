@@ -5,7 +5,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class GroupBySqlHelper : HavingSqlHelper, IGroupBySqlHelper<HavingSqlHelper>
+    public class GroupBySqlHelper : OrderBySqlHelper, IGroupBySqlHelper<HavingSqlHelper>
     {
         public GroupBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)

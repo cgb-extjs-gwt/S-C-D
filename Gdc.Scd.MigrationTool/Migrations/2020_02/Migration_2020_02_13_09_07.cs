@@ -8,7 +8,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 {
     public class Migration_2020_02_13_09_07 : IMigrationAction
     {
-        private readonly ICostBlockRepository costBlockRepository;
+        private readonly IDataMigrator dataMigrator;
         private readonly IRepositorySet repositorySet;
         private readonly DomainEnitiesMeta meta;
 
@@ -17,11 +17,11 @@ namespace Gdc.Scd.MigrationTool.Migrations
         public string Description => "Add cost element 'OohUpliftFactor' in 'FieldServiceCost' cost block";
 
         public Migration_2020_02_13_09_07(
-            ICostBlockRepository costBlockRepository, 
+            IDataMigrator dataMigrator,
             IRepositorySet repositorySet, 
             DomainEnitiesMeta meta)
         {
-            this.costBlockRepository = costBlockRepository;
+            this.dataMigrator = dataMigrator;
             this.repositorySet = repositorySet;
             this.meta = meta;
         }
@@ -30,7 +30,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
         {
             const string UpliftFactorCostElement = "OohUpliftFactor";
 
-            this.costBlockRepository.AddCostElements(new[]
+            this.dataMigrator.AddCostElements(new[]
             {
                 new CostElementInfo
                 {

@@ -54,13 +54,6 @@
         <Application Id="SoftwareSolution" Caption="Software &amp; Solution"/>
     </Applications>
 
-    <Tables>
-        <Table Id="FieldServiceWg" Shema="Hardware" Name="FieldServiceWg"/>
-        <Table Id="FieldServiceLocation" Shema="Hardware" Name="FieldServiceLocation"/>
-        <Table Id="FieldServiceReactionTimeType" Shema="Hardware" Name="FieldServiceReactionTimeType"/>
-        <Table Id="FieldServiceAvailability" Shema="Hardware" Name="FieldServiceAvailability"/>
-    </Tables>
-
   <Blocks>
         <Block Id="AFR">
             <Applications>
@@ -87,7 +80,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_" TableId="FieldServiceWg">
+                <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
@@ -99,7 +92,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Id="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation" TableId="FieldServiceLocation">
+                <Element Id="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -108,7 +101,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation" TableId="FieldServiceLocation">
+                <Element Id="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -118,7 +111,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation" TableId="FieldServiceLocation">
+                <Element Id="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -128,7 +121,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType" TableId="FieldServiceReactionTimeType">
+                <Element Id="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -138,8 +131,8 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType" TableId="FieldServiceReactionTimeType">
-                    <TypeOption Type="Percent" IsAddingNormColumns="True"/>
+                <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -148,8 +141,8 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" Dependency="Availability" TableId="FieldServiceAvailability">
-                  <TypeOption Type="Percent" IsAddingNormColumns="True"/>
+                <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" Dependency="Availability">
+                  <TypeOption Type="Percent"/>
                     <CostEditor>
                       <Roles>
                         <Role>Country Finance Director</Role>

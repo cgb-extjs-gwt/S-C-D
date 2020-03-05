@@ -16,6 +16,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public bool IsNullOption { get; set; }
 
+        public object DefaultValue { get; set; }
+
         public virtual object Clone()
         {
             return this.MemberwiseClone();

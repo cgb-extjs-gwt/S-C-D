@@ -128,5 +128,13 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
             return this.costBlockMapping[costBlock][costElementId];
         }
+
+        public IEnumerable<CostBlockEntityMeta> GetSome(string applicationId, string costBlockId)
+        {
+            return
+                this.costElementIdMapping.Where(x => x.Key.ApplicationId == applicationId && x.Key.CostBlockId == costBlockId)
+                                         .Select(x => x.Value)
+                                         .Distinct();
+        }
     }
 }

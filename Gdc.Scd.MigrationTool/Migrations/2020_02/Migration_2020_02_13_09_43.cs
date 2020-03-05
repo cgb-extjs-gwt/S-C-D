@@ -8,7 +8,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 {
     public class Migration_2020_02_13_09_43 : IMigrationAction
     {
-        private readonly ICostBlockRepository costBlockRepository;
+        private IDataMigrator dataMigrator;
         private readonly IRepositorySet repositorySet;
         private readonly DomainEnitiesMeta meta;
 
@@ -17,18 +17,18 @@ namespace Gdc.Scd.MigrationTool.Migrations
         public string Description => "Add cost element 'Sar' in 'ServiceSupportCost' cost block";
 
         public Migration_2020_02_13_09_43(
-            ICostBlockRepository costBlockRepository, 
+            IDataMigrator dataMigrator,
             IRepositorySet repositorySet, 
             DomainEnitiesMeta meta)
         {
-            this.costBlockRepository = costBlockRepository;
+            this.dataMigrator = dataMigrator;
             this.repositorySet = repositorySet;
             this.meta = meta;
         }
 
         public void Execute()
         {
-            this.costBlockRepository.AddCostElements(new[]
+            this.dataMigrator.AddCostElements(new[]
             {
                 new CostElementInfo
                 {
