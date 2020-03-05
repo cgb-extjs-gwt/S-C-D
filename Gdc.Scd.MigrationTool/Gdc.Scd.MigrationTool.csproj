@@ -236,6 +236,7 @@
     <Compile Include="Migrations\2020_01\Migration_2020_01_27_14_10.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_27_15_25.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_31_10_40.cs" />
+    <Compile Include="Migrations\2020_03\Migration_2020_03_05_12_54.cs" />
     <Compile Include="Migrations\2020_03\Migration_2020_03_03_12_37.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
@@ -674,6 +675,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2020-01-31-10-40.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-03-05-12-54.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
