@@ -57,17 +57,17 @@ namespace Gdc.Scd.Spooler
 
             foreach (var jobSchedule in dbContext.JobsSchedule.Where(js => js.Active).ToList())
             {
-                if (jobSchedule.TimeInHours - now.Hour != 1) continue;
-                if (jobSchedule.Daily ||
-                    jobSchedule.ExactDate.Date == now.Date ||
-                    jobSchedule.DayOfWeek == (int)now.DayOfWeek)
-                {
-                    shouldBeLaunch.Add(jobSchedule);
-                    continue;
-                }
-                var currentWeekNumber = GetCurrentWeekNumber(now, CultureInfo.CurrentCulture);
-                if (jobSchedule.MonthlyDayOfWeek != (int)now.DayOfWeek ||
-                    jobSchedule.MonthlyWeekNumber != currentWeekNumber) continue;
+                //if (jobSchedule.TimeInHours - now.Hour != 1) continue;
+                //if (jobSchedule.Daily ||
+                //    jobSchedule.ExactDate.Date == now.Date ||
+                //    jobSchedule.DayOfWeek == (int)now.DayOfWeek)
+                //{
+                //    shouldBeLaunch.Add(jobSchedule);
+                //    continue;
+                //}
+                //var currentWeekNumber = GetCurrentWeekNumber(now, CultureInfo.CurrentCulture);
+                //if (jobSchedule.MonthlyDayOfWeek != (int)now.DayOfWeek ||
+                //    jobSchedule.MonthlyWeekNumber != currentWeekNumber) continue;
                 shouldBeLaunch.Add(jobSchedule);
             }
 
