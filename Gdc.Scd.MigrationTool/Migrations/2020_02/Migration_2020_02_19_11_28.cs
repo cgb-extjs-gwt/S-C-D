@@ -1,8 +1,45 @@
-﻿IF OBJECT_ID('[Hardware].[CalcStdw]') IS NOT NULL
-    DROP FUNCTION [Hardware].[CalcStdw]
-GO
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.MigrationTool.Interfaces;
 
-CREATE FUNCTION [Hardware].[CalcStdw](
+namespace Gdc.Scd.MigrationTool.Migrations
+{
+    public class Migration_2020_02_19_11_28 : IMigrationAction
+    {
+        private readonly IRepositorySet repositorySet;
+
+        public int Number => 155;
+
+        public string Description => "'ServiceSupportCost' calculation improvment ('SAR')";
+
+        public Migration_2020_02_19_11_28(IRepositorySet repositorySet)
+        {
+            this.repositorySet = repositorySet;
+        }
+
+        public void Execute()
+        {
+            //FUNCTION [Hardware].[CalcLocSrvStandardWarranty]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
+    @fieldServiceCost float,
+    @srvSupportCost   float,
+    @logisticCost     float,
+    @taxAndDutiesW    float,
+    @afr              float,
+    @fee              float,
+    @markupFactor     float,
+    @markup           float,
+    @sarCoeff         float
+)
+RETURNS float
+AS
+BEGIN
+    return (Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr + @fee) * @sarCoeff;
+END");
+
+            //FUNCTION [Hardware].[CalcStdw]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcStdw](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
     @wg             dbo.ListID READONLY
@@ -91,11 +128,10 @@ RETURNS @tbl TABLE  (
         , TaxAndDuties5                float
         , TaxAndDuties1P               float
 
-        , ServiceSupportPerYear                  float
-        , ServiceSupportPerYearWithoutSar        float
-        , LocalServiceStandardWarranty           float
-        , LocalServiceStandardWarrantyWithoutSar float
-        , LocalServiceStandardWarrantyManual     float
+        , ServiceSupportPerYear        float
+        , Sar                          float
+        , LocalServiceStandardWarranty float
+        , LocalServiceStandardWarrantyManual float
         
         , Credit1                      float
         , Credit2                      float
@@ -103,13 +139,6 @@ RETURNS @tbl TABLE  (
         , Credit4                      float
         , Credit5                      float
         , Credits                      float
-
-        , Credit1WithoutSar            float
-        , Credit2WithoutSar            float
-        , Credit3WithoutSar            float
-        , Credit4WithoutSar            float
-        , Credit5WithoutSar            float
-        , CreditsWithoutSar            float
         
         , PRIMARY KEY CLUSTERED(CountryId, WgId)
     )
@@ -316,27 +345,6 @@ BEGIN
                        else 0 
                    end as LocalServiceStandardWarranty5
 
-               , case when m.StdDurationValue >= 1 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR1, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR1, m.tax1, m.AFR1, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
-                       else 0 
-                   end as LocalServiceStandardWarranty1WithoutSar
-               , case when m.StdDurationValue >= 2 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR2, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR2, m.tax2, m.AFR2, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
-                       else 0 
-                   end as LocalServiceStandardWarranty2WithoutSar
-               , case when m.StdDurationValue >= 3 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR3, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR3, m.tax3, m.AFR3, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
-                       else 0 
-                   end as LocalServiceStandardWarranty3WithoutSar
-               , case when m.StdDurationValue >= 4 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR4, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR4, m.tax4, m.AFR4, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
-                       else 0 
-                   end as LocalServiceStandardWarranty4WithoutSar
-               , case when m.StdDurationValue >= 5 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR5, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR5, m.tax5, m.AFR5, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
-                       else 0 
-                   end as LocalServiceStandardWarranty5WithoutSar
-
         from CostCte2_2 m
     )
     insert into @tbl(
@@ -424,9 +432,8 @@ BEGIN
                , TaxAndDuties1P       
 
                , ServiceSupportPerYear
-               , ServiceSupportPerYearWithoutSar
-               , LocalServiceStandardWarranty
-               , LocalServiceStandardWarrantyWithoutSar
+               , Sar
+               , LocalServiceStandardWarranty 
                , LocalServiceStandardWarrantyManual
                
                , Credit1                      
@@ -434,14 +441,7 @@ BEGIN
                , Credit3                      
                , Credit4                      
                , Credit5                      
-               , Credits        
-               
-               , Credit1WithoutSar                      
-               , Credit2WithoutSar                      
-               , Credit3WithoutSar                      
-               , Credit4WithoutSar                      
-               , Credit5WithoutSar                      
-               , CreditsWithoutSar      
+               , Credits                      
         )
     select    m.CountryId                    
             , m.Country                      
@@ -524,11 +524,10 @@ BEGIN
             , m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
             , m.TaxAndDutiesOrZero * m.matO1P as TaxAndDuties1P
 
-            , case when  m.Sar is null then m.ServiceSupportPerYear else m.ServiceSupportPerYear * m.Sar / 100 end as ServiceSupportPerYear
-            , m.ServiceSupportPerYear as ServiceSupportPerYearWithoutSar
+            , m.ServiceSupportPerYear
+            , m.Sar
 
             , m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5 as LocalServiceStandardWarranty
-            , m.LocalServiceStandardWarranty1WithoutSar + m.LocalServiceStandardWarranty2WithoutSar + m.LocalServiceStandardWarranty3WithoutSar + m.LocalServiceStandardWarranty4WithoutSar + m.LocalServiceStandardWarranty5WithoutSar as LocalServiceStandardWarrantyWithoutSar
             , m.ManualStandardWarranty as LocalServiceStandardWarrantyManual
 
             , m.mat1 + m.LocalServiceStandardWarranty1 as Credit1
@@ -543,20 +542,33 @@ BEGIN
                 m.mat4 + m.LocalServiceStandardWarranty4 +
                 m.mat5 + m.LocalServiceStandardWarranty5 as Credit
 
-            , m.mat1 + m.LocalServiceStandardWarranty1WithoutSar as Credit1WithoutSar 
-            , m.mat2 + m.LocalServiceStandardWarranty2WithoutSar as Credit2WithoutSar 
-            , m.mat3 + m.LocalServiceStandardWarranty3WithoutSar as Credit3WithoutSar 
-            , m.mat4 + m.LocalServiceStandardWarranty4WithoutSar as Credit4WithoutSar 
-            , m.mat5 + m.LocalServiceStandardWarranty5WithoutSar as Credit5WithoutSar 
-
-            , m.mat1 + m.LocalServiceStandardWarranty1WithoutSar   +
-                m.mat2 + m.LocalServiceStandardWarranty2WithoutSar +
-                m.mat3 + m.LocalServiceStandardWarranty3WithoutSar +
-                m.mat4 + m.LocalServiceStandardWarranty4WithoutSar +
-                m.mat5 + m.LocalServiceStandardWarranty5WithoutSar as CreditWithoutSar 
-
     from CostCte3 m;
 
     RETURN;
-END
-go
+END");
+
+            //FUNCTION [Hardware].[CalcServiceSupportCost]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcServiceSupportCost]
+(
+	@serviceSupportCost FLOAT,
+	@sar FLOAT,
+	@durationYear INT = 0,
+	@standardWarrantyYear INT = 0,
+	@isProlongation BIT = 0
+)
+RETURNS FLOAT
+AS
+BEGIN
+	DECLARE @result FLOAT
+
+	IF @sar IS NULL OR @isProlongation = 1
+		SET @result = @serviceSupportCost * @durationYear
+	ELSE
+		SET @result = @durationYear * @serviceSupportCost * @sar / 100
+
+    RETURN @result
+END");
+        }
+    }
+}

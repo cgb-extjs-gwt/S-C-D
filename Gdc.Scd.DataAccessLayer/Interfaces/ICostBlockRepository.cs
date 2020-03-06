@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
@@ -14,5 +15,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         void UpdateByCoordinates(CostBlockEntityMeta meta, IEnumerable<UpdateQueryOption> updateOptions = null);
 
         void CreatRegionIndexes();
+
+        void AddCostElements(IEnumerable<CostElementInfo> costElementInfos);
+
+        void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks);
     }
 }

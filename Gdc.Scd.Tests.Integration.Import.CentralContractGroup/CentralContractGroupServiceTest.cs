@@ -115,5 +115,10 @@ namespace Gdc.Scd.Tests.Integration.Import.CentralContractGroup
         {
             throw new NotImplementedException();
         }
+
+        public Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

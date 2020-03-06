@@ -100,17 +100,35 @@ RETURN
 
             --##### FIELD SERVICE COST #########                                                                                               
             , case when @approved = 0 
-
-                   then (1 - fst.TimeAndMaterialShare_norm) * (fsc.TravelCost + fsc.LabourCost + fst.PerformanceRate) / std.ExchangeRate + 
-                            fst.TimeAndMaterialShare_norm * ((fsc.TravelTime + fsc.repairTime) * std.OnsiteHourlyRates + fst.PerformanceRate / std.ExchangeRate) 
-
-                   else (1 - fst.TimeAndMaterialShare_norm_Approved) * (fsc.TravelCost_Approved + fsc.LabourCost_Approved + fst.PerformanceRate_Approved) / std.ExchangeRate + 
-                            fst.TimeAndMaterialShare_norm_Approved * ((fsc.TravelTime_Approved + fsc.repairTime_Approved) * std.OnsiteHourlyRates + fst.PerformanceRate_Approved / std.ExchangeRate) 
+				   then 
+						Hardware.CalcByFieldServicePerYear(
+							fst.TimeAndMaterialShare_norm, 
+							fsc.TravelCost, 
+							fsc.LabourCost, 
+							fst.PerformanceRate, 
+							std.ExchangeRate,
+							fsc.TravelTime,
+							fsc.repairTime,
+							std.OnsiteHourlyRates,
+							fsc.OohUpliftFactor,
+							m.AvailabilityId)
+					else
+						Hardware.CalcByFieldServicePerYear(
+							fst.TimeAndMaterialShare_norm_Approved, 
+							fsc.TravelCost_Approved, 
+							fsc.LabourCost_Approved, 
+							fst.PerformanceRate_Approved, 
+							std.ExchangeRate,
+							fsc.TravelTime_Approved,
+							fsc.repairTime_Approved,
+							std.OnsiteHourlyRates,
+							fsc.OohUpliftFactor_Approved,
+							m.AvailabilityId)
 
                end as FieldServicePerYear
 
             --##### SERVICE SUPPORT COST #########                                                                                               
-            , std.ServiceSupportPerYear
+            , case when dur.IsProlongation = 1 then std.ServiceSupportPerYearWithoutSar else std.ServiceSupportPerYear end as ServiceSupportPerYear
 
             --##### LOGISTICS COST #########                                                                                               
             , case when @approved = 0 
@@ -153,14 +171,14 @@ RETURN
                                 )
                 end as ProActive
 
-            , std.LocalServiceStandardWarranty
+            , case when dur.IsProlongation = 1 then std.LocalServiceStandardWarrantyWithoutSar else std.LocalServiceStandardWarranty end as LocalServiceStandardWarranty
             , std.LocalServiceStandardWarrantyManual
-            , std.Credit1
-            , std.Credit2
-            , std.Credit3
-            , std.Credit4
-            , std.Credit5
-            , std.Credits
+            , case when dur.IsProlongation = 1 then std.Credit1WithoutSar else std.Credit1 end as Credit1
+            , case when dur.IsProlongation = 1 then std.Credit2WithoutSar else std.Credit2 end as Credit2
+            , case when dur.IsProlongation = 1 then std.Credit3WithoutSar else std.Credit3 end as Credit3
+            , case when dur.IsProlongation = 1 then std.Credit4WithoutSar else std.Credit4 end as Credit4
+            , case when dur.IsProlongation = 1 then std.Credit5WithoutSar else std.Credit5 end as Credit5
+            , case when dur.IsProlongation = 1 then std.CreditsWithoutSar else std.Credits end as Credits
 
             --########## MANUAL COSTS ################
             , man.ListPrice          / std.ExchangeRate as ListPrice                   

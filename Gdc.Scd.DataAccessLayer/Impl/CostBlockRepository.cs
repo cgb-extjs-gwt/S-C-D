@@ -6,12 +6,15 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -19,14 +22,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private const string CoordinateTable = "#Coordinates";
 
+        private readonly IKernel serviceProvider;
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
-        public CostBlockRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
+        public CostBlockRepository(
+            IRepositorySet repositorySet, 
+            DomainEnitiesMeta domainEnitiesMeta,
+            IKernel serviceProvider)
         {
             this.repositorySet = repositorySet;
             this.domainEnitiesMeta = domainEnitiesMeta;
+            this.serviceProvider = serviceProvider;
         }
 
         public async Task<int> Update(IEnumerable<EditInfo> editInfos)
@@ -57,7 +66,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
             }
 
-            return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            var result = 0;
+
+            if (queries.Count > 0)
+            {
+                result = await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            }
+
+            return result;
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,
@@ -113,6 +129,75 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
+        }
+
+        public void AddCostElements(IEnumerable<CostElementInfo> costElementInfos)
+        {
+            var queries =
+                costElementInfos.SelectMany(info => new[]
+                                {
+                                    BuildAlterCostBlockQuery(info),
+                                    BuildAlterHistoryQuery(info)
+                                })
+                                .ToList();
+
+            this.repositorySet.ExecuteSql(Sql.Queries(queries));
+
+            ISqlBuilder BuildAlterCostBlockQuery(CostElementInfo costElementInfo)
+            {
+                var alterTableBuilder = this.serviceProvider.Get<AlterTableMetaSqlBuilder>();
+
+                alterTableBuilder.Meta = costElementInfo.Meta;
+
+                var approvedCostElements =
+                    costElementInfo.CostElementIds.Select(costElementInfo.Meta.GetApprovedCostElement)
+                                                  .Select(field => field.Name);
+
+                alterTableBuilder.NewFields = costElementInfo.CostElementIds.Concat(approvedCostElements).ToArray();
+
+                return alterTableBuilder;
+            }
+
+            ISqlBuilder BuildAlterHistoryQuery(CostElementInfo costElementInfo)
+            {
+                var alterTableBuilder = this.serviceProvider.Get<AlterTableMetaSqlBuilder>();
+
+                alterTableBuilder.Meta = costElementInfo.Meta.HistoryMeta;
+                alterTableBuilder.NewFields = costElementInfo.CostElementIds;
+
+                return alterTableBuilder;
+            }
+        }
+
+        public void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks)
+        {
+            var queries = costBlocks.SelectMany(costBlock => new[]
+            {
+                BuildCreateTableQuery(costBlock),
+                this.BuildUpdateByCoordinatesQuery(costBlock),
+                BuildCreateTableQuery(costBlock.HistoryMeta)
+            });
+
+            this.repositorySet.ExecuteSql(Sql.Queries(queries));
+
+            SqlHelper BuildCreateTableQuery(BaseEntityMeta meta)
+            {
+                var createTableBuilder = this.serviceProvider.Get<CreateTableMetaSqlBuilder>();
+                createTableBuilder.Meta = meta;
+
+                var queryList = new List<ISqlBuilder>
+                {
+                    createTableBuilder
+                };
+
+                queryList.AddRange(meta.AllFields.Select(field => new CreateColumnConstraintMetaSqlBuilder 
+                {
+                    Meta = meta,
+                    Field = field.Name
+                }));
+
+                return Sql.Queries(queryList);
+            }
         }
 
         private SqlHelper BuildUpdateByCoordinatesQuery(

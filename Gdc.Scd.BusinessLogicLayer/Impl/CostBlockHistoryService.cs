@@ -90,40 +90,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }
 
-        public async Task<CostBlockHistory> Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType)
+        public async Task<CostBlockHistory> Save(
+            CostElementContext context,
+            IEnumerable<EditItem> editItems,
+            ApprovalOption approvalOption,
+            IDictionary<string, long[]> filter,
+            EditorType editorType)
         {
-            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
-            {
-                throw new Exception("QualityGateErrorExplanation must be");
-            }
+            return await this.Save(context, editItems, approvalOption, filter, editorType, false);
+        }
 
-            var editItemArray = editItems.ToArray();
-            var isDifferentValues = 
-                editItemArray.Length > 0 && 
-                editItemArray.All(item => item.Value == editItemArray[0].Value);
-
-            var history = new CostBlockHistory
-            {
-                EditDate = DateTime.UtcNow,
-                EditUser = this.userService.GetCurrentUser(),
-                Context = context,
-                EditItemCount = editItemArray.Length,
-                IsDifferentValues = isDifferentValues, 
-                HasQualityGateErrors = approvalOption.HasQualityGateErrors,
-                QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation,
-                EditorType = editorType
-            };
-
-            this.Save(history, approvalOption);
-
-            var relatedItems = new Dictionary<string, long[]>(filter)
-            {
-                [context.InputLevelId] = editItems.Select(item => item.Id).ToArray()
-            };
-
-            await this.costBlockValueHistoryRepository.Save(history, editItemArray, relatedItems);
-
-            return history;
+        public async Task<CostBlockHistory> SaveAsApproved(
+            CostElementContext context,
+            IEnumerable<EditItem> editItems,
+            ApprovalOption approvalOption,
+            IDictionary<string, long[]> filter,
+            EditorType editorType)
+        {
+            return await this.Save(context, editItems, approvalOption, filter, editorType, true);
         }
 
         public void Save(CostBlockHistory history, ApprovalOption approvalOption)
@@ -168,6 +152,53 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             history.ApproveRejectDate = DateTime.UtcNow;
             history.ApproveRejectUser = this.userService.GetCurrentUser();
             history.State = state;
+        }
+
+        private async Task<CostBlockHistory> Save(
+           CostElementContext context,
+           IEnumerable<EditItem> editItems,
+           ApprovalOption approvalOption,
+           IDictionary<string, long[]> filter,
+           EditorType editorType,
+           bool isSavingAsApproved)
+        {
+            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
+            {
+                throw new Exception("QualityGateErrorExplanation must be");
+            }
+
+            var editItemArray = editItems.ToArray();
+            var isDifferentValues =
+                editItemArray.Length > 0 &&
+                editItemArray.All(item => item.Value == editItemArray[0].Value);
+
+            var history = new CostBlockHistory
+            {
+                EditDate = DateTime.UtcNow,
+                EditUser = this.userService.GetCurrentUser(),
+                Context = context,
+                EditItemCount = editItemArray.Length,
+                IsDifferentValues = isDifferentValues,
+                HasQualityGateErrors = approvalOption.HasQualityGateErrors,
+                QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation,
+                EditorType = editorType
+            };
+
+            if (isSavingAsApproved)
+            {
+                this.SetState(history, CostBlockHistoryState.Approved);
+            }
+
+            this.Save(history, approvalOption);
+
+            var relatedItems = new Dictionary<string, long[]>(filter)
+            {
+                [context.InputLevelId] = editItems.Select(item => item.Id).ToArray()
+            };
+
+            await this.costBlockValueHistoryRepository.Save(history, editItemArray, relatedItems);
+
+            return history;
         }
     }
 }

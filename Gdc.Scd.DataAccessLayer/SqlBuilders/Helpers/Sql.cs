@@ -240,6 +240,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Delete(null, null, table);
         }
 
+        public static DeleteSqlHelper Delete(BaseEntityMeta meta)
+        {
+            return Delete(meta.Schema, meta.Name);
+        }
+
         public static SqlHelper AddDefault(string tableName, string columnName, string defaultValue, string schema = null, string database = null)
         {
             return new SqlHelper(new AlterTableSqlBuilder
