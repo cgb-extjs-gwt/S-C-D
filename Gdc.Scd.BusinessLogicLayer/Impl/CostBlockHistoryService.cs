@@ -135,16 +135,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return history;
         }
 
-        public CostBlockHistory SaveAsRejected(long historyId, string rejectedMessage)
+        public void SaveAsRejected(CostBlockHistory history, string rejectedMessage)
         {
-            var history = this.Get(historyId);
+            history.RejectMessage = rejectedMessage;
 
             this.SetState(history, CostBlockHistoryState.Rejected);
 
             this.repository.Save(history);
             this.repositorySet.Sync();
-
-            return history;
         }
 
         private void SetState(CostBlockHistory history, CostBlockHistoryState state)
