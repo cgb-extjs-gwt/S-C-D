@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
@@ -38,7 +39,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ICostBlockHistoryService costBlockHistoryService, 
             ISqlRepository sqlRepository,
             IRepositorySet repositorySet,
-            IQualityGateRepository qualityGateRepository,
             IQualityGateSevice qualityGateSevice,
             IApprovalRepository approvalRepository,
             IEmailService emailService,
@@ -147,11 +147,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task Reject(long historyId, string message = null, bool turnOffNotification = false)
         {
-            var history = this.costBlockHistoryService.SaveAsRejected(historyId, message);
+            var history = this.costBlockHistoryService.Get(historyId);
+            var currentUser = this.userService.GetCurrentUser();
+
+            if (history.EditUserId != currentUser.Id &&
+                !currentUser.HasPermission(PermissionConstants.Approval))
+            {
+                throw new UnauthorizedAccessException($"User does not have permissions to reject history item");
+            }
+
+            this.costBlockHistoryService.SaveAsRejected(history, message);
 
             if (message != null && !turnOffNotification)
             {
-                await this.emailService.SendRejectedMailAsync(history, message, userService.GetCurrentUser().Name);
+                await this.emailService.SendRejectedMailAsync(history, message, currentUser.Name);
             }
         }
 

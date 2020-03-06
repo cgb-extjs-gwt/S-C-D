@@ -27,6 +27,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
             IDictionary<string, long[]> filter,
             EditorType editorType);
 
-        CostBlockHistory SaveAsRejected(long historyId, string rejectedMessage);
+        void SaveAsRejected(CostBlockHistory history, string rejectedMessage);
     }
 }
