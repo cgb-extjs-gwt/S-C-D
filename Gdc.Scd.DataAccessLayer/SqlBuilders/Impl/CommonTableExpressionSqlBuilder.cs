@@ -6,7 +6,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class WithSqlBuilder : BaseQuerySqlBuilder
+    public class CommonTableExpressionSqlBuilder : BaseQuerySqlBuilder
     {
         public IEnumerable<WithQuery> WithQueries { get; set; }
 

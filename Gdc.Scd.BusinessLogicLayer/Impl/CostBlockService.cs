@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
@@ -309,7 +310,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             async Task<IEnumerable<NamedId>> GetRegions()
             {
-                return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.RegionInput.Id);
+                return await this.sqlRepository.GetDistinctItems(
+                    context.CostBlockId, 
+                    context.ApplicationId, 
+                    costElementMeta.RegionInput.Id,
+                    isolationLevel: IsolationLevel.ReadUncommitted);
             }
         }
 
