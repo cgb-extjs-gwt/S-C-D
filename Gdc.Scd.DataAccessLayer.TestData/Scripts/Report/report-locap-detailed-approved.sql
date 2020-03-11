@@ -66,7 +66,7 @@ BEGIN
              , m.WgDescription
              , m.Wg
              , sog.Description as SogDescription
-             , m.ServiceLocation as ServiceLevel
+             , m.ServiceLevel
 
              , m.Duration
              , m.ServiceLocation
