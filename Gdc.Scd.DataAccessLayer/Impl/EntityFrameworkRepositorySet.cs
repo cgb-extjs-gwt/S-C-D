@@ -26,7 +26,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly string connectionNameOrConnectionString;
 
-        internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
+        private IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities
+        {
+            get
+            {
+                return this.serviceProvider.Get<IDictionary<Type, Action<EntityTypeBuilder>>>();
+            }
+        }
 
         public EntityFrameworkRepositorySet(IKernel serviceProvider, string connectionNameOrConnectionString = "CommonDB")
         {
@@ -462,14 +468,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IEnumerable<Type> GetRegisteredEntities()
         {
-            return RegisteredEntities.Keys.ToArray();
+            return this.RegisteredEntities.Keys.ToArray();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            foreach (var entityType in RegisteredEntities)
+            foreach (var entityType in this.RegisteredEntities)
             {
                 if (entityType.Value == null)
                 {

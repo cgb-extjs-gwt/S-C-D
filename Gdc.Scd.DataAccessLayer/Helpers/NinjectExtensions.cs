@@ -1,9 +1,9 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Impl;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ninject;
 using System;
-using Gdc.Scd.Core.Entities;
+using System.Collections.Generic;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
 {
@@ -18,7 +18,9 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static void RegisterEntity<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder) 
             where T : class, IIdentifiable
         {
-            EntityFrameworkRepositorySet.RegisteredEntities[typeof(T)] = entityTypeBuilder;
+            var registeredEntities = kernel.Get<IDictionary<Type, Action<EntityTypeBuilder>>>();
+
+            registeredEntities[typeof(T)] = entityTypeBuilder;
         }
 
         public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder) 

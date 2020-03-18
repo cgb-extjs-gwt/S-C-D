@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
@@ -10,6 +11,7 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ninject.Activation;
 using Ninject.Modules;
 
@@ -69,6 +71,8 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler>().To<CountryViewConfigureHandler>().InTransientScope();
+
+            Bind<IDictionary<Type, Action<EntityTypeBuilder>>>().To<Dictionary<Type, Action<EntityTypeBuilder>>>().InSingletonScope();
 
             Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(CostElementContext), nameof(CostBlockHistory.Context)));
             Kernel.RegisterEntityAsUnique<User>(nameof(User.Login));

@@ -78,9 +78,7 @@ namespace Gdc.Scd.CopyDataTool
                 Coordinates = string.Join(",", info.CoordinateIds),
             });
 
-            var excludedWgNames = string.IsNullOrEmpty(this.config.ExcludedWgs) 
-                ? new string[0] 
-                : config.ExcludedWgs.Split(',');
+            var excludedWgNames = config.GetExcludedWgs();
 
             foreach (var costBlockGroup in costBlockGroups)
             {
@@ -154,6 +152,7 @@ namespace Gdc.Scd.CopyDataTool
 
             SqlHelper BuildQuery(CostBlockEntityMeta costBlock, string[] сostElementIds, string[] coordinateIds)
             {
+                var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
                 var costElementColumns =
                     сostElementIds.SelectMany(costElementId =>
                                    {
@@ -168,15 +167,21 @@ namespace Gdc.Scd.CopyDataTool
                                    })
                                   .ToArray();
 
-                var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
-                var selectColumns = costElementColumns.Concat(groupByColumns).ToArray();
+                IEnumerable<BaseColumnInfo> partSelectColumns = groupByColumns;
+                var whereCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name);
 
-                var joinInfos = coordinateIds.Select(coord => new JoinInfo(costBlock, coord)).ToArray();
-                var whereCondition =
-                    CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name);
-
-                if (!string.IsNullOrEmpty(this.config.Country))
+                if (this.config.HasCountry)
                 {
+                    if (this.config.HasTargetCountry)
+                    {
+                        partSelectColumns =
+                            partSelectColumns.Select(
+                                column =>
+                                    column.Alias == MetaConstants.CountryInputLevelName
+                                        ? new QueryColumnInfo(new ValueSqlBuilder(this.config.TargetCountry))
+                                        : column);
+                    }
+
                     whereCondition =
                         whereCondition.And(
                             SqlOperators.Equals(MetaConstants.NameFieldKey, this.config.Country, MetaConstants.CountryInputLevelName));
@@ -192,6 +197,9 @@ namespace Gdc.Scd.CopyDataTool
                         Values = excludedWgNames.Select(wg => new ParameterSqlBuilder(wg))
                     });
                 }
+                
+                var selectColumns = costElementColumns.Concat(partSelectColumns).ToArray();
+                var joinInfos = coordinateIds.Select(coord => new JoinInfo(costBlock, coord)).ToArray();
 
                 return
                     Sql.Select(selectColumns)
