@@ -18,7 +18,13 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static void RegisterEntity<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder) 
             where T : class, IIdentifiable
         {
-            var registeredEntities = kernel.Get<IDictionary<Type, Action<EntityTypeBuilder>>>();
+            var registeredEntities = kernel.GetRegisteredEntities();
+            if (registeredEntities == null)
+            {
+                kernel.Bind<IDictionary<Type, Action<EntityTypeBuilder>>>().To<Dictionary<Type, Action<EntityTypeBuilder>>>().InSingletonScope();
+
+                registeredEntities = kernel.GetRegisteredEntities();
+            }
 
             registeredEntities[typeof(T)] = entityTypeBuilder;
         }
@@ -44,6 +50,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             where T : NamedId
         {
             kernel.RegisterEntityAsUnique<T>(nameof(NamedId.Name), entityTypeBuilder);
+        }
+
+        public static IDictionary<Type, Action<EntityTypeBuilder>> GetRegisteredEntities(this IKernel kernel)
+        {
+            return kernel.TryGet<IDictionary<Type, Action<EntityTypeBuilder>>>();
         }
     }
 }
