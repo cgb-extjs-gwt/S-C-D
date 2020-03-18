@@ -38,14 +38,21 @@ namespace Gdc.Scd.CopyDataTool
 
         public void CopyData()
         {
-            var costBlocks = 
-                this.meta.CostBlocks.Where(
-                    costBlock => 
-                        config.CostBlocks.Cast<CostBlockElement>()
-                                         .Any(cb => cb.Name == costBlock.Name && cb.Schema == costBlock.Schema))
-                                   .ToArray();
+            if (this.config.CopyCostBlocks)
+            {
+                var costBlocks = (IEnumerable<CostBlockEntityMeta>)this.meta.CostBlocks;
 
-            this.CopyCostBlocks(costBlocks);
+                var costBlockElements = this.config.CostBlocks.Cast<CostBlockElement>().ToArray();
+                if (costBlockElements.Length > 0)
+                {
+                    costBlocks =
+                        costBlocks.Where(
+                            costBlock => costBlockElements.Any(
+                                costBlockEl => costBlock.Name == costBlockEl.Name && costBlock.Schema == costBlockEl.Schema));
+                }
+
+                this.CopyCostBlocks(costBlocks.ToArray());
+            }
         }
 
         private IEnumerable<CostBlockDataInfo> GetDataInfo(IEnumerable<CostBlockEntityMeta> costBlocks)
@@ -65,9 +72,9 @@ namespace Gdc.Scd.CopyDataTool
                                                         elem.Coordinates.Select(coord => coord.Id)
                                                                         .OrderBy(x => x)
                                                                         .ToArray()
-                                                 })); ;
+                                                 }));
 
-            if (!string.IsNullOrEmpty(this.config.Country))
+            if (this.config.HasCountry)
             {
                 costBlockInfos = costBlockInfos.Where(info => info.CoordinateIds.Contains(MetaConstants.CountryInputLevelName));
             }
@@ -86,9 +93,10 @@ namespace Gdc.Scd.CopyDataTool
                 var costElementIds = costBlockGroup.Select(info => info.CostElement.Id).ToArray();
                 var firstGroup = costBlockGroup.First();
 
-                var query = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds);
-                var sourceTask = sourceRepositorySet.ReadBySql(query, costBlock.Name);
-                var targetTask = targetRepositorySet.ReadBySql(query, costBlock.Name);
+                var sourceQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.Country, this.config.TargetCountry);
+                var sourceTask = sourceRepositorySet.ReadBySql(sourceQuery, costBlock.Name);
+                var targetQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.TargetCountry ?? this.config.Country);
+                var targetTask = targetRepositorySet.ReadBySql(targetQuery, costBlock.Name);
 
                 Task.WaitAll(sourceTask, targetTask);
 
@@ -150,7 +158,12 @@ namespace Gdc.Scd.CopyDataTool
                 }
             }
 
-            SqlHelper BuildQuery(CostBlockEntityMeta costBlock, string[] сostElementIds, string[] coordinateIds)
+            SqlHelper BuildQuery(
+                CostBlockEntityMeta costBlock, 
+                string[] сostElementIds, 
+                string[] coordinateIds,
+                string filterCountry = null,
+                string replaceCountry = null)
             {
                 var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
                 var costElementColumns =
@@ -168,23 +181,26 @@ namespace Gdc.Scd.CopyDataTool
                                   .ToArray();
 
                 IEnumerable<BaseColumnInfo> partSelectColumns = groupByColumns;
+
+                if (replaceCountry != null)
+                {
+                    partSelectColumns =
+                        partSelectColumns.Select(
+                            column =>
+                                column.Alias == MetaConstants.CountryInputLevelName
+                                    ? new QueryColumnInfo(new ValueSqlBuilder(replaceCountry), column.Alias)
+                                    : column);
+                }
+
+                var selectColumns = costElementColumns.Concat(partSelectColumns).ToArray();
+                var joinInfos = coordinateIds.Select(coord => new JoinInfo(costBlock, coord)).ToArray();
                 var whereCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name);
 
-                if (this.config.HasCountry)
+                if (filterCountry != null)
                 {
-                    if (this.config.HasTargetCountry)
-                    {
-                        partSelectColumns =
-                            partSelectColumns.Select(
-                                column =>
-                                    column.Alias == MetaConstants.CountryInputLevelName
-                                        ? new QueryColumnInfo(new ValueSqlBuilder(this.config.TargetCountry))
-                                        : column);
-                    }
-
                     whereCondition =
                         whereCondition.And(
-                            SqlOperators.Equals(MetaConstants.NameFieldKey, this.config.Country, MetaConstants.CountryInputLevelName));
+                            SqlOperators.Equals(MetaConstants.NameFieldKey, filterCountry, MetaConstants.CountryInputLevelName));
                 }
 
                 if (excludedWgNames.Length > 0 &&
@@ -197,9 +213,6 @@ namespace Gdc.Scd.CopyDataTool
                         Values = excludedWgNames.Select(wg => new ParameterSqlBuilder(wg))
                     });
                 }
-                
-                var selectColumns = costElementColumns.Concat(partSelectColumns).ToArray();
-                var joinInfos = coordinateIds.Select(coord => new JoinInfo(costBlock, coord)).ToArray();
 
                 return
                     Sql.Select(selectColumns)

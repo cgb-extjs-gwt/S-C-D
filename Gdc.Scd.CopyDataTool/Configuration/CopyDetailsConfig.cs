@@ -17,22 +17,25 @@ namespace Gdc.Scd.CopyDataTool.Configuration
         public string EditUser => this["editUser"] == null ? String.Empty : (string) this["editUser"];
 
         [ConfigurationProperty("country", IsRequired = false)]
-        public string Country => this["country"] == null ? String.Empty : (string)this["country"];
+        public string Country => this.GetString("country");
 
         [ConfigurationProperty("targetCountry", IsRequired = false)]
-        public string TargetCountry => this["targetCountry"] == null ? string.Empty : (string)this["targetCountry"];
+        public string TargetCountry => this.GetString("targetCountry");
 
         [ConfigurationProperty("copyManualCosts", IsRequired = false, DefaultValue = false)]
-        public bool CopyManualCosts => this["copyManualCosts"] != null && (bool)this["copyManualCosts"];
+        public bool CopyManualCosts => this.GetBool("copyManualCosts");
+
+        [ConfigurationProperty("copyCostBlocks", IsRequired = false, DefaultValue = false)]
+        public bool CopyCostBlocks => this.GetBool("copyCostBlocks");
 
         [ConfigurationProperty("exludedWgs", IsRequired = false)]
         public string ExcludedWgs => this["exludedWgs"] == null ? String.Empty : (string)this["exludedWgs"];
 
-        public bool HasTargetCountry => string.IsNullOrEmpty(this.TargetCountry);
+        public bool HasTargetCountry => !string.IsNullOrEmpty(this.TargetCountry);
 
-        public bool HasCountry => string.IsNullOrEmpty(this.Country);
+        public bool HasCountry => !string.IsNullOrEmpty(this.Country);
 
-        public bool HasExcludedWgs => string.IsNullOrEmpty(this.ExcludedWgs);
+        public bool HasExcludedWgs => !string.IsNullOrEmpty(this.ExcludedWgs);
 
         public string GetTargetCountry(string defaultCountry)
         {
@@ -41,7 +44,21 @@ namespace Gdc.Scd.CopyDataTool.Configuration
 
         public string[] GetExcludedWgs()
         {
-            return this.ExcludedWgs.Split(',');
+            return this.ExcludedWgs.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private string GetString(string name)
+        {
+            var value = (string)this[name];
+
+            return string.IsNullOrWhiteSpace(value) ? null : value;
+        }
+
+        private bool GetBool(string name)
+        {
+            var value = this[name];
+
+            return value != null && (bool)value;
         }
     }
 }
