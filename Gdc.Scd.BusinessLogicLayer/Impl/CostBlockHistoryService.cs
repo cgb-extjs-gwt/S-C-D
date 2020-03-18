@@ -109,10 +109,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Save(CostBlockHistory history, ApprovalOption approvalOption)
         {
-            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
-            {
-                throw new Exception("QualityGateErrorExplanation must be");
-            }
+            this.CheckApprovalOption(approvalOption);
 
             this.SetStateByApprovalOption(history, approvalOption);
 
@@ -160,10 +157,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
            EditorType editorType,
            bool isSavingAsApproved)
         {
-            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
-            {
-                throw new Exception("QualityGateErrorExplanation must be");
-            }
+            this.CheckApprovalOption(approvalOption);
 
             var histories = new List<CostBlockHistory>();
             var historyContexts = new List<HistoryContext>();
@@ -214,6 +208,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             await this.costBlockValueHistoryRepository.Save(historyContexts);
 
             return histories.ToArray();
+        }
+
+        private void CheckApprovalOption(ApprovalOption approvalOption)
+        {
+            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
+            {
+                throw new Exception("QualityGateErrorExplanation must be");
+            }
         }
     }
 }
