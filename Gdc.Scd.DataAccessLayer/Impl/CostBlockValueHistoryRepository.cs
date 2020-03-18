@@ -34,45 +34,47 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.historyQueryBuilder = costBlockValueHistoryQueryBuilder;
         }
 
-        public async Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems)
+        public async Task Save(IEnumerable<HistoryContext> historyContexts)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var values = editItems.Select(editItem => new object[] { history.Id, editItem.Id, editItem.Value });
+            var queries = new List<SqlHelper>();
 
-            var insertValueQuery =
-                Sql.Insert(
-                    costBlockMeta.HistoryMeta, 
-                    costBlockMeta.HistoryMeta.CostBlockHistoryField.Name, 
-                    history.Context.InputLevelId, 
-                    history.Context.CostElementId)
-                   .Values(values, "history");
-
-            var insertRelatedItemsQueries = new List<SqlHelper>();
-
-            foreach (var relatedMeta in costBlockMeta.CoordinateFields)
+            foreach (var historyContext in historyContexts)
             {
-                var historyRelatedMeta = costBlockMeta.HistoryMeta.GetRelatedMetaByName(relatedMeta.Name);
-                var insertQuery = Sql.Insert(
-                    historyRelatedMeta,
-                    historyRelatedMeta.CostBlockHistoryField.Name,
-                    historyRelatedMeta.RelatedItemField.Name);
+                var history = historyContext.History;
+                var editItems = historyContext.EditItems;
+                var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+                var values = editItems.Select(editItem => new object[] { history.Id, editItem.Id, editItem.Value });
 
-                if (relatedItems.TryGetValue(relatedMeta.Name, out var relatedItemIds) && relatedItemIds.Length > 0)
-                {
-                    var relatedItemsInsertValues = relatedItemIds.Select(relatedItemId => new object[] { history.Id, relatedItemId });
+                var insertValueQuery =
+                    Sql.Insert(
+                        costBlockMeta.HistoryMeta,
+                        costBlockMeta.HistoryMeta.CostBlockHistoryField.Name,
+                        history.Context.InputLevelId,
+                        history.Context.CostElementId)
+                       .Values(values);
 
-                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedItemsInsertValues, relatedMeta.Name));
-                }
-                else
+                foreach (var relatedMeta in costBlockMeta.CoordinateFields)
                 {
-                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedMeta.Name, history.Id, null));
+                    var historyRelatedMeta = costBlockMeta.HistoryMeta.GetRelatedMetaByName(relatedMeta.Name);
+                    var insertQuery = Sql.Insert(
+                        historyRelatedMeta,
+                        historyRelatedMeta.CostBlockHistoryField.Name,
+                        historyRelatedMeta.RelatedItemField.Name);
+
+                    if (historyContext.RelatedItems.TryGetValue(relatedMeta.Name, out var relatedItemIds) && relatedItemIds.Length > 0)
+                    {
+                        var relatedItemsInsertValues = relatedItemIds.Select(relatedItemId => new object[] { history.Id, relatedItemId });
+
+                        queries.Add(insertQuery.Values(relatedItemsInsertValues, relatedMeta.Name));
+                    }
+                    else
+                    {
+                        queries.Add(insertQuery.Values(relatedMeta.Name, history.Id, null));
+                    }
                 }
+
+                queries.Add(insertValueQuery);
             }
-
-            var queries = new List<SqlHelper>(insertRelatedItemsQueries)
-            {
-                insertValueQuery
-            };
 
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }

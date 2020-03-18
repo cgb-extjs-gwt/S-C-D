@@ -161,15 +161,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     await this.costBlockRepository.Update(approvedEditInfos);
 
-                    foreach (var editItemContext in editItemContexts)
-                    {
-                        await this.costBlockHistoryService.SaveAsApproved(
-                            editItemContext.Context, 
-                            editItemContext.EditItems, 
-                            approvalOption, 
-                            editItemContext.Filter, 
-                            editorType);
-                    }
+                    await this.costBlockHistoryService.SaveAsApproved(editItemContexts, approvalOption, editorType);
 
                     transaction.Commit();
                 }
@@ -345,7 +337,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                 filterGroup.Select(info => new EditItem { Id = info.InputLevel.Value, Value = info.CostElementValue.Value })
                                            .ToArray();
 
-                            var filter = filterGroup.Key == null ? new Dictionary<string, long[]>() : filterGroup.Key;
+                            var filter = filterGroup.Key ?? new Dictionary<string, long[]>();
 
                             var context = new CostElementContext
                             {
@@ -528,7 +520,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private async Task<CostBlockHistory[]> Update(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType, IEnumerable<EditItemContext> editItemContexts)
         {
-            var histories = new List<CostBlockHistory>();
+            CostBlockHistory[] histories;
 
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -536,13 +528,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     await this.costBlockRepository.Update(editInfos);
 
-                    foreach (var editItemContext in editItemContexts)
-                    {
-                        var history =
-                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter, editorType);
-
-                        histories.Add(history);
-                    }
+                    histories = await this.costBlockHistoryService.Save(editItemContexts, approvalOption, editorType);
 
                     transaction.Commit();
                 }
@@ -554,7 +540,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
 
-            return histories.ToArray();
+            return histories;
         }
     }
 }

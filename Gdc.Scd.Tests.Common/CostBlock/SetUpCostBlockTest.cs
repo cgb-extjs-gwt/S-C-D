@@ -9,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
 using Gdc.Scd.Tests.Common.CostBlock.Entities;
 using Gdc.Scd.Tests.Common.CostBlock.Impl;
 using Gdc.Scd.Tests.Common.Impl;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ninject;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,7 @@ namespace Gdc.Scd.Tests.Common.CostBlock
             ioc.Bind<CreateTableMetaSqlBuilder>().To<CreateTableMetaSqlBuilder>().InTransientScope();
             ioc.Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
             ioc.Bind<IPrincipalProvider, FakePrincipalProvider>().To<FakePrincipalProvider>().InSingletonScope();
+            ioc.Bind<IDictionary<Type, Action<EntityTypeBuilder>>>().To<Dictionary<Type, Action<EntityTypeBuilder>>>().InSingletonScope();
 
             ioc.RegisterEntity<Dependency1>();
             ioc.RegisterEntity<Dependency2>();

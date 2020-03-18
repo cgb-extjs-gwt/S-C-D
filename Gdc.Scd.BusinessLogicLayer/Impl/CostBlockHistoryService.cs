@@ -8,6 +8,7 @@ using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Approval;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -90,24 +91,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }
 
-        public async Task<CostBlockHistory> Save(
-            CostElementContext context,
-            IEnumerable<EditItem> editItems,
+        public async Task<CostBlockHistory[]> Save(
+            IEnumerable<EditItemContext> editItemContexts,
             ApprovalOption approvalOption,
-            IDictionary<string, long[]> filter,
             EditorType editorType)
         {
-            return await this.Save(context, editItems, approvalOption, filter, editorType, false);
+            return await this.Save(editItemContexts, approvalOption, editorType, false);
         }
 
-        public async Task<CostBlockHistory> SaveAsApproved(
-            CostElementContext context,
-            IEnumerable<EditItem> editItems,
+        public async Task<CostBlockHistory[]> SaveAsApproved(
+            IEnumerable<EditItemContext> editItemContexts,
             ApprovalOption approvalOption,
-            IDictionary<string, long[]> filter,
             EditorType editorType)
         {
-            return await this.Save(context, editItems, approvalOption, filter, editorType, true);
+            return await this.Save(editItemContexts, approvalOption, editorType, true);
         }
 
         public void Save(CostBlockHistory history, ApprovalOption approvalOption)
@@ -117,7 +114,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 throw new Exception("QualityGateErrorExplanation must be");
             }
 
-            history.State = approvalOption.IsApproving ? CostBlockHistoryState.Approving : CostBlockHistoryState.Saved;
+            this.SetStateByApprovalOption(history, approvalOption);
 
             this.repositorySet.GetRepository<CostBlockHistory>().Save(history);
             this.repositorySet.Sync();
@@ -145,6 +142,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.repositorySet.Sync();
         }
 
+        private void SetStateByApprovalOption(CostBlockHistory history, ApprovalOption approvalOption)
+        {
+            history.State = approvalOption.IsApproving ? CostBlockHistoryState.Approving : CostBlockHistoryState.Saved;
+        }
+
         private void SetState(CostBlockHistory history, CostBlockHistoryState state)
         {
             history.ApproveRejectDate = DateTime.UtcNow;
@@ -152,11 +154,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             history.State = state;
         }
 
-        private async Task<CostBlockHistory> Save(
-           CostElementContext context,
-           IEnumerable<EditItem> editItems,
+        private async Task<CostBlockHistory[]> Save(
+           IEnumerable<EditItemContext> editItemContexts,
            ApprovalOption approvalOption,
-           IDictionary<string, long[]> filter,
            EditorType editorType,
            bool isSavingAsApproved)
         {
@@ -165,38 +165,55 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 throw new Exception("QualityGateErrorExplanation must be");
             }
 
-            var editItemArray = editItems.ToArray();
-            var isDifferentValues =
-                editItemArray.Length > 0 &&
-                editItemArray.All(item => item.Value == editItemArray[0].Value);
+            var histories = new List<CostBlockHistory>();
+            var historyContexts = new List<HistoryContext>();
+            var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
 
-            var history = new CostBlockHistory
+            foreach (var editItemContext in editItemContexts)
             {
-                EditDate = DateTime.UtcNow,
-                EditUser = this.userService.GetCurrentUser(),
-                Context = context,
-                EditItemCount = editItemArray.Length,
-                IsDifferentValues = isDifferentValues,
-                HasQualityGateErrors = approvalOption.HasQualityGateErrors,
-                QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation,
-                EditorType = editorType
-            };
+                var isDifferentValues =
+                    editItemContext.EditItems.Length > 0 &&
+                    editItemContext.EditItems.All(item => item.Value == editItemContext.EditItems[0].Value);
 
-            if (isSavingAsApproved)
-            {
-                this.SetState(history, CostBlockHistoryState.Approved);
+                var history = new CostBlockHistory
+                {
+                    EditDate = DateTime.UtcNow,
+                    EditUser = this.userService.GetCurrentUser(),
+                    Context = editItemContext.Context,
+                    EditItemCount = editItemContext.EditItems.Length,
+                    IsDifferentValues = isDifferentValues,
+                    HasQualityGateErrors = approvalOption.HasQualityGateErrors,
+                    QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation,
+                    EditorType = editorType
+                };
+
+                if (isSavingAsApproved)
+                {
+                    this.SetState(history, CostBlockHistoryState.Approved);
+                }
+
+                this.SetStateByApprovalOption(history, approvalOption);
+                historyRepository.Save(history);
+
+                var relatedItems = new Dictionary<string, long[]>(editItemContext.Filter)
+                {
+                    [editItemContext.Context.InputLevelId] = editItemContext.EditItems.Select(item => item.Id).ToArray()
+                };
+
+                histories.Add(history);
+                historyContexts.Add(new HistoryContext
+                {
+                    History = history,
+                    EditItems = editItemContext.EditItems,
+                    RelatedItems = relatedItems
+                });
             }
 
-            this.Save(history, approvalOption);
+            this.repositorySet.Sync();
 
-            var relatedItems = new Dictionary<string, long[]>(filter)
-            {
-                [context.InputLevelId] = editItems.Select(item => item.Id).ToArray()
-            };
+            await this.costBlockValueHistoryRepository.Save(historyContexts);
 
-            await this.costBlockValueHistoryRepository.Save(history, editItemArray, relatedItems);
-
-            return history;
+            return histories.ToArray();
         }
     }
 }
