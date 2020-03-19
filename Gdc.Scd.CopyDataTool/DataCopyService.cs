@@ -278,7 +278,7 @@ namespace Gdc.Scd.CopyDataTool
                     yield return new EditInfo
                     {
                         Meta = dataInfo.Meta,
-                        ValueInfos = GetValuesInfoByGroup(rows, dataInfo.CoordinateIds, valueField)
+                        ValueInfos = GetValuesInfoByGroup(rowGroup, dataInfo.CoordinateIds, valueField)
                     };
                 }
             }
