@@ -58,7 +58,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                     var filterConditions = valueInfoGroup.Select(valueInfo => new BracketsSqlBuilder
                     {
-                        Query = ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert()).ToSqlBuilder()
+                        Query = 
+                            ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert(), editInfoGroup.Key.Name)
+                                           .ToSqlBuilder()
                     });
 
                     var whereCondition = 
