@@ -130,14 +130,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return checkResult;
         }
 
-        public async Task<CostBlockHistory[]> UpdateWithoutQualityGate(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType)
+        public async Task<CostBlockHistory[]> UpdateWithoutQualityGate(
+            EditInfo[] editInfos, 
+            ApprovalOption approvalOption, 
+            EditorType editorType,
+            User currentUser = null)
         {
             var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
 
-            return await this.Update(editInfos, approvalOption, editorType, editItemContexts);
+            return await this.Update(editInfos, approvalOption, editorType, editItemContexts, currentUser);
         }
 
-        public async Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType)
+        public async Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType, User currentUser = null)
         {
             var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
             var approvalOption = new ApprovalOption
@@ -161,7 +165,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     await this.costBlockRepository.Update(approvedEditInfos);
 
-                    await this.costBlockHistoryService.SaveAsApproved(editItemContexts, approvalOption, editorType);
+                    await this.costBlockHistoryService.SaveAsApproved(editItemContexts, approvalOption, editorType, currentUser);
 
                     transaction.Commit();
                 }
@@ -518,7 +522,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     notDeletedCondition);
         }
 
-        private async Task<CostBlockHistory[]> Update(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType, IEnumerable<EditItemContext> editItemContexts)
+        private async Task<CostBlockHistory[]> Update(
+            EditInfo[] editInfos, 
+            ApprovalOption approvalOption, 
+            EditorType editorType, 
+            IEnumerable<EditItemContext> editItemContexts,
+            User currentUser = null)
         {
             CostBlockHistory[] histories;
 
@@ -528,7 +537,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     await this.costBlockRepository.Update(editInfos);
 
-                    histories = await this.costBlockHistoryService.Save(editItemContexts, approvalOption, editorType);
+                    histories = await this.costBlockHistoryService.Save(editItemContexts, approvalOption, editorType, currentUser);
 
                     transaction.Commit();
                 }

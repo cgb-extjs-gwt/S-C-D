@@ -26,10 +26,12 @@ namespace Gdc.Scd.CopyDataTool
         private readonly CopyDetailsConfig config;
         private readonly ISqlRepository _sqlRepository;
         private readonly ICostBlockService _costBlockService;
+        private readonly IUserService userService;
 
         public DataCopyService(IKernel kernel)
         {
             this.kernel = kernel;
+            this.userService = kernel.Get<IUserService>();
             meta = this.kernel.Get<DomainEnitiesMeta>();
             config = this.kernel.Get<CopyDetailsConfig>();
             _sqlRepository = this.kernel.Get<SqlRepository>();
@@ -312,6 +314,7 @@ namespace Gdc.Scd.CopyDataTool
             Console.WriteLine();
             Console.WriteLine("Data loading...");
 
+            var currentUser = this.userService.GetCurrentUser();
             var approvalOption = new ApprovalOption
             {
                 TurnOffNotification = true
@@ -335,7 +338,7 @@ namespace Gdc.Scd.CopyDataTool
                     if (editInfoSet.ApproveEditInfos.Length > 0)
                     {
                         Console.WriteLine("Update approved values.....");
-                        var approvedTask = this._costBlockService.UpdateAsApproved(editInfoSet.ApproveEditInfos, EditorType.Migration);
+                        var approvedTask = this._costBlockService.UpdateAsApproved(editInfoSet.ApproveEditInfos, EditorType.Migration, currentUser);
                         approvedTask.Wait();
                         Console.WriteLine("Approved values updated");
                     }
@@ -343,7 +346,7 @@ namespace Gdc.Scd.CopyDataTool
                     if (editInfoSet.NotApproveEditInfos.Length > 0)
                     {
                         Console.WriteLine("Update not approved values.....");
-                        var notApprovedTask = this._costBlockService.UpdateWithoutQualityGate(editInfoSet.NotApproveEditInfos, approvalOption, EditorType.Migration);
+                        var notApprovedTask = this._costBlockService.UpdateWithoutQualityGate(editInfoSet.NotApproveEditInfos, approvalOption, EditorType.Migration, currentUser);
                         notApprovedTask.Wait();
                         Console.WriteLine("Not approved values updated");
                     }

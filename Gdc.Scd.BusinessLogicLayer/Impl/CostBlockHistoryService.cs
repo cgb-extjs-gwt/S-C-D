@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Approval;
-using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -19,26 +18,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockValueHistoryRepository costBlockValueHistoryRepository;
 
-        private readonly DomainMeta domainMeta;
-
-        private readonly DomainEnitiesMeta domainEnitiesMeta;
-
-        private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
-
         public CostBlockHistoryService(
             IRepositorySet repositorySet,
             IUserService userService,
-            ICostBlockValueHistoryRepository costBlockValueHistoryRepository,
-            ICostBlockFilterBuilder costBlockFilterBuilder,
-            DomainMeta domainMeta,
-            DomainEnitiesMeta domainEnitiesMeta)
+            ICostBlockValueHistoryRepository costBlockValueHistoryRepository)
             : base(repositorySet)
         {
             this.userService = userService;
             this.costBlockValueHistoryRepository = costBlockValueHistoryRepository;
-            this.domainMeta = domainMeta;
-            this.domainEnitiesMeta = domainEnitiesMeta;
-            this.costBlockFilterBuilder = costBlockFilterBuilder;
         }
 
         public IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter)
@@ -94,17 +81,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<CostBlockHistory[]> Save(
             IEnumerable<EditItemContext> editItemContexts,
             ApprovalOption approvalOption,
-            EditorType editorType)
+            EditorType editorType,
+            User currentUser = null)
         {
-            return await this.Save(editItemContexts, approvalOption, editorType, false);
+            return await this.Save(editItemContexts, approvalOption, editorType, false, currentUser);
         }
 
         public async Task<CostBlockHistory[]> SaveAsApproved(
             IEnumerable<EditItemContext> editItemContexts,
             ApprovalOption approvalOption,
-            EditorType editorType)
+            EditorType editorType,
+            User currentUser = null)
         {
-            return await this.Save(editItemContexts, approvalOption, editorType, true);
+            return await this.Save(editItemContexts, approvalOption, editorType, true, currentUser);
         }
 
         public void Save(CostBlockHistory history, ApprovalOption approvalOption)
@@ -163,15 +152,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
            IEnumerable<EditItemContext> editItemContexts,
            ApprovalOption approvalOption,
            EditorType editorType,
-           bool isSavingAsApproved)
+           bool isSavingAsApproved,
+           User currentUser = null)
         {
             this.CheckApprovalOption(approvalOption);
 
             var histories = new List<CostBlockHistory>();
             var historyContexts = new List<HistoryContext>();
             var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
-            var currentUser = this.userService.GetCurrentUser();
             var nowDate = DateTime.UtcNow;
+
+            if (currentUser == null)
+            {
+                currentUser = this.userService.GetCurrentUser();
+            }
 
             foreach (var editItemContext in editItemContexts)
             {
