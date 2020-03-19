@@ -56,8 +56,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         costElementValue.Key,
                         costElementValue.Value));
 
-                    var filterConditions =
-                        valueInfoGroup.Select(valueInfo => ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert()));
+                    var filterConditions = valueInfoGroup.Select(valueInfo => new BracketsSqlBuilder
+                    {
+                        Query = ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert()).ToSqlBuilder()
+                    });
 
                     var whereCondition = 
                         CostBlockQueryHelper.BuildNotDeletedCondition(editInfoGroup.Key, editInfoGroup.Key.Name)
