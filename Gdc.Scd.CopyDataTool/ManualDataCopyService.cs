@@ -180,7 +180,8 @@ namespace Gdc.Scd.CopyDataTool
                 .GetAll().ToDictionary(sl => sl.Name, sl => sl.Id);
         }
 
-        private void CreatePortfolio(IEnumerable<LocalPortfolio> sourcePortfolio, 
+        private void CreatePortfolio(
+            IEnumerable<LocalPortfolio> sourcePortfolio, 
             IRepository<LocalPortfolio> targetRepo, 
             IQueryable<PrincipalPortfolio> sourcePrincipalPortfolios)
         {
@@ -246,7 +247,7 @@ namespace Gdc.Scd.CopyDataTool
             if (portfolio == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                var message = $"Missing portfolio for Country: {sourcePortfolio.Country.Name}," +
+                var message = $"Missing portfolio for Country: {countryName}," +
                               $"Availability: {sourcePortfolio.Availability.Name}," +
                               $"Duration: {sourcePortfolio.Duration.Name}, ProActiveSla: {sourcePortfolio.ProActiveSla.Name}, +" +
                               $"ReactionTime: {sourcePortfolio.ReactionTime.Name}, ReactionType: {sourcePortfolio.ReactionType.Name}, +" +
