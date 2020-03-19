@@ -144,11 +144,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             history.State = approvalOption.IsApproving ? CostBlockHistoryState.Approving : CostBlockHistoryState.Saved;
         }
 
+        private void SetState(CostBlockHistory history, CostBlockHistoryState state, User approveRejectUser, DateTime approveRejectDate)
+        {
+            history.ApproveRejectDate = approveRejectDate;
+            history.ApproveRejectUser = approveRejectUser;
+            history.State = state;
+        }
+
         private void SetState(CostBlockHistory history, CostBlockHistoryState state)
         {
-            history.ApproveRejectDate = DateTime.UtcNow;
-            history.ApproveRejectUser = this.userService.GetCurrentUser();
-            history.State = state;
+            var approveRejectUser = this.userService.GetCurrentUser();
+            var approveRejectDate = DateTime.UtcNow;
+
+            this.SetState(history, state, approveRejectUser, approveRejectDate);
         }
 
         private async Task<CostBlockHistory[]> Save(
@@ -162,6 +170,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var histories = new List<CostBlockHistory>();
             var historyContexts = new List<HistoryContext>();
             var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
+            var currentUser = this.userService.GetCurrentUser();
+            var nowDate = DateTime.UtcNow;
 
             foreach (var editItemContext in editItemContexts)
             {
@@ -171,8 +181,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 var history = new CostBlockHistory
                 {
-                    EditDate = DateTime.UtcNow,
-                    EditUser = this.userService.GetCurrentUser(),
+                    EditDate = nowDate,
+                    EditUser = currentUser,
                     Context = editItemContext.Context,
                     EditItemCount = editItemContext.EditItems.Length,
                     IsDifferentValues = isDifferentValues,
@@ -183,7 +193,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 if (isSavingAsApproved)
                 {
-                    this.SetState(history, CostBlockHistoryState.Approved);
+                    this.SetState(history, CostBlockHistoryState.Approved, currentUser, nowDate);
                 }
 
                 this.SetStateByApprovalOption(history, approvalOption);
