@@ -120,5 +120,15 @@ namespace Gdc.Scd.Tests.Integration.Import.CentralContractGroup
         {
             throw new NotImplementedException();
         }
+
+        public Task<CostBlockHistory[]> UpdateWithoutQualityGate(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType, User currentUser = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType, User currentUser = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
