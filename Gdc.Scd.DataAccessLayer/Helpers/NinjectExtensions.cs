@@ -1,9 +1,9 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Impl;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ninject;
 using System;
-using Gdc.Scd.Core.Entities;
+using System.Collections.Generic;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
 {
@@ -18,7 +18,15 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static void RegisterEntity<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder) 
             where T : class, IIdentifiable
         {
-            EntityFrameworkRepositorySet.RegisteredEntities[typeof(T)] = entityTypeBuilder;
+            var registeredEntities = kernel.GetRegisteredEntities();
+            if (registeredEntities == null)
+            {
+                kernel.Bind<IDictionary<Type, Action<EntityTypeBuilder>>>().To<Dictionary<Type, Action<EntityTypeBuilder>>>().InSingletonScope();
+
+                registeredEntities = kernel.GetRegisteredEntities();
+            }
+
+            registeredEntities[typeof(T)] = entityTypeBuilder;
         }
 
         public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder) 
@@ -42,6 +50,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             where T : NamedId
         {
             kernel.RegisterEntityAsUnique<T>(nameof(NamedId.Name), entityTypeBuilder);
+        }
+
+        public static IDictionary<Type, Action<EntityTypeBuilder>> GetRegisteredEntities(this IKernel kernel)
+        {
+            return kernel.TryGet<IDictionary<Type, Action<EntityTypeBuilder>>>();
         }
     }
 }

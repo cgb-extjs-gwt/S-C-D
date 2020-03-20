@@ -27,6 +27,7 @@ const buildProps = (() => {
     let oldProps = buildGridProps(oldTableViewInfo, oldEditedRecords, oldMeta);
     let oldColumns = oldProps.columns;
     let oldApiUrls = oldProps.apiUrls;
+    let oldBuildHistotyDataLoadUrl = oldProps.buildHistotyDataLoadUrl;
 
     return (state: CommonState) => {
         let newResult: TableViewGridProps;
@@ -50,15 +51,14 @@ const buildProps = (() => {
     }
 
     function buildGridProps (tableViewInfo: TableViewInfo, editedRecords: TableViewRecord[], meta: CostMetaData) {
-        let readUrl: string;
         let columns: ColumnInfo<TableViewRecord>[];
         let apiUrls: ApiUrls;
-
-        const hasChanges = editedRecords && editedRecords.length > 0;
+        let buildHistotyDataLoadUrlFn: (selection: Model<TableViewRecord>[], selectedDataIndex: string) => string
 
         if (tableViewInfo == oldTableViewInfo) {
             columns = oldColumns;
             apiUrls = oldApiUrls;
+            buildHistotyDataLoadUrlFn = oldBuildHistotyDataLoadUrl;
         } else {
             const roleCodeReferences = new Map<number, NamedId<number>>();
 
@@ -95,12 +95,15 @@ const buildProps = (() => {
             apiUrls = {
                 read: buildGetRecordsUrl()
             };
+
+            buildHistotyDataLoadUrlFn = tableViewInfo ? buildHistotyDataLoadUrl : () => '';
         }
 
         return <TableViewGridProps>{
             columns,
             apiUrls: apiUrls,
-            hasChanges: editedRecords && editedRecords.length > 0
+            hasChanges: editedRecords && editedRecords.length > 0,
+            buildHistotyDataLoadUrl: buildHistotyDataLoadUrlFn
         };
 
         function buildCoordinateColumns (coordinateIds: string[]) { 
@@ -199,6 +202,25 @@ const buildProps = (() => {
                 width: 150,
                 mappingFn: record => record.additionalData[dataIndex],
             }));
+        }
+
+        function buildHistotyDataLoadUrl([selection]: Model<TableViewRecord>[], selectedDataIndex: string) {
+            const costElementField =
+                tableViewInfo.recordInfo.data.find(fieldInfo => fieldInfo.dataIndex == selectedDataIndex);
+        
+            const coordinates = {};
+        
+            for (const key of Object.keys(selection.data.coordinates)) {
+                coordinates[key] = selection.data.coordinates[key].id;
+            }
+        
+            if (costElementField.dependencyItemId != null) {
+                const costElement = getCostElementByAppMeta(meta, costElementField.costBlockId, costElementField.costElementId);
+        
+                coordinates[costElement.dependency.id] = costElementField.dependencyItemId;
+            }
+        
+            return buildGetHistoryUrl(costElementField, coordinates);
         }
     }
 })()

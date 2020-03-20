@@ -14,12 +14,11 @@ import { CostImportContainer } from "../../CostImport/Components/CostImportConta
 import { OwnApproveLayoutContainer } from "../../CostOwnApproval/Components/OwnApproveLayoutContainer";
 import { PortfolioEditView, PortfolioHistoryView, PortfolioView } from "../../Portfolio/index";
 import { CalcResultViewContainer, ReportView } from "../../Report/index";
-import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
 import { ReportListViewContainer } from "../../Report/ReportListViewContainer";
-import { PortfolioPivotGrid } from "../../PortfolioPivotGrid/Components/PortfolioPivotGrid";
+import { TableViewGridContainer } from "../../TableView/Components/TableViewGridContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -36,7 +35,7 @@ export interface LayoutContainerProps {
 
 const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', component: CostEditorContainer, isMenuItem: true, permission: Permissions.COST_EDITOR },
-    { path: '/table-view', text: 'Central data input', iconCls: 'x-fa fa-table', component: TableViewContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
+    { path: '/table-view', text: 'Central data input', iconCls: 'x-fa fa-table', component: TableViewGridContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
     { path: '/cost-import', text: 'Cost import', iconCls: 'x-fa fa-arrow-circle-o-up', component: CostImportContainer, isMenuItem: true, permission: Permissions.COST_IMPORT },
     { path: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', component: ApprovalLayoutContainer, isMenuItem: true, permission: Permissions.APPROVAL },
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApproveLayoutContainer, isMenuItem: true, permission: Permissions.OWN_APPROVAL },

@@ -26,10 +26,12 @@ namespace Gdc.Scd.CopyDataTool
         private readonly CopyDetailsConfig config;
         private readonly ISqlRepository _sqlRepository;
         private readonly ICostBlockService _costBlockService;
+        private readonly IUserService userService;
 
         public DataCopyService(IKernel kernel)
         {
             this.kernel = kernel;
+            this.userService = kernel.Get<IUserService>();
             meta = this.kernel.Get<DomainEnitiesMeta>();
             config = this.kernel.Get<CopyDetailsConfig>();
             _sqlRepository = this.kernel.Get<SqlRepository>();
@@ -38,14 +40,21 @@ namespace Gdc.Scd.CopyDataTool
 
         public void CopyData()
         {
-            var costBlocks = 
-                this.meta.CostBlocks.Where(
-                    costBlock => 
-                        config.CostBlocks.Cast<CostBlockElement>()
-                                         .Any(cb => cb.Name == costBlock.Name && cb.Schema == costBlock.Schema))
-                                   .ToArray();
+            if (this.config.CopyCostBlocks)
+            {
+                var costBlocks = (IEnumerable<CostBlockEntityMeta>)this.meta.CostBlocks;
 
-            this.CopyCostBlocks(costBlocks);
+                var costBlockElements = this.config.CostBlocks.Cast<CostBlockElement>().ToArray();
+                if (costBlockElements.Length > 0)
+                {
+                    costBlocks =
+                        costBlocks.Where(
+                            costBlock => costBlockElements.Any(
+                                costBlockEl => costBlock.Name == costBlockEl.Name && costBlock.Schema == costBlockEl.Schema));
+                }
+
+                this.CopyCostBlocks(costBlocks.ToArray());
+            }
         }
 
         private IEnumerable<CostBlockDataInfo> GetDataInfo(IEnumerable<CostBlockEntityMeta> costBlocks)
@@ -65,9 +74,9 @@ namespace Gdc.Scd.CopyDataTool
                                                         elem.Coordinates.Select(coord => coord.Id)
                                                                         .OrderBy(x => x)
                                                                         .ToArray()
-                                                 })); ;
+                                                 }));
 
-            if (!string.IsNullOrEmpty(this.config.Country))
+            if (this.config.HasCountry)
             {
                 costBlockInfos = costBlockInfos.Where(info => info.CoordinateIds.Contains(MetaConstants.CountryInputLevelName));
             }
@@ -78,9 +87,7 @@ namespace Gdc.Scd.CopyDataTool
                 Coordinates = string.Join(",", info.CoordinateIds),
             });
 
-            var excludedWgNames = string.IsNullOrEmpty(this.config.ExcludedWgs) 
-                ? new string[0] 
-                : config.ExcludedWgs.Split(',');
+            var excludedWgNames = config.GetExcludedWgs();
 
             foreach (var costBlockGroup in costBlockGroups)
             {
@@ -88,9 +95,10 @@ namespace Gdc.Scd.CopyDataTool
                 var costElementIds = costBlockGroup.Select(info => info.CostElement.Id).ToArray();
                 var firstGroup = costBlockGroup.First();
 
-                var query = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds);
-                var sourceTask = sourceRepositorySet.ReadBySql(query, costBlock.Name);
-                var targetTask = targetRepositorySet.ReadBySql(query, costBlock.Name);
+                var sourceQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.Country, this.config.TargetCountry);
+                var sourceTask = sourceRepositorySet.ReadBySql(sourceQuery, costBlock.Name);
+                var targetQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.TargetCountry ?? this.config.Country);
+                var targetTask = targetRepositorySet.ReadBySql(targetQuery, costBlock.Name);
 
                 Task.WaitAll(sourceTask, targetTask);
 
@@ -152,8 +160,14 @@ namespace Gdc.Scd.CopyDataTool
                 }
             }
 
-            SqlHelper BuildQuery(CostBlockEntityMeta costBlock, string[] сostElementIds, string[] coordinateIds)
+            SqlHelper BuildQuery(
+                CostBlockEntityMeta costBlock, 
+                string[] сostElementIds, 
+                string[] coordinateIds,
+                string filterCountry = null,
+                string replaceCountry = null)
             {
+                var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
                 var costElementColumns =
                     сostElementIds.SelectMany(costElementId =>
                                    {
@@ -168,18 +182,27 @@ namespace Gdc.Scd.CopyDataTool
                                    })
                                   .ToArray();
 
-                var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
-                var selectColumns = costElementColumns.Concat(groupByColumns).ToArray();
+                IEnumerable<BaseColumnInfo> partSelectColumns = groupByColumns;
 
+                if (replaceCountry != null)
+                {
+                    partSelectColumns =
+                        partSelectColumns.Select(
+                            column =>
+                                column.Alias == MetaConstants.CountryInputLevelName
+                                    ? new QueryColumnInfo(new ValueSqlBuilder(replaceCountry), column.Alias)
+                                    : column);
+                }
+
+                var selectColumns = costElementColumns.Concat(partSelectColumns).ToArray();
                 var joinInfos = coordinateIds.Select(coord => new JoinInfo(costBlock, coord)).ToArray();
-                var whereCondition =
-                    CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name);
+                var whereCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name);
 
-                if (!string.IsNullOrEmpty(this.config.Country))
+                if (filterCountry != null)
                 {
                     whereCondition =
                         whereCondition.And(
-                            SqlOperators.Equals(MetaConstants.NameFieldKey, this.config.Country, MetaConstants.CountryInputLevelName));
+                            SqlOperators.Equals(MetaConstants.NameFieldKey, filterCountry, MetaConstants.CountryInputLevelName));
                 }
 
                 if (excludedWgNames.Length > 0 &&
@@ -257,7 +280,7 @@ namespace Gdc.Scd.CopyDataTool
                     yield return new EditInfo
                     {
                         Meta = dataInfo.Meta,
-                        ValueInfos = GetValuesInfoByGroup(rows, dataInfo.CoordinateIds, valueField)
+                        ValueInfos = GetValuesInfoByGroup(rowGroup, dataInfo.CoordinateIds, valueField)
                     };
                 }
             }
@@ -291,6 +314,7 @@ namespace Gdc.Scd.CopyDataTool
             Console.WriteLine();
             Console.WriteLine("Data loading...");
 
+            var currentUser = this.userService.GetCurrentUser();
             var approvalOption = new ApprovalOption
             {
                 TurnOffNotification = true
@@ -314,7 +338,7 @@ namespace Gdc.Scd.CopyDataTool
                     if (editInfoSet.ApproveEditInfos.Length > 0)
                     {
                         Console.WriteLine("Update approved values.....");
-                        var approvedTask = this._costBlockService.UpdateAsApproved(editInfoSet.ApproveEditInfos, EditorType.Migration);
+                        var approvedTask = this._costBlockService.UpdateAsApproved(editInfoSet.ApproveEditInfos, EditorType.Migration, currentUser);
                         approvedTask.Wait();
                         Console.WriteLine("Approved values updated");
                     }
@@ -322,7 +346,7 @@ namespace Gdc.Scd.CopyDataTool
                     if (editInfoSet.NotApproveEditInfos.Length > 0)
                     {
                         Console.WriteLine("Update not approved values.....");
-                        var notApprovedTask = this._costBlockService.UpdateWithoutQualityGate(editInfoSet.NotApproveEditInfos, approvalOption, EditorType.Migration);
+                        var notApprovedTask = this._costBlockService.UpdateWithoutQualityGate(editInfoSet.NotApproveEditInfos, approvalOption, EditorType.Migration, currentUser);
                         notApprovedTask.Wait();
                         Console.WriteLine("Not approved values updated");
                     }

@@ -1,5 +1,4 @@
-﻿using System;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Helpers;
@@ -12,6 +11,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
 using Ninject.Activation;
 using Ninject.Modules;
+using System;
 
 namespace Gdc.Scd.DataAccessLayer
 {

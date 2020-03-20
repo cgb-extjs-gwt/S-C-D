@@ -42,28 +42,45 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var queries = new List<SqlHelper>();
 
-            foreach (var editInfo in editInfos)
+            foreach (var editInfoGroup in editInfos.GroupBy(editInfo => editInfo.Meta))
             {
-                var valueInfos = editInfo.ValueInfos.ToArray();
+                var metaQueries = new List<SqlHelper>();
+                var valueInfoGroups =
+                    editInfoGroup.SelectMany(editInfo => editInfo.ValueInfos)
+                                 .GroupBy(GetKey);
 
-                foreach (var valueInfo in valueInfos)
+                foreach (var valueInfoGroup in valueInfoGroups)
                 {
-                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
+                    var firstValueInfo = valueInfoGroup.First();
+                    var updateColumns = firstValueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
                         costElementValue.Key,
                         costElementValue.Value));
 
+                    var filterConditions = valueInfoGroup.Select(valueInfo => new BracketsSqlBuilder
+                    {
+                        Query = 
+                            ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert(), editInfoGroup.Key.Name)
+                                           .ToSqlBuilder()
+                    });
+
+                    var whereCondition = 
+                        CostBlockQueryHelper.BuildNotDeletedCondition(editInfoGroup.Key, editInfoGroup.Key.Name)
+                                            .AndBrackets(ConditionHelper.Or(filterConditions));
+
                     var query =
-                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
-                           .WhereNotDeleted(editInfo.Meta, valueInfo.CoordinateFilter.Convert(), editInfo.Meta.Name);
+                        Sql.Update(editInfoGroup.Key, updateColumns.ToArray())
+                           .Where(whereCondition);
 
-                    queries.Add(query);
+                    metaQueries.Add(query);
                 }
 
-                if (valueInfos.Length > 1)
+                if (metaQueries.Count > 1)
                 {
-                    queries.Insert(queries.Count - valueInfos.Length, Sql.DisableTriggers(editInfo.Meta));
-                    queries.Insert(queries.Count - 1, Sql.EnableTriggers(editInfo.Meta));
+                    metaQueries.Insert(0, Sql.DisableTriggers(editInfoGroup.Key));
+                    metaQueries.Insert(metaQueries.Count - 1, Sql.EnableTriggers(editInfoGroup.Key));
                 }
+
+                queries.AddRange(metaQueries);
             }
 
             var result = 0;
@@ -74,6 +91,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return result;
+
+            string GetKey(ValuesInfo valuesInfo)
+            {
+                var values =
+                    valuesInfo.Values.OrderBy(keyValue => keyValue.Key)
+                                     .Select(keyValue => $"{keyValue.Key}:{keyValue.Value}");
+
+                return string.Join(",", values);
+            }
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,
