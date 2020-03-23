@@ -524,7 +524,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     referenceFieldName,
                     costBlockFilter,
                     referenceFilter,
-                    notDeletedCondition);
+                    notDeletedCondition,
+                    IsolationLevel.ReadUncommitted);
         }
 
         private async Task<CostBlockHistory[]> Update(
