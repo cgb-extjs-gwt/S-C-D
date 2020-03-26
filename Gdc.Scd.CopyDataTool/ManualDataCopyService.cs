@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.CopyDataTool.Configuration;
+using Gdc.Scd.CopyDataTool.Entities;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
@@ -20,11 +21,13 @@ namespace Gdc.Scd.CopyDataTool
         private readonly CopyDetailsConfig config;
         private readonly Dictionary<string, Dictionary<string, long>> Dependencies;
         private readonly EntityFrameworkRepositorySet sourceRepositorySet;
+        private readonly ExcangeRateCalculator excangeRateCalculator;
 
-        public ManualDataCopyService(IKernel kernel)
+        public ManualDataCopyService(IKernel kernel, ExcangeRateCalculator excangeRateCalculator)
         {
             this.kernel = kernel;
             this.sourceRepositorySet = new EntityFrameworkRepositorySet(this.kernel, "SourceDB");
+            this.excangeRateCalculator = excangeRateCalculator;
             config = this.kernel.Get<CopyDetailsConfig>();
             Dependencies = new Dictionary<string, Dictionary<string, long>>();
             LoadDependencies();
@@ -131,15 +134,16 @@ namespace Gdc.Scd.CopyDataTool
                 var manualCost = targetManualCosts.FirstOrDefault(tc => tc.Id == portfolio.Id) ?? new HardwareManualCost {LocalPortfolio = portfolio};
 
                 manualCost.DealerDiscount = mc.DealerDiscount;
-                manualCost.ListPrice = mc.ListPrice;
-                manualCost.ServiceTC = mc.ServiceTC;
-                manualCost.ServiceTP = mc.ServiceTP;
+                manualCost.ListPrice = this.excangeRateCalculator.Calculate(mc.ListPrice);
+                manualCost.ServiceTC = this.excangeRateCalculator.Calculate(mc.ServiceTC);
+                manualCost.ServiceTP = this.excangeRateCalculator.Calculate(mc.ServiceTP);
                 manualCost.ReleaseDate = mc.ReleaseDate;
-                manualCost.ServiceTP1_Released = mc.ServiceTP1_Released;
-                manualCost.ServiceTP2_Released = mc.ServiceTP2_Released;
-                manualCost.ServiceTP3_Released = mc.ServiceTP3_Released;
-                manualCost.ServiceTP4_Released = mc.ServiceTP4_Released;
-                manualCost.ServiceTP5_Released = mc.ServiceTP5_Released;
+                manualCost.ServiceTP1_Released = this.excangeRateCalculator.Calculate(mc.ServiceTP1_Released);
+                manualCost.ServiceTP2_Released = this.excangeRateCalculator.Calculate(mc.ServiceTP2_Released);
+                manualCost.ServiceTP3_Released = this.excangeRateCalculator.Calculate(mc.ServiceTP3_Released);
+                manualCost.ServiceTP4_Released = this.excangeRateCalculator.Calculate(mc.ServiceTP4_Released);
+                manualCost.ServiceTP5_Released = this.excangeRateCalculator.Calculate(mc.ServiceTP5_Released);
+                manualCost.ServiceTP_Released = this.excangeRateCalculator.Calculate(mc.ServiceTP_Released);
                 manualCost.ChangeUser = editor;
                 manualCost.ChangeUserId = editor.Id;
                 manualCost.ReleaseUser = mc.ReleaseUser;

@@ -13,12 +13,15 @@ namespace Gdc.Scd.CopyDataTool
             
             try
             {
-                var dataCopyService = new DataCopyService(kernel);
+                var helperService = kernel.Get<CopyDataToolHelperService>();
+                var exchangeRateCalculator = helperService.GetExcangeRateCalculator();
+
+                var dataCopyService = new DataCopyService(kernel, exchangeRateCalculator);
                 dataCopyService.CopyData();
 
                 Console.WriteLine();
 
-                var manualCopyService = new ManualDataCopyService(kernel);
+                var manualCopyService = new ManualDataCopyService(kernel, exchangeRateCalculator);
                 manualCopyService.CopyData();
 
             }

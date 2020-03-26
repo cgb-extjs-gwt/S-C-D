@@ -62,9 +62,11 @@
     <Compile Include="Configuration\CostBlockElement.cs" />
     <Compile Include="Configuration\ExcludedCostElement.cs" />
     <Compile Include="Configuration\ExcludedCostElementsCollection.cs" />
+    <Compile Include="CopyDataToolHelperService.cs" />
     <Compile Include="DataCopyPrincipleProvider.cs" />
     <Compile Include="DataCopyService.cs" />
     <Compile Include="Entities\Cache.cs" />
+    <Compile Include="Entities\ExcangeRateCalculator.cs" />
     <Compile Include="Entities\Identity.cs" />
     <Compile Include="Entities\Principal.cs" />
     <Compile Include="GroupedCostElements.cs" />

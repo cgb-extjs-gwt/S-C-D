@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.CopyDataTool.Configuration;
+using Gdc.Scd.CopyDataTool.Entities;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -27,11 +28,13 @@ namespace Gdc.Scd.CopyDataTool
         private readonly ISqlRepository _sqlRepository;
         private readonly ICostBlockService _costBlockService;
         private readonly IUserService userService;
+        private readonly ExcangeRateCalculator excangeRateCalculator;
 
-        public DataCopyService(IKernel kernel)
+        public DataCopyService(IKernel kernel, ExcangeRateCalculator excangeRateCalculator)
         {
             this.kernel = kernel;
             this.userService = kernel.Get<IUserService>();
+            this.excangeRateCalculator = excangeRateCalculator;
             meta = this.kernel.Get<DomainEnitiesMeta>();
             config = this.kernel.Get<CopyDetailsConfig>();
             _sqlRepository = this.kernel.Get<SqlRepository>();
@@ -78,7 +81,8 @@ namespace Gdc.Scd.CopyDataTool
 
             if (this.config.HasCountry)
             {
-                costBlockInfos = costBlockInfos.Where(info => info.CoordinateIds.Contains(MetaConstants.CountryInputLevelName));
+                costBlockInfos = 
+                    costBlockInfos.Where(info => ContainsCountry(info.CostBlock, info.CostElement, info.CoordinateIds));
             }
 
             var costBlockGroups = costBlockInfos.GroupBy(info => new
@@ -95,7 +99,7 @@ namespace Gdc.Scd.CopyDataTool
                 var costElementIds = costBlockGroup.Select(info => info.CostElement.Id).ToArray();
                 var firstGroup = costBlockGroup.First();
 
-                var sourceQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.Country, this.config.TargetCountry);
+                var sourceQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.Country, this.config.TargetCountry, true);
                 var sourceTask = sourceRepositorySet.ReadBySql(sourceQuery, costBlock.Name);
                 var targetQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.TargetCountry ?? this.config.Country);
                 var targetTask = targetRepositorySet.ReadBySql(targetQuery, costBlock.Name);
@@ -160,27 +164,25 @@ namespace Gdc.Scd.CopyDataTool
                 }
             }
 
+            bool ContainsCountry(CostBlockEntityMeta costBlock, CostElementMeta costElement, string[] coordinateIds)
+            {
+                var coordinateFields =
+                    coordinateIds.Select(coord => costBlock.GetDomainCoordinateField(costElement.Id, coord));
+
+                return coordinateFields.Any(field => field.ReferenceMeta is CountryEntityMeta);
+            }
+
             SqlHelper BuildQuery(
                 CostBlockEntityMeta costBlock, 
                 string[] сostElementIds, 
                 string[] coordinateIds,
                 string filterCountry = null,
-                string replaceCountry = null)
+                string replaceCountry = null,
+                bool useExchangeRate = false)
             {
                 var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
-                var costElementColumns =
-                    сostElementIds.SelectMany(costElementId =>
-                                   {
-                                       var costElementField = costBlock.CostElementsFields[costElementId];
-                                       var approvedCostElementField = costBlock.GetApprovedCostElement(costElementId);
-
-                                       return new BaseColumnInfo[]
-                                       {
-                                            SqlFunctions.Min(costElementField, costBlock.Name, costElementId),
-                                            SqlFunctions.Min(approvedCostElementField, costBlock.Name, approvedCostElementField.Name)
-                                       };
-                                   })
-                                  .ToArray();
+                var costElementColumns = сostElementIds.SelectMany(BuildCostElementColumnsFunc()).ToArray();
+                var countryField = GetCountryField();
 
                 IEnumerable<BaseColumnInfo> partSelectColumns = groupByColumns;
 
@@ -189,7 +191,7 @@ namespace Gdc.Scd.CopyDataTool
                     partSelectColumns =
                         partSelectColumns.Select(
                             column =>
-                                column.Alias == MetaConstants.CountryInputLevelName
+                                column.Alias == countryField.Name
                                     ? new QueryColumnInfo(new ValueSqlBuilder(replaceCountry), column.Alias)
                                     : column);
                 }
@@ -202,7 +204,7 @@ namespace Gdc.Scd.CopyDataTool
                 {
                     whereCondition =
                         whereCondition.And(
-                            SqlOperators.Equals(MetaConstants.NameFieldKey, filterCountry, MetaConstants.CountryInputLevelName));
+                            SqlOperators.Equals(MetaConstants.NameFieldKey, filterCountry, countryField.Name));
                 }
 
                 if (excludedWgNames.Length > 0 &&
@@ -222,6 +224,67 @@ namespace Gdc.Scd.CopyDataTool
                        .Join(joinInfos)
                        .Where(whereCondition)
                        .GroupBy(groupByColumns);
+
+                ReferenceFieldMeta GetCountryField()
+                {
+                    ReferenceFieldMeta result = null;
+
+                    if (replaceCountry != null || filterCountry != null)
+                    {
+                        result = costBlock.CoordinateFields.FirstOrDefault(field => field.ReferenceMeta is CountryEntityMeta);
+                    }
+
+                    return result;
+                }
+
+                QueryColumnInfo BuildCostElementColumn(FieldMeta costElementField)
+                {
+                    return SqlFunctions.Min(costElementField, costBlock.Name, costElementField.Name);
+                }
+
+                QueryColumnInfo BuildCostElementExchangeRateColumn(FieldMeta costElementField)
+                {
+                    var minColumn = BuildCostElementColumn(costElementField);
+
+                    minColumn.Query = new MultiplicationSqlBuilder
+                    {
+                        LeftOperator = minColumn.Query,
+                        RightOperator = new ValueSqlBuilder(this.excangeRateCalculator.Coeff)
+                    };
+
+                    return minColumn;
+                }
+
+                BaseColumnInfo[] GetCostElementFields(string costElementId, Func<FieldMeta, BaseColumnInfo> buildColumnFunc)
+                {
+                    var filds = new FieldMeta[]
+                    {
+                        costBlock.CostElementsFields[costElementId],
+                        costBlock.GetApprovedCostElement(costElementId)
+                    };
+
+                    return filds.Select(buildColumnFunc).ToArray();
+                }
+
+                Func<string, BaseColumnInfo[]> BuildCostElementColumnsFunc()
+                {
+                    Func<string, BaseColumnInfo[]> result;
+
+                    if (useExchangeRate && this.excangeRateCalculator.Coeff != 1)
+                    {
+                        result =
+                            costElementId =>
+                                costBlock.DomainMeta.CostElements[costElementId].IsCountryCurrencyCost
+                                    ? GetCostElementFields(costElementId, BuildCostElementExchangeRateColumn)
+                                    : GetCostElementFields(costElementId, BuildCostElementColumn);
+                    }
+                    else
+                    {
+                        result = costElementId => GetCostElementFields(costElementId, BuildCostElementColumn);
+                    }
+
+                    return result;
+                }
             }
         }
 
