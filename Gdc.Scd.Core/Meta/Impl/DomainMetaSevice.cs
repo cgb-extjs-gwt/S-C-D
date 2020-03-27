@@ -77,6 +77,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string RoleNodeName = "Role";
 
+        private const string DisableTriggersAttributeName = "DisableTriggers";
+
         private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
         public DomainMeta Get()
@@ -129,6 +131,13 @@ namespace Gdc.Scd.Core.Meta.Impl
         private CostBlockMeta BuildCostBlockMeta(XElement node, DomainDefination defination)
         {
             var costBlockMeta = this.BuildMeta<CostBlockMeta>(node);
+
+            var disableTriggersAttr = node.Attribute(DisableTriggersAttributeName);
+            if (disableTriggersAttr != null)
+            {
+                costBlockMeta.DisableTriggers = bool.Parse(disableTriggersAttr.Value);
+            }
+
             var costElementListNode = node.Element(CostElementListNodeName);
             if (costElementListNode == null)
             {

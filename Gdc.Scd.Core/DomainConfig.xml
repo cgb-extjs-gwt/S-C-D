@@ -164,6 +164,7 @@
             </Applications>
             <Elements>
                 <Element Name="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                     </InputLevels>
@@ -188,6 +189,7 @@
                     </CostEditor>
                 </Element>
                 <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country" CountryReadOnlyColumn="CanOverride2ndLevelSupportLocal">
+                    <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>ClusterPla</InputLevel>
                     </InputLevels>
@@ -289,7 +291,7 @@
             </Elements>
         </Block>
 
-        <Block Name="AvailabilityFee" Caption="Availability fee">
+        <Block Name="AvailabilityFee" Caption="Availability fee" DisableTriggers="True">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
@@ -546,7 +548,7 @@
             </Elements>
         </Block>
 
-        <Block Name="MaterialCostWarranty" Caption="Material cost">
+        <Block Name="MaterialCostWarranty" Caption="Material cost" DisableTriggers="True">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
@@ -627,7 +629,7 @@
             </Elements>
         </Block>
 
-        <Block Name="Reinsurance">
+        <Block Name="Reinsurance" DisableTriggers="True">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>

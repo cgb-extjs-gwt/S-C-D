@@ -31,6 +31,9 @@ namespace Gdc.Scd.CopyDataTool.Configuration
         [ConfigurationProperty("exludedWgs", IsRequired = false)]
         public string ExcludedWgs => this["exludedWgs"] == null ? String.Empty : (string)this["exludedWgs"];
 
+        [ConfigurationProperty("removeTargetPortfolio", IsRequired = false, DefaultValue = false)]
+        public bool RemoveTargetPortfolio => this.GetBool("removeTargetPortfolio");
+
         public bool HasTargetCountry => !string.IsNullOrEmpty(this.TargetCountry);
 
         public bool HasCountry => !string.IsNullOrEmpty(this.Country);

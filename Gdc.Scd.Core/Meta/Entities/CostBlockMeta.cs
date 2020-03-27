@@ -5,6 +5,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 {
     public class CostBlockMeta : BaseCostBlockMeta<CostElementMeta>
     {
+        public bool DisableTriggers { get; set; }
+
         public IEnumerable<InputLevelMeta> InputLevels
         {
             get
