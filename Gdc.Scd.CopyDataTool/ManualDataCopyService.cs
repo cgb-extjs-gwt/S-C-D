@@ -5,9 +5,14 @@ using Gdc.Scd.CopyDataTool.Entities;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using Ninject;
 using System;
 using System.Collections.Generic;
@@ -22,12 +27,14 @@ namespace Gdc.Scd.CopyDataTool
         private readonly Dictionary<string, Dictionary<string, long>> Dependencies;
         private readonly EntityFrameworkRepositorySet sourceRepositorySet;
         private readonly ExcangeRateCalculator excangeRateCalculator;
+        private readonly DomainEnitiesMeta meta;
 
         public ManualDataCopyService(IKernel kernel, ExcangeRateCalculator excangeRateCalculator)
         {
             this.kernel = kernel;
             this.sourceRepositorySet = new EntityFrameworkRepositorySet(this.kernel, "SourceDB");
             this.excangeRateCalculator = excangeRateCalculator;
+            this.meta = this.kernel.Get<DomainEnitiesMeta>();
             config = this.kernel.Get<CopyDetailsConfig>();
             Dependencies = new Dictionary<string, Dictionary<string, long>>();
             LoadDependencies();
@@ -37,6 +44,14 @@ namespace Gdc.Scd.CopyDataTool
         {
             if (config.CopyManualCosts)
             {
+                if (this.config.HasTargetCountry && this.config.RemoveTargetPortfolio)
+                {
+                    Console.WriteLine("Remove target portfolio...");
+                    this.DeleteTargetPortfolio();
+                    Console.WriteLine("Target portfolio was removed...");
+                    Console.WriteLine();
+                }
+
                 Console.WriteLine("Manual costs coppying...");
 
                 var userRepository = kernel.Get<IRepository<User>>();
@@ -49,6 +64,85 @@ namespace Gdc.Scd.CopyDataTool
                 UpdateHardwareManualCosts(changedUser);
 
                 Console.WriteLine("Сopying completed");
+            }
+        }
+
+        private void DeleteTargetPortfolio()
+        {
+            const string SourcePortfolio = "#SourcePortfolio";
+            const string TargetPortfolio = "#TargetPortfolio";
+            const string DeletedPortfolioIds = "#DeletedPortfolioIds";
+
+            var portfolioMeta = this.meta.LocalPortfolio;
+            var countryMeta = this.meta.GetCountryEntityMeta();
+            var countryField = portfolioMeta.GetFieldByReferenceMeta(countryMeta);
+
+            var portfolioColumns =
+                    portfolioMeta.AllFields.Select(field => new ColumnInfo(field, portfolioMeta))
+                                           .ToArray();
+
+            var selectPortfolioIdQuery = Sql.Select(MetaConstants.IdFieldKey).From(DeletedPortfolioIds);
+
+            var query = Sql.Queries(new[] 
+            {
+                BuildSelectPortfolioByCountryQuery(SourcePortfolio, this.config.Country),
+                BuildSelectPortfolioByCountryQuery(TargetPortfolio, this.config.TargetCountry),
+                BuildSelectDeletedPortfolioIdsQuery(),
+                BuildDeleteManualCost(),
+                BuildDeleteTagetPortfolio(),
+                Sql.DropTable(SourcePortfolio).ToSqlBuilder(),
+                Sql.DropTable(TargetPortfolio).ToSqlBuilder(),
+                Sql.DropTable(DeletedPortfolioIds).ToSqlBuilder(),
+            });
+
+            this.kernel.Get<IRepositorySet>()
+                       .ExecuteSql(query);
+
+            ISqlBuilder BuildSelectPortfolioByCountryQuery(string intoTableName, string countryName)
+            {
+                return
+                    Sql.Select(portfolioColumns)
+                       .Into(intoTableName)
+                       .From(portfolioMeta)
+                       .Join(portfolioMeta, countryField.Name)
+                       .Where(SqlOperators.Equals(countryMeta.NameField.Name, countryName, countryMeta.Name))
+                       .ToSqlBuilder();
+            }
+
+            ISqlBuilder BuildSelectDeletedPortfolioIdsQuery()
+            {
+                var joinConditions =
+                    portfolioMeta.Fields.Where(field => field != countryField)
+                                        .OfType<ReferenceFieldMeta>()
+                                        .Select(
+                                            field =>
+                                                SqlOperators.Equals(
+                                                    new ColumnInfo(field, SourcePortfolio),
+                                                    new ColumnInfo(field, TargetPortfolio)));
+
+                return
+                    Sql.Select(new ColumnInfo(MetaConstants.IdFieldKey, TargetPortfolio))
+                       .Into(DeletedPortfolioIds)
+                       .From(TargetPortfolio)
+                       .Join(SourcePortfolio, ConditionHelper.And(joinConditions), JoinType.Left)
+                       .Where(SqlOperators.IsNull(MetaConstants.IdFieldKey, SourcePortfolio))
+                       .ToSqlBuilder();
+            }
+
+            ISqlBuilder BuildDeleteManualCost()
+            {
+                return
+                    Sql.Delete(MetaConstants.HardwareSchema, MetaConstants.ManualCostTable)
+                       .Where(SqlOperators.In("PortfolioId", selectPortfolioIdQuery))
+                       .ToSqlBuilder();
+            }
+
+            ISqlBuilder BuildDeleteTagetPortfolio()
+            {
+                return
+                    Sql.Delete(portfolioMeta)
+                       .Where(SqlOperators.In(MetaConstants.IdFieldKey, selectPortfolioIdQuery))
+                       .ToSqlBuilder();
             }
         }
 
