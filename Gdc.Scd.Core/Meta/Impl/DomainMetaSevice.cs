@@ -37,8 +37,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string CostElementDescriptionNodeName = "Description";
 
-        private const string DomainMetaConfigKey = "DomainMetaFile";
-
         private const string InputLevelListNodeName = "InputLevels";
 
         private const string InputLevelNodeName = "InputLevel";
@@ -125,6 +123,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 CostBlocks = new MetaCollection<CostBlockMeta>(costBlocks),
                 Applications = new MetaCollection<ApplicationMeta>(domainDefination.Applications.Items),
+                Dependencies = new MetaCollection<DependencyMeta>(domainDefination.Dependencies.Items),
+                InputLevels = new MetaCollection<InputLevelMeta>(domainDefination.InputLevels.Items),
+                RegionInputs = new MetaCollection<InputLevelMeta>(domainDefination.RegionInputs.Items)
             };
         }
 

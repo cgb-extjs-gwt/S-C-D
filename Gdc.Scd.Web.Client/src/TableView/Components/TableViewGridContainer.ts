@@ -4,7 +4,7 @@ import { ColumnInfo, ColumnType, FilterItem } from "../../Common/States/ColumnIn
 import { getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
 import { NamedId } from "../../Common/States/CommonStates";
 import { FieldType, CostElementMeta, CostMetaData, InputLevelMeta } from "../../Common/States/CostMetaStates";
-import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl } from "../Services/TableViewService";
+import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl, exportToExcel } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { loadTableViewInfo, editRecord, resetChanges, saveTableViewToServer } from "../Actions/TableViewActions";
 import { TableViewInfo, DataInfo } from "../States/TableViewState";
@@ -308,6 +308,7 @@ const buildActions = (() => {
 
                 setFiltersByUrl(filterStores, ownProps);
             },
+            onExportToExcelClick: exportToExcel
         }
 
         function setFiltersByUrl(filterStores: Map<string, Store<FilterItem>>, router: RouteComponentProps) {

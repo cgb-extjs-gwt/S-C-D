@@ -18,6 +18,7 @@ Ext.require('Ext.grid.plugin.Exporter')
 export interface TableViewGridActions extends LocalDynamicGridActions<TableViewRecord>, DynamicGridActions {
     onApprove?()
     onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
+    onExportToExcelClick?()
 }
 
 export interface TableViewGridProps extends TableViewGridActions, RouteComponentProps {
@@ -100,7 +101,9 @@ export class TableViewGrid extends React.Component<TableViewGridProps, TableView
     }
 
     private onExportToExcel = () => {
-        this.innerGrid.exportToExcel('CentralDataInput.xlsx');
+        const {onExportToExcelClick} = this.props;
+
+        onExportToExcelClick && onExportToExcelClick();
     } 
 
     private innerGridRef = (grid: AjaxDynamicGrid) => {

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
@@ -20,11 +22,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserService userService;
 
-        private readonly IRepositorySet repositorySet;
-
         private readonly ICostBlockHistoryService costBlockHistoryService;
-
-        private readonly IQualityGateSevice qualityGateSevice;
 
         private readonly IDomainService<Wg> wgService;
 
@@ -34,26 +32,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly DomainEnitiesMeta meta;
 
+        private readonly DomainMeta domainMeta;
+
         public TableViewService(
             ITableViewRepository tableViewRepository, 
             IUserService userService, 
-            IRepositorySet repositorySet,
             ICostBlockHistoryService costBlockHistoryService,
-            IQualityGateSevice qualityGateSevice,
             IDomainService<Wg> wgService,
             IRoleCodeService roleCodeService,
             ICostBlockService costBlockService,
-            DomainEnitiesMeta meta)
+            DomainEnitiesMeta meta,
+            DomainMeta domainMeta)
         {
             this.tableViewRepository = tableViewRepository;
             this.userService = userService;
-            this.repositorySet = repositorySet;
             this.costBlockHistoryService = costBlockHistoryService;
-            this.qualityGateSevice = qualityGateSevice;
             this.wgService = wgService;
             this.roleCodeService = roleCodeService;
             this.costBlockService = costBlockService;
             this.meta = meta;
+            this.domainMeta = domainMeta;
         }
 
         public async Task<IEnumerable<Record>> GetRecords()
@@ -144,6 +142,149 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var filter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
 
             return await this.costBlockHistoryService.GetHistory(historyContext, filter, queryInfo);
+        }
+
+        public async Task<Stream> ExportToExcel()
+        {
+            const int StartRow = 1;
+            const int StartColumn = 1;
+
+            var records = await this.GetRecords();
+            var tableViewInfo = await this.GetTableViewInfo();
+            var costElementInfos = 
+                    tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new 
+                                                 { 
+                                                     dataInfo.ApplicationId,
+                                                     dataInfo.CostBlockId,
+                                                     CostElement = this.domainMeta.GetCostElement(dataInfo)
+                                                 })
+                                                 .Select(group => new 
+                                                 {
+                                                     group.Key.CostElement,
+                                                     DataInfos = group.ToArray()
+                                                 })
+                                                 .ToArray();
+
+            MemoryStream stream;
+
+            using (var workbook = new XLWorkbook())
+            {
+                var sheet = workbook.Worksheets.Add("Central Data Input");
+                var headerInfo = WriteHeaders(sheet, StartRow, StartColumn);
+                var dataInfo = WriteData(sheet, headerInfo.EndRow + 1, StartColumn);
+
+                for (var column = StartColumn; column <= headerInfo.EndColumn; column++)
+                {
+                    sheet.Column(column).AdjustToContents();
+                }
+
+                sheet.Range(headerInfo.EndRow, StartColumn, dataInfo.EndRow, dataInfo.EndColumn).SetAutoFilter();
+
+                workbook.SaveAs(stream = new MemoryStream());
+
+                stream.Position = 0;
+            }
+
+            return stream;
+
+            (int EndRow, int EndColumn) WriteHeaders(IXLWorksheet sheet, int row, int column)
+            {
+                var endRow =
+                    tableViewInfo.RecordInfo.Data.Any(dataInfo => dataInfo.DependencyItemId.HasValue)
+                        ? row + 1
+                        : row;
+
+                foreach (var coordinateId in tableViewInfo.RecordInfo.Coordinates)
+                {
+                    var coordinateMeta = this.domainMeta.GetCoordinate(coordinateId);
+
+                    sheet.Range(row, column, endRow, column++).Merge().Value = coordinateMeta.Name;
+                }
+
+                foreach (var additionalData in tableViewInfo.RecordInfo.AdditionalData)
+                {
+                    sheet.Range(row, column, endRow, column++).Merge().Value = additionalData.Title;
+                }
+
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Role code";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Responsible person";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "PSM Release";
+
+                foreach (var info in costElementInfos)
+                {
+                    var dependency = info.CostElement.Dependency;
+
+                    if (dependency == null)
+                    {
+                        sheet.Range(row, column, endRow, column++).Merge().Value = info.CostElement.Name;
+                    }
+                    else
+                    {
+                        var endColumn = column + info.DataInfos.Length - 1;
+
+                        sheet.Range(row, column, row, endColumn).Merge().Value = info.CostElement.Name;
+
+                        foreach (var dataInfo in info.DataInfos)
+                        {
+                            var item = tableViewInfo.GetDependencyItem(dependency.Id, dataInfo.DependencyItemId.Value);
+
+                            sheet.Range(endRow, column, endRow, column++).Value = item.Name;
+                        }
+                    }
+                }
+
+                column--;
+
+                var range = sheet.Range(row, 1, endRow, column);
+
+                range.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                range.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                range.Style.Alignment.WrapText = true;
+                range.Style.Font.Bold = true;
+
+                return (endRow, column);
+            }
+
+            (int EndRow, int EndColumn) WriteData(IXLWorksheet sheet, int row, int startColumn)
+            {
+                var column = startColumn;
+
+                foreach (var record in records)
+                {
+                    column = startColumn;
+
+                    foreach (var coordinateId in tableViewInfo.RecordInfo.Coordinates)
+                    {
+                        sheet.Cell(row, column++).Value = record.Coordinates[coordinateId].Name;
+                    }
+
+                    foreach (var additionalData in record.AdditionalData)
+                    {
+                        sheet.Cell(row, column++).Value = additionalData.Value;
+                    }
+
+                    sheet.Cell(row, column++).Value = tableViewInfo.GetRoleCode(record)?.Name;
+                    sheet.Cell(row, column++).Value = record.WgResponsiblePerson;
+                    sheet.Cell(row, column++).Value = record.WgPsmRelease;
+
+                    foreach (var dataInfo in costElementInfos.SelectMany(info => info.DataInfos))
+                    {
+                        var cell = sheet.Cell(row, column++);
+                        var data = record.Data[dataInfo.DataIndex];
+
+                        cell.Value = data.Count > 1 ? $"({data.Count} values)" : data.Value;
+
+                        if (data.IsApproved)
+                        {
+                            cell.Style.Fill.BackgroundColor = XLColor.Green;
+                        }
+                    }
+
+                    row++;
+                }
+
+                return (row - 1, column - 1);
+            }
         }
 
         private IDictionary<long, Record> GetRecordDictionary(IEnumerable<Record> records)
