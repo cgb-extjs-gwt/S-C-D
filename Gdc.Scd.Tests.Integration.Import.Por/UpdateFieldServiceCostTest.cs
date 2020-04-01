@@ -15,6 +15,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             var sql = tpl.ByCentralContractGroup();
 
             sql.Has("('AA1', 'XYZ', 'ABC')");
+            sql.Has("OohUpliftFactor", "OohUpliftFactor not found");
             sql.Has("CentralContractGroup", "CentralContractGroup not found");
             sql.Has("group by [Country], [CentralContractGroup], [ServiceLocation], [ReactionTimeType];");
         }
@@ -27,6 +28,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             var sql = tpl.ByPla();
 
             sql.Has("('XXX', 'YYY', 'ZZZ', 'PXY')");
+            sql.Has("OohUpliftFactor", "OohUpliftFactor not found");
             sql.Has("Pla", "pla not found");
             sql.Has("group by [Country], [Pla], [ServiceLocation], [ReactionTimeType];");
         }

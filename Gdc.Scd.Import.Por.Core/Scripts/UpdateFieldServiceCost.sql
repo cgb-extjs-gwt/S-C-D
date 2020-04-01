@@ -9,7 +9,9 @@ insert into Hardware.FieldServiceCalc(
             , TravelCost
             , TravelCost_Approved
             , LabourCost
-            , LabourCost_Approved)
+            , LabourCost_Approved
+            , OohUpliftFactor
+            , OohUpliftFactor_Approved)
 select    f.Country
         , f.Wg
         , f.ServiceLocation
@@ -22,6 +24,8 @@ select    f.Country
         , MIN(f.TravelCost_Approved)
         , MIN(f.LabourCost)
         , MIN(f.LabourCost_Approved)
+        , MIN(i.OohUpliftFactor)
+        , MIN(i.OohUpliftFactor_Approved)
 from Hardware.FieldServiceCost f
 left join Hardware.FieldServiceCalc fsc on fsc.Country = f.Country and fsc.Wg = f.Wg and fsc.ServiceLocation = f.ServiceLocation
 where f.Deactivated = 0 and fsc.Country is null
