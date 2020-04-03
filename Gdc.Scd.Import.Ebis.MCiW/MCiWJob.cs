@@ -1,11 +1,12 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.OperationResult;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 using System;
 
 namespace Gdc.Scd.Import.Ebis.MCiW
 {
-    public class MCiWJob
+    public class MCiWJob : IJob
     {
         protected MaterialCostService mciw;
 
@@ -26,6 +27,11 @@ namespace Gdc.Scd.Import.Ebis.MCiW
         {
             this.mciw = mciw;
             this.log = log;
+        }
+
+        IOperationResult IJob.Output()
+        {
+            return this.Output();
         }
 
         public OperationResult<bool> Output()

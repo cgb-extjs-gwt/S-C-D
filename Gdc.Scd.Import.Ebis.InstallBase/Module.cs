@@ -1,17 +1,15 @@
-﻿using Gdc.Scd.Core.Helpers;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Impl;
 using Gdc.Scd.Import.Core.Interfaces;
-using Ninject;
-using Ninject.Modules;
+using Gdc.Scd.Spooler.Core;
 using NLog;
 
 namespace Gdc.Scd.Import.Ebis.InstallBase
 {
-    public class Module : NinjectModule
+    public class Module : BaseJobModule<Module>
     {
         public override void Load()
         {
@@ -25,16 +23,6 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
 
             Bind<InstallBaseService>().ToSelf();
-        }
-
-        public static StandardKernel CreateKernel()
-        {
-            NinjectExt.IsConsoleApplication = true;
-            return new StandardKernel(
-                new Scd.Core.Module(),
-                new Scd.DataAccessLayer.Module(),
-                new Scd.BusinessLogicLayer.Module(),
-                new Module());
         }
     }
 }

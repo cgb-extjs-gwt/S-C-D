@@ -1,12 +1,13 @@
 ﻿using System;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Export.Archive;
-using Gdc.Scd.OperationResult;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 
 namespace Gdc.Scd.Export.ArchiveJob
 {
-    public class ArchiveJob
+    public class ArchiveJob : IJob
     {
         protected ArchiveService srv;
 
@@ -15,6 +16,11 @@ namespace Gdc.Scd.Export.ArchiveJob
         public ArchiveJob()
         {
             Init();
+        }
+
+        IOperationResult IJob.Output()
+        {
+            return this.Output();
         }
 
         public OperationResult<bool> Output()

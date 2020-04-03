@@ -10,7 +10,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class ModifiableDecoratorRepository<T> : IRepository<T> where T : class, IIdentifiable, IModifiable, new()
     {
-        private readonly EntityFrameworkRepository<T> origin;
+        protected readonly EntityFrameworkRepository<T> origin;
 
         public ModifiableDecoratorRepository(EntityFrameworkRepository<T> origin)
         {
@@ -29,7 +29,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void DeleteAll()
         {
-            throw new NotSupportedException();
+            this.origin.DeleteAll();
         }
 
         public void DisableTrigger()
@@ -42,17 +42,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             origin.EnableTrigger();
         }
 
-        public T Get(long id)
+        public virtual T Get(long id)
         {
             return GetAll().Where(x => x.Id == id).FirstOrDefault();
         }
 
-        public IQueryable<T> GetAll()
+        public virtual IQueryable<T> GetAll()
         {
             return origin.GetAll().Where(x => !x.DeactivatedDateTime.HasValue);
         }
 
-        public Task<IEnumerable<T>> GetAllAsync()
+        public virtual Task<IEnumerable<T>> GetAllAsync()
         {
             return GetAll().GetAsync().ContinueWith(x => (IEnumerable<T>)x.Result);
         }

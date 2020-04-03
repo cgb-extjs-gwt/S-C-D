@@ -1,39 +1,35 @@
-﻿using Gdc.Scd.OperationResult;
+﻿using Gdc.Scd.Core.Helpers;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
+using Ninject;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 
 namespace Gdc.Scd.Spooler
 {
     class Program
     {
+        private static readonly StandardKernel kernel;
+        
+        static Program()
+        {
+            NinjectExt.IsConsoleApplication = true;
+
+            kernel = CreateKernel();
+        }
+
         static void Main(string[] args)
         {
             try
             {
-                var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
                 Logging.Instance().logMessageLine("----------------------------------------------------------------------");
                 Logging.Instance().logMessageLine(string.Format("Spooler started at {0} ", DateTime.Now.ToLongTimeString()));
 
-                var dllPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + ConfigurationManager.AppSettings["JobPath"];
-                Logging.Instance().logMessageLine(string.Format("Searching jobs in '{0}'", dllPath));
-
-                var jobInstancesFiles = SearchForJobInstances(dllPath);
-                Logging.Instance().logMessageLine(string.Format("Founded '{0}' in job's folder", jobInstancesFiles.Count()));
-
-                var jobInstances = GetJobs(jobInstancesFiles);
-                Logging.Instance().logMessageLine(string.Format("Founded '{0}' instances in job's folder", jobInstances.Count()));
-
-                var activeJobInstances = GetActiveJobs(jobInstances);
                 Logging.Instance().logMessageLine(string.Format("Active jobs for launch: {0}", activeJobInstances.Count));
-
-                //var jobsForLaunch = CheckJobsForLaunch(activeJobInstances);
 
                 var jobExecutionResults = LaunchJobs(activeJobInstances);
                 Logging.Instance().logMessageLine(string.Format("Execution result: {0} instances returned 'success' message",
@@ -48,28 +44,30 @@ namespace Gdc.Scd.Spooler
             }
         }
 
-        static List<dynamic> GetActiveJobs(IEnumerable<dynamic> jobInstances)
+        static List<IJob> GetActiveJobs()
         {
             var now = DateTime.Now;
-            var activeJobs = new List<dynamic>();
+            var activeJobs = new List<IJob>();
             var dbContext = new Scd_2Entities();
             var shouldBeLaunch = new List<JobsSchedule>();
 
             foreach (var jobSchedule in dbContext.JobsSchedule.Where(js => js.Active).ToList())
             {
-                //if (jobSchedule.TimeInHours - now.Hour != 1) continue;
-                //if (jobSchedule.Daily ||
-                //    jobSchedule.ExactDate.Date == now.Date ||
-                //    jobSchedule.DayOfWeek == (int)now.DayOfWeek)
-                //{
-                //    shouldBeLaunch.Add(jobSchedule);
-                //    continue;
-                //}
-                //var currentWeekNumber = GetCurrentWeekNumber(now, CultureInfo.CurrentCulture);
-                //if (jobSchedule.MonthlyDayOfWeek != (int)now.DayOfWeek ||
-                //    jobSchedule.MonthlyWeekNumber != currentWeekNumber) continue;
+                if (jobSchedule.TimeInHours - now.Hour != 1) continue;
+                if (jobSchedule.Daily ||
+                    jobSchedule.ExactDate.Date == now.Date ||
+                    jobSchedule.DayOfWeek == (int)now.DayOfWeek)
+                {
+                    shouldBeLaunch.Add(jobSchedule);
+                    continue;
+                }
+                var currentWeekNumber = GetCurrentWeekNumber(now, CultureInfo.CurrentCulture);
+                if (jobSchedule.MonthlyDayOfWeek != (int)now.DayOfWeek ||
+                    jobSchedule.MonthlyWeekNumber != currentWeekNumber) continue;
                 shouldBeLaunch.Add(jobSchedule);
             }
+
+            var jobInstances = kernel.GetAll<IJob>().ToArray();
 
             foreach (var jobSchedule in shouldBeLaunch)
             {
@@ -79,6 +77,7 @@ namespace Gdc.Scd.Spooler
                             jobInstance => jobSchedule.JobName.Contains(jobInstance.WhoAmI()
                             )));
             }
+
             return activeJobs;
         }
 
@@ -89,7 +88,7 @@ namespace Gdc.Scd.Spooler
                 culture.DateTimeFormat.FirstDayOfWeek);
         }
 
-        static IEnumerable<IOperationResult> LaunchJobs(IEnumerable<dynamic> activeJobInstances)
+        static IEnumerable<IOperationResult> LaunchJobs(IEnumerable<IJob> activeJobInstances)
         {
             var executionResults = new List<OperationResult<bool>>();
             foreach (var activeJobInstance in activeJobInstances)
@@ -99,7 +98,6 @@ namespace Gdc.Scd.Spooler
                     var executionResult = activeJobInstance.Output();
                     executionResults.Add(new OperationResult<bool>
                     {
-                        Result = executionResult.Result,
                         IsSuccess = executionResult.IsSuccess
                     });
                 }
@@ -116,62 +114,10 @@ namespace Gdc.Scd.Spooler
             }
             return executionResults;
         }
-        static IEnumerable<string> SearchForJobInstances(string path)
-        {
-            var assemblyFileNames = new List<string>();
-            try
-            {
-                assemblyFileNames.AddRange(Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            return assemblyFileNames;
-        }
-        static IEnumerable<dynamic> GetJobs(IEnumerable<string> assemblyFileNames)
-        {
-            try
-            {
-                assemblyFileNames = assemblyFileNames.Where(x => x.Contains("Job.dll"));
-                Logging.Instance().logMessageLine(string.Format("Assembly files count: '{0}'", assemblyFileNames.Count()));
-                foreach (var assemblyFileName in assemblyFileNames)
-                {
-                    Logging.Instance().logMessageLine(string.Format("Assembly file name: '{0}'", assemblyFileName));
-                }
-                var result = (
-                        from assemblyFileName in assemblyFileNames
-                        select assemblyFileName
-                        into absolutePath
-                              where IsValidAssembly(absolutePath)
-                              select Assembly.LoadFile(absolutePath)
-                        into dll
-                              from Type type in dll.GetExportedTypes()
-                              where type.GetMethods().Any(x => x.Name.Contains("Output"))
-                              select Activator.CreateInstance(type)
 
-                    ).ToList();
-                return result;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                return null;
-            }
-        }
-        static bool IsValidAssembly(string path)
+        private static StandardKernel CreateKernel()
         {
-            try
-            {
-                Logging.Instance().logMessageLine(string.Format("Searching jobs in '{0}'", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + path));
-                var assembly = Assembly.LoadFrom(path);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Logging.Instance().logMessageLine(string.Format("Error happened during loading assembly: '{0}'", ex.Message));
-                return false;
-            }
+            return new StandardKernel(new Module());
         }
     }
     public class Logging
@@ -180,8 +126,6 @@ namespace Gdc.Scd.Spooler
 
         private StreamWriter _logger = null;
         private string _fileName = null;
-
-
 
         public static Logging Instance()
         {

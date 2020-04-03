@@ -88,13 +88,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JobLibraries\ExampleJob\MyJob.cs" />
     <Compile Include="JobsSchedule.cs">
       <DependentUpon>ScdDb.tt</DependentUpon>
     </Compile>
     <Compile Include="MessageSpooler.cs" />
-    <Compile Include="OperationResult\IOperationResult.cs" />
-    <Compile Include="OperationResult\OperationResult.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScdDb.Context.cs">
@@ -138,11 +136,68 @@
       <Project>{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Export.ArchiveResultSender\Gdc.Scd.Export.ArchiveResultSenderJob.csproj">
+      <Project>{FA1F3056-AD29-4F38-8553-15E690079280}</Project>
+      <Name>Gdc.Scd.Export.ArchiveResultSenderJob</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Export.Archive\Gdc.Scd.Export.ArchiveJob.csproj">
+      <Project>{D8DAE070-26E3-451A-8611-8A2756342D49}</Project>
+      <Name>Gdc.Scd.Export.ArchiveJob</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Export.CdCs\Gdc.Scd.Export.CdCsJob.csproj">
+      <Project>{7479E275-0666-47BA-AD26-10285A0F1E75}</Project>
+      <Name>Gdc.Scd.Export.CdCsJob</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.AmberRoad\Gdc.Scd.Import.AmberRoad.csproj">
+      <Project>{EC19442E-CFFE-4B88-AF6B-67D7122F82E7}</Project>
+      <Name>Gdc.Scd.Import.AmberRoad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.CentralContractGroup\Gdc.Scd.Import.CentralContractGroup.csproj">
+      <Project>{72E3DBA1-B2C5-4A32-A41D-54D84624400E}</Project>
+      <Name>Gdc.Scd.Import.CentralContractGroup</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
+      <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
+      <Name>Gdc.Scd.Import.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Ebis.Afr\Gdc.Scd.Import.Ebis.Afr.csproj">
+      <Project>{A2918B3F-9857-4A64-A2DB-E28C1BACE1FF}</Project>
+      <Name>Gdc.Scd.Import.Ebis.Afr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Ebis.InstallBase\Gdc.Scd.Import.Ebis.InstallBase.csproj">
+      <Project>{9C4864AD-D649-4A6E-9C1E-45A9BEB8FD75}</Project>
+      <Name>Gdc.Scd.Import.Ebis.InstallBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Ebis.MCiW\Gdc.Scd.Import.Ebis.MCiW.csproj">
+      <Project>{F2D6315C-A276-433F-813B-BAD4586145C6}</Project>
+      <Name>Gdc.Scd.Import.Ebis.MCiW</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.ExchangeRates\Gdc.Scd.Import.ExchangeRatesJob.csproj">
+      <Project>{E51D31BA-94BF-4200-80A3-535A95F95BD8}</Project>
+      <Name>Gdc.Scd.Import.ExchangeRatesJob</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Logistics\Gdc.Scd.Import.Logistics.csproj">
+      <Project>{A3772A95-3F11-4042-8C00-579D331627FB}</Project>
+      <Name>Gdc.Scd.Import.Logistics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Por.Core\Gdc.Scd.Import.Por.Core.csproj">
+      <Project>{2c7950f5-92ea-4a0c-a620-3c473bc21097}</Project>
+      <Name>Gdc.Scd.Import.Por.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Por\Gdc.Scd.Import.Por.csproj">
+      <Project>{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}</Project>
+      <Name>Gdc.Scd.Import.Por</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.SfabImport\Gdc.Scd.Import.SfabImport.csproj">
+      <Project>{8EF3BD31-B3E2-4BBC-A0D0-8E4C8728699F}</Project>
+      <Name>Gdc.Scd.Import.SfabImport</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Spooler.Core\Gdc.Scd.Spooler.Core.csproj">
+      <Project>{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}</Project>
+      <Name>Gdc.Scd.Spooler.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="JobLibraries\ExampleJob\ExampleJob.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="ScdDb.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>ScdDb.edmx</DependentUpon>

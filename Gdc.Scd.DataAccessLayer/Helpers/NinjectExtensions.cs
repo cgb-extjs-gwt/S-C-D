@@ -21,7 +21,9 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             var registeredEntities = kernel.GetRegisteredEntities();
             if (registeredEntities == null)
             {
-                kernel.Bind<IDictionary<Type, Action<EntityTypeBuilder>>>().To<Dictionary<Type, Action<EntityTypeBuilder>>>().InSingletonScope();
+                kernel.Bind<IDictionary<Type, Action<EntityTypeBuilder>>>()
+                      .ToConstructor(args => new Dictionary<Type, Action<EntityTypeBuilder>>())
+                      .InSingletonScope();
 
                 registeredEntities = kernel.GetRegisteredEntities();
             }

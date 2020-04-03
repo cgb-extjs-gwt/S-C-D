@@ -60,9 +60,9 @@
       <Project>{0C98C07E-1FDF-43F1-93EA-D86AB3232F25}</Project>
       <Name>Gdc.Scd.Import.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
-      <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
-      <Name>Gdc.Scd.Spooler</Name>
+    <ProjectReference Include="..\Gdc.Scd.Spooler.Core\Gdc.Scd.Spooler.Core.csproj">
+      <Project>{ef99b8ef-25bd-447d-adc7-2abb08f09daf}</Project>
+      <Name>Gdc.Scd.Spooler.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Tests.Util\Gdc.Scd.Tests.Util.csproj">
       <Project>{920E1683-41C8-4C7C-AA52-E976FEAA4D2D}</Project>

@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{72E3DBA1-B2C5-4A32-A41D-54D84624400E}</ProjectGuid>
+    <ProjectGuid>{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Gdc.Scd.Import.CentralContractGroup</RootNamespace>
-    <AssemblyName>Gdc.Scd.Import.CentralContractGroupJob</AssemblyName>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gdc.Scd.Spooler.Core</RootNamespace>
+    <AssemblyName>Gdc.Scd.Spooler.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,68 +30,42 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Fujitsu.GDC.ErrorNotification">
-      <HintPath>..\SharedLibraries\Fujitsu.GDC.ErrorNotification.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore">
-      <HintPath>..\Gdc.Scd.DataAccessLayer\bin\Debug\net461\Microsoft.EntityFrameworkCore.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Annotations">
-      <HintPath>..\Gdc.Scd.DataAccessLayer\bin\Debug\net461\System.ComponentModel.Annotations.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CentralContractGroupJob.cs" />
-    <Compile Include="CentralContractGroupService.cs" />
-    <Compile Include="ImportConstants.cs" />
-    <Compile Include="Module.cs" />
+    <Compile Include="BaseJobModule.cs" />
+    <Compile Include="Entities\OperationResult.cs" />
+    <Compile Include="Interfaces\IJob.cs" />
+    <Compile Include="Interfaces\IOperationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
-      <Project>{785FE9D5-3140-46BF-AF1B-EB3764397A44}</Project>
+      <Project>{785fe9d5-3140-46bf-af1b-eb3764397a44}</Project>
       <Name>Gdc.Scd.BusinessLogicLayer</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
-      <Project>{F587C0F8-3F2F-4F50-9EA2-2D8C74D8330B}</Project>
+      <Project>{f587c0f8-3f2f-4f50-9ea2-2d8c74d8330b}</Project>
       <Name>Gdc.Scd.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
-      <Project>{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}</Project>
+      <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
-      <Project>{0C98C07E-1FDF-43F1-93EA-D86AB3232F25}</Project>
-      <Name>Gdc.Scd.Import.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Spooler.Core\Gdc.Scd.Spooler.Core.csproj">
-      <Project>{ef99b8ef-25bd-447d-adc7-2abb08f09daf}</Project>
-      <Name>Gdc.Scd.Spooler.Core</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

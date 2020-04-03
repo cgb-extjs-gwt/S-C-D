@@ -30,12 +30,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             get
             {
-                return this.serviceProvider.Get<IDictionary<Type, Action<EntityTypeBuilder>>>();
+                return this.serviceProvider.TryGet<IDictionary<Type, Action<EntityTypeBuilder>>>();
             }
         }
 
         public EntityFrameworkRepositorySet(IKernel serviceProvider, string connectionNameOrConnectionString = "CommonDB")
-        {
+        {   
             this.serviceProvider = serviceProvider;
             this.connectionNameOrConnectionString = connectionNameOrConnectionString;
 
@@ -54,7 +54,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return this.serviceProvider.Get<IRepository<T>>();
         }
-
         public void Sync()
         {
             var interceptorInfos =
@@ -468,22 +467,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IEnumerable<Type> GetRegisteredEntities()
         {
-            return this.RegisteredEntities.Keys.ToArray();
+            return this.RegisteredEntities == null 
+                ? Enumerable.Empty<Type>()
+                : this.RegisteredEntities.Keys.ToArray();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            foreach (var entityType in this.RegisteredEntities)
+            if (this.RegisteredEntities != null)
             {
-                if (entityType.Value == null)
+                foreach (var entityType in this.RegisteredEntities)
                 {
-                    modelBuilder.Entity(entityType.Key);
-                }
-                else
-                {
-                    modelBuilder.Entity(entityType.Key, entityType.Value);
+                    if (entityType.Value == null)
+                    {
+                        modelBuilder.Entity(entityType.Key);
+                    }
+                    else
+                    {
+                        modelBuilder.Entity(entityType.Key, entityType.Value);
+                    }
                 }
             }
         }

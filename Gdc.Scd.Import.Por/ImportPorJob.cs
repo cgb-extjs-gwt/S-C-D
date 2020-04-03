@@ -1,11 +1,12 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.OperationResult;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 using System;
 
 namespace Gdc.Scd.Import.Por
 {
-    public class ImportPorJob
+    public class ImportPorJob : IJob
     {
         protected ILogger log;
 
@@ -26,6 +27,11 @@ namespace Gdc.Scd.Import.Por
         {
             this.por = por;
             this.log = log;
+        }
+
+        IOperationResult IJob.Output()
+        {
+            return this.Output();
         }
 
         public OperationResult<bool> Output()

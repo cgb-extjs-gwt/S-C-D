@@ -1,11 +1,12 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.OperationResult;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 using System;
 
 namespace Gdc.Scd.Export.ArchiveResultSenderJob
 {
-    public class ArchiveResultSenderJob
+    public class ArchiveResultSenderJob : IJob
     {
         protected ArchiveResultService archive;
 
@@ -23,6 +24,11 @@ namespace Gdc.Scd.Export.ArchiveResultSenderJob
         {
             this.archive = archive;
             this.log = log;
+        }
+
+        IOperationResult IJob.Output()
+        {
+            return this.Output();
         }
 
         public OperationResult<bool> Output()

@@ -2,13 +2,12 @@
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Impl;
 using Gdc.Scd.Import.Core.Interfaces;
-using Ninject;
-using Ninject.Modules;
+using Gdc.Scd.Spooler.Core;
 using NLog;
 
 namespace Gdc.Scd.Import.Logistics
 {
-    public class Module : NinjectModule
+    public class Module : BaseJobModule<Module>
     {
         public override void Load()
         {
@@ -19,15 +18,6 @@ namespace Gdc.Scd.Import.Logistics
             Bind<IImportManager>().To<FileImportManager<LogisticsDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
             Bind<LogisticsImportService>().To<LogisticsImportService>();
-        }
-
-        public static StandardKernel CreateKernel()
-        {
-            return new StandardKernel(
-                new Scd.Core.Module(),
-                new Scd.DataAccessLayer.Module(),
-                new Scd.BusinessLogicLayer.Module(),
-                new Module());
         }
     }
 }
