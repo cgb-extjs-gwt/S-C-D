@@ -16,7 +16,8 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
                                   "LabourCost",
                                   "TravelCost",
                                   "PerformanceRate",
-                                  "TimeAndMaterialShare"
+                                  "TimeAndMaterialShare",
+                                  "OohUpliftFactor"
                             });
         }
 
