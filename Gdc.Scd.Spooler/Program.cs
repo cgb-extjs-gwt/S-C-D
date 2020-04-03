@@ -28,7 +28,7 @@ namespace Gdc.Scd.Spooler
             {
                 Logging.Instance().logMessageLine("----------------------------------------------------------------------");
                 Logging.Instance().logMessageLine(string.Format("Spooler started at {0} ", DateTime.Now.ToLongTimeString()));
-
+                var activeJobInstances = GetActiveJobs();
                 Logging.Instance().logMessageLine(string.Format("Active jobs for launch: {0}", activeJobInstances.Count));
 
                 var jobExecutionResults = LaunchJobs(activeJobInstances);
