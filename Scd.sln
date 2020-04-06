@@ -94,6 +94,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Common", "Gdc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Spooler.Core", "Gdc.Scd.Spooler.Core\Gdc.Scd.Spooler.Core.csproj", "{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.Sap", "Gdc.Scd.Export.Sap\Gdc.Scd.Export.Sap.csproj", "{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -264,6 +266,10 @@ Global
 		{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -148,6 +148,10 @@
       <Project>{7479E275-0666-47BA-AD26-10285A0F1E75}</Project>
       <Name>Gdc.Scd.Export.CdCsJob</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Export.Sap\Gdc.Scd.Export.Sap.csproj">
+      <Project>{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}</Project>
+      <Name>Gdc.Scd.Export.Sap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Import.AmberRoad\Gdc.Scd.Import.AmberRoad.csproj">
       <Project>{EC19442E-CFFE-4B88-AF6B-67D7122F82E7}</Project>
       <Name>Gdc.Scd.Import.AmberRoad</Name>

@@ -3,6 +3,7 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Export.ArchiveJob;
 using Gdc.Scd.Export.ArchiveResultSenderJob;
 using Gdc.Scd.Export.CdCsJob;
+using Gdc.Scd.Export.Sap.Impl;
 using Gdc.Scd.Import.AmberRoad;
 using Gdc.Scd.Import.CentralContractGroup;
 using Gdc.Scd.Import.Ebis.Afr;
@@ -33,6 +34,7 @@ namespace Gdc.Scd.Spooler
             Bind<IJob>().To<LogisticsJob>().InSingletonScope();
             Bind<IJob>().To<ImportPorJob>().InSingletonScope();
             Bind<IJob>().To<SfabJob>().InSingletonScope();
+            Bind<IJob>().To<SapJob>().InSingletonScope();
         }
     }
 }
