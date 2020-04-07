@@ -242,7 +242,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         throw new Exception($"{nameof(UpdateQueryOption.OldCoordinates)} don't match {nameof(UpdateQueryOption.NewCoordinates)}");
                     }
 
-                    queries.Add(this.BuildUpdateCostBlockByUpdateOptionQuery(meta, updateOption));
+                    if (updateOption.OldCoordinates.Keys.All(meta.ContainsCoordinateField))
+                    {
+                        queries.Add(this.BuildUpdateCostBlockByUpdateOptionQuery(meta, updateOption));
+                    }
                 }
             }
 

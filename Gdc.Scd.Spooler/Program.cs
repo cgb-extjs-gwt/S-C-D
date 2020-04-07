@@ -136,12 +136,15 @@ namespace Gdc.Scd.Spooler
 
         private Logging()
         {
+            var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var logsDirectory = $"{currentDirectory}\\Logs";
 
-            string logFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string formattedDate = DateTime.Now.Year.ToString() + "_" + DateTime.Now.Month.ToString() + "_" + DateTime.Now.Day.ToString();
-            logFilePath = logFilePath + "\\" + "Scd_Spooler_" + formattedDate + ".txt";
+            if (!Directory.Exists(logsDirectory))
+            {
+                Directory.CreateDirectory(logsDirectory);
+            }
 
-            _fileName = logFilePath;
+            _fileName = $"{logsDirectory}\\Scd_Spooler_{DateTime.Now:yy_MM_dd}.txt";
         }
 
         public void logMessageLine(string line)

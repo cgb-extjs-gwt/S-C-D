@@ -208,7 +208,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IEnumerable<User> bccUsers = null)
         {
             var toEmails = GetEmails(targetUsers);
-            var bccEmails = GetEmails(bccUsers);
+            var bccEmails = bccUsers == null ? new string[0] : GetEmails(bccUsers);
 
             this.Send(subject, htmlBody, toEmails, fromAddress, bccEmails);
 

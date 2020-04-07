@@ -113,6 +113,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="App.Test.config" />
+    <None Include="App.Live.config" />
     <None Include="packages.config" />
     <EntityDeploy Include="ScdDb.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
