@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,5 +22,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task ReleaseSelectedHardwareCost(User changeUser, HwFilterDto filter, HwCostDto[] items);
 
+        Task UploadToSap(HwFilterDto filter);
+
+        Task UploadToSap(HwCostDto[] items);
     }
 }

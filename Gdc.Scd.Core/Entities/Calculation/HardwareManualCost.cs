@@ -43,6 +43,8 @@ namespace Gdc.Scd.Core.Entities.Calculation
 
         public DateTime? ReleaseDate { get; set; }
 
+        public DateTime? SapUploadDate { get; set; }
+
         //ReleaseUserId hack for correct save
         //TODO: remove ReleaseUserId
         public long? ReleaseUserId { get; set; }

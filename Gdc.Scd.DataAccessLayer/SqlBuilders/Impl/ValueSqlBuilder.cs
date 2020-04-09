@@ -50,6 +50,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             {
                 result = decimalValue.ToString(numberFormat);
             }
+            else if (this.Value is DateTime date)
+            {
+                result = $"'{date:yyyy-MM-dd HH:mm:ss.fff}'";
+            }
             else
             {
                 throw new NotSupportedException();

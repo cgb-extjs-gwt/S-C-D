@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -226,16 +227,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return IsNotNull(column);
         }
 
-        public static ConditionHelper In(string column, ISqlBuilder valuesQuery, string table = null)
-        {
-            return new ConditionHelper(new InSqlBuilder
-            {
-                Table = table,
-                Column = column,
-                Values = new[] { valuesQuery }
-            });
-        }
-
         public static ConditionHelper NotIn(string column, SqlHelper valuesQuery, string table = null)
         {
             return NotIn(column, valuesQuery.ToSqlBuilder(), table);
@@ -251,9 +242,31 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
+        public static ConditionHelper InValues<T>(string column, IEnumerable<T> values, string table = null)
+        {
+            var parameters = values.Select(value => new ParameterSqlBuilder(value)).ToArray();
+
+            return In(column, parameters, table);
+        }
+
         public static ConditionHelper In(string column, SqlHelper valuesQuery, string table = null)
         {
             return In(column, valuesQuery.ToSqlBuilder(), table);
+        }
+
+        public static ConditionHelper In(string column, ISqlBuilder query, string table = null)
+        {
+            return In(column, new[] { query }, table);
+        }
+
+        public static ConditionHelper In(string column, IEnumerable<ISqlBuilder> values, string table = null)
+        {
+            return new ConditionHelper(new InSqlBuilder
+            {
+                Table = table,
+                Column = column,
+                Values = values
+            });
         }
 
         public static ConditionHelper Between(ISqlBuilder column, ISqlBuilder begin, ISqlBuilder end, bool isNot = false)

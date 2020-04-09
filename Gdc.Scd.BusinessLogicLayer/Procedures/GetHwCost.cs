@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+﻿using Gdc.Scd.Core.Dto;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data.Common;
