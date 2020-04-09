@@ -14,6 +14,7 @@ namespace Gdc.Scd.Export.Sap
             this.Bind<IManualCostExportService>().To<ManualCostExportService>().InSingletonScope();
 
             this.Kernel.RegisterEntity<SapExportLog>();
+            this.Kernel.RegisterEntity<SapMapping>();
         }
     }
 }

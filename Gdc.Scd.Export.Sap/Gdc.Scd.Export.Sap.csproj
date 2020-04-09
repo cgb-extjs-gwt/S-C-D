@@ -64,7 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enitities\ExportType.cs" />
+    <Compile Include="Enitities\ReleasedDataDto.cs" />
     <Compile Include="Enitities\SapExportLog.cs" />
+    <Compile Include="Enitities\SapMapping.cs" />
     <Compile Include="Impl\ManualCostExportService.cs" />
     <Compile Include="Impl\SapExportLogService.cs" />
     <Compile Include="Impl\SapJob.cs" />
