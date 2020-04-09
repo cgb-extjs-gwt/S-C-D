@@ -302,7 +302,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                     <Column
                         isHeaderGroup={true}
-                        text="Resulting costs"
+                        text="Final results"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
@@ -324,10 +324,22 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Release user" minWidth="60" maxWidth="90" dataIndex="ReleaseUserCalc" renderer={emptyRenderer} />
                         <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
 
-                        <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
+                    </Column>
+
+                    <Column
+                        isHeaderGroup={true}
+                        text="Intermediate calculation results"
+                        dataIndex=""
+                        cls="calc-cost-result-brown"
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+
                         <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
                         <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
                         <NumberColumn text="Credits" dataIndex="roCredits" />
+                        <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
+                        <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
+                        <NumberColumn text="ReActive TP (manual)" dataIndex="roReActiveTP" />
+                        <NumberColumn text="ProActive (calc)" dataIndex="roProActive" />
 
                     </Column>
 
@@ -338,22 +350,18 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}
-                    >
+                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="roServiceSupportCost" />
                         <NumberColumn text="Logistic cost" dataIndex="roLogistic" />
                         <NumberColumn text="Avail. fee" dataIndex="roAvailabilityFee" />
                         <NumberColumn text="Reinsurance" dataIndex="roReinsurance" />
+                        <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
                         <NumberColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" />
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
                         <NumberColumn text="Material cost iW period" dataIndex="roMaterialW" />
                         <NumberColumn text="Material cost OOW period" dataIndex="roMaterialOow" />
-
-                        <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
-                        <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
-                        <NumberColumn text="ProActive" dataIndex="roProActive" />
 
                     </Column>
 
