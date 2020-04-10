@@ -198,7 +198,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var coordinateMeta = this.domainMeta.GetCoordinate(coordinateId);
 
-                    sheet.Range(row, column, endRow, column++).Merge().Value = coordinateMeta.Name;
+                    sheet.Range(row, column, endRow, column++).Merge().Value = coordinateMeta.Caption;
                 }
 
                 foreach (var additionalData in tableViewInfo.RecordInfo.AdditionalData)
@@ -216,13 +216,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     if (dependency == null)
                     {
-                        sheet.Range(row, column, endRow, column++).Merge().Value = info.CostElement.Name;
+                        sheet.Range(row, column, endRow, column++).Merge().Value = info.CostElement.Caption;
                     }
                     else
                     {
                         var endColumn = column + info.DataInfos.Length - 1;
 
-                        sheet.Range(row, column, row, endColumn).Merge().Value = info.CostElement.Name;
+                        sheet.Range(row, column, row, endColumn).Merge().Value = info.CostElement.Caption;
 
                         foreach (var dataInfo in info.DataInfos)
                         {

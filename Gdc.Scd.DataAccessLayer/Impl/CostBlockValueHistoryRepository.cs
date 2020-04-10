@@ -42,7 +42,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var history = historyContext.History;
                 var editItems = historyContext.EditItems;
-                var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+                var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
                 var values = editItems.Select(editItem => new object[] { history.Id, editItem.Id, editItem.Value });
 
                 var insertValueQuery =

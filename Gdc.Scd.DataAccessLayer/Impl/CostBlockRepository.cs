@@ -67,7 +67,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     metaQueries.Add(query);
                 }
 
-                if (editInfoGroup.Key.DomainMeta.DisableTriggers && metaQueries.Count > 1)
+                if (editInfoGroup.Key.SliceDomainMeta.DisableTriggers && metaQueries.Count > 1)
                 {
                     metaQueries.Insert(0, Sql.DisableTriggers(editInfoGroup.Key));
                     metaQueries.Insert(metaQueries.Count - 1, Sql.EnableTriggers(editInfoGroup.Key));
