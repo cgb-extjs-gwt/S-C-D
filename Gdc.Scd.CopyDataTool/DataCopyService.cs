@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.CopyDataTool.Configuration;
 using Gdc.Scd.CopyDataTool.Entities;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Helpers;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -21,8 +11,12 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.CopyDataTool
 {
@@ -31,372 +25,425 @@ namespace Gdc.Scd.CopyDataTool
         private readonly DomainEnitiesMeta meta;
         private readonly IKernel kernel;
         private readonly CopyDetailsConfig config;
-        private readonly Dictionary<string, Dictionary<string, long>> _dependencies;
         private readonly ISqlRepository _sqlRepository;
-        private List<EditInfo> _approvedEditInfos;
-        private List<EditInfo> _toBeApprovedEditInfos;
         private readonly ICostBlockService _costBlockService;
-        private readonly IApprovalService _approvalService;
+        private readonly IUserService userService;
+        private readonly ExcangeRateCalculator excangeRateCalculator;
 
-        public DataCopyService(IKernel kernel)
+        public DataCopyService(IKernel kernel, ExcangeRateCalculator excangeRateCalculator)
         {
             this.kernel = kernel;
+            this.userService = kernel.Get<IUserService>();
+            this.excangeRateCalculator = excangeRateCalculator;
             meta = this.kernel.Get<DomainEnitiesMeta>();
             config = this.kernel.Get<CopyDetailsConfig>();
             _sqlRepository = this.kernel.Get<SqlRepository>();
-            Console.WriteLine("Load Dependencies...");
-            _dependencies = LoadDependencies(meta);
-            _approvedEditInfos = new List<EditInfo>();
-            _toBeApprovedEditInfos = new List<EditInfo>();
             _costBlockService = this.kernel.Get<ICostBlockService>();
-            _approvalService = this.kernel.Get<IApprovalService>();
         }
 
         public void CopyData()
         {
-            var costBlocks = this.meta.CostBlocks
-                .Where(costBlock =>
-                    config.CostBlocks.Cast<CostBlockElement>()
-                        .Any(cb => cb.Name == costBlock.Name && cb.Schema == costBlock.Schema)).ToArray();
-
-            // Not all cost blocks have country 
-            if (string.IsNullOrEmpty(this.config.Country))
+            if (this.config.CopyCostBlocks)
             {
-                costBlocks = 
-                    costBlocks.Where(costBlock => costBlock.InputLevelFields[MetaConstants.CountryInputLevelName] != null)
-                              .ToArray();
-            }
+                var costBlocks = (IEnumerable<CostBlockEntityMeta>)this.meta.CostBlocks;
 
-            Console.WriteLine("Get data from source...");
-            var sourceResult = GetSourceData(costBlocks);
-            Console.WriteLine("Data was received.");
-            Console.WriteLine("Build edit infos...");
-            GetEditInfos(sourceResult, costBlocks);
-            Console.WriteLine("Edit info is built.");
-            Console.WriteLine("Starting to update the target...");
-
-            var approvalOption = new ApprovalOption {IsApproving = true, TurnOffNotification = true};
-
-            var updateTask = _costBlockService.UpdateWithoutQualityGate(_approvedEditInfos.ToArray(),
-                approvalOption, EditorType.Migration);
-
-            updateTask.Wait();
-
-            var histories = updateTask.Result.ToList();
-            Console.WriteLine("Approving...");
-            Console.WriteLine($"Approving history count - {histories.Count}");
-
-            var historyIndex = 0;
-
-            foreach (var history in histories)
-            {
-                Console.WriteLine($"History index: {historyIndex++}/{histories.Count - 1}");
-
-                var approveTask = _approvalService.Approve(history.Id, approvalOption.TurnOffNotification);
-
-                approveTask.Wait();
-            }
-
-            Console.WriteLine("Sending for approve values...");
-            updateTask = _costBlockService.UpdateWithoutQualityGate(_toBeApprovedEditInfos.ToArray(),
-                new ApprovalOption { IsApproving = false }, EditorType.Migration);
-
-            updateTask.Wait();
-        }
-
-        private Dictionary<string, Dictionary<string, long>> LoadDependencies(DomainEnitiesMeta meta)
-        {
-            var dependencies = meta.Dependencies.Concat(meta.InputLevels);
-            var result = new Dictionary<string, Dictionary<string, long>>();
-            foreach (var dependency in dependencies)
-            {
-                if (result.ContainsKey(dependency.Name))
-                    continue;
-
-                var entitiesTask = _sqlRepository.GetNameIdItems(dependency, dependency.IdField.Name, dependency.NameField.Name);
-
-                entitiesTask.Wait();
-
-                if (entitiesTask.Result != null && entitiesTask.Result.Any())
-                    result[dependency.Name] = entitiesTask.Result.ToDictionary(e => e.Name, e => e.Id);
-
-            }
-
-            return result;
-        }
-
-        private List<DataTable> GetSourceData(CostBlockEntityMeta[] costBlocks)
-        {
-            var sourceResult = new List<DataTable>();
-
-            var efRepoSet = new EntityFrameworkRepositorySet(kernel, "SourceDB");
-
-            foreach (var costBlock in costBlocks)
-            {
-                var joinInfos = costBlock.CoordinateFields.Select(cf => new JoinInfo(costBlock, cf.Name));
-                var columnInfos = costBlock.CostElementsFields.Select(cef => new ColumnInfo(cef.Name, costBlock.Name));
-                var columnInfosArr = columnInfos.Concat(costBlock.CoordinateFields.Select(c =>
-                        new ColumnInfo(c.ReferenceFaceField, c.ReferenceMeta.Name, c.ReferenceMeta.Name)))
-                    .Concat(costBlock.CostElementsApprovedFields.Values.Select(c =>
-                        new ColumnInfo(c.Name, costBlock.Name)
-                    )).Concat(new List<ColumnInfo> {new ColumnInfo(MetaConstants.IdFieldKey, costBlock.Name)})
-                    .ToArray();
-
-                var whereConditionHelper = ConditionHelper.AndStatic(
-                        new Dictionary<string, IEnumerable<object>>
-                        {
-                            [MetaConstants.NameFieldKey] = new object[] {config.Country},
-                        },
-                        MetaConstants.CountryInputLevelName)
-                    .And(CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name));
-
-                if (costBlock.InputLevelFields[MetaConstants.WgInputLevelName] != null)
+                var costBlockElements = this.config.CostBlocks.Cast<CostBlockElement>().ToArray();
+                if (costBlockElements.Length > 0)
                 {
-                    var wgMetaInfo = costBlock.InputLevelFields[MetaConstants.WgInputLevelName];
-
-                    whereConditionHelper = whereConditionHelper.And(new NotInSqlBuilder
-                    {
-                        Column = wgMetaInfo.ReferenceFaceField,
-                        Table = wgMetaInfo.Name,
-                        Values = config.ExcludedWgs.Split(',').Select(wg => new ValueSqlBuilder(wg))
-                    });
+                    costBlocks =
+                        costBlocks.Where(
+                            costBlock => costBlockElements.Any(
+                                costBlockEl => costBlock.Name == costBlockEl.Name && costBlock.Schema == costBlockEl.Schema));
                 }
 
-
-                var selectCostBlockValueQuery =
-                    Sql.Select(columnInfosArr).From(costBlock)
-                        .Join(joinInfos)
-                        .Where(whereConditionHelper);
-
-
-
-                var task = efRepoSet.ReadBySql(selectCostBlockValueQuery, costBlock.Name);
-
-                task.Wait();
-
-                sourceResult.Add(task.Result);
+                this.CopyCostBlocks(costBlocks.ToArray());
             }
-
-            return sourceResult;
         }
 
-        private void GetEditInfos(List<DataTable> source, CostBlockEntityMeta[] costBlocks)
+        private IEnumerable<CostBlockDataInfo> GetDataInfo(IEnumerable<CostBlockEntityMeta> costBlocks)
         {
-            foreach (var costBlock in costBlocks)
+            var sourceRepositorySet = new EntityFrameworkRepositorySet(kernel, "SourceDB");
+            var targetRepositorySet = new EntityFrameworkRepositorySet(kernel, "CommonDB");
+            var excludedCostElements = config.ExcludedCostElements.Cast<ExcludedCostElement>().ToArray();
+
+            var costBlockInfos = costBlocks.SelectMany(
+                block =>
+                    block.DomainMeta.CostElements.Where(elem => !excludedCostElements.Any(x => x.CostBlock == block.Name && x.Name == elem.Id))
+                                                 .Select(elem => new
+                                                 {
+                                                     CostBlock = block,
+                                                     CostElement = elem,
+                                                     CoordinateIds =
+                                                        elem.Coordinates.Select(coord => coord.Id)
+                                                                        .OrderBy(x => x)
+                                                                        .ToArray()
+                                                 }));
+
+            if (this.config.HasCountry)
             {
-                var editInfoApproved = new EditInfo
+                costBlockInfos = 
+                    costBlockInfos.Where(info => ContainsCountry(info.CostBlock, info.CostElement, info.CoordinateIds));
+            }
+
+            var costBlockGroups = costBlockInfos.GroupBy(info => new
+            {
+                info.CostBlock,
+                Coordinates = string.Join(",", info.CoordinateIds),
+            });
+
+            var excludedWgNames = config.GetExcludedWgs();
+
+            foreach (var costBlockGroup in costBlockGroups)
+            {
+                var costBlock = costBlockGroup.Key.CostBlock;
+                var costElementIds = costBlockGroup.Select(info => info.CostElement.Id).ToArray();
+                var firstGroup = costBlockGroup.First();
+
+                var sourceQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.Country, this.config.TargetCountry, true);
+                var sourceTask = sourceRepositorySet.ReadBySql(sourceQuery, costBlock.Name);
+                var targetQuery = BuildQuery(costBlock, costElementIds, firstGroup.CoordinateIds, this.config.TargetCountry ?? this.config.Country);
+                var targetTask = targetRepositorySet.ReadBySql(targetQuery, costBlock.Name);
+
+                Task.WaitAll(sourceTask, targetTask);
+
+                var sourceRows = sourceTask.Result.Rows.Cast<DataRow>();
+                var targetRows = targetTask.Result.Rows.Cast<DataRow>();
+                var costElementFields = 
+                    costElementIds.Concat(costElementIds.Select(costElementId => costBlock.GetApprovedCostElement(costElementId).Name))
+                                  .ToArray();
+
+                var joinedRows =
+                    sourceRows.AsParallel()
+                              .Join(
+                                targetRows.AsParallel(),
+                                row => this.GetKey(row, firstGroup.CoordinateIds),
+                                row => this.GetKey(row, firstGroup.CoordinateIds),
+                                (sourceRow, targetRow) => new { SourceRow = sourceRow, TargetRow = targetRow })
+                              .ToArray();
+
+                foreach (var costElementId in costElementIds)
                 {
-                    Meta = costBlock
-                };
+                    var approvedRows = new List<DataRow>();
+                    var notApprovedRows = new List<DataRow>();
+                    var costElementApprovedId = costBlock.GetApprovedCostElement(costElementId).Name;
 
-                var editInfoToBeApproved = new EditInfo
-                {
-                    Meta = costBlock
-                };
-
-                var valuesInfoApproved = new List<ValuesInfo>();
-                var valuesInfoToBeApproved = new List<ValuesInfo>();
-
-                var groupedCostElements = GetGroupedCostElements(costBlock);
-
-                var dataTable = source.FirstOrDefault(table => table.TableName == costBlock.Name);
-
-                var cache = new Cache();
-
-                if (dataTable != null)
-                {
-                    foreach (DataRow row in dataTable.Rows)
+                    foreach (var joinedRow in joinedRows)
                     {
-                        foreach (var costElement in groupedCostElements)
+                        var sourceApprovedValue = joinedRow.SourceRow[costElementApprovedId];
+                        var sourceNotApprovedValue = joinedRow.SourceRow[costElementId];
+                        var targetApprovedValue = joinedRow.TargetRow[costElementApprovedId];
+                        var targetNotApprovedValue = joinedRow.TargetRow[costElementId];
+
+                        if (!sourceApprovedValue.Equals(targetApprovedValue) ||
+                            !sourceNotApprovedValue.Equals(targetNotApprovedValue))
                         {
-                            var coordinateFilter = BuildCoordinates(costElement.Coordinates, row);
-
-                            var approveValues = new Dictionary<string, object>();
-                            var toApproveValues = new Dictionary<string, object>();
-
-                            var requireAdjustments = !BuildCostElementValues(costElement.CostElements, 
-                                row, approveValues, toApproveValues,
-                                cache, coordinateFilter);
-
-
-                            var valueInfoToApprove = new ValuesInfo
+                            if (sourceNotApprovedValue.Equals(sourceApprovedValue))
                             {
-                                CoordinateFilter = coordinateFilter.Convert(),
-                                Values = approveValues
-                            };
-
-                            var valueInfoToBeApprove = new ValuesInfo
-                            {
-                                CoordinateFilter = coordinateFilter.Convert(),
-                                Values = toApproveValues
-                            };
-
-                            if (requireAdjustments)
-                            {
-                                ResolveInconsistency(valueInfoToApprove, valuesInfoApproved);
-                                ResolveInconsistency(valueInfoToBeApprove, valuesInfoToBeApproved);
+                                approvedRows.Add(joinedRow.SourceRow);
                             }
-
                             else
                             {
-
-                                if (valueInfoToApprove.Values.Any())
-                                    valuesInfoApproved.Add(valueInfoToApprove);
-                                if (valueInfoToBeApprove.Values.Any())
-                                    valuesInfoToBeApproved.Add(valueInfoToBeApprove);
+                                approvedRows.Add(joinedRow.SourceRow);
+                                notApprovedRows.Add(joinedRow.SourceRow);
                             }
                         }
                     }
 
-                    editInfoApproved.ValueInfos = valuesInfoApproved;
-                    editInfoToBeApproved.ValueInfos = valuesInfoToBeApproved;
-
-                    _approvedEditInfos.Add(editInfoApproved);
-                    _toBeApprovedEditInfos.Add(editInfoToBeApproved);
-                }
-            }
-        }
-
-        private Dictionary<string, long> BuildCoordinates(List<string> coordinateNames, DataRow row)
-        {
-            var result = coordinateNames.ToDictionary(c => c, c => 
-                {
-                    if (_dependencies.ContainsKey(c))
+                    yield return new CostBlockDataInfo
                     {
-                        if (_dependencies[c].ContainsKey(row[c].ToString()))
-                            return _dependencies[c][row[c].ToString()];
-                        throw new Exception("Unknown coordinate: " + row[c].ToString());
-                    }
-
-                    throw new Exception("Unknown dependency: " + c);
-                });
-            return result;
-        }
-
-        private bool BuildCostElementValues(List<string> costElementFields, DataRow row,
-            IDictionary<string, object> approvedValues, 
-            IDictionary<string, object> toApproveValues,
-            Cache cache, Dictionary<string, long> coordinates)
-        {
-            var result = true;
-
-            foreach (var costElementField in costElementFields)
-            {
-                if (row[costElementField].ToString() == row[costElementField + "_Approved"].ToString())
-                {
-                    if (!cache.IfExists(costElementField, coordinates, row[costElementField], ApproveSet.Approved))
-                    {
-                        var isInconsistent = !cache.Add(costElementField, coordinates, row[costElementField], ApproveSet.Approved);
-                        approvedValues.Add(costElementField, row[costElementField]);
-
-                        if (isInconsistent)
-                            result = false;
-                    }
-                    
-                }
-                else
-                {
-                    if (!cache.IfExists(costElementField, coordinates, row[costElementField + "_Approved"],
-                        ApproveSet.Approved))
-                    {
-                        approvedValues.Add(costElementField, row[costElementField + "_Approved"]);
-                        var isInconsistent = !cache.Add(costElementField, coordinates, row[costElementField + "_Approved"],
-                            ApproveSet.Approved);
-
-                        if (isInconsistent)
-                            result = false;
-                    }
-
-                    if (!cache.IfExists(costElementField, coordinates, row[costElementField],
-                        ApproveSet.ToBeApproved))
-                    {
-                        toApproveValues.Add(costElementField, row[costElementField]);
-                        var isInconsistent = !cache.Add(costElementField, coordinates, row[costElementField],
-                            ApproveSet.ToBeApproved);
-
-                        if (isInconsistent)
-                            result = false;
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private List<GroupedCostElements> GetGroupedCostElements(CostBlockEntityMeta costBlock)
-        {
-            var groupedCostElements = new List<GroupedCostElements>();
-
-            var excludedCostElements = config.ExcludedCostElements.Cast<ExcludedCostElement>()
-                                             .Where(ece => ece.CostBlock.Equals(costBlock.Name, StringComparison.OrdinalIgnoreCase))
-                                             .Select(ece => ece.Name)
-                                             .ToList();
-
-
-            var costElements = costBlock.CostElementsFields
-                .Where(ce => !excludedCostElements.Contains(ce.Name))
-                .Select(ce => ce.Name);
-
-            foreach (var costElement in costElements)
-            {
-                var coordinateFields = costBlock.GetDomainCoordinateFields(costElement)
-                    .Select(c => c.Name).ToList();
-
-                var groupCostElement =
-                    groupedCostElements.FirstOrDefault(gc => gc.Coordinates.SequenceEqual(coordinateFields));
-                if (groupCostElement != null)
-                    groupCostElement.CostElements.Add(costElement);
-                else
-                {
-                    var newGroup = new GroupedCostElements
-                    {
-                        CostElements = new List<string> {costElement},
-                        Coordinates = coordinateFields
+                        Meta = costBlock,
+                        CostElementId = costElementId,
+                        ApprovedRows = approvedRows.ToArray(),
+                        NotApprovedRows = notApprovedRows.ToArray(),
+                        SourceRowCount = sourceTask.Result.Rows.Count,
+                        TargetRowCount = targetTask.Result.Rows.Count,
+                        DependencyId = firstGroup.CostElement.Dependency?.Id,
+                        InputLevelIds = firstGroup.CostElement.InputLevels.Select(x => x.Id).ToArray(),
+                        CoordinateIds = firstGroup.CoordinateIds
                     };
-                    groupedCostElements.Add(newGroup);
                 }
             }
 
-            return groupedCostElements;
+            bool ContainsCountry(CostBlockEntityMeta costBlock, CostElementMeta costElement, string[] coordinateIds)
+            {
+                var coordinateFields =
+                    coordinateIds.Select(coord => costBlock.GetDomainCoordinateField(costElement.Id, coord));
+
+                return coordinateFields.Any(field => field.ReferenceMeta is CountryEntityMeta);
+            }
+
+            SqlHelper BuildQuery(
+                CostBlockEntityMeta costBlock, 
+                string[] сostElementIds, 
+                string[] coordinateIds,
+                string filterCountry = null,
+                string replaceCountry = null,
+                bool useExchangeRate = false)
+            {
+                var groupByColumns = coordinateIds.Select(coord => new ColumnInfo(MetaConstants.NameFieldKey, coord, coord)).ToArray();
+                var costElementColumns = сostElementIds.SelectMany(BuildCostElementColumnsFunc()).ToArray();
+                var countryField = GetCountryField();
+
+                IEnumerable<BaseColumnInfo> partSelectColumns = groupByColumns;
+
+                if (replaceCountry != null)
+                {
+                    partSelectColumns =
+                        partSelectColumns.Select(
+                            column =>
+                                column.Alias == countryField.Name
+                                    ? new QueryColumnInfo(new ValueSqlBuilder(replaceCountry), column.Alias)
+                                    : column);
+                }
+
+                var selectColumns = costElementColumns.Concat(partSelectColumns).ToArray();
+                var joinInfos = coordinateIds.Select(coord => new JoinInfo(costBlock, coord)).ToArray();
+                var whereCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name);
+
+                if (filterCountry != null)
+                {
+                    whereCondition =
+                        whereCondition.And(
+                            SqlOperators.Equals(MetaConstants.NameFieldKey, filterCountry, countryField.Name));
+                }
+
+                if (excludedWgNames.Length > 0 &&
+                    costBlock.ContainsCoordinateField(MetaConstants.WgInputLevelName))
+                {
+                    whereCondition = whereCondition.And(new NotInSqlBuilder
+                    {
+                        Column = MetaConstants.NameFieldKey,
+                        Table = MetaConstants.WgInputLevelName,
+                        Values = excludedWgNames.Select(wg => new ParameterSqlBuilder(wg))
+                    });
+                }
+
+                return
+                    Sql.Select(selectColumns)
+                       .From(costBlock)
+                       .Join(joinInfos)
+                       .Where(whereCondition)
+                       .GroupBy(groupByColumns);
+
+                ReferenceFieldMeta GetCountryField()
+                {
+                    ReferenceFieldMeta result = null;
+
+                    if (replaceCountry != null || filterCountry != null)
+                    {
+                        result = costBlock.CoordinateFields.FirstOrDefault(field => field.ReferenceMeta is CountryEntityMeta);
+                    }
+
+                    return result;
+                }
+
+                QueryColumnInfo BuildCostElementColumn(FieldMeta costElementField)
+                {
+                    return SqlFunctions.Min(costElementField, costBlock.Name, costElementField.Name);
+                }
+
+                QueryColumnInfo BuildCostElementExchangeRateColumn(FieldMeta costElementField)
+                {
+                    var minColumn = BuildCostElementColumn(costElementField);
+
+                    minColumn.Query = new MultiplicationSqlBuilder
+                    {
+                        LeftOperator = minColumn.Query,
+                        RightOperator = new ValueSqlBuilder(this.excangeRateCalculator.Coeff)
+                    };
+
+                    return minColumn;
+                }
+
+                BaseColumnInfo[] GetCostElementFields(string costElementId, Func<FieldMeta, BaseColumnInfo> buildColumnFunc)
+                {
+                    var filds = new FieldMeta[]
+                    {
+                        costBlock.CostElementsFields[costElementId],
+                        costBlock.GetApprovedCostElement(costElementId)
+                    };
+
+                    return filds.Select(buildColumnFunc).ToArray();
+                }
+
+                Func<string, BaseColumnInfo[]> BuildCostElementColumnsFunc()
+                {
+                    Func<string, BaseColumnInfo[]> result;
+
+                    if (useExchangeRate && this.excangeRateCalculator.Coeff != 1)
+                    {
+                        result =
+                            costElementId =>
+                                costBlock.DomainMeta.CostElements[costElementId].IsCountryCurrencyCost
+                                    ? GetCostElementFields(costElementId, BuildCostElementExchangeRateColumn)
+                                    : GetCostElementFields(costElementId, BuildCostElementColumn);
+                    }
+                    else
+                    {
+                        result = costElementId => GetCostElementFields(costElementId, BuildCostElementColumn);
+                    }
+
+                    return result;
+                }
+            }
         }
 
-        private void ResolveInconsistency(ValuesInfo valuesInfo, List<ValuesInfo> valuesInfos)
+        private string GetKey(DataRow row, string[] columns)
         {
-            var updatedCoordinates = valuesInfo.CoordinateFilter.Select(c => string.Join(",", $"{c.Key}-{c.Value[0]}"));
+            return string.Join(",", columns.Select(column => row[column].ToString()));
+        }
 
-            var updatedCoordinate = String.Join(",", updatedCoordinates);            
+        private (EditInfo[] ApproveEditInfos, EditInfo[] NotApproveEditInfos) GetEditInfos(
+            CostBlockDataInfo dataInfo, 
+            IDictionary<string, IDictionary<string, long>> coordinateCache)
+        {
+            var costElementApprovedId = dataInfo.Meta.GetApprovedCostElement(dataInfo.CostElementId).Name;
+            var groupByIds = dataInfo.DependencyId == null
+                ? dataInfo.InputLevelIds.Skip(1).ToArray()
+                : dataInfo.InputLevelIds;
 
-            ValuesInfo inconsistent = null;
-            foreach (var vi in valuesInfos)
+            return
+                (
+                    BuildEditInfos(dataInfo.ApprovedRows, costElementApprovedId).ToArray(),
+                    BuildEditInfos(dataInfo.NotApprovedRows, dataInfo.CostElementId).ToArray()
+                );
+
+            ValuesInfo[] GetValuesInfoByGroup(IEnumerable<DataRow> rows, string[] coordinateIds, string valueField)
             {
-                var coordinates = vi.CoordinateFilter.Select(c => string.Join(",", $"{c.Key}-{c.Value[0]}"));
-
-                var concatenatedCoordinates = String.Join(",", coordinates);
-
-                if (concatenatedCoordinates == updatedCoordinate)
-                {
-                    inconsistent = vi;
-                    break;
-                }
+                return
+                    rows.GroupBy(row => row[valueField])
+                        .Select(group => new ValuesInfo
+                        {
+                            CoordinateFilter = GetCoordinateFilter(group, coordinateIds),
+                            Values = new Dictionary<string, object>
+                            { 
+                                [dataInfo.CostElementId] = group.Key
+                            }
+                        })
+                        .ToArray();
             }
 
-            if (inconsistent != null)
+            Dictionary<string, long[]> GetCoordinateFilter(IEnumerable<DataRow> rows, string[] coordinateIds)
             {
-                foreach (var val in valuesInfo.Values)
+                return
+                    coordinateIds.ToDictionary(
+                        coord => coord,
+                        coord => 
+                            rows.Select(row => row[coord])
+                                .Cast<string>()
+                                .Distinct()
+                                .Select(name => coordinateCache[coord][name])
+                                .ToArray());
+            }
+           
+            IEnumerable<EditInfo> BuildEditInfos(IEnumerable<DataRow> rows, string valueField)
+            {
+                foreach (var rowGroup in rows.GroupBy(row => GetKey(row, groupByIds)))
                 {
-                    var valInUpdatedValuesInfo = inconsistent.Values.First(v => v.Key == val.Key);
-                    inconsistent.Values[val.Key] = val.Value.ToString() == String.Empty ? valInUpdatedValuesInfo.Value : val.Value;
+                    yield return new EditInfo
+                    {
+                        Meta = dataInfo.Meta,
+                        ValueInfos = GetValuesInfoByGroup(rowGroup, dataInfo.CoordinateIds, valueField)
+                    };
                 }
             }
         }
 
-        private static StandardKernel CreateKernel()
+        private Dictionary<string, IDictionary<string, long>> GetCoordinateCache(IEnumerable<CostBlockEntityMeta> costBlocks)
         {
-            return new StandardKernel(
-                new Core.Module(),
-                new DataAccessLayer.Module(),
-                new BusinessLogicLayer.Module(),
-                new Module());
+            var result = new Dictionary<string, IDictionary<string, long>>();
+
+            var metas =
+                costBlocks.SelectMany(costBlock => costBlock.CoordinateFields.Select(field => field.ReferenceMeta))
+                          .Distinct();
+
+            foreach (var meta in metas)
+            {
+                var itemsTask = this._sqlRepository.GetNameIdItems(meta, MetaConstants.IdFieldKey, MetaConstants.NameFieldKey);
+
+                itemsTask.Wait();
+
+                result[meta.Name] = itemsTask.Result.GroupBy(x => x.Name).ToDictionary(x => x.Key, x => x.First().Id);
+            }
+
+            return result;
+        }
+
+        private void CopyCostBlocks(CostBlockEntityMeta[] costBlocks)
+        {
+            Console.WriteLine("Coordinate items loadings...");
+            var coordinateCache = this.GetCoordinateCache(costBlocks);
+            Console.WriteLine("Coordinate items loaded");
+            Console.WriteLine();
+            Console.WriteLine("Data loading...");
+
+            var currentUser = this.userService.GetCurrentUser();
+            var approvalOption = new ApprovalOption
+            {
+                TurnOffNotification = true
+            };
+
+            foreach (var dataInfo in this.GetDataInfo(costBlocks))
+            {
+                Console.WriteLine($"Data loaded. Cost block: '{dataInfo.Meta.Name}'. Cost element: {dataInfo.CostElementId}");
+                Console.WriteLine($"Source row count: {dataInfo.SourceRowCount}. Target row count: {dataInfo.TargetRowCount}");
+                Console.WriteLine($"Approve row count: {dataInfo.ApprovedRows.Length}");
+                Console.WriteLine($"Not approve row count: {dataInfo.NotApprovedRows.Length}");
+
+                if (dataInfo.ApprovedRows.Length > 0 || dataInfo.NotApprovedRows.Length > 0)
+                {
+                    Console.WriteLine($"Building EditInfos '{dataInfo.CostElementId}'...");
+
+                    var editInfoSet = this.GetEditInfos(dataInfo, coordinateCache);
+
+                    Console.WriteLine("EditInfos built");
+
+                    if (editInfoSet.ApproveEditInfos.Length > 0)
+                    {
+                        Console.WriteLine("Update approved values.....");
+                        var approvedTask = this._costBlockService.UpdateAsApproved(editInfoSet.ApproveEditInfos, EditorType.Migration, currentUser);
+                        approvedTask.Wait();
+                        Console.WriteLine("Approved values updated");
+                    }
+
+                    if (editInfoSet.NotApproveEditInfos.Length > 0)
+                    {
+                        Console.WriteLine("Update not approved values.....");
+                        var notApprovedTask = this._costBlockService.UpdateWithoutQualityGate(editInfoSet.NotApproveEditInfos, approvalOption, EditorType.Migration, currentUser);
+                        notApprovedTask.Wait();
+                        Console.WriteLine("Not approved values updated");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No data to copy");
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("Сopying completed");
+        }
+
+        private class CostBlockDataInfo
+        {
+            public CostBlockEntityMeta Meta { get; set; }
+
+            public string CostElementId { get; set; }
+
+            public DataRow[] ApprovedRows { get; set; }
+
+            public DataRow[] NotApprovedRows { get; set; }
+
+            public int SourceRowCount { get; set; }
+
+            public int TargetRowCount { get; set; }
+
+            public string DependencyId { get; set; }
+
+            public string[] InputLevelIds { get; set; }
+
+            public string[] CoordinateIds { get; set; }
         }
     }
 }

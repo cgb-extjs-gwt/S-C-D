@@ -46,7 +46,6 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string CostElementDescriptionNodeName = "Description";
 
         private const string CostElementTableIdAttributeNodeName = "TableId";
-
         private const string InputLevelListNodeName = "InputLevels";
 
         private const string InputLevelNodeName = "InputLevel";
@@ -84,6 +83,8 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string RoleListNodeName = "Roles";
 
         private const string RoleNodeName = "Role";
+
+        private const string DisableTriggersAttributeName = "DisableTriggers";
 
         private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
@@ -131,12 +132,22 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 CostBlocks = new MetaCollection<CostBlockMeta>(costBlocks),
                 Applications = new MetaCollection<ApplicationMeta>(domainDefination.Applications.Items),
+                Dependencies = new MetaCollection<DependencyMeta>(domainDefination.Dependencies.Items),
+                InputLevels = new MetaCollection<InputLevelMeta>(domainDefination.InputLevels.Items),
+                RegionInputs = new MetaCollection<InputLevelMeta>(domainDefination.RegionInputs.Items)
             };
         }
 
         private CostBlockMeta BuildCostBlockMeta(XElement node, DomainDefination defination)
         {
             var costBlockMeta = this.BuildMeta<CostBlockMeta>(node);
+
+            var disableTriggersAttr = node.Attribute(DisableTriggersAttributeName);
+            if (disableTriggersAttr != null)
+            {
+                costBlockMeta.DisableTriggers = bool.Parse(disableTriggersAttr.Value);
+            }
+
             var costElementListNode = node.Element(CostElementListNodeName);
             if (costElementListNode == null)
             {

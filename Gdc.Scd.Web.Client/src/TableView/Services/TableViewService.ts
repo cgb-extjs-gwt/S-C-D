@@ -1,8 +1,7 @@
-import { buildMvcUrl, get, post } from "../../Common/Services/Ajax";
+import { buildMvcUrl, get, post, downloadFile } from "../../Common/Services/Ajax";
 import { TableViewInfo, QualityGateResultSet } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
-import { Model } from "../../Common/States/ExtStates";
 import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
 
 const TABLE_VIEW_CONTROLLER_NAME = 'TableView';
@@ -16,3 +15,5 @@ export const updateRecords = (records: TableViewRecord[], approvalOption: Approv
 
 export const buildGetHistoryUrl = (costElementId: CostElementIdentifier, coordinates: { [key: string]: number }) => 
     buildMvcUrl(TABLE_VIEW_CONTROLLER_NAME, 'GetHistory', { costElementId, coordinates: JSON.stringify(coordinates) });
+
+export const exportToExcel = () => downloadFile(TABLE_VIEW_CONTROLLER_NAME, 'ExportToExcel');

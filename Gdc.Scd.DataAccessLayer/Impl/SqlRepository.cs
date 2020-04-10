@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
@@ -46,11 +47,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string referenceFieldName,
             IDictionary<string, IEnumerable<object>> entityFilter = null,
             IDictionary<string, IEnumerable<object>> referenceFilter = null,
-            ConditionHelper filterCondition = null)
+            ConditionHelper filterCondition = null,
+            IsolationLevel? isolationLevel = null)
         {
             var meta = this.domainEnitiesMeta.GetEntityMeta(entityName, schema);
 
-            return await this.GetDistinctItems(meta, referenceFieldName, entityFilter, referenceFilter);
+            return await this.GetDistinctItems(meta, referenceFieldName, entityFilter, referenceFilter, filterCondition, isolationLevel);
         }
 
         public async Task<IEnumerable<NamedId>> GetDistinctItems(
@@ -58,7 +60,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string referenceFieldName,
             IDictionary<string, IEnumerable<object>> entityFilter = null,
             IDictionary<string, IEnumerable<object>> referenceFilter = null,
-            ConditionHelper filterCondition = null)
+            ConditionHelper filterCondition = null,
+            IsolationLevel? isolationLevel = null)
         {
             var filterInfos = new List<FilterInfo>();
 
@@ -86,7 +89,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                  Meta = meta,
                  ReferenceFieldName = referenceFieldName,
-                 Filters = filterInfos
+                 Filters = filterInfos,
+                 FilterCondition = filterCondition,
+                 IsolationLevel = isolationLevel
             });
         }
 
@@ -122,7 +127,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var joinQuery =
                 Sql.SelectDistinct(idColumn, nameColumn)
-                   .From(info.Meta)
+                   .From(info.Meta, null, info.IsolationLevel)
                    .Join(info.Meta, referenceField.Name);
             
             if (info.JoinInfos != null)

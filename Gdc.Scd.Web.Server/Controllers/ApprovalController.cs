@@ -80,7 +80,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public async Task<IHttpActionResult> Reject(long historyId, string message)
         {
             await this.approvalService.Reject(historyId, message);

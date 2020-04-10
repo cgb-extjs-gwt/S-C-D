@@ -1,11 +1,12 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.OperationResult;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 using System;
 
 namespace Gdc.Scd.Import.Ebis.Afr
 {
-    public class AfrJob
+    public class AfrJob : IJob
     {
         protected ILogger log;
 
@@ -23,6 +24,11 @@ namespace Gdc.Scd.Import.Ebis.Afr
         {
             this.afr = afr;
             this.log = log;
+        }
+
+        IOperationResult IJob.Output()
+        {
+            return this.Output();
         }
 
         public OperationResult<bool> Output()

@@ -139,7 +139,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 query = this.BuildQualityGateQuery(history.Context, options);
 
-                var withSqlBuilder = (WithSqlBuilder)query.ToSqlBuilder();
+                var withSqlBuilder = (CommonTableExpressionSqlBuilder)query.ToSqlBuilder();
                 var groupBySqlHelper = new GroupBySqlHelper(withSqlBuilder.Query);
                 var groupColumns = this.BuildQualityGateQueryColumns(costBlockMeta, options, history.Context);
 

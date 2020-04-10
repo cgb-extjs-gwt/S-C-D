@@ -1,12 +1,13 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.OperationResult;
+using Gdc.Scd.Spooler.Core.Entities;
+using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 using System;
 
 namespace Gdc.Scd.Export.CdCsJob
 {
-    public class CdCsJob
+    public class CdCsJob : IJob
     {
         protected ILogger log;
 
@@ -26,6 +27,11 @@ namespace Gdc.Scd.Export.CdCsJob
         {
             this.cdCs = cdCs;
             this.log = log;
+        }
+
+        IOperationResult IJob.Output()
+        {
+            return this.Output();
         }
 
         public OperationResult<bool> Output()

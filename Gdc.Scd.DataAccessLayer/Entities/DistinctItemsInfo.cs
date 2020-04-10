@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
@@ -15,5 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.Entities
         public IEnumerable<FilterInfo> Filters { get; set; }
 
         public IEnumerable<JoinInfoAdvanced> JoinInfos { get; set; }
+
+        public IsolationLevel? IsolationLevel { get; set; }
     }
 }

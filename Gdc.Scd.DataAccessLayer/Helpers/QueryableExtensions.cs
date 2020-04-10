@@ -122,7 +122,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return condition ? source.Where(predicate) : source;
         }
 
-        public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(this IQueryable<TEntity> source, Expression<Func<TEntity, TProperty>> navigationPropertyPath) where TEntity : class
+        public static IQueryable<TEntity> Include<TEntity, TProperty>(this IQueryable<TEntity> source, Expression<Func<TEntity, TProperty>> navigationPropertyPath) where TEntity : class
         {
             return EntityFrameworkQueryableExtensions.Include(source, navigationPropertyPath);
         }

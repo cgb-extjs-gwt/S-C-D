@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Entities;
@@ -53,6 +55,20 @@ namespace Gdc.Scd.Web.Server.Controllers
             var queryInfo = QueryInfoHelper.BuildQueryInfo(start, limit, sort);
             var coordinatesDict = JsonConvert.DeserializeObject<Dictionary<string, long>>(coordinates);
             return await this.tableViewService.GetHistory(costElementId, coordinatesDict, queryInfo);
+        }
+
+        public async Task<HttpResponseMessage> ExportToExcel()
+        {
+            try
+            {
+                var stream = await this.tableViewService.ExportToExcel();
+
+                return this.ExcelContent(stream, "CentralDataInput.xlsx");
+            }
+            catch
+            {
+                return this.ExcelContent(new MemoryStream(), "Error");
+            }
         }
     }
 }

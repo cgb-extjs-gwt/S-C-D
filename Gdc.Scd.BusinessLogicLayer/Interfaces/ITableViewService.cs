@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Dto;
@@ -17,5 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task<TableViewInfo> GetTableViewInfo();
 
         Task<DataInfo<HistoryItemDto>> GetHistory(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
+
+        Task<Stream> ExportToExcel();
     }
 }

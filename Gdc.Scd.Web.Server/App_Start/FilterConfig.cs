@@ -17,7 +17,10 @@ namespace Gdc.Scd.Web.Server
                 var requestLogging = (RequestLogging)Enum.Parse(typeof(RequestLogging), requestLoggingStr, true);
                 if (requestLogging == RequestLogging.Enable)
                 {
-                    apiFilters.Add(DependencyResolver.Current.GetService<RequestInfoFilter>());
+                    var requestInfoFilter = DependencyResolver.Current.GetService<RequestInfoFilter>();
+
+                    mvcFilters.Add(requestInfoFilter);
+                    apiFilters.Add(requestInfoFilter);
                 }
             }
             

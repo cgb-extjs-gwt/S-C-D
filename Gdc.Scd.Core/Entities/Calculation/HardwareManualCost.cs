@@ -39,8 +39,7 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public double? ServiceTP4_Released { get; set; }
         public double? ServiceTP5_Released { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? ServiceTP_Released { get; private set; }
+        public double? ServiceTP_Released { get; set; }
 
         public DateTime? ReleaseDate { get; set; }
 

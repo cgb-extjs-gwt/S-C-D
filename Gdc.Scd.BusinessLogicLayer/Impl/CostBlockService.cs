@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using System.Data;
+using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
@@ -134,11 +135,68 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return checkResult;
         }
 
-        public async Task<CostBlockHistory[]> UpdateWithoutQualityGate(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType)
+        public async Task<CostBlockHistory[]> UpdateWithoutQualityGate(
+            EditInfo[] editInfos, 
+            ApprovalOption approvalOption, 
+            EditorType editorType,
+            User currentUser = null)
         {
             var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
 
-            return await this.Update(editInfos, approvalOption, editorType, editItemContexts);
+            return await this.Update(editInfos, approvalOption, editorType, editItemContexts, currentUser);
+        }
+
+        public async Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType, User currentUser = null)
+        {
+            var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
+            var approvalOption = new ApprovalOption
+            {
+                TurnOffNotification = true,
+            };
+
+            var approvedEditInfos = 
+                editInfos.Select(editInfo => new EditInfo
+                         { 
+                            Meta = editInfo.Meta,
+                            ValueInfos = 
+                                editInfo.ValueInfos.Select(valueInfo => BuildValuesInfoWithApprovedFields(editInfo.Meta, valueInfo))
+                                                   .ToArray()
+                         })
+                         .ToArray();
+
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    await this.costBlockRepository.Update(approvedEditInfos);
+
+                    await this.costBlockHistoryService.SaveAsApproved(editItemContexts, approvalOption, editorType, currentUser);
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
+
+            ValuesInfo BuildValuesInfoWithApprovedFields(CostBlockEntityMeta meta, ValuesInfo valuesInfo)
+            {
+                var apprvedValues =
+                    valuesInfo.Values.Select(
+                        keyValue =>
+                            new KeyValuePair<string, object>(
+                                meta.GetApprovedCostElement(keyValue.Key).Name,
+                                keyValue.Value));
+
+                return new ValuesInfo
+                {
+                    CoordinateFilter = valuesInfo.CoordinateFilter,
+                    Values = valuesInfo.Values.Concat(apprvedValues).ToDictionary(x => x.Key, x => x.Value)
+                };
+            }
         }
 
         public async Task UpdateByCoordinatesAsync(
@@ -252,7 +310,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             async Task<IEnumerable<NamedId>> GetRegions()
             {
-                return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.RegionInput.Id);
+                return await this.sqlRepository.GetDistinctItems(
+                    context.CostBlockId, 
+                    context.ApplicationId, 
+                    costElementMeta.RegionInput.Id,
+                    isolationLevel: IsolationLevel.ReadUncommitted);
             }
         }
 
@@ -466,12 +528,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     referenceFieldName,
                     costBlockFilter,
                     referenceFilter,
-                    notDeletedCondition);
+                    notDeletedCondition,
+                    IsolationLevel.ReadUncommitted);
         }
 
-        private async Task<CostBlockHistory[]> Update(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType, IEnumerable<EditItemContext> editItemContexts)
+        private async Task<CostBlockHistory[]> Update(
+            EditInfo[] editInfos, 
+            ApprovalOption approvalOption, 
+            EditorType editorType, 
+            IEnumerable<EditItemContext> editItemContexts,
+            User currentUser = null)
         {
-            var histories = new List<CostBlockHistory>();
+            CostBlockHistory[] histories;
 
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -479,13 +547,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     await this.costBlockRepository.Update(editInfos);
 
-                    foreach (var editItemContext in editItemContexts)
-                    {
-                        var history =
-                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter, editorType);
-
-                        histories.Add(history);
-                    }
+                    histories = await this.costBlockHistoryService.Save(editItemContexts, approvalOption, editorType, currentUser);
 
                     transaction.Commit();
                 }
@@ -497,7 +559,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
 
-            return histories.ToArray();
+            return histories;
         }
     }
 }

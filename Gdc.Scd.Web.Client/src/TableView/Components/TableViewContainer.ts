@@ -5,7 +5,7 @@ import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier
 import { TableViewInfo } from "../States/TableViewState";
 import { Model } from "../../Common/States/ExtStates";
 import { TableViewRecord } from "../States/TableViewRecord";
-import { buildGetHistoryUrl } from "../Services/TableViewService";
+import { buildGetHistoryUrl, exportToExcel } from "../Services/TableViewService";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
 import { getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
 
@@ -30,6 +30,7 @@ const buildHistotyDataLoadUrl = (meta: CostMetaData, tableViewInfo: TableViewInf
 
 export const TableViewContainer = connect<TableViewProps, {}, {}, CommonState>(
     ({ app: { appMetaData },  pages: { tableView } }) => ({
+        onExportToExcelClick: exportToExcel,
         buildHistotyDataLoadUrl: tableView.info
             ? (selection, selectedDataIndex) => buildHistotyDataLoadUrl(appMetaData, tableView.info, selection, selectedDataIndex)
             : () => ''

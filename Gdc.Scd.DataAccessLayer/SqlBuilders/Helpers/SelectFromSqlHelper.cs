@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System.Data;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
@@ -13,14 +15,33 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             this.fromSqlHelper = new FromSqlHepler(sqlBuilder);
         }
 
-        public SelectJoinSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null)
+        SelectJoinSqlHelper IFromSqlHelper<SelectJoinSqlHelper>.From(string tabeName, string schemaName, string dataBaseName, string alias)
         {
-            return new SelectJoinSqlHelper(this.fromSqlHelper.From(tabeName, schemaName, dataBaseName, alias));
+            return this.From(tabeName, schemaName, dataBaseName, alias);
         }
 
-        public SelectJoinSqlHelper From(BaseEntityMeta meta, string alias = null)
+        SelectJoinSqlHelper IFromSqlHelper<SelectJoinSqlHelper>.From(BaseEntityMeta meta, string alias)
         {
-            return new SelectJoinSqlHelper(this.fromSqlHelper.From(meta, alias));
+            return this.From(meta, alias);
+        }
+
+        public SelectJoinSqlHelper From(
+            string tabeName, 
+            string schemaName = null, 
+            string dataBaseName = null, 
+            string alias = null,
+            IsolationLevel? isolationLevel = null)
+        {
+            var sqlBuilder = this.fromSqlHelper.From(tabeName, schemaName, dataBaseName, alias);
+
+            return this.WrapByIsolationLevel(sqlBuilder, isolationLevel);
+        }
+
+        public SelectJoinSqlHelper From(BaseEntityMeta meta, string alias = null, IsolationLevel? isolationLevel = null)
+        {
+            var sqlBuilder = this.fromSqlHelper.From(meta, alias);
+
+            return this.WrapByIsolationLevel(sqlBuilder, isolationLevel);
         }
 
         public SelectJoinSqlHelper FromQuery(ISqlBuilder query, string alias = null)
@@ -31,6 +52,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public SelectJoinSqlHelper FromQuery(SqlHelper sqlHelper, string alias = null)
         {
             return new SelectJoinSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper, alias));
+        }
+
+        private SelectJoinSqlHelper WrapByIsolationLevel(ISqlBuilder sqlBuilder, IsolationLevel? isolationLevel = null)
+        {
+            sqlBuilder = isolationLevel.HasValue
+                ? new WithIsolationLevelSqlBuilder
+                {
+                    Query = sqlBuilder,
+                    IsolationLevel = isolationLevel.Value
+                }
+                : sqlBuilder;
+
+            return new SelectJoinSqlHelper(sqlBuilder);
         }
     }
 }

@@ -66,13 +66,20 @@ BEGIN
              , m.WgDescription
              , m.Wg
              , sog.Description as SogDescription
-             , m.ServiceLocation as ServiceLevel
-             , m.ReactionTime
-             , m.ServicePeriod
-             , m.Sog
-             , m.ProActiveSla
-             , m.Country
+             , pla.Name as PLA
+             , m.ServiceLevel
 
+             , m.ServicePeriod
+
+             , m.Duration
+             , m.ServiceLocation
+             , m.Availability
+             , m.ReactionTime
+             , m.ReactionType
+             , m.ProActiveSla
+
+             , m.Sog
+             , m.Country
              , m.StdWarranty
              , m.StdWarrantyLocation
 
@@ -103,7 +110,8 @@ BEGIN
                    m.ProActiveSla as ServiceType
 
     from cte2 m
-    join InputAtoms.Sog sog on sog.id = m.SogId
+    INNER JOIN  InputAtoms.Sog sog on sog.id = m.SogId
+    INNER JOIN InputAtoms.Pla pla on pla.Id = sog.PlaId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
@@ -168,6 +176,21 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LocalServiceStandardWarranty', 'Standard Warranty costs', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceType', 'Service type', 1, 1);
+
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Duration', 'Duration', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceLocation', 'Service location', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Availability', 'Availability', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ReactionType', 'Reaction type', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ProActiveSla', 'Pro Active SLA', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PLA', 'PLA', 1, 1);
+
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;

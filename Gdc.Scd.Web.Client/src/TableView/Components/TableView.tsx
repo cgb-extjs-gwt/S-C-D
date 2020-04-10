@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Toolbar } from "@extjs/ext-react";
+import { Container, Toolbar, Button } from "@extjs/ext-react";
 import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { TableViewGridContainer } from "./TableViewGridContainer";
 import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
@@ -10,6 +10,7 @@ import { RouteComponentProps } from "react-router";
 
 export interface TableViewProps extends RouteComponentProps {
     buildHistotyDataLoadUrl(selection: Model<TableViewRecord>[], selectedDataIndex: string): string
+    onExportToExcelClick?()
 }
 
 export interface TableViewState {
@@ -45,6 +46,7 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
                         }}
                         buidHistoryUrl={() => buildHistotyDataLoadUrl && buildHistotyDataLoadUrl(selection, selectedDataIndex)}
                     />
+                    <Button text="Export to Excel" flex={1} handler={this.onExportToExcel}/>
                     <QualtityGateSetWindowContainer position={{ top: '25%', left: '25%'}}/>
                 </Toolbar>
 
@@ -74,4 +76,10 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
             });
          }
     }
+
+    private onExportToExcel = () => {
+        const { onExportToExcelClick } = this.props;
+
+        onExportToExcelClick && onExportToExcelClick();
+    } 
 }

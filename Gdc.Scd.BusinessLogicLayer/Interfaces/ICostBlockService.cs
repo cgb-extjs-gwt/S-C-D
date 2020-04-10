@@ -11,7 +11,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task<QualityGateResultSet> Update(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType);
 
-        Task<CostBlockHistory[]> UpdateWithoutQualityGate(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType);
+        Task<CostBlockHistory[]> UpdateWithoutQualityGate(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType, User currentUser = null);
+
+        Task UpdateAsApproved(EditInfo[] editInfos, EditorType editorType, User currentUser = null);
 
         Task<IEnumerable<NamedId>> GetCoordinateItems(CostElementContext context, string coordinateId);
 

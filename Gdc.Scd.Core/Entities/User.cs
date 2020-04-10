@@ -40,7 +40,7 @@ namespace Gdc.Scd.Core.Entities
                 var roles = this.Roles;
                 if (roles != null)
                 {
-                    permissions = roles.SelectMany(role => role.Permissions);
+                    permissions = roles.SelectMany(role => role.Permissions).Distinct();
                 }
 
                 return permissions;
@@ -73,6 +73,11 @@ namespace Gdc.Scd.Core.Entities
                 }
                 return false;
             }
+        }
+
+        public bool HasPermission(string permissionName)
+        {
+            return this.Permissions.Any(permission => permission.Name == permissionName);
         }
     }
 }

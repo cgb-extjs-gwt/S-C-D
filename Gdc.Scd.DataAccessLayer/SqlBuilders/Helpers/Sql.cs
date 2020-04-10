@@ -33,7 +33,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public static SqlHelper With(IEnumerable<WithQuery> withQueries, ISqlBuilder query)
         {
-            return new SqlHelper(new WithSqlBuilder
+            return new SqlHelper(new CommonTableExpressionSqlBuilder
             {
                 Query = query,
                 WithQueries = withQueries

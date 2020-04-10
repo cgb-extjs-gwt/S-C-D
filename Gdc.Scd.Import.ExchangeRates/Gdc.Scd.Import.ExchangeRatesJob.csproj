@@ -91,9 +91,9 @@
       <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
       <Name>Gdc.Scd.Import.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
-      <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
-      <Name>Gdc.Scd.Spooler</Name>
+    <ProjectReference Include="..\Gdc.Scd.Spooler.Core\Gdc.Scd.Spooler.Core.csproj">
+      <Project>{ef99b8ef-25bd-447d-adc7-2abb08f09daf}</Project>
+      <Name>Gdc.Scd.Spooler.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

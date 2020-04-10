@@ -14,12 +14,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<DataInfo<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null);
 
-        Task<CostBlockHistory> Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType);
+        Task<CostBlockHistory[]> Save(IEnumerable<EditItemContext> editItemContexts, ApprovalOption approvalOption, EditorType editorType, User currentUser = null);
 
         void Save(CostBlockHistory history, ApprovalOption approvalOption);
 
         CostBlockHistory SaveAsApproved(long historyId);
 
-        CostBlockHistory SaveAsRejected(long historyId, string rejectedMessage);
+        Task<CostBlockHistory[]> SaveAsApproved(IEnumerable<EditItemContext> editItemContexts, ApprovalOption approvalOption, EditorType editorType, User currentUser = null);
+
+        void SaveAsRejected(CostBlockHistory history, string rejectedMessage);
     }
 }

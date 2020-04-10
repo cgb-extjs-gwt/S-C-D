@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Helpers;
-using Gdc.Scd.CopyDataTool.Configuration;
+﻿using Gdc.Scd.CopyDataTool.Configuration;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Ninject;
 using Ninject.Modules;
+using System.Configuration;
 
 namespace Gdc.Scd.CopyDataTool
 {
@@ -24,6 +17,7 @@ namespace Gdc.Scd.CopyDataTool
             this.Bind<IPrincipalProvider>().To<DataCopyPrincipleProvider>().WithConstructorArgument("user",
                 Kernel.Get<CopyDetailsConfig>().EditUser);
 
+            this.Bind<CopyDataToolHelperService>().To<CopyDataToolHelperService>().InSingletonScope();
         }
     }
 }
