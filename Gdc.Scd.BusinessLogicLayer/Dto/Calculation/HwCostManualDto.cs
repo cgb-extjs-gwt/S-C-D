@@ -6,7 +6,7 @@
 
         public double? ServiceTC { get; set; }
 
-        public double? ServiceTP { get; set; }
+        public double? ReActiveTP { get; set; }
 
         public double? ListPrice { get; set; }
 

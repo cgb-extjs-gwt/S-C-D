@@ -121,7 +121,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     if (country.CanOverrideTransferCostAndPrice)
                     {
                         hwManual.ServiceTC = rec.ServiceTC;
-                        hwManual.ServiceTP = rec.ServiceTP;
+                        hwManual.ReActiveTP = rec.ReActiveTP;
                         hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);

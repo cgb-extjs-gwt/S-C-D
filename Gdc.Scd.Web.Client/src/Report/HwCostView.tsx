@@ -174,7 +174,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 let canEditListPrice = this.canEditListPrice();
 
                 store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ServiceTCManual');
-                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ServiceTPManual');
+                store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'ReActiveTPManual');
                 store.fixOrUndo(canEditTC, record, modifiedFieldNames, 'LocalServiceStandardWarrantyManual');
 
                 store.fixOrUndo(canEditListPrice, record, modifiedFieldNames, 'ListPrice');
@@ -311,7 +311,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
                         <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
-                        <NumberColumn text="Service TP (manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
+                        <NumberColumn text="Service TP (manual)" dataIndex="roServiceTPManual" />
                         <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
@@ -338,7 +338,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Credits" dataIndex="roCredits" />
                         <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
                         <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
-                        <NumberColumn text="ReActive TP (manual)" dataIndex="roReActiveTP" />
+                        <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} />
                         <NumberColumn text="ProActive (calc)" dataIndex="roProActive" />
 
                     </Column>
