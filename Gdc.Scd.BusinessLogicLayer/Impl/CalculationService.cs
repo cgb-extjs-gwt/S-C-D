@@ -115,8 +115,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var e = entities[rec.Id];
                     var country = e.Country;
                     var p = e.Portfolio;
-                    var hwManual = e.Manual ?? new HardwareManualCost
-                    { LocalPortfolio = p }; //create new if does not exist
+                    var hwManual = e.Manual ?? new HardwareManualCost { LocalPortfolio = p }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
