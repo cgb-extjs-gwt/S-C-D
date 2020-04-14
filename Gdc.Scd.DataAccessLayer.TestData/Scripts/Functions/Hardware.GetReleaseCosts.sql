@@ -32,6 +32,8 @@ RETURN
     , CostCte as (
         select    m.*
 
+                , ISNULL(m.ProActive, 0) as ProActiveOrZero
+
                 , isnull(m.AvailabilityFee, 0) as AvailabilityFeeOrZero
 
                 , isnull(r.Cost, 0) as ReinsuranceProlCost
@@ -174,7 +176,7 @@ RETURN
          , m.Credits
 
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) + m.ProActiveOrZero as ServiceTP
 
          , m.ServiceTC1
          , m.ServiceTC2
@@ -194,7 +196,7 @@ RETURN
          , m.DealerDiscount
          , m.DealerPrice
          , m.ServiceTCManual
-         , m.ServiceTPManual
+         , m.ReActiveTPManual + m.ProActiveOrZero as ServiceTPManual
          , m.ServiceTP_Released
 
          , m.ReleaseDate
@@ -203,4 +205,4 @@ RETURN
 
        from CostCte6 m
 )
-GO
+go

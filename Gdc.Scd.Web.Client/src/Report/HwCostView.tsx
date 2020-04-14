@@ -47,6 +47,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             'ListPrice',
             'DealerDiscount',
 
+            'ProActive',
+            'ReActiveTPManual',
+
             'ReleaseUserName',
             'ReleaseDate',
 
@@ -71,7 +74,21 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             { name: 'roServiceTCManual', calculate: readonly('ServiceTCManual') },
 
             { name: 'roServiceTP', calculate: readonly('ServiceTP') },
-            { name: 'roServiceTPManual', calculate: readonly('ServiceTPManual') },
+
+            {
+                name: 'roServiceTPManual',
+                calculate: function (d) {
+                    let result: any;
+                    if (d && d.ReActiveTPManual) {
+                        result = d.ReActiveTPManual;
+                        if (d.ProActive) {
+                            result = result + d.ProActive
+                        }
+                    }
+                    return result;
+                }
+            },
+
             { name: 'roServiceTP_Released', calculate: readonly('ServiceTP_Released') },
 
             { name: 'roListPrice', calculate: readonly('ListPrice') },

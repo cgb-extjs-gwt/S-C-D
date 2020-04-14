@@ -187,7 +187,7 @@ RETURN
             , man.DealerDiscount                        as DealerDiscount              
             , man.DealerPrice        / std.ExchangeRate as DealerPrice                 
             , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTC     / std.ExchangeRate) end as ServiceTCManual                   
-            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTP     / std.ExchangeRate) end as ServiceTPManual                   
+            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ReActiveTP    / std.ExchangeRate) end as ReActiveTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
 
             , man.ReleaseDate                           as ReleaseDate
