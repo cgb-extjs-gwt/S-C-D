@@ -79,7 +79,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 name: 'roServiceTPManual',
                 calculate: function (d) {
                     let result: any;
-                    if (d && d.ReActiveTPManual) {
+                    if (d) {
                         result = d.ReActiveTPManual;
                         if (d.ProActive) {
                             result = result + d.ProActive
