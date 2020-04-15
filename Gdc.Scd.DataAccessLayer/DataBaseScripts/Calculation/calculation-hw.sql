@@ -1162,7 +1162,7 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
     from cte ssc
 GO
 
-CREATE VIEW [Hardware].[ProActiveView] with schemabinding as 
+CREATE VIEW [Hardware].[ProActiveView] as 
     with ProActiveCte as 
     (
         select pro.Country,

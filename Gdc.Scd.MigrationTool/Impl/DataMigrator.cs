@@ -119,13 +119,18 @@ namespace Gdc.Scd.MigrationTool.Impl
             this.AddCalculatedColumn(column, meta.Name, meta.Schema, calcQuery, isPersisted);
         }
 
-        public void SplitCostBlock(CostBlockEntityMeta source, IEnumerable<CostBlockEntityMeta> targets, DomainEnitiesMeta enitiesMeta)
+        public void SplitCostBlock(CostBlockEntityMeta source, IEnumerable<CostBlockEntityMeta> targets, DomainEnitiesMeta enitiesMeta, bool dropSource = false)
         {
             var sourceFields = source.AllFields.ToNamesArray();
             var sourceCoordFields = source.CoordinateFields.ToNamesArray();
             var queries = targets.Select(BuildQuery);
 
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
+
+            if (dropSource)
+            {
+                this.DropCostBlock(source);
+            }
 
             SqlHelper BuildQuery(CostBlockEntityMeta target)
             {
@@ -348,6 +353,18 @@ namespace Gdc.Scd.MigrationTool.Impl
         {
             this.DropTable(costBlock);
             this.DropTable(costBlock.HistoryMeta);
+        }
+
+        public void DropView(string viewName, string schema)
+        {
+            var query = new SqlHelper(new DropViewSqlBuilder
+            {
+                Name = viewName,
+                Schema = schema,
+                IfExists = true
+            });
+
+            this.repositorySet.ExecuteSql(query);
         }
 
         private SqlHelper BuildAddTableQuery(

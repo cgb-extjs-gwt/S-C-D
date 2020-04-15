@@ -59,6 +59,9 @@
         <Table Id="FieldServiceLocation" Shema="Hardware" Name="FieldServiceLocation"/>
         <Table Id="FieldServiceReactionTimeType" Shema="Hardware" Name="FieldServiceReactionTimeType"/>
         <Table Id="FieldServiceAvailability" Shema="Hardware" Name="FieldServiceAvailability"/>
+
+        <Table Id="ProActiveCounty" Shema="Hardware" Name="ProActiveCounty"/>
+        <Table Id="ProActiveWg" Shema="Hardware" Name="ProActiveWg"/>
     </Tables>
 
   <Blocks>
@@ -89,7 +92,6 @@
             <Elements>
                 <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_" TableId="FieldServiceWg">
                     <InputLevels>
-                        <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <TableView>
@@ -683,7 +685,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually">
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually" TableId="ProActiveCounty">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -692,7 +694,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually">
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually" TableId="ProActiveCounty">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -701,7 +703,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually">
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually" TableId="ProActiveCounty">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -710,7 +712,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_" TableId="ProActiveWg">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
@@ -724,7 +726,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually">
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually" TableId="ProActiveCounty">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -733,7 +735,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually">
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually" TableId="ProActiveCounty">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -742,7 +744,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually">
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually" TableId="ProActiveCounty">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -751,7 +753,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually" TableId="ProActiveCounty">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>

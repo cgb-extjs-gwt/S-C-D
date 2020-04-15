@@ -22,7 +22,7 @@ namespace Gdc.Scd.MigrationTool.Interfaces
 
         void AddCostElements(IEnumerable<CostElementInfo> costElementInfos);
 
-        void SplitCostBlock(CostBlockEntityMeta source, IEnumerable<CostBlockEntityMeta> targets, DomainEnitiesMeta enitiesMeta);
+        void SplitCostBlock(CostBlockEntityMeta source, IEnumerable<CostBlockEntityMeta> targets, DomainEnitiesMeta enitiesMeta, bool dropSource = false);
 
         void CreateCostBlockView(string shema, string name, IEnumerable<CostBlockEntityMeta> costBlocks, BaseColumnInfo[] additionalColumns = null, string[] ignoreCoordinates = null);
 
@@ -31,5 +31,7 @@ namespace Gdc.Scd.MigrationTool.Interfaces
         void DropTable(BaseEntityMeta meta);
 
         void DropCostBlock(CostBlockEntityMeta costBlock);
+
+        void DropView(string viewName, string schema);
     }
 }
