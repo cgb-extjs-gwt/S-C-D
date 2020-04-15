@@ -44,7 +44,7 @@ BEGIN
     declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
 
     declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
-
+    
     with cte as (
         select m.* 
                , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
@@ -76,9 +76,9 @@ BEGIN
 
             , m.ServicePeriod as Duration
 
-             , m.ServiceTpSog * m.ExchangeRate as ReActive
+             , m.ReactiveTpSog * m.ExchangeRate as ReActive
              , m.ProActiveSog * m.ExchangeRate as ProActive
-             , (m.ServiceTpSog + coalesce(m.ProActiveSog, 0)) * m.ExchangeRate as ServiceTP
+             , (m.ReactiveTpSog + coalesce(m.ProActiveSog, 0)) * m.ExchangeRate as ServiceTP
 
             , m.Currency
 

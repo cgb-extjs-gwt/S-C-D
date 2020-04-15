@@ -89,6 +89,14 @@ RETURN
 
         from CostCte5 m
     )    
+    , CostCte7 as (
+        select m.*
+
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ReActiveTP 
+
+        from CostCte6 m
+    )    
     select m.rownum
          , m.Id
 
@@ -149,8 +157,9 @@ RETURN
        
          , m.Credits
 
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) + m.ProActiveOrZero as ServiceTP
+         , m.ServiceTC
+         , m.ReActiveTP
+         , m.ReActiveTP + m.ProActiveOrZero as ServiceTP
 
          , m.ServiceTC1
          , m.ServiceTC2
@@ -172,8 +181,10 @@ RETURN
          , m.ServiceTCManual
          , m.ReActiveTPManual 
          , m.ReActiveTPManual + m.ProActiveOrZero as ServiceTPManual
-         , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
-         , coalesce(m.ReActiveTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) + m.ProActiveOrZero as ServiceTPResult
+         
+         , coalesce(m.ServiceTCManual, m.ServiceTC) as ServiceTCResult
+         , coalesce(m.ReActiveTPManual, m.ReActiveTP) as ReActiveTPResult
+         , coalesce(m.ReActiveTPManual, m.ReActiveTP) + m.ProActiveOrZero as ServiceTPResult
          , m.ServiceTP_Released
 
          , m.ReleaseDate
@@ -184,6 +195,7 @@ RETURN
          , m.ChangeUserName
          , m.ChangeUserEmail
 
-       from CostCte6 m
+    from CostCte7 m
 )
-GO
+go
+
