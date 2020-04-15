@@ -7,45 +7,22 @@ import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalTool
 import { DynamicGrid } from "../../Common/Components/DynamicGrid";
 import { DynamicGridActions } from "../../Common/Components/Props/DynamicGridProps";
 import { ColumnInfo } from "../../Common/States/ColumnInfo";
+import { objectPropsEqual } from "../../Common/Helpers/CommonHelpers";
 import { Model } from "../../Common/States/ExtStates";
-import { Container, Toolbar, Button } from "@extjs/ext-react";
-import { HistoryButtonView } from "../../History/Components/HistoryButtonView";
-import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
-import { RouteComponentProps } from "react-router";
-
-Ext.require('Ext.grid.plugin.Exporter')
 
 export interface TableViewGridActions extends LocalDynamicGridActions<TableViewRecord>, DynamicGridActions {
     onApprove?()
     onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
-    onExportToExcelClick?()
 }
 
-export interface TableViewGridProps extends TableViewGridActions, RouteComponentProps {
+export interface TableViewGridProps extends TableViewGridActions {
     columns: ColumnInfo[]
     apiUrls: ApiUrls
     hasChanges: boolean
-    buildHistotyDataLoadUrl(selection: Model<TableViewRecord>[], selectedDataIndex: string): string
 }
 
-export interface TableViewGridState {
-    selection: Model<TableViewRecord>[]
-    selectedDataIndex: string
-    isEnableHistoryButton: boolean
-}
-
-export class TableViewGrid extends React.Component<TableViewGridProps, TableViewGridState> {
+export class TableViewGrid extends React.Component<TableViewGridProps> {
     private innerGrid: AjaxDynamicGrid
-
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            selection: [],
-            selectedDataIndex: null,
-            isEnableHistoryButton: false
-        };
-    }
 
     public componentWillReceiveProps(nextProps: TableViewGridProps) {
         if (this.innerGrid && !nextProps.hasChanges) {
@@ -53,58 +30,24 @@ export class TableViewGrid extends React.Component<TableViewGridProps, TableView
         }
     }
 
-    public shouldComponentUpdate(nextProps: TableViewGridProps, nextState: TableViewGridState) {
+    public shouldComponentUpdate(nextProps: TableViewGridProps) {
         return (
-            this.state != nextState ||
             this.props != nextProps && 
-            (this.props.apiUrls != nextProps.apiUrls || 
-            this.props.columns != nextProps.columns ||
-            this.props.buildHistotyDataLoadUrl != nextProps.buildHistotyDataLoadUrl)
+            (this.props.apiUrls != nextProps.apiUrls || this.props.columns != nextProps.columns)
         );
     }
 
     public render() {
-        const gridProps = this.props as AjaxDynamicGridProps;
-        const { isEnableHistoryButton } = this.state;
+        const gridProps = this.props as AjaxDynamicGridProps
 
         return (
-            <Container layout="fit">
-                <Toolbar docked="top">
-                    <HistoryButtonView
-                        isEnabled={isEnableHistoryButton}
-                        flex={1}
-                        windowPosition={{
-                            top: '300',
-                            left: '25%'
-                        }}
-                        buidHistoryUrl={this.buidHistoryUrl}
-                    />
-                    <Button text="Export to Excel" flex={1} handler={this.onExportToExcel}/>
-                    <QualtityGateSetWindowContainer position={{ top: '25%', left: '25%'}}/>
-                </Toolbar>
-
-                <AjaxDynamicGrid 
-                    { ...gridProps } 
-                    ref={this.innerGridRef}
-                    getSaveToolbar={this.getSaveToolbar}
-                    onSelectionChange={this.onSelectionChange} 
-                />
-            </Container>
-        );
+            <AjaxDynamicGrid 
+                { ...gridProps } 
+                ref={this.innerGridRef}
+                getSaveToolbar={this.getSaveToolbar} 
+            />
+        ); 
     }
-
-    private buidHistoryUrl = () => {
-        const { buildHistotyDataLoadUrl } = this.props;
-        const { selection, selectedDataIndex } = this.state;
-
-        return buildHistotyDataLoadUrl && buildHistotyDataLoadUrl(selection, selectedDataIndex);
-    }
-
-    private onExportToExcel = () => {
-        const {onExportToExcelClick} = this.props;
-
-        onExportToExcelClick && onExportToExcelClick();
-    } 
 
     private innerGridRef = (grid: AjaxDynamicGrid) => {
         this.innerGrid = grid;
@@ -127,27 +70,5 @@ export class TableViewGrid extends React.Component<TableViewGridProps, TableView
                 onApproval={onApprove}
             />
         );
-    }
-
-    private onSelectionChange = (grid, records: Model<TableViewRecord>[], selecting: boolean, selectionInfo) => {
-        const { startCell } = selectionInfo;
-
-         if (startCell) {
-            const column = selectionInfo.startCell.column;
-            const dataIndex = column.getDataIndex();
-
-            this.setState({
-                selection: records,
-                selectedDataIndex: dataIndex,
-                isEnableHistoryButton: dataIndex in records[0].data.data
-            });
-         }
-         else {
-            this.setState({
-                selection: [],
-                selectedDataIndex: null,
-                isEnableHistoryButton: false
-            });
-         }
     }
 }
