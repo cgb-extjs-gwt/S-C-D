@@ -185,12 +185,12 @@ RETURN
          , m.ServiceTC5
          , m.ServiceTC1P
 
-         , m.ServiceTP_release1  as ServiceTP1
-         , m.ServiceTP_release2  as ServiceTP2
-         , m.ServiceTP_release3  as ServiceTP3
-         , m.ServiceTP_release4  as ServiceTP4
-         , m.ServiceTP_release5  as ServiceTP5
-         , m.ServiceTP_release1P as ServiceTP1P
+         , m.ServiceTP_release1  + case when m.Year >= 1 then + m.ProActiveOrZero / m.Year else 0 end as ServiceTP1
+         , m.ServiceTP_release2  + case when m.Year >= 2 then + m.ProActiveOrZero / m.Year else 0 end as ServiceTP2
+         , m.ServiceTP_release3  + case when m.Year >= 3 then + m.ProActiveOrZero / m.Year else 0 end as ServiceTP3
+         , m.ServiceTP_release4  + case when m.Year >= 4 then + m.ProActiveOrZero / m.Year else 0 end as ServiceTP4
+         , m.ServiceTP_release5  + case when m.Year >= 5 then + m.ProActiveOrZero / m.Year else 0 end as ServiceTP5
+         , m.ServiceTP_release1P                                                                      as ServiceTP1P
 
          , m.ListPrice
          , m.DealerDiscount
@@ -206,3 +206,4 @@ RETURN
        from CostCte6 m
 )
 go
+
