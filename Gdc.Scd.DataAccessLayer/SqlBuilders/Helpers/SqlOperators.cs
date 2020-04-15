@@ -15,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<EqualsSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Equals(string columnName, object value = null, string tableName = null)
+        public static ConditionHelper Equals(string columnName, object value, string tableName = null)
         {
             return CreateConditionHelper<EqualsSqlBuilder>(columnName, value, tableName);
         }

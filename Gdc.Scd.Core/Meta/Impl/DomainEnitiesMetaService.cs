@@ -65,8 +65,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             domainEnitiesMeta.OtherMetas.AddRange(
                 customCoordinateMetas.Where(meta => domainEnitiesMeta[meta.FullName] == null));
 
-            domainEnitiesMeta.LocalPortfolio = this.BuildPortfolioMeta<LocalPortfolio>(domainEnitiesMeta);
-            domainEnitiesMeta.PrincipalPortfolio = this.BuildPortfolioMeta<PrincipalPortfolio>(domainEnitiesMeta);
+            domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
+            domainEnitiesMeta.PrincipalPortfolio = this.BuildMeta<PrincipalPortfolio>(domainEnitiesMeta);
+            domainEnitiesMeta.HwStandardWarranty = this.BuildHwStandardWarranty(domainEnitiesMeta);
 
             var countryMeta = domainEnitiesMeta.GetCountryEntityMeta();
             if (countryMeta != null)
@@ -254,7 +255,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             toCollection.AddRange(fields);
         }
 
-        private EntityMeta BuildPortfolioMeta<T>(DomainEnitiesMeta domainEnitiesMeta) where T : Portfolio
+        private EntityMeta BuildMeta<T>(DomainEnitiesMeta domainEnitiesMeta) where T : Portfolio
         {
             var fields =
                 typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty)
@@ -293,6 +294,36 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                 return field;
             }
+        }
+
+        private EntityMeta BuildLocalPortfolioMeta(DomainEnitiesMeta domainEnitiesMeta)
+        {
+            var meta = this.BuildMeta<LocalPortfolio>(domainEnitiesMeta);
+
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTime_Avalability", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta("ReactionTimeAvailability", MetaConstants.DependencySchema)));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTime_ReactionType", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta("ReactionTimeType", MetaConstants.DependencySchema)));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTime_ReactionType_Avalability", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta("ReactionTimeTypeAvailability", MetaConstants.DependencySchema)));
+
+            return meta;
+        }
+
+        private EntityMeta BuildHwStandardWarranty(DomainEnitiesMeta domainEnitiesMeta)
+        {
+            var meta = new EntityMeta("HwStandardWarranty", "Fsp");
+
+            meta.Fields.Add(ReferenceFieldMeta.Build("Country", domainEnitiesMeta.GetCountryEntityMeta()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("Wg", domainEnitiesMeta.GetWgEntityMeta()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("AvailabilityId", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta<Availability>()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("DurationId", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta<Duration>()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTimeId", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta<ReactionTime>()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTypeId", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta<ReactionType>()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ServiceLocationId", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta<ServiceLocation>()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ProActiveSlaId", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta<ProActiveSla>()));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTime_Avalability", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta("ReactionTimeAvailability", MetaConstants.DependencySchema)));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTime_ReactionType", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta("ReactionTimeType", MetaConstants.DependencySchema)));
+            meta.Fields.Add(ReferenceFieldMeta.Build("ReactionTime_ReactionType_Avalability", (NamedEntityMeta)domainEnitiesMeta.GetEntityMeta("ReactionTimeTypeAvailability", MetaConstants.DependencySchema)));
+
+            return meta;
         }
 
         private class CoordinateMetaFactory

@@ -54,6 +54,13 @@
         <Application Id="SoftwareSolution" Caption="Software &amp; Solution"/>
     </Applications>
 
+    <Tables>
+        <Table Id="FieldServiceWg" Shema="Hardware" Name="FieldServiceWg"/>
+        <Table Id="FieldServiceLocation" Shema="Hardware" Name="FieldServiceLocation"/>
+        <Table Id="FieldServiceReactionTimeType" Shema="Hardware" Name="FieldServiceReactionTimeType"/>
+        <Table Id="FieldServiceAvailability" Shema="Hardware" Name="FieldServiceAvailability"/>
+    </Tables>
+
   <Blocks>
         <Block Id="AFR">
             <Applications>
@@ -80,7 +87,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_">
+                <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_" TableId="FieldServiceWg">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
@@ -92,7 +99,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Id="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
+                <Element Id="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation" TableId="FieldServiceLocation">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -101,7 +108,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation">
+                <Element Id="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation" TableId="FieldServiceLocation">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -111,7 +118,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation">
+                <Element Id="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation" TableId="FieldServiceLocation">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -121,7 +128,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType" TableId="FieldServiceReactionTimeType">
                     <TypeOption Type="CountryCurrencyCost"/>
                     <CostEditor>
                         <Roles>
@@ -131,7 +138,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
+                <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType" TableId="FieldServiceReactionTimeType">
                     <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
@@ -141,7 +148,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" Dependency="Availability">
+                <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" Dependency="Availability" TableId="FieldServiceAvailability">
                   <TypeOption Type="Percent"/>
                     <CostEditor>
                       <Roles>
@@ -164,6 +171,7 @@
             </Applications>
             <Elements>
                 <Element Id="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                     </InputLevels>
@@ -188,6 +196,7 @@
                     </CostEditor>
                 </Element>
                 <Element Id="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country" CountryReadOnlyColumn="CanOverride2ndLevelSupportLocal">
+                    <TypeOption Type="CountryCurrencyCost"/>
                     <InputLevels>
                         <InputLevel>ClusterPla</InputLevel>
                     </InputLevels>
@@ -289,7 +298,7 @@
             </Elements>
         </Block>
 
-        <Block Id="AvailabilityFee" Caption="Availability fee">
+        <Block Id="AvailabilityFee" Caption="Availability fee" DisableTriggers="True">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
@@ -546,7 +555,7 @@
             </Elements>
         </Block>
 
-        <Block Id="MaterialCostWarranty" Caption="Material cost">
+        <Block Id="MaterialCostWarranty" Caption="Material cost" DisableTriggers="True">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
@@ -627,7 +636,7 @@
             </Elements>
         </Block>
 
-        <Block Id="Reinsurance">
+        <Block Id="Reinsurance" DisableTriggers="True">
             <Applications>
                 <Application>Hardware</Application>
             </Applications>
@@ -674,7 +683,7 @@
                 <Application>Hardware</Application>
             </Applications>
             <Elements>
-                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -683,7 +692,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -692,7 +701,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -715,7 +724,7 @@
                         </Roles>
                     </TableView>
                 </Element>
-                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -724,7 +733,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -733,7 +742,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually">
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -883,7 +892,7 @@
                 <Application>SoftwareSolution</Application>
             </Applications>
             <Elements>
-                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -898,7 +907,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -913,7 +922,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -941,7 +950,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -956,7 +965,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -971,7 +980,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>

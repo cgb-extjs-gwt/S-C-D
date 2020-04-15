@@ -184,6 +184,57 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Sql.Queries(queries.ToArray());
         }
 
+        public async Task<NamedId[]> GetDependencyByPortfolio(CostElementContext context)
+        {
+            var costBlock = this.domainEnitiesMeta.CostBlocks[context];
+            var regionField = costBlock.GetDomainRegionInputField(context.CostElementId);
+            var regionMeta = regionField.ReferenceMeta;
+            var dependencyField = costBlock.GetDomainDependencyField(context.CostElementId);
+            var dependencyMeta = (NamedEntityMeta)dependencyField.ReferenceMeta;
+
+            var selectIdsQuery = Sql.Union(new[]
+            {
+                BuildSelectIdsQuery(this.domainEnitiesMeta.LocalPortfolio),
+                BuildSelectIdsQuery(this.domainEnitiesMeta.HwStandardWarranty)
+            });
+
+            var query =
+                Sql.Select(dependencyMeta.IdField.Name, dependencyMeta.NameField.Name)
+                   .From(dependencyField.ReferenceMeta)
+                   .Where(SqlOperators.In(dependencyMeta.IdField.Name, selectIdsQuery, dependencyMeta.Name));
+
+            var items = await this.repositorySet.ReadBySqlAsync(query, reader =>
+            {
+                return new NamedId
+                {
+                    Id = reader.GetInt64(0),
+                    Name = reader.GetString(1)
+                };
+            });
+
+            return items.ToArray();
+
+            SqlHelper BuildSelectIdsQuery(BaseEntityMeta meta)
+            {
+                var selectField = meta.GetFieldByReferenceMeta(dependencyMeta);
+                var conditions = new List<ConditionHelper>();
+
+                if (context.RegionInputId.HasValue)
+                {
+                    var field = meta.GetFieldByReferenceMeta(regionMeta);
+                    if (field != null)
+                    {
+                        conditions.Add(SqlOperators.Equals(field.Name, context.RegionInputId.Value));
+                    }
+                }
+
+                return
+                    Sql.SelectDistinct(new ColumnInfo(selectField.Name, alias: MetaConstants.IdFieldKey))
+                       .From(meta)
+                       .Where(ConditionHelper.And(conditions));
+            }
+        }
+
         private SqlHelper BuildCoordinatesTableQuery(CostBlockEntityMeta costBlockMeta)
         {
             var coordinateFields = costBlockMeta.CoordinateFields.ToArray();

@@ -11,6 +11,14 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IDictionary<FieldMeta, FieldMeta> CostElementsApprovedFields { get; } = new Dictionary<FieldMeta, FieldMeta>();
 
+        public IEnumerable<FieldMeta> AllCostElemetFields
+        {
+            get
+            {
+                return this.CostElementsFields.Concat(this.CostElementsApprovedFields.Values);
+            }
+        }
+
         public CreatedDateTimeFieldMeta CreatedDateField { get; } = new CreatedDateTimeFieldMeta();
 
         public SimpleFieldMeta DeletedDateField { get; } = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime) { IsNullOption = true };
@@ -98,6 +106,19 @@ namespace Gdc.Scd.Core.Meta.Entities
             return
                 this.GetDomainCoordinateFields(costElementId)
                     .FirstOrDefault(field => field.Name == fieldName);
+        }
+
+        public ReferenceFieldMeta GetDomainRegionInputField(string costElementId)
+        {
+            ReferenceFieldMeta regionField = null;
+
+            var regionInput = this.SliceDomainMeta.CostElements[costElementId].RegionInput;
+            if (regionInput != null)
+            {
+                regionField = this.InputLevelFields[regionInput.Id];
+            }
+
+            return regionField;
         }
 
         private IEnumerable<ReferenceFieldMeta> GetDomainInputLevelFields(CostElementMeta costElement)

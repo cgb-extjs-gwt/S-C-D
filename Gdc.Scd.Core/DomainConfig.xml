@@ -139,7 +139,7 @@
                     </CostEditor>
                 </Element>
                 <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType" TableId="FieldServiceReactionTimeType">
-                    <TypeOption Type="Percent" IsAddingNormColumns="True"/>
+                    <TypeOption Type="Percent"/>
                     <CostEditor>
                         <Roles>
                             <Role>Country Finance Director</Role>
@@ -149,7 +149,7 @@
                     </CostEditor>
                 </Element>
                 <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" Dependency="Availability" TableId="FieldServiceAvailability">
-                  <TypeOption Type="Percent" IsAddingNormColumns="True"/>
+                  <TypeOption Type="Percent"/>
                     <CostEditor>
                       <Roles>
                         <Role>Country Finance Director</Role>

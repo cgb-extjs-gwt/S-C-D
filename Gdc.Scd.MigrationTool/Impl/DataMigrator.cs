@@ -2,6 +2,7 @@
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -12,6 +13,7 @@ using Gdc.Scd.MigrationTool.Helpers;
 using Gdc.Scd.MigrationTool.Interfaces;
 using Ninject;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Gdc.Scd.MigrationTool.Impl
@@ -21,7 +23,7 @@ namespace Gdc.Scd.MigrationTool.Impl
         private readonly IKernel serviceProvider;
         private readonly IRepositorySet repositorySet;
         private readonly ICostBlockRepository costBlockRepository;
-
+        
         public DataMigrator(
             IKernel serviceProvider,
             IRepositorySet repositorySet,
@@ -121,83 +123,80 @@ namespace Gdc.Scd.MigrationTool.Impl
         {
             var sourceFields = source.AllFields.ToNamesArray();
             var sourceCoordFields = source.CoordinateFields.ToNamesArray();
-
-            var queries = targets.SelectMany(BuildQueries);
+            var queries = targets.Select(BuildQuery);
 
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
 
-            IEnumerable<SqlHelper> BuildQueries(CostBlockEntityMeta target)
+            SqlHelper BuildQuery(CostBlockEntityMeta target)
             {
-                yield return this.BuildAddTableQuery(target, false);
-
-                var actualVersionTempTable = $"#ActualVersion_{target.FullName}";
-
-                yield return
-                    Sql.If(
-                        SqlOperators.NotExists(target),
+                return 
+                    this.BuildAddTableQuery(
+                        target, 
+                        false,
                         Sql.Queries(new[]
                         {
-                            BuildCreateActualVersionTempTableQuery(target, actualVersionTempTable),
-                            BuildInsertActualVersionRowsQuery(target, actualVersionTempTable),
-                            BuildInsertOtherRowsQuery(target, actualVersionTempTable)
-                        }));
-
-                yield return
-                    Sql.If(
-                        SqlOperators.NotExists(target.HistoryMeta),
+                            new SetIdentityInsertSqlBuilder(target, true),
+                            BuildInsertActualVersionRowsQuery(target).ToSqlBuilder(),
+                            BuildInsertPreviousVersionRowsQuery(target).ToSqlBuilder(),
+                            new SetIdentityInsertSqlBuilder(target, false),
+                            BuildInsertOtherRowsQuery(target).ToSqlBuilder()
+                        }),
                         BuildInsertHistoryQuery(target));
             }
 
-            SqlHelper BuildCreateActualVersionTempTableQuery(CostBlockEntityMeta target, string actualVersionTempTable)
+            SqlHelper BuildInsertActualVersionRowsQuery(CostBlockEntityMeta target)
             {
-                var groupByColumns = BuildGroupByColumns(target);
+                var groupByColumns =
+                    target.CoordinateFields.ConcatFields(target.DeletedDateField)
+                                           .ToNamesArray();
+
                 var selectColumns = BuildSelectColumns(target.AllFields.WithoutIdField().ToNames(), groupByColumns);
 
-                return
-                    Sql.Select(selectColumns)
-                       .Into(actualVersionTempTable)
+                var idsQuery =
+                    Sql.Select(SqlFunctions.Min(target.IdField))
                        .From(source)
-                       .GroupBy(groupByColumns)
-                       .Having(
-                            SqlOperators.Greater(new CountSqlBuilder(), new ValueSqlBuilder(1)));
-            }
+                       .Where(SqlOperators.Equals(new ColumnInfo(target.IdField), new ColumnInfo(target.ActualVersionField)))
+                       .GroupBy(groupByColumns);
 
-            SqlHelper BuildInsertActualVersionRowsQuery(CostBlockEntityMeta target, string actualVersionTempTable)
-            {
                 var allFields = target.AllFields.ToNamesArray();
 
-                var selectAcualIdsQuery =
-                     Sql.Select(source.IdField.Name)
-                        .From(actualVersionTempTable)
-                        .Where(SqlOperators.IsNull(target.DeletedDateField.Name));
-
-                var insertActualRowsQuery =
+                return
                     Sql.Insert(target, allFields)
                        .Query(
                             Sql.Select(allFields)
                                .From(source)
-                               .Where(SqlOperators.In(source.IdField.Name, selectAcualIdsQuery)));
-
-                var withoutIdFields = target.AllFields.WithoutIdField().ToNamesArray();
-
-                var insertPreviousRowsQuery =
-                    Sql.Insert(target, withoutIdFields)
-                       .Query(
-                            Sql.Select(withoutIdFields)
-                               .From(actualVersionTempTable)
-                               .Where(SqlOperators.IsNotNull(target.DeletedDateField.Name)));
-
-                return Sql.Queries(new[]
-                {
-                    insertActualRowsQuery,
-                    insertPreviousRowsQuery
-                });
+                               .Where(SqlOperators.In(source.IdField.Name, idsQuery)));
             }
 
-            SqlHelper BuildInsertOtherRowsQuery(CostBlockEntityMeta target, string actualVersionTempTable)
+            SqlHelper BuildInsertPreviousVersionRowsQuery(CostBlockEntityMeta target)
+            {
+                var allFields = target.AllFields.ToNamesArray();
+
+                var selectActualIdsQuery =
+                    Sql.Select(target.ActualVersionField.Name)
+                       .From(target, isolationLevel: IsolationLevel.ReadUncommitted);
+
+                return
+                    Sql.Insert(target, allFields)
+                       .Query(
+                            Sql.Select(allFields)
+                               .From(source)
+                               .Where(
+                                    ConditionHelper.And(
+                                        SqlOperators.In(source.ActualVersionField.Name, selectActualIdsQuery),
+                                        SqlOperators.NotEquals(
+                                            new ColumnInfo(source.IdField),
+                                            new ColumnInfo(source.ActualVersionField)))));
+
+            }
+
+            SqlHelper BuildInsertOtherRowsQuery(CostBlockEntityMeta target)
             {
                 var targetFields = target.AllFields.WithoutIdField().ToNamesArray();
-                var groupFields = sourceCoordFields.Intersect(target.CoordinateFields.ToNames()).ToArray();
+                var groupFields = 
+                    target.CoordinateFields.ConcatFields(target.DeletedDateField)
+                                           .ToNamesArray();
+
                 var selectColumns = BuildSelectColumns(targetFields, groupFields);
 
                 return
@@ -205,16 +204,13 @@ namespace Gdc.Scd.MigrationTool.Impl
                        .Query(
                             Sql.Select(selectColumns)
                                .From(source)
-                               .Where(
-                                    ConditionHelper.Or(
-                                        SqlOperators.NotExists(actualVersionTempTable),
-                                        SqlOperators.IsNull(target.ActualVersionField.Name)))
+                               .Where(SqlOperators.IsNull(target.ActualVersionField.Name))
                                .GroupBy(groupFields));
             }
 
             SqlHelper BuildInsertHistoryQuery(CostBlockEntityMeta target)
             {
-                var historyFields = target.HistoryMeta.AllFields.ToNamesArray();
+                var historyFields = target.HistoryMeta.AllFields.WithoutIdField().ToNamesArray();
                 var costBlockHistory = enitiesMeta.CostBlockHistory;
 
                 var historyFilters =
@@ -248,13 +244,6 @@ namespace Gdc.Scd.MigrationTool.Impl
 
             }
 
-            string[] BuildGroupByColumns(CostBlockEntityMeta target)
-            {
-                return
-                    target.CoordinateFields.ConcatFields(target.ActualVersionField, target.CreatedDateField, target.DeletedDateField)
-                                           .ToNamesArray();
-            }
-
             BaseColumnInfo[] BuildSelectColumns(IEnumerable<string> selectFields, IEnumerable<string> groupFields)
             {
                 return
@@ -267,7 +256,105 @@ namespace Gdc.Scd.MigrationTool.Impl
             }
         }
 
-        private SqlHelper BuildAddTableQuery(CostBlockEntityMeta costBlock, bool isAddingData)
+        public void CreateCostBlockView(
+            string shema, 
+            string name, 
+            IEnumerable<CostBlockEntityMeta> costBlocks, 
+            BaseColumnInfo[] additionalColumns = null,
+            string[] ignoreCoordinates = null)
+        {
+            var costBlockArray = 
+                costBlocks.OrderByDescending(costBlock => costBlock.CoordinateFields.Count())
+                          .Distinct()
+                          .ToArray();
+
+            var coordinateColumns =
+                costBlockArray.SelectMany(costBlock => GetCoordinates(costBlock).Select(field => new { costBlock, field }))
+                              .GroupBy(info => info.field.Name)
+                              .Select(group => new ColumnInfo(group.Key, group.First().costBlock.Name));
+
+            var costElementColumns =
+                costBlockArray.SelectMany(
+                    costBlock => 
+                        costBlock.AllCostElemetFields.OrderBy(field => field.Name)
+                                                     .Select(field => new ColumnInfo(field, costBlock)));
+
+            IEnumerable<BaseColumnInfo> columns = coordinateColumns.Concat(costElementColumns);
+
+            if (additionalColumns != null)
+            {
+                columns = columns.Concat(additionalColumns);
+            }
+
+            var fromCostBlock = costBlockArray[0];
+            var query = Sql.Select(columns.ToArray()).From(fromCostBlock);
+
+            var joinFields = GetCoordinates(fromCostBlock).Select(field => field.Name).ToArray();
+
+            foreach (var costBlock in costBlockArray)
+            {
+                joinFields = joinFields.Intersect(GetCoordinates(costBlock).Select(field => field.Name)).ToArray();
+            }
+
+            foreach (var costBlock in costBlockArray.Skip(1))
+            {
+                var conditions =
+                    joinFields.Select(
+                        field => SqlOperators.Equals(new ColumnInfo(field, fromCostBlock.Name), new ColumnInfo(field, costBlock.Name)));
+
+                query = query.Join(costBlock, ConditionHelper.And(conditions));
+            }
+
+            var notDeletedConditions =
+                costBlockArray.Select(costBlock => CostBlockQueryHelper.BuildNotDeletedCondition(costBlock, costBlock.Name));
+
+            var sqlBuilder = query.Where(ConditionHelper.And(notDeletedConditions)).ToSqlBuilder();
+
+            var createViewQuery = new CreateViewSqlBuilder
+            {
+                Shema = shema,
+                Name = name,
+                Query = sqlBuilder
+            };
+
+            this.repositorySet.ExecuteSql(new SqlHelper(createViewQuery));
+
+            IEnumerable<ReferenceFieldMeta> GetCoordinates(CostBlockEntityMeta costBlock)
+            {
+                var fields = costBlock.CoordinateFields;
+
+                if (ignoreCoordinates != null)
+                {
+                    fields = fields.Where(field => !ignoreCoordinates.Contains(field.Name));
+                }
+
+                return fields;
+            }
+        }
+
+        public void DropTable(string tableName, string schema)
+        {
+            var query = MigratorSql.IfTableExist(tableName, schema, Sql.DropTable(tableName, schema));
+
+            this.repositorySet.ExecuteSql(query);
+        }
+
+        public void DropTable(BaseEntityMeta meta)
+        {
+            this.DropTable(meta.Name, meta.Schema);
+        }
+
+        public void DropCostBlock(CostBlockEntityMeta costBlock)
+        {
+            this.DropTable(costBlock);
+            this.DropTable(costBlock.HistoryMeta);
+        }
+
+        private SqlHelper BuildAddTableQuery(
+            CostBlockEntityMeta costBlock, 
+            bool isAddingData, 
+            SqlHelper additionalCostBlockQuery = null,
+            SqlHelper additionalHistoryQuery = null)
         {
             var costBlockTableQueries = new List<SqlHelper>
             {
@@ -280,12 +367,25 @@ namespace Gdc.Scd.MigrationTool.Impl
                     this.costBlockRepository.BuildUpdateByCoordinatesQuery(costBlock));
             }
 
+            if (additionalCostBlockQuery != null)
+            {
+                costBlockTableQueries.Add(additionalCostBlockQuery);
+            }
+
+            var historyTableQueries = new List<SqlHelper>
+            {
+                BuildCreateTableQuery(costBlock.HistoryMeta)
+            };
+
+            if (additionalHistoryQuery != null)
+            {
+                historyTableQueries.Add(additionalHistoryQuery);
+            }
+
             return Sql.Queries(new[]
             {
                 MigratorSql.IfTableNotExist(costBlock, costBlockTableQueries),
-                MigratorSql.IfTableNotExist(
-                    costBlock.HistoryMeta,
-                    BuildCreateTableQuery(costBlock.HistoryMeta))
+                MigratorSql.IfTableNotExist(costBlock.HistoryMeta, historyTableQueries)
             });
 
             SqlHelper BuildCreateTableQuery(BaseEntityMeta meta)
@@ -315,7 +415,18 @@ namespace Gdc.Scd.MigrationTool.Impl
             alterTableBuilder.Meta = meta;
             alterTableBuilder.NewFields = new[] { field };
 
-            return MigratorSql.IfColumnNotExist(field, meta, alterTableBuilder);
+            var columnConstrainBuilder = this.serviceProvider.Get<CreateColumnConstraintMetaSqlBuilder>();
+
+            columnConstrainBuilder.Meta = meta;
+            columnConstrainBuilder.Field = field;
+
+            var query = Sql.Queries(new ISqlBuilder[] 
+            {
+                alterTableBuilder,
+                columnConstrainBuilder
+            });
+
+            return MigratorSql.IfColumnNotExist(field, meta, query);
         }
 
         private SqlHelper BuildAddColumnsQuery(BaseEntityMeta meta, IEnumerable<string> fields)

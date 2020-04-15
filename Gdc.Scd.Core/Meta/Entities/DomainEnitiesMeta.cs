@@ -34,6 +34,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public EntityMeta LocalPortfolio { get; set; }
 
+        public EntityMeta HwStandardWarranty { get; set; }
+
         public ExchangeRateEntityMeta ExchangeRate { get; set; }
 
         public MetaCollection<BaseEntityMeta> OtherMetas { get; } = new MetaCollection<BaseEntityMeta>();
@@ -62,6 +64,11 @@ namespace Gdc.Scd.Core.Meta.Entities
                 if (this.ExchangeRate != null)
                 {
                     yield return this.ExchangeRate;
+                }
+
+                if (this.HwStandardWarranty != null)
+                {
+                    yield return this.HwStandardWarranty;
                 }
 
                 var metas =
@@ -143,6 +150,13 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
 
             return meta;
+        }
+
+        public RelatedItemsHistoryEntityMeta GetRelatedItemsHistoryMeta(string name)
+        {
+            var fullName = BaseEntityMeta.BuildFullName(name, MetaConstants.HistoryRelatedItemsSchema);
+
+            return this.RelatedItemsHistories[fullName];
         }
     }
 }

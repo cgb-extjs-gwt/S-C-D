@@ -1,17 +1,13 @@
-﻿using System.Data;
-using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Helpers;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -258,25 +254,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<NamedId>> GetDependencyItems(CostElementContext context)
         {
+            IEnumerable<NamedId> result;
+
             var costBlockMeta = this.entitiesMeta.CostBlocks[context];
             var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.Dependency == null)
             {
-                return null; //no dependency, it's ok
+                result = Enumerable.Empty<NamedId>();
             }
-
-            if (context.IsHardware())
+            else if (context.ApplicationId == MetaConstants.HardwareSchema)
             {
-                //Find items from Portfolio and Standard warranty
-                return await new PortfolioInputService(repositorySet)
-                               .GetCoordinateItemsByPorfolio(context.RegionInputId.Value, costElementMeta.Dependency.Id);
+                result = await this.costBlockRepository.GetDependencyByPortfolio(context);
             }
             else
-            {
-                //simple get from config
-                return await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
+            { 
+                result = await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
             }
+
+            return result;
         }
 
         public async Task<IEnumerable<NamedId>> GetRegions(CostElementContext context)
@@ -311,8 +307,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             async Task<IEnumerable<NamedId>> GetRegions()
             {
                 return await this.sqlRepository.GetDistinctItems(
-                    context.CostBlockId, 
-                    context.ApplicationId, 
+                    costBlockMeta.Name,
+                    costBlockMeta.Schema, 
                     costElementMeta.RegionInput.Id,
                     isolationLevel: IsolationLevel.ReadUncommitted);
             }
@@ -414,103 +410,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     yield return (filter, (maxInputLevelMeta.Id, inputLevelValue));
                 }
-            }
-        }
-
-        private async Task<IEnumerable<NamedId>> GetCoordinateItemsByPorfolio(CostElementContext context, string coordinateId)
-        {
-            IEnumerable<NamedId> items;
-
-            var costBlockMeta = this.entitiesMeta.CostBlocks[context];
-            var coordinateField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, coordinateId);
-            var portfolioField = this.entitiesMeta.LocalPortfolio.GetFieldByReferenceMeta(coordinateField.ReferenceMeta);
-
-            var userCountries = this.userService.GetCurrentUserCountries();
-            var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var coordinateFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(costBlockMeta, context.CostElementId, coordinateId);
-
-            if (portfolioField == null)
-            {
-                var joinConditions = new List<ConditionHelper>();
-                var portfolioReferenceFields = this.entitiesMeta.LocalPortfolio.ReferenceFields.ToDictionary(field => field.ReferenceMeta);
-
-                foreach (var coordinateReferenceField in coordinateField.ReferenceMeta.ReferenceFields)
-                {
-                    if (portfolioReferenceFields.TryGetValue(coordinateReferenceField.ReferenceMeta, out var portfolioRefernceField))
-                    {
-                        joinConditions.Add(
-                            SqlOperators.Equals(
-                                new ColumnInfo(coordinateReferenceField.Name, coordinateField.ReferenceMeta.Name),
-                                new ColumnInfo(portfolioRefernceField.Name, this.entitiesMeta.LocalPortfolio.Name)));
-                    }
-                }
-
-                if (joinConditions.Count > 0)
-                {
-                    var portfolioFilter = GetPortfolioFilter();
-                    var filters = new List<FilterInfo>();
-
-                    if (portfolioFilter != null)
-                    {
-                        filters.Add(new FilterInfo(portfolioFilter, this.entitiesMeta.LocalPortfolio.Name));
-                    }
-
-                    if (coordinateFilter != null)
-                    {
-                        filters.Add(new FilterInfo(coordinateFilter, coordinateField.ReferenceMeta.Name));
-                    }
-
-                    filters.Add(new FilterInfo(costBlockFilter, costBlockMeta.Name));
-
-                    items = await this.sqlRepository.GetDistinctItems(new DistinctItemsInfo
-                    {
-                        Meta = costBlockMeta,
-                        ReferenceFieldName = coordinateField.Name,
-                        JoinInfos = new[]
-                        {
-                            new JoinInfoAdvanced(this.entitiesMeta.LocalPortfolio, ConditionHelper.And(joinConditions))
-                        },
-                        Filters = filters
-                    });
-                }
-                else
-                {
-                    items = await this.GetCoordinateItems(costBlockMeta, coordinateId, costBlockFilter, coordinateFilter);
-                }
-            }
-            else
-            {
-                var countryField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, MetaConstants.CountryInputLevelName);
-                if (countryField == null)
-                {
-                    items = await this.GetCoordinateItems(costBlockMeta, coordinateId, costBlockFilter, coordinateFilter);
-                }
-                else
-                {
-                    var portfolioFilter = GetPortfolioFilter();
-
-                    items = await this.sqlRepository.GetDistinctItems(this.entitiesMeta.LocalPortfolio, portfolioField.Name, portfolioFilter);
-                }
-            }
-
-            return items;
-
-            IDictionary<string, IEnumerable<object>> GetPortfolioFilter()
-            {
-                Dictionary<string, IEnumerable<object>> portfolioFilter = null;
-
-                var countryMeta = this.entitiesMeta.GetCountryEntityMeta();
-                var portfolioCountryField = this.entitiesMeta.LocalPortfolio.GetFieldByReferenceMeta(countryMeta);
-
-                if (portfolioCountryField != null && costBlockFilter.TryGetValue(MetaConstants.CountryInputLevelName, out var countryIds))
-                {
-                    portfolioFilter = new Dictionary<string, IEnumerable<object>>
-                    {
-                        [portfolioCountryField.Name] = countryIds
-                    };
-                }
-
-                return portfolioFilter;
             }
         }
 

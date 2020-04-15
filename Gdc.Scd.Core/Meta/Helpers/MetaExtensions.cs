@@ -23,6 +23,12 @@ namespace Gdc.Scd.Core.Meta.Helpers
             return fields.Where(field => !(field is IdFieldMeta));
         }
 
+        public static IEnumerable<T> WithoutField<T>(this IEnumerable<T> fields, FieldMeta field)
+            where T : FieldMeta
+        {
+            return fields.Where(x => x != field);
+        }
+
         public static IEnumerable<FieldMeta> ConcatFields(this IEnumerable<FieldMeta> fields, FieldMeta field)
         {
             return fields.Concat(field);

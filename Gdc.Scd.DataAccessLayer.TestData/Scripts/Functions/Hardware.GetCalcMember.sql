@@ -110,8 +110,7 @@ RETURN
 							fsc.TravelTime,
 							fsc.repairTime,
 							std.OnsiteHourlyRates,
-							fsc.OohUpliftFactor,
-							m.AvailabilityId)
+							UpliftFactor.OohUpliftFactor)
 					else
 						Hardware.CalcByFieldServicePerYear(
 							fst.TimeAndMaterialShare_norm_Approved, 
@@ -122,8 +121,7 @@ RETURN
 							fsc.TravelTime_Approved,
 							fsc.repairTime_Approved,
 							std.OnsiteHourlyRates,
-							fsc.OohUpliftFactor_Approved,
-							m.AvailabilityId)
+							UpliftFactor.OohUpliftFactor_Approved)
 
                end as FieldServicePerYear
 
@@ -218,6 +216,7 @@ RETURN
 
     LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.UpliftFactor ON UpliftFactor.Country = m.CountryId AND UpliftFactor.Wg = m.WgId AND UpliftFactor.[Availability] = m.AvailabilityId
 
     LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType and lc.Deactivated = 0
 

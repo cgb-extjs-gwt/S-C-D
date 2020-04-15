@@ -8,20 +8,37 @@ namespace Gdc.Scd.MigrationTool.Helpers
 {
     public static class MigratorSql
     {
+        public static SqlHelper IfTableExist(
+           string tableName,
+           string schema,
+           ISqlBuilder tableExistQuery,
+           ISqlBuilder tableNotExistQuery = null)
+        {
+            var selectTableQuery = BuildSelectTableInformationQuery(tableName, schema);
+
+            return
+                Sql.If(
+                    SqlOperators.Exists(selectTableQuery).ToSqlBuilder(),
+                    tableExistQuery,
+                    tableNotExistQuery);
+        }
+
+        public static SqlHelper IfTableExist(
+          string tableName,
+          string schema,
+          SqlHelper tableExistQuery,
+          SqlHelper tableNotExistQuery = null)
+        {
+            return IfTableExist(tableName, schema, tableExistQuery.ToSqlBuilder(), tableNotExistQuery?.ToSqlBuilder());
+        }
+
         public static SqlHelper IfTableNotExist(
            string tableName,
            string schema,
            ISqlBuilder tableNotExistQuery,
            ISqlBuilder tableExistQuery = null)
         {
-            var selectTableQuery =
-                Sql.Select()
-                   .From("TABLES", "INFORMATION_SCHEMA")
-                   .Where(new Dictionary<string, IEnumerable<object>>
-                   {
-                       ["TABLE_SCHEMA"] = new[] { schema },
-                       ["TABLE_NAME"] = new[] { tableName }
-                   });
+            var selectTableQuery = BuildSelectTableInformationQuery(tableName, schema);
 
             return
                 Sql.If(
@@ -108,6 +125,18 @@ namespace Gdc.Scd.MigrationTool.Helpers
             SqlHelper columnExistQuery = null)
         {
             return IfColumnNotExist(field, meta, columnNotExistQuery.ToSqlBuilder(), columnExistQuery?.ToSqlBuilder());
+        }
+
+        private static SqlHelper BuildSelectTableInformationQuery(string tableName, string schema)
+        {
+            return
+                Sql.Select()
+                   .From("TABLES", "INFORMATION_SCHEMA")
+                   .Where(new Dictionary<string, IEnumerable<object>>
+                   {
+                       ["TABLE_SCHEMA"] = new[] { schema },
+                       ["TABLE_NAME"] = new[] { tableName }
+                   });
         }
     }
 }
