@@ -44,7 +44,6 @@ RETURN (
             , case when @local = 1 then TaxAndDutiesOow * costs.ExchangeRate else TaxAndDutiesOow end as TaxAndDutiesOow
             , case when @local = 1 then Reinsurance * costs.ExchangeRate else Reinsurance end as Reinsurance
 
-            , case when @local = 1 then ReActiveTC * costs.ExchangeRate else ReActiveTC end as ReActiveTC
             , case when @local = 1 then ReActiveTP * costs.ExchangeRate else ReActiveTP end as ReActiveTP
             , case when @local = 1 then ProActive * costs.ExchangeRate else ProActive end as ProActive
 
@@ -133,8 +132,6 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialOow', 'Material cost OOW period', 1, 1);
 
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTC', 'ReActive TC (calc)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTP', 'ReActive TP (calc)', 1, 1);
 set @index = @index + 1;
