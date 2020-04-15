@@ -115,13 +115,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var e = entities[rec.Id];
                     var country = e.Country;
                     var p = e.Portfolio;
-                    var hwManual = e.Manual ?? new HardwareManualCost
-                    { LocalPortfolio = p }; //create new if does not exist
+                    var hwManual = e.Manual ?? new HardwareManualCost { LocalPortfolio = p }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
                         hwManual.ServiceTC = rec.ServiceTC;
-                        hwManual.ServiceTP = rec.ServiceTP;
+                        hwManual.ReActiveTP = rec.ReActiveTP;
                         hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);

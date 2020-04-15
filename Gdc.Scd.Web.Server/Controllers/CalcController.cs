@@ -114,7 +114,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                     Id = x.Id,
 
                     ServiceTC = x.ServiceTCManual,
-                    ServiceTP = x.ServiceTPManual,
+                    ReActiveTP = x.ReActiveTPManual,
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount
                 });
