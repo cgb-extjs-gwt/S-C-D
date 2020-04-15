@@ -10,7 +10,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public int Number => 166;
 
-        public string Description => "Add SODA hw proactive output";
+        public string Description => "Change release process, add Reactive manual";
 
         public Migration_2020_04_14_11_39(IRepositorySet repositorySet, DomainEnitiesMeta meta)
         {
