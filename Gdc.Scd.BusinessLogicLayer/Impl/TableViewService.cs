@@ -276,7 +276,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                         if (data.IsApproved)
                         {
-                            cell.Style.Fill.BackgroundColor = XLColor.Green;
+                            cell.Style.Fill.BackgroundColor = XLColor.LightGreen;
                         }
                     }
 
