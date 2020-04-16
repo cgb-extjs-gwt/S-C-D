@@ -92,7 +92,6 @@
       <Elements>
         <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_" TableId="FieldServiceWg">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <TableView>
@@ -715,7 +714,6 @@
         </Element>
         <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_" TableId="ProActiveWg">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <TableView>

@@ -714,7 +714,6 @@
                 </Element>
                 <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_" TableId="ProActiveWg">
                     <InputLevels>
-                        <InputLevel>Pla</InputLevel>
                         <InputLevel>Wg</InputLevel>
                     </InputLevels>
                     <TableView>
