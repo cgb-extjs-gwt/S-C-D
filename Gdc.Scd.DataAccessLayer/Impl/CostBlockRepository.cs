@@ -2,6 +2,7 @@
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -337,43 +338,57 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var lastInputLevel = costBlockMeta.SliceDomainMeta.InputLevels.Last();
             var valuesQueryCoordinateFields = 
-                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Caption)
+                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Id)
                                               .ToArray();
 
-            var insertedFieldNames = 
-                costBlockMeta.CoordinateFields.Concat(costBlockMeta.CostElementsFields)
-                                              .Select(field => field.Name)
-                                              .ToArray();
+            var insertedFieldNames = costBlockMeta.CoordinateFields.ToNamesArray();
+            var selectedColumns = costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, NewRowsTableName)).ToArray();
 
-            var selectedColumns =
-                costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, NewRowsTableName))
-                                              .Concat(costBlockMeta.CostElementsFields.Select(field => new ColumnInfo(field.Name, ValuesTableName)))
-                                              .ToArray();
+            SelectJoinSqlHelper selectQuery;
+
+            if (valuesQueryCoordinateFields.Length == 0)
+            {
+                selectQuery = BuildSelectQuery();
+                insertedFieldNames = costBlockMeta.CoordinateFields.Select(field => field.Name).ToArray(); 
+            }
+            else
+            {
+                insertedFieldNames = insertedFieldNames.Concat(costBlockMeta.CostElementsFields.ToNames()).ToArray();
+                selectedColumns =
+                    selectedColumns.Concat(costBlockMeta.CostElementsFields.Select(field => new ColumnInfo(field.Name, ValuesTableName)))
+                                   .ToArray();
+
+                selectQuery = BuildSelectQuery().Join(
+                    new AliasSqlBuilder
+                    {
+                        Alias = ValuesTableName,
+                        Query = new BracketsSqlBuilder
+                        {
+                            Query = BuildValuesQuery()
+                        }
+                    },
+                    ConditionHelper.And(
+                        valuesQueryCoordinateFields.Select(
+                            field => SqlOperators.Equals(
+                                new ColumnInfo(field.Name, NewRowsTableName),
+                                new ColumnInfo(field.Name, ValuesTableName)))),
+                    JoinType.Left);
+            }
 
             return
                  Sql.Insert(costBlockMeta, insertedFieldNames)
-                    .Query(
-                        Sql.Select(selectedColumns)
-                           .FromQuery(
-                                Sql.Except(
-                                    this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
-                                    this.BuildSelectFromCostBlockQuery(costBlockMeta)),
-                                NewRowsTableName)
-                           .Join(
-                                new AliasSqlBuilder
-                                {
-                                    Alias = ValuesTableName,
-                                    Query = new BracketsSqlBuilder
-                                    {
-                                        Query = BuildValuesQuery()
-                                    } 
-                                },
-                                ConditionHelper.And(
-                                    valuesQueryCoordinateFields.Select(
-                                        field => SqlOperators.Equals(
-                                            new ColumnInfo(field.Name, NewRowsTableName), 
-                                            new ColumnInfo(field.Name, ValuesTableName)))),
-                                JoinType.Left));
+                    .Query(selectQuery);
+
+            SelectJoinSqlHelper BuildSelectQuery()
+            {
+                return 
+                    Sql.Select(selectedColumns)
+                       .FromQuery(
+                           Sql.Except(
+                               this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
+                               this.BuildSelectFromCostBlockQuery(costBlockMeta)),
+                           NewRowsTableName);
+            }
 
             ISqlBuilder BuildValuesQuery()
             {
