@@ -106,6 +106,10 @@
     <Compile Include="SqlConstants.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
+      <Project>{785FE9D5-3140-46BF-AF1B-EB3764397A44}</Project>
+      <Name>Gdc.Scd.BusinessLogicLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
       <Project>{f587c0f8-3f2f-4f50-9ea2-2d8c74d8330b}</Project>
       <Name>Gdc.Scd.Core</Name>

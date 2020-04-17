@@ -43,10 +43,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateFieldServiceCost(Wg[] wgs)
         {
-            var tpl = new UpdateFieldServiceCost(wgs);
-            _repo.ExecuteSql(tpl.ByCentralContractGroup());
-            _repo.ExecuteSql(tpl.ByPla());
-            _repo.ExecuteSql(ReadText("UpdateFieldServiceCost.sql"));
+            //var tpl = new UpdateFieldServiceCost(wgs);
+            //_repo.ExecuteSql(tpl.ByCentralContractGroup());
+            //_repo.ExecuteSql(tpl.ByPla());
+            //_repo.ExecuteSql(ReadText("UpdateFieldServiceCost.sql"));
         }
 
         public virtual void UpdateLogisticsCost(Wg[] wgs)

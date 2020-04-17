@@ -239,6 +239,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.UpdateByCoordinates(this.entitiesMeta.CostBlocks, updateOptions);
         }
 
+        public void UpdateByCoordinates(string coordinateId, IEnumerable<UpdateQueryOption> updateOptions = null)
+        {
+            var costBlocks = 
+                this.entitiesMeta.CostBlocks.Where(costBlock => costBlock.ContainsCoordinateField(coordinateId));
+
+            this.UpdateByCoordinates(costBlocks, updateOptions);
+        }
+
         public async Task<IEnumerable<NamedId>> GetCoordinateItems(CostElementContext context, string coordinateId)
         {
             var costBlockMeta = this.entitiesMeta.CostBlocks[context];

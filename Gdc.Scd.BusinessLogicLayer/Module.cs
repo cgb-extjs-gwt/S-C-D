@@ -82,7 +82,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ProActiveDigit>();
             Kernel.RegisterEntity<SwSpMaintenance>();
             /*----------cost block entities---------*/
-            Kernel.RegisterEntity<AvailabilityFee>();
+            Kernel.RegisterEntity<AvailabilityFeeWg>();
             Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<Afr>();
             Kernel.RegisterEntity<InstallBase>();

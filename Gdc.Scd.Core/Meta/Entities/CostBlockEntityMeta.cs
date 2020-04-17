@@ -23,6 +23,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public SimpleFieldMeta DeletedDateField { get; } = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime) { IsNullOption = true };
 
+        public MetaCollection<FieldMeta> AdditionalFields { get; } = new MetaCollection<FieldMeta>();
+
         public ReferenceFieldMeta ActualVersionField { get; }
 
         public CostBlockMeta SliceDomainMeta { get; }
@@ -31,7 +33,9 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
             get
             {
-                var fields = base.AllFields.Concat(this.CostElementsApprovedFields.Values);
+                var fields = 
+                    base.AllFields.Concat(this.CostElementsApprovedFields.Values)
+                                  .Concat(this.AdditionalFields);
 
                 foreach (var field in fields)
                 {

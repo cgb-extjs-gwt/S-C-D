@@ -608,32 +608,38 @@ END
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
-    select   fee.Country
-           , fee.Wg
+    select   feeCountryWg.Country
+           , feeCountryWg.Wg
            
            , case  when wg.WgType = 0 then 1 else 0 end as IsMultiVendor
            
-           , fee.InstalledBaseHighAvailability as IB
-           , fee.InstalledBaseHighAvailability_Approved as IB_Approved
+           , feeCountryWg.InstalledBaseHighAvailability as IB
+           , feeCountryWg.InstalledBaseHighAvailability_Approved as IB_Approved
            
-           , fee.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
-           , fee.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
+           , feeCountryWg.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
+           , feeCountryWg.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
            
-           , case when wg.WgType = 0 then fee.StockValueMv          else fee.StockValueFj          end / er.Value as StockValue
-           , case when wg.WgType = 0 then fee.StockValueMv_Approved else fee.StockValueFj_Approved end / er.Value as StockValue_Approved
+           , case when wg.WgType = 0 then feeCountryWg.StockValueMv          else feeCountryWg.StockValueFj          end / er.Value as StockValue
+           , case when wg.WgType = 0 then feeCountryWg.StockValueMv_Approved else feeCountryWg.StockValueFj_Approved end / er.Value as StockValue_Approved
            
-           , fee.AverageContractDuration
-           , fee.AverageContractDuration_Approved
+           , feeCountryWg.AverageContractDuration
+           , feeCountryWg.AverageContractDuration_Approved
            
-           , case when fee.JapanBuy = 1          then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit
-           , case when fee.JapanBuy_Approved = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit_Approved
+           , case when feeCountryWg.JapanBuy = 1          then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit
+           , case when feeCountryWg.JapanBuy_Approved = 1 then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit_Approved
            
-           , fee.MaxQty
+           , feeWg.MaxQty
 
-    from Hardware.AvailabilityFee fee
-    JOIN InputAtoms.Wg wg on wg.Id = fee.Wg
-    JOIN InputAtoms.Country c on c.Id = fee.Country
+    from Hardware.AvailabilityFeeCountryWg AS feeCountryWg
+	JOIN Hardware.AvailabilityFeeWg AS feeWg ON feeCountryWg.Wg = feeWg.Wg
+    JOIN InputAtoms.Wg wg on wg.Id = feeCountryWg.Wg
+    JOIN InputAtoms.Country c on c.Id = feeCountryWg.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
+    where 
+		feeCountryWg.DeactivatedDateTime is null and 
+		feeWg.DeactivatedDateTime is null and 
+		wg.DeactivatedDateTime is null
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as 

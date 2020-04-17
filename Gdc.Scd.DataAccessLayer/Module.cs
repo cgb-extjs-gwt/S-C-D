@@ -5,6 +5,7 @@ using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -60,12 +61,14 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<ReferenceFieldMeta>>().To<ReferenceColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<CreatedDateTimeFieldMeta>>().To<CreatedDateTimeColumnMetaSqlBuilder>().InTransientScope();
+            Bind<BaseColumnMetaSqlBuilder<ComputedFieldMeta>>().To<ComputedColumnMetaSqlBuilder>().InTransientScope();
             Bind<CreateTableMetaSqlBuilder>().To<CreateTableMetaSqlBuilder>().InTransientScope();
             Bind<AlterTableMetaSqlBuilder>().To<AlterTableMetaSqlBuilder>().InTransientScope();
             Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
             Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler>().To<CountryViewConfigureHandler>().InTransientScope();
+            Bind<IFieldBuilder>().To<FieldBuilder>().InTransientScope();
 
             Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(CostElementContext), nameof(CostBlockHistory.Context)));
             Kernel.RegisterEntityAsUnique<User>(nameof(User.Login));

@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Impl;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -18,6 +19,7 @@ namespace Gdc.Scd.Import.Logistics
             Bind<IImportManager>().To<FileImportManager<LogisticsDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
             Bind<LogisticsImportService>().To<LogisticsImportService>();
+            Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
         }
     }
 }

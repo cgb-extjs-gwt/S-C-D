@@ -32,5 +32,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task UpdateByCoordinatesAsync(IEnumerable<UpdateQueryOption> updateOptions = null);
 
         void UpdateByCoordinates(IEnumerable<UpdateQueryOption> updateOptions = null);
+
+        void UpdateByCoordinates(string coordinateId, IEnumerable<UpdateQueryOption> updateOptions = null);
     }
 }

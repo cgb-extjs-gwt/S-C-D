@@ -62,6 +62,9 @@
 
     <Table Id="ProActiveCounty" Shema="Hardware" Name="ProActiveCounty"/>
     <Table Id="ProActiveWg" Shema="Hardware" Name="ProActiveWg"/>
+
+    <Table Id="AvailabilityFeeCountryWg" Shema="Hardware" Name="AvailabilityFeeCountryWg"/>
+    <Table Id="AvailabilityFeeWg" Shema="Hardware" Name="AvailabilityFeeWg"/>
   </Tables>
 
   <Blocks>
@@ -305,7 +308,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Id="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually">
+        <Element Id="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually" TableId="AvailabilityFeeCountryWg">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -318,7 +321,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
+        <Element Id="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually" TableId="AvailabilityFeeCountryWg">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -333,7 +336,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="StockValueFj" Caption="Stock value in country FJ" InputOption="Manually">
+        <Element Id="StockValueFj" Caption="Stock value in country FJ" InputOption="Manually" TableId="AvailabilityFeeCountryWg">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -348,7 +351,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="StockValueMv" Caption="Stock value in country MV" InputOption="Manually">
+        <Element Id="StockValueMv" Caption="Stock value in country MV" InputOption="Manually" TableId="AvailabilityFeeCountryWg">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -363,7 +366,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
+        <Element Id="AverageContractDuration" Caption="Average contract duration" InputOption="Manually" TableId="AvailabilityFeeCountryWg">
           <InputLevels>
             <InputLevel>Country</InputLevel>
             <InputLevel>Company</InputLevel>
@@ -377,7 +380,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+        <Element Id="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_" TableId="AvailabilityFeeWg">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Wg</InputLevel>
@@ -389,7 +392,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+        <Element Id="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_" TableId="AvailabilityFeeWg">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Wg</InputLevel>
@@ -401,7 +404,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+        <Element Id="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_" TableId="AvailabilityFeeWg">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -412,7 +415,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Id="JapanBuy" Caption="Japan Buy" InputOption="Manually">
+        <Element Id="JapanBuy" Caption="Japan Buy" InputOption="Manually" TableId="AvailabilityFeeCountryWg">
           <TypeOption Type="Flag"/>
           <InputLevels>
             <InputLevel>Wg</InputLevel>

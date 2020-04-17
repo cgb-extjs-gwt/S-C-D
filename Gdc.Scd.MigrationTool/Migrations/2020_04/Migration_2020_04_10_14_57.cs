@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -8,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.MigrationTool.Impl;
 using Gdc.Scd.MigrationTool.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,6 +22,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
         private readonly IDomainService<Availability> availabilityService;
         private readonly ICostBlockRepository costBlockRepository;
         private readonly IRepositorySet repositorySet;
+        private readonly IFieldBuilder fieldBuilder;
 
         public override string Description => "Cost blocks split";
 
@@ -28,13 +31,15 @@ namespace Gdc.Scd.MigrationTool.Migrations
             IMetaProvider metaProvider, 
             IDomainService<Availability> availabilityService,
             ICostBlockRepository costBlockRepository,
-            IRepositorySet repositorySet)
+            IRepositorySet repositorySet,
+            IFieldBuilder fieldBuilder)
         {
             this.dataMigrator = dataMigrator;
             this.metaProvider = metaProvider;
             this.availabilityService = availabilityService;
             this.costBlockRepository = costBlockRepository;
             this.repositorySet = repositorySet;
+            this.fieldBuilder = fieldBuilder;
         }
 
         public override void Execute()
@@ -44,11 +49,14 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
             this.SplitFieldServiceCost(oldMeta, newMeta);
             this.SplitProActive(oldMeta, newMeta);
+            this.SplitAvailabilityFee(oldMeta, newMeta);
             this.CalculationUpdate();
         }
 
         private void SplitFieldServiceCost(DomainEnitiesMeta oldMeta, DomainEnitiesMeta newMeta)
         {
+            Console.WriteLine(nameof(this.SplitFieldServiceCost));
+
             const string FieldServiceCost = "FieldServiceCost";
             const string TimeAndMaterialShare = "TimeAndMaterialShare";
             const string FieldServiceTimeCalc = "FieldServiceTimeCalc";
@@ -58,19 +66,28 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
             var oldCostBlock = oldMeta.CostBlocks[MetaConstants.HardwareSchema, FieldServiceCost];
 
+            Console.WriteLine("Availability column adding...");
             AddAvailabilityColumn();
+            Console.WriteLine("Availability column was added");
 
             var newCostBlocks = newMeta.CostBlocks.GetSome(MetaConstants.HardwareSchema, FieldServiceCost);
 
+            Console.WriteLine("FieldServiceCost splitting...");
             this.dataMigrator.SplitCostBlock(oldCostBlock, newCostBlocks, newMeta, true);
+            Console.WriteLine("FieldServiceCost was splitted");
 
+            Console.WriteLine($"{OohUpliftFactor} updating by coordinates...");
             this.costBlockRepository.UpdateByCoordinates(newMeta.CostBlocks[MetaConstants.HardwareSchema, FieldServiceCost, OohUpliftFactor]);
+            Console.WriteLine($"{OohUpliftFactor} was updated by coordinates");
 
+            Console.WriteLine($"Tables dropping...");
             this.dataMigrator.DropTable(FieldServiceTimeCalc, MetaConstants.HardwareSchema);
             this.dataMigrator.DropTable(FieldServiceCalc, MetaConstants.HardwareSchema);
+            Console.WriteLine($"Tables was dropped");
 
             var ignoreCoordinates = new[] { "Pla", "CentralContractGroup" };
 
+            Console.WriteLine($"Views creating...");
             this.dataMigrator.CreateCostBlockView(
                 MetaConstants.HardwareSchema,
                 FieldServiceCalc,
@@ -104,6 +121,10 @@ namespace Gdc.Scd.MigrationTool.Migrations
                     newMeta.CostBlocks[MetaConstants.HardwareSchema, FieldServiceCost, OohUpliftFactor],
                 },
                 ignoreCoordinates: ignoreCoordinates);
+
+            Console.WriteLine($"Views was created");
+            Console.WriteLine($"{nameof(this.SplitFieldServiceCost)} was completed");
+            Console.WriteLine();
 
             void AddAvailabilityColumn()
             {
@@ -144,6 +165,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         private void SplitProActive(DomainEnitiesMeta oldMeta, DomainEnitiesMeta newMeta)
         {
+            Console.WriteLine(nameof(this.SplitProActive));
             const string ProActive = "ProActive";
 
             var oldCostBlock = oldMeta.CostBlocks[MetaConstants.HardwareSchema, ProActive];
@@ -254,6 +276,95 @@ CREATE VIEW [Hardware].[ProActiveView] as
 
     from ProActiveCte pro;
 ");
+
+            Console.WriteLine($"{nameof(this.SplitProActive)} was completed");
+            Console.WriteLine();
+        }
+
+        private void SplitAvailabilityFee(DomainEnitiesMeta oldMeta, DomainEnitiesMeta newMeta)
+        {
+            Console.WriteLine(nameof(this.SplitAvailabilityFee));
+
+            const string AvailabilityFee = "AvailabilityFee";
+
+            var oldCostBlock = oldMeta.CostBlocks[MetaConstants.HardwareSchema, AvailabilityFee];
+            var newCostBlocks = newMeta.CostBlocks.GetSome(MetaConstants.HardwareSchema, AvailabilityFee).ToArray();
+
+            var availabilityFeeWg =
+                newCostBlocks.First(costBlock => costBlock.Name == MetaConstants.AvailabilityFeeWgCostBlock);
+
+            availabilityFeeWg.AdditionalFields.Add(
+                new SimpleFieldMeta(nameof(AvailabilityFeeWg.ModifiedDateTime), System.TypeCode.DateTime));
+
+            foreach (var costBlock in newCostBlocks)
+            {
+                var readonlyCostElements =
+                    costBlock.SliceDomainMeta.CostElements.Where(costEl => costEl.InputType == InputType.AutomaticallyReadonly)
+                                                          .Select(costEl => costEl.Id);
+
+                foreach (var costElementId in readonlyCostElements)
+                {
+                    var costElement = costBlock.CostElementsFields[costElementId];
+
+                    costBlock.CostElementsApprovedFields[costElement] = this.fieldBuilder.BuildAutoApprovedField(costElementId);
+                }
+            }
+
+            this.dataMigrator.SplitCostBlock(oldCostBlock, newCostBlocks, newMeta, true);
+            
+            //[Hardware].[AvailabilityFeeView]
+            this.repositorySet.ExecuteSql(@"
+ALTER VIEW [Hardware].[AvailabilityFeeView] as 
+    select   feeCountryWg.Country
+           , feeCountryWg.Wg
+           
+           , case  when wg.WgType = 0 then 1 else 0 end as IsMultiVendor
+           
+           , feeCountryWg.InstalledBaseHighAvailability as IB
+           , feeCountryWg.InstalledBaseHighAvailability_Approved as IB_Approved
+           
+           , feeCountryWg.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
+           , feeCountryWg.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
+           
+           , case when wg.WgType = 0 then feeCountryWg.StockValueMv          else feeCountryWg.StockValueFj          end / er.Value as StockValue
+           , case when wg.WgType = 0 then feeCountryWg.StockValueMv_Approved else feeCountryWg.StockValueFj_Approved end / er.Value as StockValue_Approved
+           
+           , feeCountryWg.AverageContractDuration
+           , feeCountryWg.AverageContractDuration_Approved
+           
+           , case when feeCountryWg.JapanBuy = 1          then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit
+           , case when feeCountryWg.JapanBuy_Approved = 1 then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit_Approved
+           
+           , feeWg.MaxQty
+
+    from Hardware.AvailabilityFeeCountryWg AS feeCountryWg
+	JOIN Hardware.AvailabilityFeeWg AS feeWg ON feeCountryWg.Wg = feeWg.Wg
+    JOIN InputAtoms.Wg wg on wg.Id = feeCountryWg.Wg
+    JOIN InputAtoms.Country c on c.Id = feeCountryWg.Country
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
+    where 
+		feeCountryWg.DeactivatedDateTime is null and 
+		feeWg.DeactivatedDateTime is null and 
+		wg.DeactivatedDateTime is null
+");
+
+            //Create triggers
+            foreach (var costBlock in newCostBlocks)
+            {
+                this.repositorySet.ExecuteSql($@"
+                    CREATE TRIGGER [{costBlock.Schema}].[{costBlock.Name}Updated]
+                    ON [{costBlock.Schema}].[{costBlock.Name}]
+                    AFTER INSERT, UPDATE
+                    AS BEGIN
+                        EXEC [Hardware].[UpdateAvailabilityFee];
+                    END");
+            }
+
+            this.repositorySet.ExecuteProc("[Hardware].[UpdateAvailabilityFee]");
+
+            Console.WriteLine($"{nameof(this.SplitAvailabilityFee)} was completed");
+            Console.WriteLine();
         }
 
         private void CalculationUpdate()

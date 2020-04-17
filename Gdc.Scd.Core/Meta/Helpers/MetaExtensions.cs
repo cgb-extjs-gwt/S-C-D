@@ -23,6 +23,12 @@ namespace Gdc.Scd.Core.Meta.Helpers
             return fields.Where(field => !(field is IdFieldMeta));
         }
 
+        public static IEnumerable<FieldMeta> WithoutTypeField<T>(this IEnumerable<FieldMeta> fields)
+            where T : FieldMeta
+        {
+            return fields.Where(field => !(field is T));
+        }
+
         public static IEnumerable<T> WithoutField<T>(this IEnumerable<T> fields, FieldMeta field)
             where T : FieldMeta
         {

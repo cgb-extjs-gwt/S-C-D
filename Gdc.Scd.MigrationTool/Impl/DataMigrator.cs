@@ -65,14 +65,14 @@ namespace Gdc.Scd.MigrationTool.Impl
 
         public void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks, bool isAddingData)
         {
-            var queries = costBlocks.Select(costBlock => this.BuildAddTableQuery(costBlock, isAddingData));
+            var queries = costBlocks.Select(costBlock => this.BuildAddTablesQuery(costBlock, isAddingData));
 
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
         public void AddCostBlock(CostBlockEntityMeta costBlock, bool isAddingData)
         {
-            var query = this.BuildAddTableQuery(costBlock, isAddingData);
+            var query = this.BuildAddTablesQuery(costBlock, isAddingData);
 
             this.repositorySet.ExecuteSql(query);
         }
@@ -135,7 +135,7 @@ namespace Gdc.Scd.MigrationTool.Impl
             SqlHelper BuildQuery(CostBlockEntityMeta target)
             {
                 return 
-                    this.BuildAddTableQuery(
+                    this.BuildAddTablesQuery(
                         target, 
                         false,
                         Sql.Queries(new[]
@@ -155,7 +155,8 @@ namespace Gdc.Scd.MigrationTool.Impl
                     target.CoordinateFields.ConcatFields(target.DeletedDateField)
                                            .ToNamesArray();
 
-                var selectColumns = BuildSelectColumns(target.AllFields.WithoutIdField().ToNames(), groupByColumns);
+                var fields = target.AllFields.WithoutIdField().WithoutTypeField<ComputedFieldMeta>();
+                var selectColumns = BuildSelectColumns(fields, groupByColumns);
 
                 var idsQuery =
                     Sql.Select(SqlFunctions.Min(target.IdField))
@@ -163,7 +164,7 @@ namespace Gdc.Scd.MigrationTool.Impl
                        .Where(SqlOperators.Equals(new ColumnInfo(target.IdField), new ColumnInfo(target.ActualVersionField)))
                        .GroupBy(groupByColumns);
 
-                var allFields = target.AllFields.ToNamesArray();
+                var allFields = target.AllFields.WithoutTypeField<ComputedFieldMeta>().ToNamesArray();
 
                 return
                     Sql.Insert(target, allFields)
@@ -175,7 +176,7 @@ namespace Gdc.Scd.MigrationTool.Impl
 
             SqlHelper BuildInsertPreviousVersionRowsQuery(CostBlockEntityMeta target)
             {
-                var allFields = target.AllFields.ToNamesArray();
+                var allFields = target.AllFields.WithoutTypeField<ComputedFieldMeta>().ToNamesArray();
 
                 var selectActualIdsQuery =
                     Sql.Select(target.ActualVersionField.Name)
@@ -197,7 +198,7 @@ namespace Gdc.Scd.MigrationTool.Impl
 
             SqlHelper BuildInsertOtherRowsQuery(CostBlockEntityMeta target)
             {
-                var targetFields = target.AllFields.WithoutIdField().ToNamesArray();
+                var targetFields = target.AllFields.WithoutIdField().WithoutTypeField<ComputedFieldMeta>().ToArray();
                 var groupFields = 
                     target.CoordinateFields.ConcatFields(target.DeletedDateField)
                                            .ToNamesArray();
@@ -205,7 +206,7 @@ namespace Gdc.Scd.MigrationTool.Impl
                 var selectColumns = BuildSelectColumns(targetFields, groupFields);
 
                 return
-                    Sql.Insert(target, targetFields)
+                    Sql.Insert(target, targetFields.ToNamesArray())
                        .Query(
                             Sql.Select(selectColumns)
                                .From(source)
@@ -249,14 +250,14 @@ namespace Gdc.Scd.MigrationTool.Impl
 
             }
 
-            BaseColumnInfo[] BuildSelectColumns(IEnumerable<string> selectFields, IEnumerable<string> groupFields)
+            BaseColumnInfo[] BuildSelectColumns(IEnumerable<FieldMeta> selectFields, IEnumerable<string> groupFields)
             {
                 return
                     selectFields.Select(
                                     field => 
-                                        groupFields.Contains(field) 
+                                        groupFields.Contains(field.Name) 
                                             ? (BaseColumnInfo)new ColumnInfo(field) 
-                                            : SqlFunctions.Min(field, alias: field))
+                                            : SqlFunctions.Min(field, alias: field.Name))
                                 .ToArray();
             }
         }
@@ -367,7 +368,7 @@ namespace Gdc.Scd.MigrationTool.Impl
             this.repositorySet.ExecuteSql(query);
         }
 
-        private SqlHelper BuildAddTableQuery(
+        private SqlHelper BuildAddTablesQuery(
             CostBlockEntityMeta costBlock, 
             bool isAddingData, 
             SqlHelper additionalCostBlockQuery = null,
