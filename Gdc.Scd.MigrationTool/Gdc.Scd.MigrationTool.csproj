@@ -224,7 +224,7 @@
     <Compile Include="Migrations\2020_01\Migration_2020_01_06_14_33.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_20.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_18_25.cs" />
-    <Compile Include="Migrations\2020_04\Migration_2020_04_10_14_57.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_17_10_59.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_26_11_04.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_21_14_50.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_21_45.cs" />

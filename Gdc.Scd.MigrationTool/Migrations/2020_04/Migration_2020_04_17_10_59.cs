@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2020_04_10_14_57 : AutoNumberMigrationAction
+    public class Migration_2020_04_17_10_59 : IMigrationAction
     {
         private readonly IDataMigrator dataMigrator;
         private readonly IMetaProvider metaProvider;
@@ -24,9 +24,11 @@ namespace Gdc.Scd.MigrationTool.Migrations
         private readonly IRepositorySet repositorySet;
         private readonly IFieldBuilder fieldBuilder;
 
-        public override string Description => "Cost blocks split";
+        public string Description => "Cost blocks split";
 
-        public Migration_2020_04_10_14_57(
+        public int Number => 167;
+
+        public Migration_2020_04_17_10_59(
             IDataMigrator dataMigrator, 
             IMetaProvider metaProvider, 
             IDomainService<Availability> availabilityService,
@@ -42,7 +44,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
             this.fieldBuilder = fieldBuilder;
         }
 
-        public override void Execute()
+        public void Execute()
         {
             var oldMeta = this.metaProvider.GetArchiveEntitiesMeta("DomainConfig_2020_04_10_14_57_old");
             var newMeta = this.metaProvider.GetArchiveEntitiesMeta("DomainConfig_2020_04_10_14_57_new");
@@ -75,6 +77,10 @@ namespace Gdc.Scd.MigrationTool.Migrations
             Console.WriteLine("FieldServiceCost splitting...");
             this.dataMigrator.SplitCostBlock(oldCostBlock, newCostBlocks, newMeta, true);
             Console.WriteLine("FieldServiceCost was splitted");
+
+            Console.WriteLine("Indexes creating...");
+            CreateIndexes();
+            Console.WriteLine("Indexes was created");
 
             Console.WriteLine($"{OohUpliftFactor} updating by coordinates...");
             this.costBlockRepository.UpdateByCoordinates(newMeta.CostBlocks[MetaConstants.HardwareSchema, FieldServiceCost, OohUpliftFactor]);
@@ -160,6 +166,26 @@ namespace Gdc.Scd.MigrationTool.Migrations
                                }));
 
                 this.repositorySet.ExecuteSql(query);
+            }
+
+            void CreateIndexes()
+            {
+                this.repositorySet.ExecuteSql(@"
+CREATE NONCLUSTERED INDEX [ix_Hardware_FieldServiceReactionTimeType]
+ON [Hardware].[FieldServiceReactionTimeType] ([Country],[Wg],[ReactionTimeType],[DeactivatedDateTime])
+INCLUDE ([PerformanceRate],[TimeAndMaterialShare],[PerformanceRate_Approved],[TimeAndMaterialShare_Approved])
+");
+
+                this.repositorySet.ExecuteSql(@"
+CREATE NONCLUSTERED INDEX [ix_Hardware_FieldServiceLocation]
+ON [Hardware].[FieldServiceLocation] ([Country],[Wg],[ServiceLocation],[DeactivatedDateTime])
+INCLUDE ([TravelTime],[LabourCost],[TravelCost],[TravelTime_Approved],[LabourCost_Approved],[TravelCost_Approved])");
+
+                this.repositorySet.ExecuteSql(@"
+CREATE NONCLUSTERED INDEX [ix_Hardware_FieldServiceAvailability]
+ON [Hardware].[FieldServiceAvailability] ([Country],[Wg],[Availability],[DeactivatedDateTime])
+INCLUDE ([OohUpliftFactor],[OohUpliftFactor_Approved])
+");
             }
         }
 
