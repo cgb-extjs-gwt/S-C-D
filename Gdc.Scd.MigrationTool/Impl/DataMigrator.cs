@@ -265,8 +265,8 @@ namespace Gdc.Scd.MigrationTool.Impl
         public void CreateCostBlockView(
             string shema, 
             string name, 
-            IEnumerable<CostBlockEntityMeta> costBlocks, 
-            BaseColumnInfo[] additionalColumns = null,
+            IEnumerable<CostBlockEntityMeta> costBlocks,
+            IEnumerable<BaseColumnInfo> additionalColumns = null,
             string[] ignoreCoordinates = null)
         {
             var costBlockArray = 
@@ -362,7 +362,7 @@ namespace Gdc.Scd.MigrationTool.Impl
             {
                 Name = viewName,
                 Schema = schema,
-                IfExists = true
+                //IfExists = true
             });
 
             this.repositorySet.ExecuteSql(query);
