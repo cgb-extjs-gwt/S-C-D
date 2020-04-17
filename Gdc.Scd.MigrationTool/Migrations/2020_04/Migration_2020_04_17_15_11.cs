@@ -8,7 +8,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 168;
+        public int Number => 169;
 
         public string Description => "Change release process, add proactive release, reactive realease";
 
