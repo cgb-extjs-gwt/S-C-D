@@ -9,7 +9,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
 using Gdc.Scd.Tests.Common.CostBlock.Entities;
 using Gdc.Scd.Tests.Common.CostBlock.Impl;
 using Gdc.Scd.Tests.Common.Impl;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ninject;
 using System;
 using System.Collections.Generic;
@@ -91,10 +90,15 @@ namespace Gdc.Scd.Tests.Common.CostBlock
 
             DomainEnitiesMeta GetDomainEnitiesMeta()
             {
-                var domainEnitiesMetaService = new DomainEnitiesMetaService(new[]
+                var metaProviders = new[]
                 {
                         new CoordinateEntityMetaProvider()
-                    });
+                };
+
+                var domainEnitiesMetaService = new DomainEnitiesMetaService(metaProviders)
+                {
+                    ExcludePortfolioMetas = true
+                };
 
                 return domainEnitiesMetaService.Get(domainMeta);
             }

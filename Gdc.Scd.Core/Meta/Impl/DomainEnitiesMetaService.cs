@@ -27,6 +27,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private readonly ICoordinateEntityMetaProvider[] coordinateEntityMetaProviders;
 
+        public bool ExcludePortfolioMetas { get; set; }
+
         public DomainEnitiesMetaService(ICoordinateEntityMetaProvider[] coordinateEntityMetaProviders)
         {
             this.coordinateEntityMetaProviders = coordinateEntityMetaProviders;
@@ -65,9 +67,12 @@ namespace Gdc.Scd.Core.Meta.Impl
             domainEnitiesMeta.OtherMetas.AddRange(
                 customCoordinateMetas.Where(meta => domainEnitiesMeta[meta.FullName] == null));
 
-            domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
-            domainEnitiesMeta.PrincipalPortfolio = this.BuildMeta<PrincipalPortfolio>(domainEnitiesMeta);
-            domainEnitiesMeta.HwStandardWarranty = this.BuildHwStandardWarranty(domainEnitiesMeta);
+            if (!this.ExcludePortfolioMetas)
+            {
+                domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
+                domainEnitiesMeta.PrincipalPortfolio = this.BuildMeta<PrincipalPortfolio>(domainEnitiesMeta);
+                domainEnitiesMeta.HwStandardWarranty = this.BuildHwStandardWarranty(domainEnitiesMeta);
+            }
 
             var countryMeta = domainEnitiesMeta.GetCountryEntityMeta();
             if (countryMeta != null)
