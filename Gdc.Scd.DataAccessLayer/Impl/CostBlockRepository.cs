@@ -596,7 +596,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             switch(referenceMeta)
             {
                 case WgEnityMeta wgMeta:
-                    if (costBlockMeta.Name != MetaConstants.AvailabilityFeeCountryWgCostBlock &&
+                    if (costBlockMeta.Name != MetaConstants.AvailabilityFeeWgCountryCostBlock &&
                         costBlockMeta.Name != MetaConstants.AvailabilityFeeWgCostBlock)
                     {
                         conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, (int)WgType.Por));

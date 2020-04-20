@@ -250,6 +250,7 @@
     <Compile Include="Migrations\2020_03\Migration_2020_03_20_14_19.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_09_13_08.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_14_11_39.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_20_11_42.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_17_13_23.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_17_15_11.cs" />
     <Compile Include="Module.cs" />
@@ -271,8 +272,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="MigrationScripts\2020-04-17-15-11.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_new.xml" />
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_old.xml" />
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_20_11_42_old.xml" />
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_20_11_42_new.xml" />
     <Content Include="MigrationScripts\2019-02-12_101.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
