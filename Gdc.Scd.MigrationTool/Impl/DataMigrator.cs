@@ -234,7 +234,7 @@ namespace Gdc.Scd.MigrationTool.Impl
                                           });
 
                 var selectHistoriesQuery =
-                    Sql.Select(target.HistoryMeta.CostBlockHistoryField.Name)
+                    Sql.Select(enitiesMeta.CostBlockHistory.IdField.Name)
                        .From(enitiesMeta.CostBlockHistory)
                        .Where(ConditionHelper.Or(historyFilters));
 
