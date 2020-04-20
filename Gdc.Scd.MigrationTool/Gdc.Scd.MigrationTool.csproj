@@ -271,6 +271,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="MigrationScripts\2020-04-17-15-11.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_new.xml" />
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_old.xml" />
     <Content Include="MigrationScripts\2019-02-12_101.sql">
