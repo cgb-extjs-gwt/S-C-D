@@ -616,29 +616,31 @@ CREATE VIEW [Hardware].[AvailabilityFeeView] as
            , feeCountryWg.InstalledBaseHighAvailability as IB
            , feeCountryWg.InstalledBaseHighAvailability_Approved as IB_Approved
            
-           , feeCountryWg.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
-           , feeCountryWg.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
+           , feeCountryCompany.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
+           , feeCountryCompany.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
            
-           , case when wg.WgType = 0 then feeCountryWg.StockValueMv          else feeCountryWg.StockValueFj          end / er.Value as StockValue
-           , case when wg.WgType = 0 then feeCountryWg.StockValueMv_Approved else feeCountryWg.StockValueFj_Approved end / er.Value as StockValue_Approved
+           , case when wg.WgType = 0 then feeCountryCompany.StockValueMv          else feeCountryCompany.StockValueFj          end / er.Value as StockValue
+           , case when wg.WgType = 0 then feeCountryCompany.StockValueMv_Approved else feeCountryCompany.StockValueFj_Approved end / er.Value as StockValue_Approved
            
-           , feeCountryWg.AverageContractDuration
-           , feeCountryWg.AverageContractDuration_Approved
+           , feeCountryCompany.AverageContractDuration
+           , feeCountryCompany.AverageContractDuration_Approved
            
            , case when feeCountryWg.JapanBuy = 1          then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit
            , case when feeCountryWg.JapanBuy_Approved = 1 then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit_Approved
            
            , feeWg.MaxQty
 
-    from Hardware.AvailabilityFeeCountryWg AS feeCountryWg
-	JOIN Hardware.AvailabilityFeeWg AS feeWg ON feeCountryWg.Wg = feeWg.Wg
+    from Hardware.AvailabilityFeeWgCountry AS feeCountryWg
     JOIN InputAtoms.Wg wg on wg.Id = feeCountryWg.Wg
+	JOIN Hardware.AvailabilityFeeWg AS feeWg ON feeCountryWg.Wg = feeWg.Wg
+    JOIN Hardware.AvailabilityFeeCountryCompany AS feeCountryCompany ON feeCountryWg.Country = feeCountryCompany.Country AND wg.CompanyId = feeCountryCompany.Company
     JOIN InputAtoms.Country c on c.Id = feeCountryWg.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
     where 
 		feeCountryWg.DeactivatedDateTime is null and 
 		feeWg.DeactivatedDateTime is null and 
+        feeCountryCompany.DeactivatedDateTime is null and 
 		wg.DeactivatedDateTime is null
 GO
 
