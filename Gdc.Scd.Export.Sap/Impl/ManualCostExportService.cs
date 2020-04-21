@@ -7,6 +7,7 @@ using Gdc.Scd.Export.Sap.Enitities;
 using Gdc.Scd.Export.Sap.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -82,14 +83,63 @@ namespace Gdc.Scd.Export.Sap.Impl
             var releasedData = this.GetReleasedData(manualCosts);
             var excelStream = this.BuildExcelStream(releasedData);
 
-            this.ExportFile(excelStream);
+            var fileName = this.SaveFileToServer(excelStream);
+
+            this.ExportFile(fileName);
 
             this.sapLogService.Log(exportType);
         }
 
-        private void ExportFile(Stream fileStream)
+        private string SaveFileToServer(Stream fileStream)
         {
-            throw new NotImplementedException();
+        }
+
+        private void ExportFile(string filename)
+        {
+            try
+            {
+                var errCode = NetCopyFile(filename, Config.ExportDirectory, filename, Config.ExportHost, Config.Admission);
+                if (errCode != 0)
+                {
+                    var msg = string.Format("net copy file: ERROR : '{0}'", errCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                var msg = string.Format(
+                    "Error occured when try to send file '{0}' from dir='{1}' to host='{2}' with params='{3}' ",
+                    filename, Config.ExportDirectory, Config.ExportHost, Config.Admission);
+               
+            }
+        }
+
+        public int NetCopyFile(string filenameFrom, string pathFrom, string filenameTo, string pathTo, string additionalParams)
+        {
+            var proc = new Process
+            {
+                StartInfo =
+                {
+                    FileName = "ncopy.exe",
+                    UseShellExecute = true,
+                    WorkingDirectory = pathFrom,
+                    Arguments = filenameFrom + " " + pathTo + "!" + filenameTo + " " + additionalParams
+                }
+            };
+            //Log.Info("net copy file: sending " + filenameFrom + "...");
+            //Log.Info("net copy file: startcode=" + proc.Start() + "...");
+            //Log.Info("net copy file: waiting...");
+            proc.WaitForExit(30000);
+
+            if (proc.ExitCode != 0)
+            {
+                //Log.Info("net copy file: ERROR " + proc.ExitCode);
+            }
+            else
+            {
+                //Log.Info("net copy file: ok");
+            }
+
+            return proc.ExitCode;
         }
 
         //private Stream BuildExcelStream(IEnumerable<HardwareManualCost> manualCosts)
@@ -188,7 +238,8 @@ namespace Gdc.Scd.Export.Sap.Impl
                     SapSalesOrganization = sapMapping.SapSalesOrganization,
                     WgName = manualCost.LocalPortfolio.Wg.Name,
                     ServiceTP = manualCost.ServiceTP.Value,
-                    StandardWarranty = standartWarranty.StandardWarranty.Value
+                    StandardWarranty = standartWarranty.StandardWarranty.Value,
+                    ReleasedDate = manualCost.ReleaseDate ?? DateTime.Today
                 };
         }
     }

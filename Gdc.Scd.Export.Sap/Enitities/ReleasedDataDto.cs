@@ -1,4 +1,6 @@
-﻿namespace Gdc.Scd.Export.Sap.Enitities
+﻿using System;
+
+namespace Gdc.Scd.Export.Sap.Enitities
 {
     public class ReleasedDataDto
     {
@@ -17,5 +19,7 @@
         public double ServiceTP { get; set; }
 
         public double StandardWarranty { get; set; }
+
+        public DateTime ReleasedDate { get; set; }
     }
 }
