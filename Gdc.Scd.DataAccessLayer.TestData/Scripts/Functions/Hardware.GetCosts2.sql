@@ -152,7 +152,7 @@ RETURN
        
              , m.Credits
 
-             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ReActiveTC 
              , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ReActiveTP
 
              , m.ServiceTC1
@@ -174,7 +174,7 @@ RETURN
              , m.DealerPrice
              , m.ServiceTCManual
              , m.ReActiveTPManual
-             , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
+             , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) + m.ProActiveOrZero) as ServiceTCResult
              , coalesce(m.ReActiveTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) + m.ProActiveOrZero as ServiceTPResult
              , m.ServiceTP_Released
 
@@ -190,12 +190,14 @@ RETURN
     )
     select m.*
          
+         , m.ReActiveTC + coalesce(m.ProActive, 0) as ServiceTC
          , m.ReActiveTP + coalesce(m.ProActive, 0) as ServiceTP 
 
-         , m.ServiceTC as FullServiceTC
+
+         , m.ReActiveTC + coalesce(m.ProActive, 0) as FullServiceTC
          , m.ReActiveTP + coalesce(m.ProActive, 0) as FullServiceTP
          , m.ReActiveTPManual + coalesce(m.ProActive, 0) as ServiceTPManual
 
     from CostCte7 m
 )
-go
+GO
