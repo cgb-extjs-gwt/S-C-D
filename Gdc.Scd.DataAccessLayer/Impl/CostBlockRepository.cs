@@ -25,7 +25,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
         public CostBlockRepository(
-            IRepositorySet repositorySet, 
+            IRepositorySet repositorySet,
             DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
@@ -52,12 +52,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                     var filterConditions = valueInfoGroup.Select(valueInfo => new BracketsSqlBuilder
                     {
-                        Query = 
+                        Query =
                             ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert(), editInfoGroup.Key.Name)
                                            .ToSqlBuilder()
                     });
 
-                    var whereCondition = 
+                    var whereCondition =
                         CostBlockQueryHelper.BuildNotDeletedCondition(editInfoGroup.Key, editInfoGroup.Key.Name)
                                             .AndBrackets(ConditionHelper.Or(filterConditions));
 
@@ -117,7 +117,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 this.domainEnitiesMeta.CostBlocks.Select(costBlock => new
                 {
                     CostBlock = costBlock,
-                    RegionIds = 
+                    RegionIds =
                         costBlock.SliceDomainMeta.CostElements.Where(costElement => costElement.RegionInput != null)
                                                               .GroupBy(costElement => costElement.RegionInput.Id)
                                                               .Select(group => group.Key)
@@ -189,7 +189,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlock = this.domainEnitiesMeta.CostBlocks[context];
             var regionField = costBlock.GetDomainRegionInputField(context.CostElementId);
-            var regionMeta = regionField.ReferenceMeta;
+            var regionMeta = regionField?.ReferenceMeta;
             var dependencyField = costBlock.GetDomainDependencyField(context.CostElementId);
             var dependencyMeta = (NamedEntityMeta)dependencyField.ReferenceMeta;
 
@@ -220,7 +220,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var selectField = meta.GetFieldByReferenceMeta(dependencyMeta);
                 var conditions = new List<ConditionHelper>();
 
-                if (context.RegionInputId.HasValue)
+                if (context.RegionInputId.HasValue && regionMeta != null)
                 {
                     var field = meta.GetFieldByReferenceMeta(regionMeta);
                     if (field != null)
@@ -229,10 +229,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     }
                 }
 
+                if (conditions.Any())
+                    return
+                        Sql.SelectDistinct(new ColumnInfo(selectField.Name, alias: MetaConstants.IdFieldKey))
+                            .From(meta)
+                            .Where(ConditionHelper.And(conditions));
+
                 return
                     Sql.SelectDistinct(new ColumnInfo(selectField.Name, alias: MetaConstants.IdFieldKey))
-                       .From(meta)
-                       .Where(ConditionHelper.And(conditions));
+                        .From(meta);
             }
         }
 
@@ -294,7 +299,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 for (var j = i + 1; j < joinInfos.Count; j++)
                 {
-                    if(joinInfos[i].InnerJoinInfo.Meta.FullName == joinInfos[j].ReferenceMeta.FullName)
+                    if (joinInfos[i].InnerJoinInfo.Meta.FullName == joinInfos[j].ReferenceMeta.FullName)
                     {
                         var tmp = joinInfos[i];
                         joinInfos[i] = joinInfos[j];
@@ -337,7 +342,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             const string ValuesTableName = "Values";
 
             var lastInputLevel = costBlockMeta.SliceDomainMeta.InputLevels.Last();
-            var valuesQueryCoordinateFields = 
+            var valuesQueryCoordinateFields =
                 costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Id)
                                               .ToArray();
 
@@ -349,7 +354,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             if (valuesQueryCoordinateFields.Length == 0)
             {
                 selectQuery = BuildSelectQuery();
-                insertedFieldNames = costBlockMeta.CoordinateFields.Select(field => field.Name).ToArray(); 
+                insertedFieldNames = costBlockMeta.CoordinateFields.Select(field => field.Name).ToArray();
             }
             else
             {
@@ -381,7 +386,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             SelectJoinSqlHelper BuildSelectQuery()
             {
-                return 
+                return
                     Sql.Select(selectedColumns)
                        .FromQuery(
                            Sql.Except(
@@ -508,7 +513,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                                .Concat(new BaseUpdateColumnInfo[]
                                                {
                                                    new QueryUpdateColumnInfo(
-                                                       costBlock.ActualVersionField.Name, 
+                                                       costBlock.ActualVersionField.Name,
                                                        new ColumnSqlBuilder(costBlock.IdField.Name))
                                                })
                                                .ToArray();
@@ -525,9 +530,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var condition =
                 ConditionHelper.And(
                     costBlockMeta.CoordinateFields.Select(
-                        field => 
+                        field =>
                             SqlOperators.Equals(
-                                new ColumnInfo(field.Name, DeletedCoordinateTable), 
+                                new ColumnInfo(field.Name, DeletedCoordinateTable),
                                 new ColumnInfo(field.Name, costBlockMeta.Name))));
 
             return
@@ -571,7 +576,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
-                var referenceField = 
+                var referenceField =
                     (ReferenceFieldMeta)referenceJoinInfo.InnerJoinInfo.Meta.GetField(referenceJoinInfo.InnerJoinInfo.ReferenceFieldName);
 
                 joinType = JoinType.Inner;
@@ -593,7 +598,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 conditions.Add(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name));
             }
 
-            switch(referenceMeta)
+            switch (referenceMeta)
             {
                 case WgEnityMeta wgMeta:
                     if (costBlockMeta.Name != MetaConstants.AvailabilityFeeWgCountryCostBlock &&
