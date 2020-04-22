@@ -55,6 +55,7 @@ BEGIN
              , TaxAndDutiesOow               * ExchangeRate  as TaxAndDutiesOow
              , Reinsurance                   * ExchangeRate  as Reinsurance
              
+             , ReActiveTC                    * ExchangeRate  as ReActiveTC
              , ReActiveTP                    * ExchangeRate  as ReActiveTP
              , ReActiveTPManual              * ExchangeRate  as ReActiveTPManual
 
@@ -126,6 +127,7 @@ BEGIN
              , TaxAndDutiesOow               
              , Reinsurance                   
 
+             , ReActiveTC 
              , ReActiveTP 
              , ReActiveTPManual
              , ProActive  
@@ -165,4 +167,4 @@ BEGIN
         order by rownum
     end
 END
-go
+GO

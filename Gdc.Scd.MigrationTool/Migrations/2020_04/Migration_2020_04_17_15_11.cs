@@ -20,6 +20,8 @@ namespace Gdc.Scd.MigrationTool.Migrations
         public void Execute()
         {
             this.repositorySet.ExecuteFromFile("2020-04-17-15-11.sql");
+            this.repositorySet.ExecuteFromFile("2020-04-17-15-11-2.sql");
+            this.repositorySet.ExecuteFromFile("2020-04-17-15-11-3.sql");
         }
     }
 }
