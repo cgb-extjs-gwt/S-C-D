@@ -218,6 +218,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             SqlHelper BuildSelectIdsQuery(BaseEntityMeta meta)
             {
                 var selectField = meta.GetFieldByReferenceMeta(dependencyMeta);
+
+                if (selectField == null)
+                {
+                    return new SqlHelper(new DummySqlBuilder());
+                }
+
                 var conditions = new List<ConditionHelper>();
 
                 if (context.RegionInputId.HasValue && regionMeta != null)
