@@ -272,7 +272,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         var cell = sheet.Cell(row, column++);
                         var data = record.Data[dataInfo.DataIndex];
 
-                        cell.Value = data.Count > 1 ? $"({data.Count} values)" : data.Value;
+                        if (data.Count > 1)
+                        {
+                            cell.Value = $"({data.Count} values)";
+                        }
+                        else if (this.meta.CostBlocks[dataInfo].CostElementsFields[dataInfo.CostElementId] is ReferenceFieldMeta)
+                        {
+                            var referenceItems = tableViewInfo.CostBlockReferences[dataInfo.CostBlockId].References[dataInfo.CostElementId];
+                            var referenceItem = referenceItems.FirstOrDefault(item => item.Id.Equals(data.Value));
+
+                            if (referenceItem != null)
+                            {
+                                cell.Value = referenceItem.Name;
+                            }
+                        }
+                        else
+                        {
+                            cell.Value = data.Value;
+                        }
 
                         if (data.IsApproved)
                         {
