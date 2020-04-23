@@ -240,7 +240,6 @@
     <Compile Include="Migrations\2020_03\Migration_2020_03_03_12_37.cs" />
     <Compile Include="Migrations\2020_03\Migration_2020_03_05_12_54.cs" />
     <Compile Include="Migrations\2020_03\Migration_2020_03_20_14_19.cs" />
-    <Compile Include="Migrations\2020_04\Migration_2020_04_08_18_15.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

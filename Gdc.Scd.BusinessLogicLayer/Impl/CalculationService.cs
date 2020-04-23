@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
-using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
@@ -21,18 +20,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
-        private readonly ISapUploadRepository sapUploadRepository;
-
         public CalculationService(
                 IRepositorySet repositorySet,
                 IRepository<HardwareManualCost> hwManualRepo,
-                IRepository<LocalPortfolio> portfolioRepo,
-                ISapUploadRepository sapUploadRepository)
+                IRepository<LocalPortfolio> portfolioRepo
+            )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
             this.portfolioRepo = portfolioRepo;
-            this.sapUploadRepository = sapUploadRepository;
         }
 
         public Task<(string json, int total, bool hasMore)> GetHardwareCost(bool approved, HwFilterDto filter, int start, int limit)
@@ -83,28 +79,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
-        }
-
-        public async Task UploadToSap(HwFilterDto filter)
-        {
-            if (filter?.Country == null || filter.Country.Length == 0)
-            {
-                throw new ArgumentException("No country specified");
-            }
-
-            await this.sapUploadRepository.UploadToSap(filter);
-        }
-
-        public async Task UploadToSap(HwCostDto[] items)
-        {
-            if (items == null || items.Length == 0)
-            {
-                throw new ArgumentException("No records specified");
-            }
-
-            var ids = items.Select(item => item.Id).ToArray();
-
-            await this.sapUploadRepository.UploadToSap(ids);
         }
 
         public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records)

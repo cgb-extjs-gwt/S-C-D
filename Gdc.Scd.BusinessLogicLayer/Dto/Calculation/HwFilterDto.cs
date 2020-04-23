@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Core.Dto
+﻿namespace Gdc.Scd.BusinessLogicLayer.Dto.Calculation
 {
     public class HwFilterDto
     {

@@ -70,11 +70,13 @@ namespace Gdc.Scd.Export.Sap.Impl
 
         private void ExportByDate(DateTime date)
         {
-            var manualCosts =
-                this.manualCostService.GetAll()
-                    .Where(manualCost => manualCost.SapUploadDate >= date);
+            //var manualCosts =
+            //    this.manualCostService.GetAll()
+            //        .Where(manualCost => manualCost.SapUploadDate >= date);
 
-            this.Export(manualCosts, ExportType.Partial);
+            //this.Export(manualCosts, ExportType.Partial);
+
+            throw new NotImplementedException();
         }
 
         private void Export(IQueryable<HardwareManualCost> manualCosts, ExportType exportType)
