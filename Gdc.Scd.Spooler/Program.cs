@@ -17,9 +17,16 @@ namespace Gdc.Scd.Spooler
         
         static Program()
         {
-            NinjectExt.IsConsoleApplication = true;
+            try
+            {
+                NinjectExt.IsConsoleApplication = true;
 
-            kernel = CreateKernel();
+                kernel = CreateKernel();
+            }
+            catch (Exception ex)
+            {
+                Logging.Instance().logException(ex);
+            }
         }
 
         static void Main(string[] args)
