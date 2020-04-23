@@ -487,7 +487,7 @@ BEGIN
 
     declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
 
-    declare @durTable dbo.ListId; insert into @durTable(id) select id from Dependencies.Duration where IsProlongation = 0 and Value = 5;
+    declare @durTable dbo.ListId; insert into @durTable(id) values(@dur);
 
     declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
 
