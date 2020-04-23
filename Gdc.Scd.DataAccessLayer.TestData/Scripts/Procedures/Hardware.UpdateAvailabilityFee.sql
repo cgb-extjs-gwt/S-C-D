@@ -52,12 +52,12 @@ END
 
 GO
 
-IF OBJECT_ID('Hardware.AvailabilityFeeCountryWgUpdated', 'TR') IS NOT NULL
+IF OBJECT_ID('Hardware.AvailabilityFeeWgCountryUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.AvailabilityFeeCountryWgUpdated;
 GO
 
-CREATE TRIGGER [Hardware].[AvailabilityFeeCountryWgUpdated]
-ON [Hardware].[AvailabilityFeeCountryWg]
+CREATE TRIGGER [Hardware].[AvailabilityFeeWgCountryUpdated]
+ON [Hardware].[AvailabilityFeeWgCountry]
 AFTER INSERT, UPDATE
 AS BEGIN
     EXEC [Hardware].[UpdateAvailabilityFee];
@@ -71,6 +71,17 @@ GO
 
 CREATE TRIGGER [Hardware].[AvailabilityFeeWgUpdated]
 ON [Hardware].[AvailabilityFeeWg]
+AFTER INSERT, UPDATE
+AS BEGIN
+    EXEC [Hardware].[UpdateAvailabilityFee];
+END
+
+IF OBJECT_ID('Hardware.AvailabilityFeeCountryCompanyUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.AvailabilityFeeCountryCompanyUpdated;
+GO
+
+CREATE TRIGGER [Hardware].[AvailabilityFeeCountryCompanyUpdated]
+ON [Hardware].[AvailabilityFeeCountryCompany]
 AFTER INSERT, UPDATE
 AS BEGIN
     EXEC [Hardware].[UpdateAvailabilityFee];

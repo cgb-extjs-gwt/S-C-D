@@ -95,7 +95,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     if (editorType == EditorType.CostEditor)
                     {
-                        option.IsCountryCheck = costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName);
+                        option.IsCountryCheck =
+                            costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName) ||
+                            costElementMeta.RegionInput?.Id == MetaConstants.CountryInputLevelName;
                     }
                 }
             }
