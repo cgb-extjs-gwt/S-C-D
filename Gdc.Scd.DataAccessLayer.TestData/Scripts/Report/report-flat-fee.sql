@@ -27,7 +27,7 @@ RETURN (
     from Hardware.AvailabilityFeeWg fee
     join InputAtoms.Wg wg on wg.id = fee.Wg
     
-    join Hardware.AvailabilityFeeCountryWg fee2 on fee2.Wg = wg.Id and fee2.DeactivatedDateTime is null
+    join Hardware.AvailabilityFeeWgCountry fee2 on fee2.Wg = wg.Id and fee2.DeactivatedDateTime is null
     left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee2.Country 
     
     join InputAtoms.CountryView c on c.Id = fee2.Country

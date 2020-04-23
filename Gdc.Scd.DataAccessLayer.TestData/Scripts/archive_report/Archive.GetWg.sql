@@ -10,6 +10,7 @@ returns @tbl table (
     , Pla nvarchar(255)
     , ClusterPla nvarchar(255)
     , Sog nvarchar(255)
+	, CompanyId bigint null
 )
 begin
 
@@ -20,6 +21,7 @@ begin
           , pla.Name as Pla
           , cpla.Name as ClusterPla
           , sog.Name as Sog
+		  , wg.CompanyId
     from InputAtoms.Wg wg 
     left join InputAtoms.Pla pla on pla.Id = wg.PlaId
     left join InputAtoms.ClusterPla cpla on cpla.Id = pla.ClusterPlaId
