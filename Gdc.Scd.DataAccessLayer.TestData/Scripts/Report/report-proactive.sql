@@ -31,11 +31,9 @@ BEGIN
         and SogId is not null
         and Deactivated = 0;
 
-    if not exists(select id from @wg_SOG_Table) return;
-
     declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
 
-    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+    declare @durTable dbo.ListId; insert into @durTable(id) values(@dur);
 
     declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
 
@@ -44,50 +42,107 @@ BEGIN
     declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
 
     declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
-    
+
+    declare @countries table (
+          Id bigint not null
+        , Name nvarchar(128)
+        , Currency nvarchar(16)
+        , ExchangeRate float
+    );
+
+    insert into @countries
+    select c.Id, c.Name, cur.Name as Currency, er.Value as ExchangeRate
+    from InputAtoms.Country c 
+    left join [References].Currency cur on cur.Id = c.CurrencyId
+    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
+    where c.Id = @cnt;
+
     with cte as (
-        select m.* 
-               , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
-        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
-        where @wg is null or m.WgId = @wg
+        select m.*
+
+             , (sum(mc.ReActiveTP_Released * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_reactive
+             , (sum(case when mc.ReActiveTP_Released <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_reactive
+             
+             , (sum(mc.ProActive_Released * ib.InstalledBaseCountryNorm)                           over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
+             , (sum(case when mc.ProActive_Released <> 0 then ib.InstalledBaseCountryNorm end)     over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
+
+        FROM Portfolio.GetBySlaPaging(@cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, null, null) m
+
+        join InputAtoms.Wg wg on wg.id = m.WgId and wg.Deactivated = 0
+        left join Hardware.GetInstallBaseOverSog(1, @cntTable) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
+        LEFT JOIN Hardware.ManualCost mc on mc.PortfolioId = m.Id
     )
     , cte2 as (
-        select  
-                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+        select 
 
-                , m.*
-                , fsp.Name as Fsp
-                , fsp.ServiceDescription as FspDescription
+              ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+            
+            , m.Id
+            , m.CountryId
+            , m.WgId
+            , m.AvailabilityId
+            , m.DurationId
+            , m.ReactionTimeId
+            , m.ReactionTypeId
+            , m.ServiceLocationId
+            , m.ProActiveSlaId
+
+            , case when m.sum_ib_x_tp_reactive <> 0 and m.sum_ib_by_tp_reactive <> 0 then m.sum_ib_x_tp_reactive / m.sum_ib_by_tp_reactive else 0 end as ReactiveTpSog
+
+            , case when m.sum_ib_x_pro <> 0 and m.sum_ib_by_pro <> 0 then m.sum_ib_x_pro / m.sum_ib_by_pro else 0 end as ProActiveSog
+
+            , fsp.Name as Fsp
+            , fsp.ServiceDescription as FspDescription
 
         from cte m
         left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla and fsp.IsStandardWarranty <> 1
+
     )
-    select    m.Id
-            , m.Country
+    select    m.rownum
+            , m.Id
+            , c.Name as Country
             , @cntGroup as CountryGroup
+            
             , m.Fsp
-            , m.Wg
+            , wg.Name as Wg
 
-            , m.ServiceLocation
-            , m.ReactionTime
-            , m.ReactionType
-            , m.Availability
-            , m.ProActiveSla
+            , loc.Name as ServiceLocation
+            , rtime.Name as ReactionTime
+            , rtype.Name as ReactionType
+            , av.Name as Availability
+            , proSla.ExternalName as ProActiveSla
 
-            , m.ServicePeriod as Duration
+            , case when dur.IsProlongation = 1 then 'Prolongation' else CAST(dur.Value as varchar(1)) end as Duration
 
-             , m.ReactiveTpSog * m.ExchangeRate as ReActive
-             , m.ProActiveSog * m.ExchangeRate as ProActive
-             , (m.ReactiveTpSog + coalesce(m.ProActiveSog, 0)) * m.ExchangeRate as ServiceTP
+             , m.ReactiveTpSog * c.ExchangeRate as ReActive
+             , m.ProActiveSog * c.ExchangeRate as ProActive
+             , (m.ReactiveTpSog + coalesce(m.ProActiveSog, 0)) * c.ExchangeRate as ServiceTP
 
-            , m.Currency
+            , c.Currency
 
-            , sog.Name as Sog
-            , sog.Description as SogDescription
+            , wg.Sog
+            , wg.SogDescription
 
             , m.FspDescription
+
     from cte2 m
-    JOIN InputAtoms.Sog sog on Sog.Id = m.SogId
+
+    INNER JOIN @countries c on c.Id = m.CountryId
+
+    INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+    INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
+
+    INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
+
+    INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+
+    INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
+   
+    INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+    INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
