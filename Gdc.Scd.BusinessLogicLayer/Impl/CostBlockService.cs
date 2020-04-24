@@ -274,6 +274,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             else if (context.ApplicationId == MetaConstants.HardwareSchema)
             {
                 result = await this.costBlockRepository.GetDependencyByPortfolio(context);
+                if (!result.Any())
+                    result = await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
             }
             else
             { 
