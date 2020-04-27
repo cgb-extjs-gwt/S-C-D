@@ -193,6 +193,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var dependencyField = costBlock.GetDomainDependencyField(context.CostElementId);
             var dependencyMeta = (NamedEntityMeta)dependencyField.ReferenceMeta;
 
+            if (this.domainEnitiesMeta.LocalPortfolio.GetFieldByReferenceMeta(dependencyMeta) == null ||
+                this.domainEnitiesMeta.HwStandardWarranty.GetFieldByReferenceMeta(dependencyMeta) == null)
+            {
+                return null;
+            }
+
             var selectIdsQuery = Sql.Union(new[]
             {
                 BuildSelectIdsQuery(this.domainEnitiesMeta.LocalPortfolio),
