@@ -4,8 +4,8 @@ using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server.Impl;
 using Newtonsoft.Json.Linq;
-using Ninject;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -15,17 +15,35 @@ namespace Gdc.Scd.Web.Server.Controllers
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Report })]
     public class ReportController : ApiController
     {
+        IDomainService<Country> countryService;
         private readonly IReportService service;
-
-        private readonly IKernel serviceProvider;
 
         public ReportController(
                 IReportService reportService,
-                IKernel serviceProvider
+                IDomainService<Country> countryService
             )
         {
+            this.countryService = countryService;
             this.service = reportService;
-            this.serviceProvider = serviceProvider;
+        }
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> Export([FromUri]ReportParameter data)
+        {
+            if (!data.IsValid)
+            {
+                return this.NotFoundContent();
+            }
+
+            try
+            {
+                var excel = await service.Excel(data.Report, data.AsFilterCollection(this.countryService));
+                return this.ExcelContent(excel.data, excel.fileName);
+            }
+            catch
+            {
+                return this.NotFoundContent();
+            }
         }
 
         [HttpPost]
@@ -137,6 +155,43 @@ namespace Gdc.Scd.Web.Server.Controllers
 
                 return new ReportFilterCollection(pairs);
             }
+        }
+
+        public class ReportParameter
+        {
+            public string Report { get; set; }
+
+            public string Country { get; set; }
+
+            public bool IsValid
+            {
+                get
+                {
+                    return !string.IsNullOrEmpty(Report);
+                }
+            }
+
+            public ReportFilterCollection AsFilterCollection(IDomainService<Country> countryService)
+            {
+                IEnumerable<KeyValuePair<string, object>> d = null;
+
+                if (!string.IsNullOrEmpty(Country))
+                {
+                    var countryId = countryService.GetAll()
+                                                  .Where(x => x.Name.ToUpper() == Country.ToUpper())
+                                                  .Select(x => x.Id)
+                                                  .First();
+
+                    d = new KeyValuePair<string, object>[] { new KeyValuePair<string, object>("cnt", countryId) };
+                }
+                else
+                {
+                    d = new KeyValuePair<string, object>[0];
+                }
+
+                return new ReportFilterCollection(d);
+            }
+
         }
     }
 }
