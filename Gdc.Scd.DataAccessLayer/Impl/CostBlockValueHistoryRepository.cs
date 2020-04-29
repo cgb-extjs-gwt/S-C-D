@@ -125,16 +125,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var userIdColumn = new ColumnInfo(nameof(User.Id), nameof(User));
             var options = new JoinHistoryValueQueryOptions
             {
-                IsUseRegionCondition = true,
-                InputLevelJoinType = InputLevelJoinType.All
+                UseRegionCondition = true,
+                InputLevelJoinType = InputLevelJoinType.All,
+                UseActualVersionRows = true,
+                CostBlockFilter = filter.Convert()
             };
 
             var historyMeta = this.domainEnitiesMeta.CostBlockHistory;
             var whereCondition =
-                ConditionHelper.AndStatic(filter.Convert(), costBlockMeta.Name)
-                               .And(SqlOperators.Equals(historyMeta.ContextApplicationIdField.Name, historyContext.ApplicationId, historyMeta.Name))
-                               .And(SqlOperators.Equals(historyMeta.ContextCostBlockIdField.Name, historyContext.CostBlockId, historyMeta.Name))
-                               .And(SqlOperators.Equals(historyMeta.ContextCostElementIdField.Name, historyContext.CostElementId, historyMeta.Name));
+                SqlOperators.Equals(historyMeta.ContextApplicationIdField.Name, historyContext.ApplicationId, historyMeta.Name)
+                            .And(SqlOperators.Equals(historyMeta.ContextCostBlockIdField.Name, historyContext.CostBlockId, historyMeta.Name))
+                            .And(SqlOperators.Equals(historyMeta.ContextCostElementIdField.Name, historyContext.CostElementId, historyMeta.Name));
 
             var historyQuery =
                 this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
