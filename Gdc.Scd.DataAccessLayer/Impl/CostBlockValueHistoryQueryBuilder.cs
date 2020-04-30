@@ -70,7 +70,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
-            var costBlockAllVersionsAlias = $"{costBlockMeta.Name}_AllVersions";
+            var costBlockAllVersionsAlias = options.UseActualVersionRows ? $"{costBlockMeta.Name}_AllVersions" : costBlockMeta.Name;
             var costBlockJoinCondition = BuildCostBlockJoinCondition();
 
             foreach (var relatedMeta in costBlockMeta.HistoryMeta.RelatedMetas)

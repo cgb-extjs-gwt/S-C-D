@@ -142,13 +142,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                         .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
                                         .Where(whereCondition);
 
-            var countHistoryQuery = Sql.Select(SqlFunctions.Count()).FromQuery(historyQuery, "t");
-
-            var queryData = countHistoryQuery.ToQueryData();
-            var count = await this.repositorySet.ExecuteScalarAsync<int>(queryData.Sql, queryData.Parameters);
-
             var historyItems = 
-                await this.repositorySet.ReadBySqlAsync(
+                (await this.repositorySet.ReadBySqlAsync(
                     historyQuery.ByQueryInfo(queryInfo), 
                     reader => new HistoryItemDto
                     {
@@ -156,12 +151,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         EditDate = reader.GetDateTime(1),
                         EditUserId = reader.GetInt64(2),
                         EditUserName = reader.GetString(3)
-                    });
+                    })).ToArray();
+
+            var skip = queryInfo.Skip ?? 0;
+            var take = queryInfo.Take ?? 0;
 
             return new DataInfo<HistoryItemDto>
             {
                 Items = historyItems,
-                Total = count
+                Total = historyItems.Length < take 
+                    ? skip + historyItems.Length 
+                    : skip + take + 1
             };
         }
 
