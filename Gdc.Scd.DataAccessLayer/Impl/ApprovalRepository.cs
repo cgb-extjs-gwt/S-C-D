@@ -175,7 +175,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
-            return await this.repositorySet.ReadBySqlAsync(query, mapper.Map);
+            return await this.repositorySet.ReadBySqlAsync(query.ToSqlScript(), mapper.Map);
         }
 
         private string GetMaxInputLevelId(CostBlockHistory history, long? historyValueId)

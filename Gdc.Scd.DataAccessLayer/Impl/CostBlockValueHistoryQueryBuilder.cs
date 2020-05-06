@@ -64,9 +64,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public TQuery BuildJoinHistoryValueQuery<TQuery>(CostElementContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
+            if (options == null)
+            {
+                options = new JoinHistoryValueQueryOptions();
+            }
+
             var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
-            //var costBlockCurrentCoordinates = $"{costBlockMeta.Name}_CurrentCoordinates";
-            var costBlockCurrentCoordinates = costBlockMeta.Name;
+            var costBlockAllVersionsAlias = options.UseActualVersionRows ? $"{costBlockMeta.Name}_AllVersions" : costBlockMeta.Name;
             var costBlockJoinCondition = BuildCostBlockJoinCondition();
 
             foreach (var relatedMeta in costBlockMeta.HistoryMeta.RelatedMetas)
@@ -82,7 +86,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     var isNullCondition = SqlOperators.IsNull(relatedMeta.RelatedItemField.Name, relatedMeta.Name);
                     var equalCondition = SqlOperators.Equals(
                         new ColumnInfo(relatedMeta.RelatedItemField, relatedMeta),
-                        new ColumnInfo(relatedMeta.RelatedItemField, costBlockCurrentCoordinates));
+                        new ColumnInfo(relatedMeta.RelatedItemField, costBlockAllVersionsAlias));
 
                     costBlockJoinCondition = costBlockJoinCondition.And(
                         ConditionHelper.OrBrackets(isNullCondition, equalCondition));
@@ -91,12 +95,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             query =
                 query.Join(costBlockMeta.HistoryMeta, costBlockMeta.HistoryMeta.CostBlockHistoryField.Name)
-                     .Join(costBlockMeta, costBlockJoinCondition, JoinType.Inner, costBlockCurrentCoordinates);
-                     //.Join(costBlockMeta, BuildCostBlockPreviousCoordinates());
+                     .Join(costBlockMeta, costBlockJoinCondition, JoinType.Inner, costBlockAllVersionsAlias)
+                     .Join(options.JoinInfos);
 
-            if (options != null)
+            if (options.UseActualVersionRows)
             {
-                query = query.Join(options.JoinInfos);
+                query = query.Join(costBlockMeta, BuildCostBlockActualCoordinates());
             }
 
             return query;
@@ -106,20 +110,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var costBlockHistoryMeta = this.domainEnitiesMeta.CostBlockHistory;
                 var createdDateCondition =
                     SqlOperators.LessOrEqual(
-                        new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockCurrentCoordinates),
+                        new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockAllVersionsAlias),
                         new ColumnInfo(costBlockHistoryMeta.EditDateField, costBlockHistoryMeta));
 
-                var deletedDateCondition = ConditionHelper.Or(
-                    SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockCurrentCoordinates),
-                    SqlOperators.IsNotNull(costBlockMeta.ActualVersionField.Name, costBlockCurrentCoordinates));
-                    
-                var condition = createdDateCondition.AndBrackets(deletedDateCondition);
+                var deletedDateCondition = SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockAllVersionsAlias);
 
-                if (options != null)
+                if (options.CostBlockFilter != null)
                 {
-                    condition =
-                        condition.And(BuildOptionCostBlockJoinCondition());
+                    deletedDateCondition = ConditionHelper.AndBrackets(
+                        deletedDateCondition,
+                        ConditionHelper.AndStatic(options.CostBlockFilter, costBlockAllVersionsAlias));
                 }
+
+                if (options.UseActualVersionRows)
+                {
+                    deletedDateCondition = deletedDateCondition.OrBrackets(
+                        ConditionHelper.And(
+                            SqlOperators.IsNotNull(costBlockMeta.ActualVersionField.Name, costBlockAllVersionsAlias),
+                            SqlOperators.IsNotNull(costBlockMeta.DeletedDateField.Name, costBlockAllVersionsAlias)));
+                }
+
+                var condition = createdDateCondition.AndBrackets(deletedDateCondition).And(BuildOptionCostBlockJoinCondition());
 
                 return condition;
 
@@ -127,56 +138,66 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     var conditions = new List<ConditionHelper>();
 
-                    if (options.IsUseRegionCondition && historyContext.RegionInputId.HasValue)
+                    if (options.UseRegionCondition && historyContext.RegionInputId.HasValue)
                     {
                         var costElement = this.domainMeta.GetCostElement(historyContext);
                         var regionCondition = SqlOperators.Equals(
-                            new ColumnInfo(costElement.RegionInput.Id, costBlockCurrentCoordinates),
+                            new ColumnInfo(costElement.RegionInput.Id, costBlockAllVersionsAlias),
                             new ColumnInfo(costBlockHistoryMeta.ContextRegionInputIdField, costBlockHistoryMeta));
 
                         conditions.Add(regionCondition);
                     }
 
-                    switch (options.InputLevelJoinType)
+                    if (options.InputLevelJoinType.HasValue)
                     {
-                        case InputLevelJoinType.HistoryContext:
-                            var inputLevelCondition = SqlOperators.Equals(
-                                new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
-                                new ColumnInfo(historyContext.InputLevelId, costBlockCurrentCoordinates));
+                        switch (options.InputLevelJoinType)
+                        {
+                            case InputLevelJoinType.HistoryContext:
+                                var inputLevelCondition = SqlOperators.Equals(
+                                    new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
+                                    new ColumnInfo(historyContext.InputLevelId, costBlockAllVersionsAlias));
 
-                            conditions.Add(inputLevelCondition);
-                            break;
+                                conditions.Add(inputLevelCondition);
+                                break;
 
-                        case InputLevelJoinType.All:
-                            var costElementMeta = this.domainMeta.GetCostElement(historyContext);
-                            var inputLevelConditions = new List<ConditionHelper>();
+                            case InputLevelJoinType.All:
+                                var costElementMeta = this.domainMeta.GetCostElement(historyContext);
+                                var inputLevelConditions = new List<ConditionHelper>();
 
-                            foreach (var inputLevel in costElementMeta.InputLevels)
-                            {
-                                inputLevelConditions.Add(
-                                    SqlOperators.Equals(
-                                        new ColumnInfo(inputLevel.Id, costBlockMeta.HistoryMeta.Name),
-                                        new ColumnInfo(inputLevel.Id, costBlockCurrentCoordinates)));
-                            }
+                                foreach (var inputLevel in costElementMeta.InputLevels)
+                                {
+                                    inputLevelConditions.Add(
+                                        SqlOperators.Equals(
+                                            new ColumnInfo(inputLevel.Id, costBlockMeta.HistoryMeta.Name),
+                                            new ColumnInfo(inputLevel.Id, costBlockAllVersionsAlias)));
+                                }
 
-                            conditions.Add(ConditionHelper.OrBrackets(inputLevelConditions));
-                            break;
+                                conditions.Add(ConditionHelper.OrBrackets(inputLevelConditions));
+                                break;
+                        }
                     }
 
                     return ConditionHelper.And(conditions);
                 }
             }
 
-            ConditionHelper BuildCostBlockPreviousCoordinates()
+            ConditionHelper BuildCostBlockActualCoordinates()
             {
-                return
-                    ConditionHelper.Or(
+                var condition =
+                    ConditionHelper.OrBrackets(
                         SqlOperators.Equals(
-                            new ColumnInfo(costBlockMeta.ActualVersionField, costBlockCurrentCoordinates),
-                            new ColumnInfo(costBlockMeta.ActualVersionField, costBlockMeta)),
+                            new ColumnInfo(costBlockMeta.ActualVersionField, costBlockAllVersionsAlias),
+                            new ColumnInfo(costBlockMeta.IdField, costBlockMeta)),
                         SqlOperators.Equals(
-                            new ColumnInfo(costBlockMeta.IdField, costBlockCurrentCoordinates),
+                            new ColumnInfo(costBlockMeta.IdField, costBlockAllVersionsAlias),
                             new ColumnInfo(costBlockMeta.IdField, costBlockMeta)));
+
+                if (options.CostBlockFilter != null)
+                {
+                    condition = condition.And(options.CostBlockFilter, costBlockMeta.Name);
+                }
+
+                return condition;
             }
         }
 
@@ -191,7 +212,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var options = new JoinHistoryValueQueryOptions
             {
-                IsUseRegionCondition = true,
+                UseRegionCondition = true,
                 InputLevelJoinType = inputLevelJoinType,
                 JoinInfos = joinInfos
             };

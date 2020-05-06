@@ -125,29 +125,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var userIdColumn = new ColumnInfo(nameof(User.Id), nameof(User));
             var options = new JoinHistoryValueQueryOptions
             {
-                IsUseRegionCondition = true,
-                InputLevelJoinType = InputLevelJoinType.All
+                UseRegionCondition = true,
+                InputLevelJoinType = InputLevelJoinType.All,
+                UseActualVersionRows = true,
+                CostBlockFilter = filter.Convert()
             };
 
             var historyMeta = this.domainEnitiesMeta.CostBlockHistory;
             var whereCondition =
-                ConditionHelper.AndStatic(filter.Convert(), costBlockMeta.Name)
-                               .And(SqlOperators.Equals(historyMeta.ContextApplicationIdField.Name, historyContext.ApplicationId, historyMeta.Name))
-                               .And(SqlOperators.Equals(historyMeta.ContextCostBlockIdField.Name, historyContext.CostBlockId, historyMeta.Name))
-                               .And(SqlOperators.Equals(historyMeta.ContextCostElementIdField.Name, historyContext.CostElementId, historyMeta.Name));
+                SqlOperators.Equals(historyMeta.ContextApplicationIdField.Name, historyContext.ApplicationId, historyMeta.Name)
+                            .And(SqlOperators.Equals(historyMeta.ContextCostBlockIdField.Name, historyContext.CostBlockId, historyMeta.Name))
+                            .And(SqlOperators.Equals(historyMeta.ContextCostElementIdField.Name, historyContext.CostElementId, historyMeta.Name));
 
             var historyQuery =
                 this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
                                         .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
                                         .Where(whereCondition);
 
-            var countHistoryQuery = Sql.Select(SqlFunctions.Count()).FromQuery(historyQuery, "t");
-
-            var queryData = countHistoryQuery.ToQueryData();
-            var count = await this.repositorySet.ExecuteScalarAsync<int>(queryData.Sql, queryData.Parameters);
-
             var historyItems = 
-                await this.repositorySet.ReadBySqlAsync(
+                (await this.repositorySet.ReadBySqlAsync(
                     historyQuery.ByQueryInfo(queryInfo), 
                     reader => new HistoryItemDto
                     {
@@ -155,12 +151,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         EditDate = reader.GetDateTime(1),
                         EditUserId = reader.GetInt64(2),
                         EditUserName = reader.GetString(3)
-                    });
+                    })).ToArray();
+
+            var skip = queryInfo.Skip ?? 0;
+            var take = queryInfo.Take ?? 0;
 
             return new DataInfo<HistoryItemDto>
             {
                 Items = historyItems,
-                Total = count
+                Total = historyItems.Length < take 
+                    ? skip + historyItems.Length 
+                    : skip + take + 1
             };
         }
 
