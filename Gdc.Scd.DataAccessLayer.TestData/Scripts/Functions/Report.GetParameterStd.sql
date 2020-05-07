@@ -38,13 +38,16 @@ RETURNS @result table(
     , ReinsuranceUpliftFactor_NBD_9x5   float
     , [1stLevelSupportCosts]            float
     , [2ndLevelSupportCosts]            float
+    , Sar                               float
     , MaterialCostWarranty              float
     , MaterialCostOow                   float
     , OnsiteHourlyRate                  float
     , Fee                               float
     , MarkupFactorStandardWarranty      float
     , MarkupStandardWarranty            float
-    , primary key clustered (CountryId, WgId) 
+    , IB_per_Country                    float
+    , IB_per_PLA                        float 
+    , primary key clustered (CountryId, WgId)
 )
 as
 begin
@@ -77,6 +80,8 @@ begin
 
              , case when @approved = 0 then ssc.[1stLevelSupportCosts] else ssc.[1stLevelSupportCosts_Approved] end as [1stLevelSupportCosts]
              , case when @approved = 0 then ssc.[2ndLevelSupportCosts] else ssc.[2ndLevelSupportCosts_Approved] end as [2ndLevelSupportCosts]
+             , case when @approved = 0 then ssc.Sar                    else ssc.Sar_Approved end                    as Sar
+
 
              , case when @approved = 0 then mcw.MaterialCostIw else mcw.MaterialCostIw_Approved end as MaterialCostWarranty
              , case when @approved = 0 then mcw.MaterialCostOow else mcw.MaterialCostOow_Approved end as MaterialCostOow
@@ -88,6 +93,8 @@ begin
              , case when @approved = 0 then msw.MarkupFactorStandardWarranty else msw.MarkupFactorStandardWarranty_Approved end as MarkupFactorStandardWarranty
 
              , case when @approved = 0 then msw.MarkupStandardWarranty else msw.MarkupStandardWarranty_Approved end       as MarkupStandardWarranty
+             , case when @approved = 0 then ssc.Total_IB_Pla else ssc.Total_IB_Pla_Approved end as IB_per_PLA
+             , case when @approved = 0 then ssc.TotalIb else ssc.TotalIb_Approved end as IB_per_Country
 
         from InputAtoms.Wg wg 
 
@@ -154,12 +161,15 @@ begin
               , ReinsuranceUpliftFactor_NBD_9x5  
               , [1stLevelSupportCosts]           
               , [2ndLevelSupportCosts]           
+              , Sar
               , MaterialCostWarranty             
               , MaterialCostOow                  
               , OnsiteHourlyRate                 
               , Fee                              
               , MarkupFactorStandardWarranty     
-              , MarkupStandardWarranty           
+              , MarkupStandardWarranty
+              , IB_per_Country
+              , IB_per_PLA           
 
     from WgCte wg, CountryCte c;
 

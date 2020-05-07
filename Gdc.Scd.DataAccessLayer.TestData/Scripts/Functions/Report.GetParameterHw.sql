@@ -45,6 +45,8 @@ RETURN (
                 , case when @approved = 0 then fst.PerformanceRate else fst.PerformanceRate_Approved end as PerformanceRate
                 , case when @approved = 0 then fsc.TravelTime else fsc.TravelTime_Approved end as TravelTime
                 , case when @approved = 0 then fsc.RepairTime else fsc.RepairTime_Approved end as RepairTime
+                , case when @approved = 0 then fst.TimeAndMaterialShare else fst.TimeAndMaterialShare_Approved end as TimeAndMaterialShare
+                , case when @approved = 0 then  UpliftFactor.OohUpliftFactor else  UpliftFactor.OohUpliftFactor_Approved end as OohUpliftFactor
                 , std.OnsiteHourlyRate
 
 
@@ -81,6 +83,8 @@ RETURN (
                 , std.AFR4
                 , std.AFR5
                 , std.AFRP1
+                , std.IB_per_Country
+                , std.IB_per_PLA
 
                 , case when dur.Value = 1 then std.AFR1 
                        when dur.Value = 2 then std.AFR1 + std.AFR2 
@@ -90,30 +94,34 @@ RETURN (
                     end AfrSum
 
                 , case when @approved = 0 
-                        then Hardware.CalcFieldServiceCost(
-                                                  fst.TimeAndMaterialShare_norm 
-                                                , fsc.TravelCost                
-                                                , fsc.LabourCost                
-                                                , fst.PerformanceRate           
-                                                , fsc.TravelTime                
-                                                , fsc.RepairTime                
-                                                , std.OnsiteHourlyRate
-                                                , 1
-                                            ) 
-                        else Hardware.CalcFieldServiceCost(
-                                              fst.TimeAndMaterialShare_norm_Approved  
-                                            , fsc.TravelCost_Approved  
-                                            , fsc.LabourCost_Approved  
-                                            , fst.PerformanceRate_Approved  
-                                            , fsc.TravelTime_Approved  
-                                            , fsc.RepairTime_Approved  
-                                            , std.OnsiteHourlyRate 
-                                            , 1
-                                        )
-                    end as FieldServicePerYear
+                       then 
+                            Hardware.CalcByFieldServicePerYear(
+                                fst.TimeAndMaterialShare_norm, 
+                                fsc.TravelCost, 
+                                fsc.LabourCost, 
+                                fst.PerformanceRate, 
+                                std.ExchangeRate,
+                                fsc.TravelTime,
+                                fsc.repairTime,
+                                1, --calc in local 
+                                UpliftFactor.OohUpliftFactor)
+                        else
+                            Hardware.CalcByFieldServicePerYear(
+                                fst.TimeAndMaterialShare_norm_Approved, 
+                                fsc.TravelCost_Approved, 
+                                fsc.LabourCost_Approved, 
+                                fst.PerformanceRate_Approved, 
+                                std.ExchangeRate,
+                                fsc.TravelTime_Approved,
+                                fsc.repairTime_Approved,
+                                1, --calc in local 
+                                UpliftFactor.OohUpliftFactor_Approved)
+         
+                   end as FieldServicePerYear
 
                 , std.[1stLevelSupportCosts]
                 , std.[2ndLevelSupportCosts]
+                , std.Sar
            
                 , std.ReinsuranceFlatfee1
                 , std.ReinsuranceFlatfee2
@@ -150,6 +158,7 @@ RETURN (
         --cost blocks
         LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
         LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId and fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
+        LEFT JOIN Hardware.UpliftFactor ON UpliftFactor.Country = m.CountryId AND UpliftFactor.Wg = m.WgId AND UpliftFactor.[Availability] = m.AvailabilityId
 
         LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId 
                                             AND lc.Wg = m.WgId
@@ -196,6 +205,9 @@ RETURN (
               , m.RepairTime
               , m.OnsiteHourlyRate as OnsiteHourlyRate
 
+              , m.TimeAndMaterialShare 
+              , m.OohUpliftFactor
+
               , m.AvailabilityFee * m.ExchangeRate as AvailabilityFee
       
               , m.TaxAndDutiesW as TaxAndDutiesW
@@ -215,7 +227,8 @@ RETURN (
 
               , m.[1stLevelSupportCosts] * m.ExchangeRate as [1stLevelSupportCosts]
               , m.[2ndLevelSupportCosts] * m.ExchangeRate as [2ndLevelSupportCosts]
-           
+              , m.Sar * 100                               as Sar
+
               , m.ReinsuranceFlatfee1 * m.ExchangeRate as ReinsuranceFlatfee1
               , m.ReinsuranceFlatfee2 * m.ExchangeRate as ReinsuranceFlatfee2
               , m.ReinsuranceFlatfee3 * m.ExchangeRate as ReinsuranceFlatfee3
@@ -248,6 +261,8 @@ RETURN (
               , m.LogisticHandlingPerYear * m.AfrSum as LogisticsHandling
 
               , m.LogisticTransportPerYear * m.AfrSum as LogisticTransportcost
+              , m.IB_per_Country
+              , m.IB_per_PLA
 
     from CostCte m
 )

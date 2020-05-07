@@ -1129,6 +1129,9 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
                , ssc.[2ndLevelSupportCostsClusterRegion]               as '2ndLevelSupportCostsClusterRegion'
                , ssc.[2ndLevelSupportCostsClusterRegion_Approved]      as '2ndLevelSupportCostsClusterRegion_Approved'
 
+               , ssc.Sar / 100                                         as Sar
+               , ssc.Sar_Approved / 100                                as Sar_Approved
+
                , case when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] / er.Value 
                         else ssc.[2ndLevelSupportCostsClusterRegion]
                    end as '2ndLevelSupportCosts'
@@ -1158,6 +1161,12 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
          , ssc.[1stLevelSupportCosts_Approved]
          , ssc.[2ndLevelSupportCosts]
          , ssc.[2ndLevelSupportCosts_Approved]
+         , ssc.Sar
+         , ssc.Sar_Approved
+         , ssc.TotalIb
+         , ssc.TotalIb_Approved
+         , ssc.Total_IB_Pla
+         , ssc.Total_IB_Pla_Approved
 
          , case when ssc.TotalIb <> 0 and ssc.Total_IB_Pla <> 0 
                 then ssc.[1stLevelSupportCosts] / ssc.TotalIb + ssc.[2ndLevelSupportCosts] / ssc.Total_IB_Pla
