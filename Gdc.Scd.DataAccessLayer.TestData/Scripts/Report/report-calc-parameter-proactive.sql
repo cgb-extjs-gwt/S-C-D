@@ -33,9 +33,8 @@ RETURN
 	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 
-    where pro.Deactivated = 0
-	and pro.Country = @cnt
-      and (@wg is null or pro.Wg = @wg)
+    where pro.Country = @cnt
+            and (@wg is null or pro.Wg = @wg)
 )
 GO
 
