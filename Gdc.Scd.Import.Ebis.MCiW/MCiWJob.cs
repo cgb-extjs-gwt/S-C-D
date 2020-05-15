@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
     public class MCiWJob : IJob
     {
         protected MaterialCostService mciw;
+        public const string JobName = "MCiWJob";
 
         protected ILogger log;
 
@@ -56,7 +57,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "MCiWJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)

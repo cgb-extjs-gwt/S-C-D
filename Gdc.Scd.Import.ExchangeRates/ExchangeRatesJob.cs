@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.ExchangeRatesJob
     public class ExchangeRatesJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "ExchangeRatesJob";
 
         protected ExchangeRateService exchange;
 
@@ -55,7 +56,7 @@ namespace Gdc.Scd.Import.ExchangeRatesJob
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "ExchangeRatesJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)

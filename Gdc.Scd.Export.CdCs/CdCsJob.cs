@@ -10,6 +10,7 @@ namespace Gdc.Scd.Export.CdCsJob
     public class CdCsJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "CdCsJob";
 
         protected CdCsService cdCs;
 
@@ -51,7 +52,7 @@ namespace Gdc.Scd.Export.CdCsJob
 
         public string WhoAmI()
         {
-            return "CdCsJob";
+            return JobName;
         }
 
         protected virtual void Notify(Exception ex, string msg)
