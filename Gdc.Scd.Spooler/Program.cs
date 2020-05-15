@@ -75,6 +75,8 @@ namespace Gdc.Scd.Spooler
             }
 
             var jobInstances = kernel.GetAll<IJob>().ToArray();
+            Logging.Instance().logMessageLine("----------------------------------------------------------------------");
+            Logging.Instance().logMessageLine($"Following jobs are enable to run: {String.Join("; ", jobInstances.Select(ji => ji.WhoAmI()))}");
 
             foreach (var jobSchedule in shouldBeLaunch)
             {
