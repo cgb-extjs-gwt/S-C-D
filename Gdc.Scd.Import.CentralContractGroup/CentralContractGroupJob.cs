@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
     public class CentralContractGroupJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "CentralContractGroupJob";
 
         protected CentralContractGroupService contract;
 
@@ -56,7 +57,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "CentralContractGroupJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)
