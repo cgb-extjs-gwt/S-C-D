@@ -38,7 +38,7 @@
     <Compile Include="ArchiveJob.cs" />
     <Compile Include="ArchiveService.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Dto\CostBlockDto.cs" />
+    <Compile Include="Dto\ArchiveDto.cs" />
     <Compile Include="Dto\CountryDto.cs" />
     <Compile Include="Helpers\ExcelWriter.cs" />
     <Compile Include="IArchiveRepository.cs" />
