@@ -254,6 +254,7 @@
     <Compile Include="Migrations\2020_04\Migration_2020_04_20_11_42.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_17_13_23.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_17_15_11.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_15_10_59.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
+using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
@@ -42,6 +43,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
             Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
+            Bind<IDomainService<Project>, IProjectCalculatorService>().To<ProjectCalculatorService>().InScdRequestScope();
 
             //Need to optimize
             //Bind<IAfterAddingInterceptor<Wg>>().To<PortfolioInheritanceInterceptor>().InScdRequestScope(); 

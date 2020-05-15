@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
+using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
@@ -76,6 +77,17 @@ namespace Gdc.Scd.DataAccessLayer
             Kernel.RegisterEntityAsUniqueName<Role>();
             Kernel.RegisterEntityAsUniqueName<Permission>();
             Kernel.RegisterEntity<RolePermission>();
+            Kernel.RegisterEntity<Project>(
+                builder =>
+                {
+                    var availabilityBuilder = builder.OwnsOne(typeof(AvailabilityProjCalc), nameof(Project.Availability));
+
+                    availabilityBuilder.OwnsOne(typeof(DayHour), nameof(AvailabilityProjCalc.Start));
+                    availabilityBuilder.OwnsOne(typeof(DayHour), nameof(AvailabilityProjCalc.End));
+
+                    builder.OwnsOne(typeof(ReactionTimeProjCalc), nameof(Project.ReactionTime));
+                    builder.OwnsOne(typeof(DurationProjCalc), nameof(Project.Duration));
+                });
         }
 
         private bool IsModifiable(IRequest arg)
