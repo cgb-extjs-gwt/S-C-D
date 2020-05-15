@@ -53,6 +53,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     }
                 }
 
+
+
                 _logger.Info(PorImportLoggingMessage.DEACTIVATE_STEP_END, itemsToDeacivate.Count);
             }
 
@@ -65,6 +67,40 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             return result;
         }
 
+        public bool ChangeWgTypeToLogistic(IEnumerable<WgPorDto> wgs)
+        {
+            var result = true;
+            try
+            {
+                _logger.Info(PorImportLoggingMessage.CHANGING_WG_TYPE_BEGIN);
+                var porItems = wgs.Select(w => w.Name.ToLower()).ToList();
+
+                //select all that is not coming from POR but previously came from POR
+                //and which are exist in logistics and active there 
+                var wgToChangeWgTypes = this.GetAll()
+                    .Where(w => w.WgType == Scd.Core.Enums.WgType.Por &&
+                                !porItems.Contains(w.Name.ToLower())
+                                && !w.DeactivatedDateTime.HasValue
+                                && w.ExistsInLogisticsDb 
+                                && !w.IsDeactivatedInLogistic).ToList();
+
+                foreach (var wg in wgToChangeWgTypes)
+                    wg.WgType = Scd.Core.Enums.WgType.Logistics;
+
+                this.Save(wgToChangeWgTypes);
+                this.repositorySet.Sync();
+
+                _logger.Info(PorImportLoggingMessage.CHANGING_WG_TYPE_ENDS, wgToChangeWgTypes.Count);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                result = false;
+            }
+
+            return result;
+        }
         public (bool, List<Wg>) UploadWgs(IEnumerable<WgPorDto> wgs,
             IEnumerable<Sog> sogs,
             IEnumerable<Pla> plas, DateTime modifiedDateTime,

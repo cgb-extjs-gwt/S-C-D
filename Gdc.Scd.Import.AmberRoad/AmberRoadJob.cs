@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.AmberRoad
     public class AmberRoadJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "AmberRoadJob";
 
         protected AmberRoadService amber;
 
@@ -53,7 +54,7 @@ namespace Gdc.Scd.Import.AmberRoad
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "AmberRoadJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)

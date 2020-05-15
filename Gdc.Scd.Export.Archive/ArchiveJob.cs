@@ -9,6 +9,7 @@ namespace Gdc.Scd.Export.ArchiveJob
 {
     public class ArchiveJob : IJob
     {
+        public const string JobName = "ArchiveJob";
         protected ArchiveService srv;
 
         protected ILogger logger;
@@ -40,7 +41,7 @@ namespace Gdc.Scd.Export.ArchiveJob
 
         public string WhoAmI()
         {
-            return "ArchiveJob";
+            return JobName;
         }
 
         /// <summary>

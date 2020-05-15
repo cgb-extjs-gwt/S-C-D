@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+﻿using System.Linq;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Export.ArchiveJob;
 using Gdc.Scd.Export.ArchiveResultSenderJob;
@@ -21,18 +22,41 @@ namespace Gdc.Scd.Spooler
     {
         public override void Load()
         {
-            Bind<IJob>().To<ArchiveJob>().InSingletonScope();
-            Bind<IJob>().To<ArchiveResultSenderJob>().InSingletonScope();
-            Bind<IJob>().To<CdCsJob>().InSingletonScope();
-            Bind<IJob>().To<AmberRoadJob>().InSingletonScope();
-            Bind<IJob>().To<CentralContractGroupJob>().InSingletonScope();
-            Bind<IJob>().To<AfrJob>().InSingletonScope();
-            Bind<IJob>().To<InstallBaseJob>().InSingletonScope();
-            Bind<IJob>().To<MCiWJob>().InSingletonScope();
-            Bind<IJob>().To<ExchangeRatesJob>().InSingletonScope();
-            Bind<IJob>().To<LogisticsJob>().InSingletonScope();
-            Bind<IJob>().To<ImportPorJob>().InSingletonScope();
-            Bind<IJob>().To<SfabJob>().InSingletonScope();
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(ArchiveJob.JobName))
+                Bind<IJob>().To<ArchiveJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(ArchiveResultSenderJob.JobName))
+                Bind<IJob>().To<ArchiveResultSenderJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(CdCsJob.JobName))
+                Bind<IJob>().To<CdCsJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(AmberRoadJob.JobName))
+                Bind<IJob>().To<AmberRoadJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(CentralContractGroupJob.JobName))
+                Bind<IJob>().To<CentralContractGroupJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(AfrJob.JobName))
+                Bind<IJob>().To<AfrJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(InstallBaseJob.JobName))
+                Bind<IJob>().To<InstallBaseJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(MCiWJob.JobName))
+                Bind<IJob>().To<MCiWJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(ExchangeRatesJob.JobName))
+                Bind<IJob>().To<ExchangeRatesJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(LogisticsJob.JobName))
+                Bind<IJob>().To<LogisticsJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(ImportPorJob.JobName))
+                Bind<IJob>().To<ImportPorJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(SfabJob.JobName))
+                Bind<IJob>().To<SfabJob>().InSingletonScope();
         }
     }
 }

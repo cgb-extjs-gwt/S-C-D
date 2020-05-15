@@ -9,6 +9,7 @@ namespace Gdc.Scd.Export.ArchiveResultSenderJob
     public class ArchiveResultSenderJob : IJob
     {
         protected ArchiveResultService archive;
+        public const string JobName = "ArchiveResultSenderJob";
 
         protected ILogger log;
 
@@ -53,7 +54,7 @@ namespace Gdc.Scd.Export.ArchiveResultSenderJob
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "ArchiveResultSenderJob";
+            return JobName;
         }
 
         protected virtual void Notify(string msg, Exception ex)

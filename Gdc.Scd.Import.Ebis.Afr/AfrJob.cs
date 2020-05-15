@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
     public class AfrJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "AfrJob";
 
         protected AfrService afr;
 
@@ -53,7 +54,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "AfrJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)
