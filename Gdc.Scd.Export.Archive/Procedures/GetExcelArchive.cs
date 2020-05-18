@@ -1,9 +1,9 @@
-﻿using System.Data.Common;
-using System.IO;
-using Gdc.Scd.DataAccessLayer.Interfaces;
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using Gdc.Scd.Export.ArchiveJob.Dto;
 using Gdc.Scd.Export.ArchiveJob.Helpers;
+using System.Data.Common;
+using System.IO;
 
 namespace Gdc.Scd.Export.ArchiveJob.Procedures
 {
@@ -25,9 +25,9 @@ namespace Gdc.Scd.Export.ArchiveJob.Procedures
             }
         }
 
-        public Stream ExecuteCountryHwExcel(CountryDto cnt)
+        public Stream ExecuteCountryExcel(CountryDto cnt, ArchiveDto archive)
         {
-            return ExecuteExcel(cnt.Name, "Archive.spGetHwCosts", CountryID(cnt.Id));
+            return ExecuteExcel(archive.ArchiveName, archive.Procedure, CountryID(cnt.Id));
         }
 
         private static DbParameter CountryID(long id)

@@ -24,16 +24,23 @@ begin
             , fee.CostPerKit_Approved                       as CostPerKit
             , fee.CostPerKitJapanBuy_Approved               as CostPerKitJapanBuy
 
+        into #tmp
+
     from Hardware.AvailabilityFeeWg fee
 
     join Archive.GetWg(0) wg on wg.id = fee.Wg
 
-    join Hardware.AvailabilityFeeWgCountry fee2 on fee2.Wg = wg.Id
+    join Hardware.AvailabilityFeeWgCountry fee2 on fee2.Wg = wg.Id and fee2.DeactivatedDateTime is null
 
-	join Hardware.AvailabilityFeeCountryCompany fee3 on fee2.Country = fee3.Country and wg.CompanyId = fee3.Company
+    join Hardware.AvailabilityFeeCountryCompany fee3 on fee2.Country = fee3.Country and wg.CompanyId = fee3.Company and fee3.DeactivatedDateTime is null
 
     join Archive.GetCountries() c on c.id = fee2.Country
 
-    order by c.Name, wg.Name
+    where fee.DeactivatedDateTime is null;
+
+    select * from #tmp
+    order by Country, Wg;
+
+    drop table #tmp;
+
 end
-GO

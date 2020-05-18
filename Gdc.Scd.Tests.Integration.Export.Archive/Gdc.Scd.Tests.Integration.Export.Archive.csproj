@@ -67,6 +67,7 @@
     <Compile Include="ArchiveJobTest.cs" />
     <Compile Include="ArchiveServiceTest.cs" />
     <Compile Include="ArchiveRepositoryTest.cs" />
+    <Compile Include="ArchiveServiceTest2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Testings\FakeArchiveService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +80,9 @@
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="TestData\hdd.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
