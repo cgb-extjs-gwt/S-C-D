@@ -87,6 +87,11 @@ namespace Gdc.Scd.DataAccessLayer
 
                     builder.OwnsOne(typeof(ReactionTimeProjCalc), nameof(Project.ReactionTime));
                     builder.OwnsOne(typeof(DurationProjCalc), nameof(Project.Duration));
+                    builder.OwnsOne(typeof(FieldServiceCostProjCalc), nameof(Project.FieldServiceCost));
+                    builder.OwnsOne(typeof(ReinsuranceProjCalc), nameof(Project.Reinsurance));
+                    builder.OwnsOne(typeof(MarkupOtherCostsProjCalc), nameof(Project.MarkupOtherCosts));
+                    builder.OwnsOne(typeof(LogisticsCostsProjCalc), nameof(Project.LogisticsCosts));
+                    builder.OwnsOne(typeof(AvailabilityFeeProjCalc), nameof(Project.AvailabilityFee));
                 });
         }
 

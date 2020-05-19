@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.ProjectCalculator
@@ -35,42 +36,90 @@ namespace Gdc.Scd.Core.Entities.ProjectCalculator
 
         public bool IsCalculated { get; set; }
 
-        #region FieldServiceCost
-        public double? TimeAndMaterialShare { get; set; }
+        public List<AfrProjCalc> Afrs { get; set; }
 
-        public double? TravelCost { get; set; }
+        public double? OnsiteHourlyRates { get; set; }
 
-        public double? LabourCost { get; set; }
+        public FieldServiceCostProjCalc FieldServiceCost { get; set; }
 
-        public double? PerformanceRate { get; set; }
+        public ReinsuranceProjCalc Reinsurance { get; set; }
 
-        /// <summary>
-        /// Travel Time (MTTT)
-        /// </summary>
-        public double? TravelTime { get; set; }
-        #endregion
+        public MarkupOtherCostsProjCalc MarkupOtherCosts { get; set; }
 
-        #region Reinsurance
-        public double? ReinsuranceFlatfee { get; set; }
+        public LogisticsCostsProjCalc LogisticsCosts { get; set; }
 
-        public double? ReinsuranceUpliftFactor { get; set; }
-        #endregion
+        public AvailabilityFeeProjCalc AvailabilityFee { get; set; }
 
-        #region MarkupOtherCosts
-        /// <summary>
-        /// Markup factor for other cost (%)
-        /// </summary>
-        public double? MarkupFactor { get; set; }
+        //#region FieldServiceCost
+        //public double? TimeAndMaterialShare { get; set; }
 
-        /// <summary>
-        /// Prolongation markup factor for other cost (%)
-        /// </summary>
-        public double? ProlongationMarkupFactor { get; set; }
+        //public double? TravelCost { get; set; }
 
-        /// <summary>
-        /// Prolongation markup for other cost
-        /// </summary>
-        public double? ProlongationMarkup { get; set; }
-        #endregion
+        //public double? LabourCost { get; set; }
+
+        //public double? PerformanceRate { get; set; }
+
+        ///// <summary>
+        ///// Travel Time (MTTT)
+        ///// </summary>
+        //public double? TravelTime { get; set; }
+        //#endregion
+
+        //#region Reinsurance
+        //public double? ReinsuranceFlatfee { get; set; }
+
+        //public double? ReinsuranceUpliftFactor { get; set; }
+        //#endregion
+
+        //#region MarkupOtherCosts
+        ///// <summary>
+        ///// Markup factor for other cost (%)
+        ///// </summary>
+        //public double? MarkupFactor { get; set; }
+
+        ///// <summary>
+        ///// Prolongation markup factor for other cost (%)
+        ///// </summary>
+        //public double? ProlongationMarkupFactor { get; set; }
+
+        ///// <summary>
+        ///// Prolongation markup for other cost
+        ///// </summary>
+        //public double? ProlongationMarkup { get; set; }
+        //#endregion
+
+        //#region LogisticsCosts
+        //public double? ExpressDelivery { get; set; }
+
+        //public double? HighAvailabilityHandling { get; set; }
+
+        //public double? StandardDelivery { get; set; }
+
+        //public double? StandardHandling { get; set; }
+
+        //public double? ReturnDeliveryFactory { get; set; }
+
+        //public double? TaxiCourierDelivery { get; set; }
+        //#endregion
+
+        //#region AvailabilityFee
+        //public double? InstalledBaseHighAvailability { get; set; }
+
+        //public double? TotalLogisticsInfrastructureCost { get; set; }
+
+        //public double? StockValueFj { get; set; }
+
+        //public double? StockValueMv { get; set; }
+
+        //public double? AverageContractDuration { get; set; }
+
+        //public double? CostPerKit { get; set; }
+
+        //public double? CostPerKitJapanBuy { get; set; }
+
+        //public double? MaxQty { get; set; }
+
+        //public double? JapanBuy { get; set; }
+        //#endregion
     }
 }
