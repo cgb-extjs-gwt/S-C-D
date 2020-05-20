@@ -43,10 +43,10 @@ begin
          , std.StdWarrantyLocation as Location
 
          , case when @islocal = 1 then std.ExchangeRate else 1 end * std.MaterialW
-         , case when @islocal = 1 then std.ExchangeRate else 1 end * std.LocalServiceStandardWarranty
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * coalesce(Hardware.AddMarkup(std.LocalServiceStandardWarranty, std.RiskFactorStandardWarranty, std.RiskStandardWarranty), std.LocalServiceStandardWarranty)
          , case when @islocal = 1 then std.ExchangeRate else 1 end * std.LocalServiceStandardWarrantyManual
 
-         , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + std.LocalServiceStandardWarranty) as StandardWarrantyAndMaterial
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + coalesce(Hardware.AddMarkup(std.LocalServiceStandardWarranty, std.RiskFactorStandardWarranty, std.RiskStandardWarranty), std.LocalServiceStandardWarranty)) as StandardWarrantyAndMaterial
          , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + std.LocalServiceStandardWarrantyManual) as StandardWarrantyManualAndMaterial
 		 , case when @islocal = 1 then std.Currency else 'EUR' end
     from Hardware.CalcStdw(1, @cntTbl, @wg) std

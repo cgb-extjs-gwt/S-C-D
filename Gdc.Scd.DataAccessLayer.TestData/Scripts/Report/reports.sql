@@ -366,7 +366,7 @@ BEGIN
             , case when c.IsProlongation = 1 then 'Prolongation' else CAST(c.Year as varchar(1)) end as ServicePeriod
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
-            , c.LocalServiceStandardWarranty
+            , c.LocalServiceStandardWarrantyWithRisk as LocalServiceStandardWarranty
             , case when @approved = 1 then c.ServiceTpSog else c.ServiceTpSog_Released end as ServiceTP
             , c.DealerPrice
             , c.ListPrice
@@ -407,7 +407,7 @@ BEGIN
             , case when c.IsProlongation = 1 then 'Prolongation' else CAST(c.Year as varchar(1)) end as ServicePeriod
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
-            , c.LocalServiceStandardWarranty
+            , c.LocalServiceStandardWarrantyWithRisk as LocalServiceStandardWarranty
             , case when @approved = 1 then c.ServiceTP else c.ServiceTP_Released end as ServiceTP
             , c.DealerPrice
             , c.ListPrice
