@@ -20,5 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task<DataInfo<HistoryItemDto>> GetHistory(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
 
         Task<Stream> ExportToExcel();
+
+        Task<TableViewExcelImportResult> ImportFromExcel(Stream excelStream, ApprovalOption approvalOption);
     }
 }

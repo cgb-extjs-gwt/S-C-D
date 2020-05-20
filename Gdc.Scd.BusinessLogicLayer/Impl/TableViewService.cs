@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +31,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockService costBlockService;
 
+        private readonly ISqlRepository sqlRepository;
+
+        private readonly IExcelConverterService converterService;
+
         private readonly DomainEnitiesMeta meta;
 
         private readonly DomainMeta domainMeta;
@@ -41,6 +46,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IDomainService<Wg> wgService,
             IRoleCodeService roleCodeService,
             ICostBlockService costBlockService,
+            ISqlRepository sqlRepository,
+            IExcelConverterService converterService,
             DomainEnitiesMeta meta,
             DomainMeta domainMeta)
         {
@@ -50,6 +57,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.wgService = wgService;
             this.roleCodeService = roleCodeService;
             this.costBlockService = costBlockService;
+            this.sqlRepository = sqlRepository;
+            this.converterService = converterService;
             this.meta = meta;
             this.domainMeta = domainMeta;
         }
@@ -151,14 +160,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var records = await this.GetRecords();
             var tableViewInfo = await this.GetTableViewInfo();
-            var costElementInfos = 
-                    tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new 
-                                                 { 
+            var costElementInfos =
+                    tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new
+                                                 {
                                                      dataInfo.ApplicationId,
                                                      dataInfo.CostBlockId,
                                                      CostElement = this.domainMeta.GetCostElement(dataInfo)
                                                  })
-                                                 .Select(group => new 
+                                                 .Select(group => new
                                                  {
                                                      group.Key.CostElement,
                                                      DataInfos = group.ToArray()
@@ -304,6 +313,165 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
+        public async Task<TableViewExcelImportResult> ImportFromExcel(Stream excelStream, ApprovalOption approvalOption)
+        {
+            const int StartColumn = 1;
+
+            var result = new TableViewExcelImportResult
+            {
+                Errors = new List<string>()
+            };
+
+            using (var workbook = new XLWorkbook(excelStream))
+            {
+                var worksheetInfo =
+                    workbook.Worksheets.Select(worksheet => new
+                                       {
+                                           Worksheet = worksheet,
+                                           RowsUsed = worksheet.RowsUsed()
+                                       })
+                                       .FirstOrDefault(info => info.RowsUsed.Any());
+
+                if (worksheetInfo == null)
+                {
+                    result.Errors.Add("Excel file is empty");
+                }
+                else
+                {
+                    try
+                    {
+                        var column = StartColumn;
+                        var tableViewInfo = await this.GetTableViewInfo();
+
+                        var coordinateHandlers = new List<Func<IXLRow, Record, bool>>();
+
+                        foreach (var coordinateId in tableViewInfo.RecordInfo.Coordinates)
+                        {
+                            coordinateHandlers.Add(await BuildCoordinateRecordHandler(column++, coordinateId));
+                        }
+
+                        column += tableViewInfo.RecordInfo.AdditionalData.Length;
+
+                        var costElementHandlers = new List<Action<IXLRow, Record>>();
+
+                        foreach (var dataInfo in tableViewInfo.RecordInfo.Data)
+                        {
+                            costElementHandlers.Add(await BuildCostElementRecordHandler(column++, dataInfo));
+                        }
+
+                        var records = new List<Record>();
+
+                        foreach (var row in worksheetInfo.RowsUsed)
+                        {
+                            var record = new Record();
+
+                            if (coordinateHandlers.All(handler => handler(row, record)))
+                            {
+                                foreach (var costElementHandler in costElementHandlers)
+                                {
+                                    costElementHandler(row, record);
+                                }
+
+                                records.Add(record);
+                            }
+                        }
+
+                        result.QualityGateResult = await this.UpdateRecords(records, approvalOption);
+                    }
+                    catch(Exception ex)
+                    {
+                        result.Errors.Add(ex.Message);
+                    }
+                }
+            }
+
+            return result;
+
+            async Task<Func<IXLRow, Record, bool>> BuildCoordinateRecordHandler(int column, string coordinateId)
+            {
+                var coordMeta = this.meta.InputLevels[coordinateId];
+                var coordItems = 
+                    (await this.sqlRepository.GetNameIdItems(coordMeta, coordMeta.IdField.Name, coordMeta.NameField.Name))
+                                             .ToDictionary(item => item.Name.ToUpper());
+
+                return (row, record) =>
+                {
+                    var isContinueHandle = true;
+
+                    var value = row.Cell(column).GetValue<string>();
+
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        isContinueHandle = false;
+                    }
+                    else
+                    {
+                        if (coordItems.TryGetValue(value.ToUpper(), out var item))
+                        {
+                            record.Coordinates.Add(coordinateId, item);
+                        }
+                        else
+                        {
+                            result.Errors.Add($"Row {row.RowNumber()}. Item {value} not found");
+                        }
+                    }
+
+                    return isContinueHandle;
+                };
+            }
+
+            async Task<Action<IXLRow, Record>> BuildCostElementRecordHandler(int column, DataInfo dataInfo)
+            {
+                var costBlock = this.meta.CostBlocks[dataInfo];
+                var converterFn = await this.converterService.BuildConverter(costBlock, dataInfo.CostElementId);
+
+                return (row, record) =>
+                {
+                    var value = row.Cell(column).GetValue<string>();
+
+                    try
+                    {
+                        var convertedValue = converterFn(value);
+
+                        record.Data[dataInfo.DataIndex] = new TableViewCellData
+                        {
+                            Value = converterFn(value)
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Errors.Add($"Row {row.RowNumber()}. {ex.Message}");
+                    }
+                };
+            }
+
+            //T GetValue<T>(IXLRow row, int column)
+            //{
+            //    var value = row.Cell(column).GetValue<T>();
+
+            //    return string.IsNullOrWhiteSpace(value) ? default(T) : 
+            //}
+        }
+
+        //private CostElementDataInfo[] GetCostElementDataInfos(TableViewInfo tableViewInfo)
+        //{
+        //    return 
+        //        tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new
+        //                                     {
+        //                                          dataInfo.ApplicationId,
+        //                                          dataInfo.CostBlockId,
+        //                                          CostElement = this.domainMeta.GetCostElement(dataInfo)
+        //                                     })
+        //                                     .Select(group => new CostElementDataInfo
+        //                                     {
+        //                                         ApplicationId = group.Key.ApplicationId,
+        //                                         CostBlockId = group.Key.CostBlockId,
+        //                                         CostElement = group.Key.CostElement,
+        //                                         DataInfos = group.ToArray()
+        //                                     })
+        //                                     .ToArray();
+        //}
+
         private IDictionary<long, Record> GetRecordDictionary(IEnumerable<Record> records)
         {
             return records.ToDictionary(record => record.Coordinates[MetaConstants.WgInputLevelName].Id);
@@ -336,24 +504,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        private (string Id, long Value)? GetMaxInputLevel(
-            IDictionary<string, long> coordinates,
-            IDictionary<string, InputLevelMeta> inputLevelMetas)
-        {
-            InputLevelMeta maxInputLevelMeta = null;
-            (string, long)? maxInputLevel = null;
+        //public class CostElementDataInfo
+        //{
+        //    public string ApplicationId { get; set; }
 
-            foreach (var coordinate in coordinates)
-            {
-                if (inputLevelMetas.TryGetValue(coordinate.Key, out var inputLevelMeta) &&
-                    (maxInputLevelMeta == null || maxInputLevelMeta.LevelNumber < inputLevelMeta.LevelNumber))
-                {
-                    maxInputLevelMeta = inputLevelMeta;
-                    maxInputLevel = (coordinate.Key, coordinate.Value);
-                }
-            }
+        //    public string CostBlockId { get; set; }
 
-            return maxInputLevel;
-        }
+        //    public CostElementMeta CostElement { get; set; }
+
+        //    public DataInfo[] DataInfos { get; set; }
+        //}
     }
 }
