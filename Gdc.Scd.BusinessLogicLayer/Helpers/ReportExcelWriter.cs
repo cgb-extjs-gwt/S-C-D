@@ -96,7 +96,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 if (reader.HasField(f.Name))
                 {
                     //ok, column exists in select dataset
-                    //add thit column to report
+                    //add this column to report
                     //
                     result.Add(new ReportColumnFormat(reader, f, worksheet.Column(k + 1)));
                     k++;
