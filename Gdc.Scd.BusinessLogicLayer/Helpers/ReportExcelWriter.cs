@@ -24,9 +24,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private IXLWorksheet worksheet;
 
+        public ReportExcelWriter() { }
+
         public ReportExcelWriter(ReportSchemaDto schema)
         {
-            this.schema = schema;
+            AddSheet(schema);
         }
 
         public Stream GetData()
@@ -36,6 +38,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             stream.Seek(0, SeekOrigin.Begin);
             Dispose();
             return stream;
+        }
+
+        public void AddSheet(ReportSchemaDto schema)
+        {
+            this.prepared = false;
+            this.schema = schema;
         }
 
         public void WriteBody(DbDataReader reader)
@@ -109,7 +117,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
         private void InitWorkbook()
         {
             this.currentRow = 1;
-            this.workbook = new XLWorkbook();
+
+            if (this.workbook == null)
+            {
+                this.workbook = new XLWorkbook();
+            }
 
             var sheetName = schema.Name;
             if (sheetName.Length > 31)

@@ -8,10 +8,10 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -20,7 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private static readonly object syncRoot = new object();
 
-        private static ReportSchemaCollection cache; //static report and schemas cache
+        private static readonly string SCHEMA_CACHE_KEY = typeof(ReportService).FullName + ".GetSchemas"; // report and schemas cache
 
         private readonly IRepositorySet repositorySet;
 
@@ -101,27 +101,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private ReportSchemaCollection GetSchemas()
         {
-            if (ReportConfig.SchemaCache())
+            var cache = MemoryCache.Default;
+            var schema = cache[SCHEMA_CACHE_KEY] as ReportSchemaCollection;
+
+            if (schema == null)
             {
                 //double check lock
-
-                if (cache == null)
+                lock (syncRoot)
                 {
-                    lock (syncRoot)
+                    if (schema == null)
                     {
-                        if (cache == null)
-                        {
-                            cache = LoadSchemas();
-                        }
+                        schema = LoadSchemas();
+                        cache.Set(SCHEMA_CACHE_KEY, schema, DateTime.Now.AddMinutes(15));
                     }
                 }
-                return cache;
             }
-            else
-            {
-                cache = null;
-                return LoadSchemas();
-            }
+
+            return schema;
         }
 
         private ReportSchemaCollection LoadSchemas()
