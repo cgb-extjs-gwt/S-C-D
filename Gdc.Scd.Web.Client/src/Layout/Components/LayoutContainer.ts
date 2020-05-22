@@ -20,6 +20,12 @@ import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
 import { ReportListViewContainer } from "../../Report/ReportListViewContainer";
 import { PortfolioPivotGrid } from "../../PortfolioPivotGrid/Components/PortfolioPivotGrid";
+import { ImportFromExcelContainer } from "../../TableView/Components/ImportFromExcelContainer";
+
+export const Paths = {
+    tableView: '/table-view',
+    tableViewImport: '/table-view-import'
+}
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -36,7 +42,8 @@ export interface LayoutContainerProps {
 
 const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', component: CostEditorContainer, isMenuItem: true, permission: Permissions.COST_EDITOR },
-    { path: '/table-view', text: 'Central data input', iconCls: 'x-fa fa-table', component: TableViewContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
+    { path: Paths.tableView, text: 'Central data input', iconCls: 'x-fa fa-table', component: TableViewContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
+    { path: Paths.tableViewImport, text: 'Central data input import', component: ImportFromExcelContainer, permission: Permissions.TABLE_VIEW },
     { path: '/cost-import', text: 'Cost import', iconCls: 'x-fa fa-arrow-circle-o-up', component: CostImportContainer, isMenuItem: true, permission: Permissions.COST_IMPORT },
     { path: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', component: ApprovalLayoutContainer, isMenuItem: true, permission: Permissions.APPROVAL },
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApproveLayoutContainer, isMenuItem: true, permission: Permissions.OWN_APPROVAL },

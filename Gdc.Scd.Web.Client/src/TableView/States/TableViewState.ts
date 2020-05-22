@@ -44,8 +44,13 @@ export interface QualityGateResultSet {
     hasErrors: boolean
 }
 
+export interface ImportResult {
+    status: string
+}
+
 export interface TableViewState {
     info: TableViewInfo
     editedRecords: TableViewRecord[]
     qualityGateResultSet: QualityGateResultSet
+    importResults: ImportResult[]
 }
