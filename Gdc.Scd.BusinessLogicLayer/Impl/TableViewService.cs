@@ -315,6 +315,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<TableViewExcelImportResult> ImportFromExcel(Stream excelStream, ApprovalOption approvalOption)
         {
+            const int StartRow = 3;
             const int StartColumn = 1;
 
             var result = new TableViewExcelImportResult
@@ -352,29 +353,51 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                         column += tableViewInfo.RecordInfo.AdditionalData.Length;
 
-                        var costElementHandlers = new List<Action<IXLRow, Record>>();
+                        var costElementHandlers = new List<Action<IXLRow, Record>> 
+                        { 
+                            await BuildRoleCodeRecordHandler(column++),
+                            BuildResponsiblePersonRecordHandler(column++),
+                            BuildPsmReleaseRecordHandler(column++)
+                        };
 
                         foreach (var dataInfo in tableViewInfo.RecordInfo.Data)
                         {
                             costElementHandlers.Add(await BuildCostElementRecordHandler(column++, dataInfo));
                         }
 
-                        var records = new List<Record>();
+                        var newRecords = new List<Record>();
 
-                        foreach (var row in worksheetInfo.RowsUsed)
+                        foreach (var row in worksheetInfo.RowsUsed.Skip(StartRow - 1))
                         {
-                            var record = new Record();
-
-                            if (coordinateHandlers.All(handler => handler(row, record)))
+                            try
                             {
-                                foreach (var costElementHandler in costElementHandlers)
-                                {
-                                    costElementHandler(row, record);
-                                }
+                                var record = new Record();
 
-                                records.Add(record);
+                                if (coordinateHandlers.All(handler => handler(row, record)))
+                                {
+                                    foreach (var costElementHandler in costElementHandlers)
+                                    {
+                                        try
+                                        {
+                                            costElementHandler(row, record);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            result.Errors.Add($"Row number: {row.RowNumber()}. {ex.Message}");
+                                        }
+                                    }
+
+                                    newRecords.Add(record);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                result.Errors.Add($"Row number: {row.RowNumber()}. {ex.Message}");
                             }
                         }
+
+                        var oldRecords = await this.GetRecords();
+                        var records = GetUpdateRecords(oldRecords, newRecords).ToArray();
 
                         result.QualityGateResult = await this.UpdateRecords(records, approvalOption);
                     }
@@ -389,10 +412,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             async Task<Func<IXLRow, Record, bool>> BuildCoordinateRecordHandler(int column, string coordinateId)
             {
-                var coordMeta = this.meta.InputLevels[coordinateId];
-                var coordItems = 
-                    (await this.sqlRepository.GetNameIdItems(coordMeta, coordMeta.IdField.Name, coordMeta.NameField.Name))
-                                             .ToDictionary(item => item.Name.ToUpper());
+                var coordMeta = this.meta.GetInputLevel(coordinateId);
+                var converter = await this.converterService.BuildReferenceConverter(coordMeta);
 
                 return (row, record) =>
                 {
@@ -406,14 +427,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     }
                     else
                     {
-                        if (coordItems.TryGetValue(value.ToUpper(), out var item))
-                        {
-                            record.Coordinates.Add(coordinateId, item);
-                        }
-                        else
-                        {
-                            result.Errors.Add($"Row {row.RowNumber()}. Item {value} not found");
-                        }
+                        record.Coordinates.Add(coordinateId, converter(value));
                     }
 
                     return isContinueHandle;
@@ -428,49 +442,91 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 return (row, record) =>
                 {
                     var value = row.Cell(column).GetValue<string>();
+                    var convertedValue = converterFn(value);
 
-                    try
+                    record.Data[dataInfo.DataIndex] = new TableViewCellData
                     {
-                        var convertedValue = converterFn(value);
-
-                        record.Data[dataInfo.DataIndex] = new TableViewCellData
-                        {
-                            Value = converterFn(value)
-                        };
-                    }
-                    catch (Exception ex)
-                    {
-                        result.Errors.Add($"Row {row.RowNumber()}. {ex.Message}");
-                    }
+                        Value = converterFn(value)
+                    };
                 };
             }
 
-            //T GetValue<T>(IXLRow row, int column)
-            //{
-            //    var value = row.Cell(column).GetValue<T>();
+            async Task<Action<IXLRow, Record>> BuildRoleCodeRecordHandler(int column)
+            {
+                var roleCodeMeta = (NamedEntityMeta)this.meta.GetEntityMeta<RoleCode>();
+                var converter = await this.converterService.BuildReferenceConverter(roleCodeMeta);
 
-            //    return string.IsNullOrWhiteSpace(value) ? default(T) : 
-            //}
+                return (row, record) =>
+                {
+                    var value = row.Cell(column).GetValue<string>();
+                    var roleCode = converter(value);
+
+                    record.WgRoleCodeId = roleCode?.Id;
+                };
+            }
+
+            Action<IXLRow, Record> BuildResponsiblePersonRecordHandler(int column)
+            {
+                return (row, record) =>
+                {
+                    record.WgResponsiblePerson = row.Cell(column).GetValue<string>();
+                };
+            }
+
+            Action<IXLRow, Record> BuildPsmReleaseRecordHandler(int column)
+            {
+                return (row, record) =>
+                {
+                    var value = row.Cell(column).GetValue<string>();
+
+                    record.WgPsmRelease = this.converterService.ConvertToBool(value);
+                };
+            }
+
+            IEnumerable<Record> GetUpdateRecords(IEnumerable<Record> oldRecords, IEnumerable<Record> newRecords)
+            {
+                var joinedRecords =
+                    oldRecords.Join(newRecords, GetJoinKey, GetJoinKey, (oldRec, newRec) => (oldRec, newRec));
+
+                foreach (var (oldRecord, newRecord) in joinedRecords)
+                {
+                    var updatedData = new Dictionary<string, TableViewCellData>();
+
+                    foreach (var oldData in oldRecord.Data)
+                    {
+                        if (newRecord.Data.TryGetValue(oldData.Key, out var newData) && 
+                            !Equals(oldData.Value.Value, newData.Value))
+                        {
+                            updatedData.Add(oldData.Key, newData);
+                        }
+                    }
+
+                    if (updatedData.Count > 0 ||
+                        !Equals(oldRecord.WgPsmRelease, newRecord.WgPsmRelease) ||
+                        !Equals(oldRecord.WgResponsiblePerson, newRecord.WgResponsiblePerson) ||
+                        !Equals(oldRecord.WgRoleCodeId, newRecord.WgRoleCodeId))
+                    {
+                        yield return new Record
+                        {
+                            Coordinates = oldRecord.Coordinates,
+                            Data = updatedData,
+                            WgPsmRelease = newRecord.WgPsmRelease,
+                            WgResponsiblePerson = newRecord.WgResponsiblePerson,
+                            WgRoleCodeId = newRecord.WgRoleCodeId
+                        };
+                    }
+                }
+
+                string GetJoinKey(Record record)
+                {
+                    var items =
+                        record.Coordinates.OrderBy(keyValue => keyValue.Key)
+                                          .Select(keyValue => $"{keyValue.Key}:{keyValue.Value.Id}");
+
+                    return string.Join(",", items);
+                }
+            }
         }
-
-        //private CostElementDataInfo[] GetCostElementDataInfos(TableViewInfo tableViewInfo)
-        //{
-        //    return 
-        //        tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new
-        //                                     {
-        //                                          dataInfo.ApplicationId,
-        //                                          dataInfo.CostBlockId,
-        //                                          CostElement = this.domainMeta.GetCostElement(dataInfo)
-        //                                     })
-        //                                     .Select(group => new CostElementDataInfo
-        //                                     {
-        //                                         ApplicationId = group.Key.ApplicationId,
-        //                                         CostBlockId = group.Key.CostBlockId,
-        //                                         CostElement = group.Key.CostElement,
-        //                                         DataInfos = group.ToArray()
-        //                                     })
-        //                                     .ToArray();
-        //}
 
         private IDictionary<long, Record> GetRecordDictionary(IEnumerable<Record> records)
         {
@@ -503,16 +559,5 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
-
-        //public class CostElementDataInfo
-        //{
-        //    public string ApplicationId { get; set; }
-
-        //    public string CostBlockId { get; set; }
-
-        //    public CostElementMeta CostElement { get; set; }
-
-        //    public DataInfo[] DataInfos { get; set; }
-        //}
     }
 }
