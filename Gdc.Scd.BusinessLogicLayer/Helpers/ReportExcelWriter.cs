@@ -44,6 +44,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
         {
             this.prepared = false;
             this.schema = schema;
+            //
+            this.InitWorkbook();
         }
 
         public void WriteBody(DbDataReader reader)
@@ -84,8 +86,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private void Prepare(DbDataReader reader)
         {
-            this.InitWorkbook();
-            //
             this.fields = PrepareFields(reader);
             this.WriteHeader();
             //

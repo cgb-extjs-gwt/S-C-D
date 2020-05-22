@@ -24,53 +24,49 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepositorySet repositorySet;
 
-        private readonly IRepository<Report> reportRepo;
-
-        private readonly IRepository<ReportColumn> columnRepo;
-
-        private readonly IRepository<ReportFilter> filterRepo;
-
         private readonly IUserService userService;
 
         public ReportService(
                 IRepositorySet repositorySet,
-                IRepository<Report> reportRepo,
-                IRepository<ReportColumn> columnRepo,
-                IRepository<ReportFilter> filterRepo,
                 IUserService userService
             )
         {
             this.repositorySet = repositorySet;
-            this.reportRepo = reportRepo;
-            this.columnRepo = columnRepo;
-            this.filterRepo = filterRepo;
             this.userService = userService;
         }
 
-        public async Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
+        public Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
         {
-            var r = GetSchemas().GetSchema(reportId);
-            var func = r.Report.SqlFunc;
-            var parameters = r.FillParameters(filter, userService.GetCurrentUser());
-            var schema = r.AsSchemaDto();
-
-            var fn = FileNameHelper.Excel(schema.Name);
-            var d = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
-
-            return (d, fn);
+            return Excel(GetSchemas().GetSchema(reportId), filter);
         }
 
-        public async Task<(Stream data, string fileName)> Excel(string reportName, ReportFilterCollection filter)
+        public Task<(Stream data, string fileName)> Excel(string reportName, ReportFilterCollection filter)
         {
-            var r = GetSchemas().GetSchema(reportName);
-            var func = r.Report.SqlFunc;
-            var parameters = r.FillParameters(filter, userService.GetCurrentUser());
-            var schema = r.AsSchemaDto();
+            return Excel(GetSchemas().GetSchema(reportName), filter);
+        }
 
-            var fn = FileNameHelper.Excel(schema.Name);
-            var d = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
+        private async Task<(Stream data, string fileName)> Excel(ReportSchema r, ReportFilterCollection filter)
+        {
+            using (var multi = new GetReport.MultiSheetReport(repositorySet))
+            {
+                var func = r.Report.SqlFunc;
+                var schema = r.AsSchemaDto();
+                var fn = FileNameHelper.Excel(schema.Name);
+                var parameters = r.FillParameters(filter, userService.GetCurrentUser());
+                await multi.ExecuteExcelAsync(schema, func, parameters);
 
-            return (d, fn);
+                var schemas = GetSchemas();
+                foreach (var p in r.AsParts())
+                {
+                    r = schemas.GetSchema(p);
+                    func = r.Report.SqlFunc;
+                    schema = r.AsSchemaDto();
+                    parameters = r.FillParameters(filter, userService.GetCurrentUser());
+                    await multi.ExecuteExcelAsync(schema, func, parameters);
+                }
+
+                return (multi.GetData(), fn);
+            }
         }
 
         public async Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
@@ -124,9 +120,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var collection = new ReportSchemaCollection();
 
-            var reports = reportRepo.GetAll().ToArray();
+            var reports = repositorySet.GetRepository<Report>().GetAll().ToArray();
 
-            var columns = columnRepo.GetAll()
+            var columns = repositorySet.GetRepository<ReportColumn>()
+                                    .GetAll()
                                     .Select(x => new ReportColumn
                                     {
                                         Id = x.Id,
@@ -145,7 +142,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                     })
                                     .ToLookup(x => x.Report.Id);
 
-            var filters = filterRepo.GetAll()
+            var filters = repositorySet.GetRepository<ReportFilter>()
+                                    .GetAll()
                                     .Select(x => new ReportFilter
                                     {
                                         Id = x.Id,
@@ -164,16 +162,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                     })
                                     .ToLookup(x => x.Report.Id);
 
+            var parts = repositorySet.GetRepository<ReportPart>()
+                                     .GetAll()
+                                     .Select(x => new ReportPart
+                                     {
+                                         Id = x.Id,
+                                         Report = new Report { Id = x.Report.Id },
+                                         Part = new Report { Id = x.Part.Id },
+                                         Index = x.Index
+                                     })
+                                     .ToLookup(x => x.Report.Id);
+
             var EMPTY_COLUMNS = new ReportColumn[0];
             var EMPTY_FILTERS = new ReportFilter[0];
+            var EMPTY_PARTS = new ReportPart[0];
 
             for (var i = 0; i < reports.Length; i++)
             {
                 var r = reports[i];
                 var cols = columns.Contains(r.Id) ? columns[r.Id].OrderBy(x => x.Index).ToArray() : EMPTY_COLUMNS;
                 var fils = filters.Contains(r.Id) ? filters[r.Id].OrderBy(x => x.Index).ToArray() : EMPTY_FILTERS;
+                var ps = parts.Contains(r.Id) ? parts[r.Id].OrderBy(x => x.Index).ToArray() : EMPTY_PARTS;
 
-                collection.Add(r.Id, new ReportSchema(r, cols, fils));
+                collection.Add(r.Id, new ReportSchema(r, cols, fils, ps));
             }
 
             return collection;
@@ -233,15 +244,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private ReportFilter[] filters;
 
+        private ReportPart[] parts;
+
         public ReportSchema(
                 Report report,
                 ReportColumn[] columns,
-                ReportFilter[] filters
+                ReportFilter[] filters,
+                ReportPart[] parts
             )
         {
             this.report = report;
             this.columns = columns;
             this.filters = filters;
+            this.parts = parts;
         }
 
         public Report Report { get { return report; } }
@@ -310,6 +325,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     Text = x.Text,
                     Value = x.Value
                 };
+            }
+
+            return result;
+        }
+
+        public long[] AsParts()
+        {
+            int len = parts.Length;
+            var result = new long[len];
+
+            for (var i = 0; i < len; i++)
+            {
+                result[i] = parts[i].Part.Id;
             }
 
             return result;
