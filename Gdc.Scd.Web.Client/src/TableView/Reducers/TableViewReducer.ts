@@ -1,6 +1,6 @@
 import { Reducer, Action } from "redux";
-import { TABLE_VIEW_LOAD_INFO, TABLE_VIEW_EDIT_RECORD, EditRecordAction, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT } from "../Actions/TableViewActions";
-import { TableViewState, TableViewInfo, QualityGateResultSet } from "../States/TableViewState";
+import { TABLE_VIEW_LOAD_INFO, TABLE_VIEW_EDIT_RECORD, EditRecordAction, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT, TABLE_VIEW_LOAD_IMPORT_RESULTS, TABLE_VIEW_RESET_IMPORT_RESULTS } from "../Actions/TableViewActions";
+import { TableViewState, TableViewInfo, QualityGateResultSet, ImportResult } from "../States/TableViewState";
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
@@ -79,6 +79,16 @@ const resetQualityCheckResult: Reducer<TableViewState> = state => ({
     qualityGateResultSet: null
 })
 
+const loadImportResults: Reducer<TableViewState, CommonAction<ImportResult[]>> = (state, action) => ({
+    ...state,
+    importResults: action.data
+})
+
+const resetImportResults: Reducer<TableViewState, Action<string>> = state => ({
+    ...state,
+    importResults: null
+})
+
 export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state = init(), action) => {
     switch(action.type) {
         case TABLE_VIEW_LOAD_INFO:
@@ -95,6 +105,12 @@ export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state 
 
         case TABLE_VIEW_RESET_QUALITY_CHECK_RESULT:
             return resetQualityCheckResult(state, action);
+
+        case TABLE_VIEW_LOAD_IMPORT_RESULTS:
+            return loadImportResults(state, <CommonAction<ImportResult[]>>action)
+
+        case TABLE_VIEW_RESET_IMPORT_RESULTS:
+            return resetImportResults(state, action)
 
         default:
             return state;

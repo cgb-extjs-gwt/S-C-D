@@ -9,6 +9,8 @@ export interface SaveToolbarActions {
 export interface SaveToolbarProps extends SaveToolbarActions {
     isEnableClear: boolean
     isEnableSave: boolean
+    disableDialogs?: boolean
+    cancelButtonText?: string
 }
 
 export class SaveToolbar<T extends SaveToolbarProps = SaveToolbarProps> extends React.Component<T, T> {
@@ -27,12 +29,11 @@ export class SaveToolbar<T extends SaveToolbarProps = SaveToolbarProps> extends 
 
     public render() {
         const { isEnableClear, isEnableSave, onCancel, onSave } = this.state;
-        const { children } = this.props;
 
         return(
             <Toolbar docked="bottom">
                 <Button 
-                    text="Cancel" 
+                    text={this.props.cancelButtonText || 'Cancel'} 
                     flex={1} 
                     disabled={!isEnableClear}
                     handler={() => this.showClearDialog(onCancel)}
@@ -66,18 +67,26 @@ export class SaveToolbar<T extends SaveToolbarProps = SaveToolbarProps> extends 
     }
 
     protected showSaveDialog(onSave? : () => void) {
-        Ext.Msg.confirm(
-          'Saving changes', 
-          'Do you want to save the changes?',
-          (buttonId: string) => buttonId == 'yes' && onSave && onSave()
-        );
+        if (this.props.disableDialogs){
+            onSave && onSave();
+        } else {
+            Ext.Msg.confirm(
+                'Saving changes', 
+                'Do you want to save the changes?',
+                (buttonId: string) => buttonId == 'yes' && onSave && onSave()
+            );
+        }
     }
     
     protected showClearDialog(onCancel?: () => void) {
-        Ext.Msg.confirm(
-            'Clearing changes', 
-            'Do you want to clear the changes?',
-            (buttonId: string) => buttonId == 'yes' && onCancel && onCancel()
-        );
+        if (this.props.disableDialogs){
+            onCancel && onCancel();
+        } else {
+            Ext.Msg.confirm(
+                'Clearing changes', 
+                'Do you want to clear the changes?',
+                (buttonId: string) => buttonId == 'yes' && onCancel && onCancel()
+            );
+        }
     }
 }
