@@ -43,6 +43,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
             Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
+            Bind<IExcelConverterService>().To<ExcelConverterService>().InScdRequestScope();
             Bind<IDomainService<Project>, IProjectCalculatorService>().To<ProjectCalculatorService>().InScdRequestScope();
 
             //Need to optimize

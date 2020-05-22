@@ -24,9 +24,7 @@ namespace Gdc.Scd.Export.ArchiveJob.Procedures
         {
             var sql = @"select c.Id, c.Name, c.ISO3CountryCode as ISO
                         from InputAtoms.Country c 
-                        join (select p.CountryId
-                                from Portfolio.LocalPortfolio p
-                                group by p.CountryId) t on t.CountryId = c.Id";
+                        where exists(select * from Portfolio.LocalPortfolio where CountryId = c.Id)";
 
             return _repo.ReadBySqlAsync(sql, Read).Result.ToArray();
         }

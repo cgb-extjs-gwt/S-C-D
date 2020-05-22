@@ -4,107 +4,106 @@ go
 
 CREATE FUNCTION [Report].[CalcParameterHw]
 (
-    @cnt          bigint,
-    @wg           bigint,
-    @av           bigint,
-    @duration     bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc          bigint,
-    @pro          bigint
+	@cnt          bigint,
+	@wg           bigint,
+	@av           bigint,
+	@duration     bigint,
+	@reactiontime bigint,
+	@reactiontype bigint,
+	@loc          bigint,
+	@pro          bigint
 )
 RETURNS TABLE 
 AS
 RETURN (
-    select    
-                m.Id
-              , m.Country
-              , m.WgDescription
-              , m.Wg
-              , m.SogDescription
-              , m.SCD_ServiceType
-              , m.Sla
-              , m.ServiceLocation
-              , m.ReactionTime
-              , m.ReactionType
-              , m.Availability
+	select    
+				m.Id
+			  , m.Country
+			  , m.WgDescription
+			  , m.Wg
+			  , m.SogDescription
+			  , m.SCD_ServiceType
+			  , m.Sla
+			  , m.ServiceLocation
+			  , m.ReactionTime
+			  , m.ReactionType
+			  , m.Availability
 
-             --FSP
-              , m.Fsp
-              , m.FspDescription
+			 --FSP
+			  , m.Fsp
+			  , m.FspDescription
 
-              --cost blocks
+			  --cost blocks
 
-              , m.LabourCost as LabourCost
-              , m.TravelCost as TravelCost
-              , m.PerformanceRate as PerformanceRate
-              , m.TravelTime
-              , m.RepairTime
-              , m.OnsiteHourlyRate as OnsiteHourlyRate
+			  , m.LabourCost as LabourCost
+			  , m.TravelCost as TravelCost
+			  , m.PerformanceRate as PerformanceRate
+			  , m.TravelTime
+			  , m.RepairTime
+			  , m.OnsiteHourlyRate as OnsiteHourlyRate
 
-              , m.TimeAndMaterialShare
-              , m.OohUpliftFactor
+			  , m.AvailabilityFee as AvailabilityFee
+	  
+			  , m.TaxAndDutiesW as TaxAndDutiesW
 
-              , m.AvailabilityFee as AvailabilityFee
-      
-              , m.TaxAndDutiesW as TaxAndDutiesW
+			  , m.MarkupOtherCost as MarkupOtherCost
+			  , m.MarkupFactorOtherCost as MarkupFactorOtherCost
 
-              , m.MarkupOtherCost as MarkupOtherCost
-              , m.MarkupFactorOtherCost as MarkupFactorOtherCost
+			  , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
+			  , m.MarkupStandardWarranty as MarkupStandardWarranty
+			  , m.RiskFactorStandardWarranty as RiskFactorStandardWarranty
+			  , m.RiskStandardWarranty as RiskStandardWarranty
+	  
+			  , m.AFR1
+			  , m.AFR2
+			  , m.AFR3
+			  , m.AFR4
+			  , m.AFR5
+			  , m.AFRP1
 
-              , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
-              , m.MarkupStandardWarranty as MarkupStandardWarranty
-      
-              , m.AFR1
-              , m.AFR2
-              , m.AFR3
-              , m.AFR4
-              , m.AFR5
-              , m.AFRP1
+			  , m.[1stLevelSupportCosts]
+			  , m.[2ndLevelSupportCosts]
+		   
+			  , m.ReinsuranceFlatfee1
+			  , m.ReinsuranceFlatfee2
+			  , m.ReinsuranceFlatfee3
+			  , m.ReinsuranceFlatfee4
+			  , m.ReinsuranceFlatfee5
+			  , m.ReinsuranceFlatfeeP1
+			  , m.ReinsuranceUpliftFactor_4h_24x7 as ReinsuranceUpliftFactor_4h_24x7
+			  , m.ReinsuranceUpliftFactor_4h_9x5 as ReinsuranceUpliftFactor_4h_9x5
+			  , m.ReinsuranceUpliftFactor_NBD_9x5 as ReinsuranceUpliftFactor_NBD_9x5
 
-              , m.[1stLevelSupportCosts]
-              , m.[2ndLevelSupportCosts]
-              , m.Sar
+			  , m.MaterialCostWarranty
+			  , m.MaterialCostOow
 
-              , m.ReinsuranceFlatfee1
-              , m.ReinsuranceFlatfee2
-              , m.ReinsuranceFlatfee3
-              , m.ReinsuranceFlatfee4
-              , m.ReinsuranceFlatfee5
-              , m.ReinsuranceFlatfeeP1
-              , m.ReinsuranceUpliftFactor_4h_24x7 as ReinsuranceUpliftFactor_4h_24x7
-              , m.ReinsuranceUpliftFactor_4h_9x5 as ReinsuranceUpliftFactor_4h_9x5
-              , m.ReinsuranceUpliftFactor_NBD_9x5 as ReinsuranceUpliftFactor_NBD_9x5
+			  , m.Duration
 
-              , m.MaterialCostWarranty
-              , m.MaterialCostOow
+			  , m.FieldServiceCost1
+			  , m.FieldServiceCost2
+			  , m.FieldServiceCost3
+			  , m.FieldServiceCost4
+			  , m.FieldServiceCost5
+			  , m.FieldServiceCostP1
 
-              , m.Duration
+			  , m.StandardHandling
+			  , m.HighAvailabilityHandling
+			  , m.StandardDelivery
+			  , m.ExpressDelivery
+			  , m.TaxiCourierDelivery
+			  , m.ReturnDeliveryFactory 
 
-              , m.FieldServiceCost1
-              , m.FieldServiceCost2
-              , m.FieldServiceCost3
-              , m.FieldServiceCost4
-              , m.FieldServiceCost5
-              , m.FieldServiceCostP1
+			  , m.LogisticsHandling
 
-              , m.StandardHandling
-              , m.HighAvailabilityHandling
-              , m.StandardDelivery
-              , m.ExpressDelivery
-              , m.TaxiCourierDelivery
-              , m.ReturnDeliveryFactory 
+			 , m.LogisticTransportcost
 
-              , m.LogisticsHandling
-
-              , m.LogisticTransportcost
-        
-              , m.Currency
-              , m.IB_per_Country
-              , m.IB_per_PLA
-    from Report.GetParameterHw(1, @cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
+			, m.Currency
+			, m.TimeAndMaterialShare
+			, m.IB_per_Country
+			, m.IB_per_PLA
+	from Report.GetParameterHw(1, @cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
 )
-go
+GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-PARAMETER-HW');
 declare @index int = 0;
@@ -191,7 +190,10 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupStandardWarranty', 'Markup for standard warranty local cost', 1, 1);
-
+set @index = @index + 1;
+INSERT into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) VALUES (@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'RiskFactorStandardWarranty', 'Standard Warranty risk factor', 1, 1);
+set @index = @index + 1;
+INSERT into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) VALUES (@reportId, @index, Report.GetReportColumnTypeByName('money'), 'RiskStandardWarranty', 'Standard Warranty risk', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'AFR1', 'AFR1', 1, 1);
 set @index = @index + 1;

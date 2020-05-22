@@ -1,18 +1,15 @@
 import { CommonAction } from "../../Common/Actions/CommonActions";
-import { TableViewInfo, QualityGateResultSet } from "../States/TableViewState";
+import { TableViewInfo, QualityGateResultSet, ImportResult } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { Action } from "redux";
-import { asyncAction } from "../../Common/Actions/AsyncAction";
-import { CommonState } from "../../Layout/States/AppStates";
-import { updateRecords } from "../Services/TableViewService";
-import { handleRequest } from "../../Common/Helpers/RequestHelper";
-import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
 
 export const TABLE_VIEW_LOAD_INFO = 'TABLE_VIEW.LOAD.INFO'
 export const TABLE_VIEW_EDIT_RECORD = 'TABLE_VIEW.EDIT.RECORD'
 export const TABLE_VIEW_RESET_CHANGES = 'TABLE_VIEW.RESET.CHANGES'
 export const TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT = 'TABLE_VIEW.LOAD.QUALITY_CHECK_RESULT'
 export const TABLE_VIEW_RESET_QUALITY_CHECK_RESULT = 'TABLE_VIEW.RESET.QUALITY_CHECK_RESULT'
+export const TABLE_VIEW_LOAD_IMPORT_RESULTS = 'TABLE_VIEW.LOAD.IMPORT_RESULTS'
+export const TABLE_VIEW_RESET_IMPORT_RESULTS = 'TABLE_VIEW.RESET.IMPORT_RESULTS'
 
 export interface EditRecordAction extends Action<string> {
     records: TableViewRecord[]
@@ -43,22 +40,11 @@ export const resetQualityCheckResult = () => (<Action<string>>{
     type: TABLE_VIEW_RESET_QUALITY_CHECK_RESULT
 })
 
-export const saveTableViewToServer = (approvalOption: ApprovalOption) => asyncAction<CommonState>(
-    (dispatch, getState) => {
-        const state = getState();
+export const loadImportResults = (importResults: string[]) => (<CommonAction<ImportResult[]>>{
+    type: TABLE_VIEW_LOAD_IMPORT_RESULTS,
+    data: importResults.map(status => <ImportResult>{ status })
+})
 
-        handleRequest(
-            updateRecords(state.pages.tableView.editedRecords, approvalOption).then(
-                qualityGateResultSet => {
-                    if (qualityGateResultSet.hasErrors) {
-                        dispatch(loadQualityCheckResult(qualityGateResultSet));
-                    }
-                    else {
-                        dispatch(resetQualityCheckResult());
-                        dispatch(resetChanges());
-                    }
-                }
-            )
-        )
-    }
-)
+export const resetImportResults = () => (<Action<string>>{
+    type: TABLE_VIEW_RESET_IMPORT_RESULTS
+})

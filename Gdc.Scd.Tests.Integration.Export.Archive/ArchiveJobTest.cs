@@ -1,8 +1,7 @@
-﻿using Gdc.Scd.Export.Archive;
+﻿using Gdc.Scd.Export.ArchiveJob;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
-using Gdc.Scd.Export.ArchiveJob;
 
 namespace Gdc.Scd.Tests.Integration.Export.Archive
 {

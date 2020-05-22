@@ -170,8 +170,10 @@ RETURN
                 end as ProActive
 
             --We don't use STDW and credits for Prolongation
-            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarranty       end as LocalServiceStandardWarranty
-            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarrantyManual end as LocalServiceStandardWarrantyManual
+            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarranty																							end as LocalServiceStandardWarranty
+            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarrantyManual																						end as LocalServiceStandardWarrantyManual
+			, case when dur.IsProlongation <> 1 then Hardware.AddMarkup(std.LocalServiceStandardWarranty, std.RiskFactorStandardWarranty, std.RiskStandardWarranty)				end as LocalServiceStandardWarrantyWithRisk
+
 
             , std.Credit1 
             , std.Credit2 
@@ -230,4 +232,5 @@ RETURN
 
     LEFT JOIN dbo.[User] u2 on u2.Id = man.ReleaseUserId
 )
-go
+
+GO

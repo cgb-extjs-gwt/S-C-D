@@ -6,7 +6,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { FieldType, CostElementMeta, CostMetaData, InputLevelMeta } from "../../Common/States/CostMetaStates";
 import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl, exportToExcel } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
-import { loadTableViewInfo, editRecord, resetChanges, saveTableViewToServer } from "../Actions/TableViewActions";
+import { loadTableViewInfo, editRecord, resetChanges } from "../Actions/TableViewActions";
 import { TableViewInfo, DataInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { Dispatch } from "redux";
@@ -19,6 +19,7 @@ import { RouteComponentProps } from "react-router";
 import { VALUE_DATA_INDEX, CHECKED_DATA_INDEX } from "../../Common/Components/LocalDynamicGrid";
 import { toArray } from "../../Common/Helpers/ArrayHelper";
 import { hasQueryParams, deleteQueryParams } from "../../Common/Helpers/RouterHelper";
+import { saveTableViewToServer } from "../Actions/TableViewActionsAsync";
 
 const buildProps = (() => {
     let oldMeta: CostMetaData;

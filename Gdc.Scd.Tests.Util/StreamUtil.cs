@@ -86,7 +86,7 @@ namespace Gdc.Scd.Tests.Util
             return ms;
         }
 
-        private static string Location()
+        public static string Location()
         {
             return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }

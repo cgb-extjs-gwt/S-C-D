@@ -5,16 +5,18 @@ namespace Gdc.Scd.Export.Archive
 {
     public interface IArchiveRepository
     {
-        CostBlockDto[] GetCostBlocks();
+        ArchiveDto[] GetCostBlocks();
+
+        ArchiveDto[] GetCountryArchives();
 
         CountryDto[] GetCountries();
 
-        Stream GetData(CostBlockDto costBlock);
+        Stream GetData(ArchiveDto costBlock);
 
-        Stream GetData(CountryDto cnt);
+        Stream GetData(CountryDto cnt, ArchiveDto archive);
 
-        void Save(CostBlockDto costBlock, Stream stream);
+        void Save(ArchiveDto costBlock, Stream stream);
 
-        void Save(CountryDto cnt, Stream stream);
+        void Save(CountryDto cnt, ArchiveDto archive, Stream stream);
     }
 }

@@ -3,8 +3,9 @@ import { QualityGateToolbarActions } from "../../QualityGate/Components/QualityG
 import { CommonState } from "../../Layout/States/AppStates";
 import { QualtityGateTab, QualtityGateSetView } from "./QualtityGateSetView";
 import { getCostBlock, getCostElement } from "../../Common/Helpers/MetaHelper";
-import { saveTableViewToServer, resetQualityCheckResult } from "../Actions/TableViewActions";
+import { resetQualityCheckResult } from "../Actions/TableViewActions";
 import { QualityGateSetWindow, QualityGateSetWindowProps } from "./QualityGateSetWindow";
+import { saveTableViewToServer } from "../Actions/TableViewActionsAsync";
 
 export const QualtityGateSetWindowContainer =
     connect<QualityGateSetWindowProps, QualityGateToolbarActions, QualityGateSetWindowProps, CommonState>(

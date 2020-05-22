@@ -101,7 +101,7 @@ BEGIN
              , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
              , m.OtherDirect * m.ExchangeRate as OtherDirect
              , m.Credits * m.ExchangeRate as Credits
-             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+             , m.LocalServiceStandardWarrantyWithRisk * m.ExchangeRate as LocalServiceStandardWarranty
              , m.Currency
 
              , m.Availability                       + ', ' +
