@@ -149,6 +149,7 @@ RETURN
        
              , m.LocalServiceStandardWarranty
              , m.LocalServiceStandardWarrantyManual
+			 , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarrantyWithRisk, m.LocalServiceStandardWarranty) as LocalServiceStandardWarrantyWithRisk
        
              , m.Credits
 

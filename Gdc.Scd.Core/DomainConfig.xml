@@ -526,6 +526,26 @@
                         </Roles>
                     </CostEditor>
                 </Element>
+              <Element Id="RiskFactorStandardWarranty" Caption="Standard Warranty risk factor in %" InputOption="Manually">
+                <TypeOption Type="Percent"/>
+                <CostEditor>
+                  <Roles>
+                    <Role>Country Finance Director</Role>
+                    <Role>Country key user</Role>
+                    <Role>SCD Admin</Role>
+                  </Roles>
+                </CostEditor>
+              </Element>
+              <Element Id="RiskStandardWarranty" Caption="Standard Warranty risk" InputOption="Manually">
+                <TypeOption Type="CountryCurrencyCost"/>
+                <CostEditor>
+                  <Roles>
+                    <Role>Country Finance Director</Role>
+                    <Role>Country key user</Role>
+                    <Role>SCD Admin</Role>
+                  </Roles>
+                </CostEditor>
+              </Element>
             </Elements>
         </Block>
 

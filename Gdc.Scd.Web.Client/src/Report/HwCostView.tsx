@@ -105,6 +105,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             { name: 'roLocalServiceStandardWarranty', calculate: readonly('LocalServiceStandardWarranty') },
             { name: 'roLocalServiceStandardWarrantyManual', calculate: readonly('LocalServiceStandardWarrantyManual') },
+            { name: 'roLocalServiceStandardWarrantyWithRisk', calculate: readonly('LocalServiceStandardWarrantyWithRisk')},
 
             { name: 'roCredits', calculate: readonly('Credits') },
             { name: 'roFieldServiceCost', calculate: readonly('FieldServiceCost') },
@@ -330,6 +331,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
                         <NumberColumn text="Service TP (manual)" dataIndex="roServiceTPManual" />
                         <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
+
+                        <NumberColumn text="Local STDW (TP) external" dataIndex="roLocalServiceStandardWarrantyWithRisk" />
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
                         <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
