@@ -3,168 +3,176 @@
 go
 
 CREATE FUNCTION [Hardware].[GetCostsSlaSog](
-	@approved bit,
-	@cnt dbo.ListID readonly,
-	@wg dbo.ListID readonly,
-	@av dbo.ListID readonly,
-	@dur dbo.ListID readonly,
-	@reactiontime dbo.ListID readonly,
-	@reactiontype dbo.ListID readonly,
-	@loc dbo.ListID readonly,
-	@pro dbo.ListID readonly
+    @approved bit,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly
 )
 RETURNS TABLE 
 AS
 RETURN 
 (
-	with cte as (
-		select    
-			   m.Id
+    with cte as (
+        select    
+               m.Id
 
-			 --SLA
+             --SLA
 
-			 , m.CountryId
-			 , m.Country
-			 , m.CurrencyId
-			 , m.Currency
-			 , m.ExchangeRate
+             , m.CountryId
+             , m.Country
+             , m.CurrencyId
+             , m.Currency
+             , m.ExchangeRate
 
-			 , m.WgId
-			 , m.Wg
-			 , wg.Description as WgDescription
-			 , m.SogId
-			 , m.Sog
+             , m.WgId
+             , m.Wg
+             , wg.Description as WgDescription
+             , m.SogId
+             , m.Sog
 
-			 , m.AvailabilityId
-			 , m.Availability
-			 , m.DurationId
-			 , m.Duration
-			 , m.Year
-			 , m.IsProlongation
-			 , m.ReactionTimeId
-			 , m.ReactionTime
-			 , m.ReactionTypeId
-			 , m.ReactionType
-			 , m.ServiceLocationId
-			 , m.ServiceLocation
-			 , m.ProActiveSlaId
-			 , m.ProActiveSla
-			 , m.Sla
-			 , m.SlaHash
+             , m.AvailabilityId
+             , m.Availability
+             , m.DurationId
+             , m.Duration
+             , m.Year
+             , m.IsProlongation
+             , m.ReactionTimeId
+             , m.ReactionTime
+             , m.ReactionTypeId
+             , m.ReactionType
+             , m.ServiceLocationId
+             , m.ServiceLocation
+             , m.ProActiveSlaId
+             , m.ProActiveSla
+             , m.Sla
+             , m.SlaHash
 
-			 , m.StdWarranty
-			 , m.StdWarrantyLocation
+             , m.StdWarranty
+             , m.StdWarrantyLocation
 
-			 --Cost
+             --Cost
 
-			 , m.AvailabilityFee
-			 , m.TaxAndDutiesW
-			 , m.TaxAndDutiesOow
-			 , m.Reinsurance
-			 , m.ProActive
-			 , m.ServiceSupportCost
-			 , m.MaterialW
-			 , m.MaterialOow
-			 , m.FieldServiceCost
-			 , m.Logistic
-			 , m.OtherDirect
-			 , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
-			 , m.LocalServiceStandardWarrantyWithRisk
-			 , m.Credits
+             , m.AvailabilityFee
+             , m.TaxAndDutiesW
+             , m.TaxAndDutiesOow
+             , m.Reinsurance
+             , m.ProActive
+             , m.ServiceSupportCost
+             , m.MaterialW
+             , m.MaterialOow
+             , m.FieldServiceCost
+             , m.Logistic
+             , m.OtherDirect
+             , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+             , m.LocalServiceStandardWarrantyWithRisk
+             , m.Credits
 
-			 , ib.InstalledBaseCountryNorm
+             , ib.InstalledBaseCountryNorm
 
-			 , (sum(m.ServiceTCResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
-			 , (sum(case when m.ServiceTCResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
+             , (sum(m.ServiceTCResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
+             , (sum(case when m.ServiceTCResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
 
-			 , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                       over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_Released
-			 , (sum(case when m.ServiceTP_Released <> 0 then ib.InstalledBaseCountryNorm end) over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_Released
+             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                       over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_Released
+             , (sum(case when m.ServiceTP_Released <> 0 then ib.InstalledBaseCountryNorm end) over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_Released
 
-			 , (sum(m.ServiceTPResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
-			 , (sum(case when m.ServiceTPResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
+             , (sum(m.ServiceTPResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
+             , (sum(case when m.ServiceTPResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
 
-			 , (sum(m.ProActive * ib.InstalledBaseCountryNorm)                                over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
-			 , (sum(case when m.ProActive <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
-																							
-			 , m.ReleaseDate
-			 , m.ReleaseUserName as ReleaseUser
+             --##################################################
 
-			 , m.ListPrice
-			 , m.DealerDiscount
-			 , m.DealerPrice
+             , (sum(m.ReActiveTPResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_reactive
+             , (sum(case when m.ReActiveTPResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_reactive
+             
+             , (sum(m.ProActive * ib.InstalledBaseCountryNorm)                                over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
+             , (sum(case when m.ProActive <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
+                                                                                            
+             , m.ReleaseDate
+             , m.ReleaseUserName as ReleaseUser
 
-		from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
-		join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
-		left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
-	)
-	select    
-			m.Id
+             , m.ListPrice
+             , m.DealerDiscount
+             , m.DealerPrice
 
-			--SLA
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
+        join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
+        left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
+    )
+    select    
+            m.Id
 
-			, m.CountryId
-			, m.Country
-			, m.CurrencyId
-			, m.Currency
-			, m.ExchangeRate
+            --SLA
 
-			, m.WgId
-			, m.Wg
-			, m.WgDescription
-			, m.SogId
-			, m.Sog
+            , m.CountryId
+            , m.Country
+            , m.CurrencyId
+            , m.Currency
+            , m.ExchangeRate
 
-			, m.AvailabilityId
-			, m.Availability
-			, m.DurationId
-			, m.Duration
-			, m.Year
-			, m.IsProlongation
-			, m.ReactionTimeId
-			, m.ReactionTime
-			, m.ReactionTypeId
-			, m.ReactionType
-			, m.ServiceLocationId
-			, m.ServiceLocation
-			, m.ProActiveSlaId
-			, m.ProActiveSla
-			, m.Sla
-			, m.SlaHash
+            , m.WgId
+            , m.Wg
+            , m.WgDescription
+            , m.SogId
+            , m.Sog
 
-			, m.StdWarranty
-			, m.StdWarrantyLocation
+            , m.AvailabilityId
+            , m.Availability
+            , m.DurationId
+            , m.Duration
+            , m.Year
+            , m.IsProlongation
+            , m.ReactionTimeId
+            , m.ReactionTime
+            , m.ReactionTypeId
+            , m.ReactionType
+            , m.ServiceLocationId
+            , m.ServiceLocation
+            , m.ProActiveSlaId
+            , m.ProActiveSla
+            , m.Sla
+            , m.SlaHash
 
-			--Cost
+            , m.StdWarranty
+            , m.StdWarrantyLocation
 
-			, m.AvailabilityFee
-			, m.TaxAndDutiesW
-			, m.TaxAndDutiesOow
-			, m.Reinsurance
-			, m.ProActive
-			, m.ServiceSupportCost
-			, m.MaterialW
-			, m.MaterialOow
-			, m.FieldServiceCost
-			, m.Logistic
-			, m.OtherDirect
-			, m.LocalServiceStandardWarranty
-			, m.LocalServiceStandardWarrantyWithRisk
-			, m.Credits
+            --Cost
 
-			, case when m.sum_ib_x_tc <> 0 and m.sum_ib_by_tc <> 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
-			, case when m.sum_ib_x_tp <> 0 and m.sum_ib_by_tp <> 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
-			, case when m.sum_ib_x_tp_Released <> 0 and m.sum_ib_by_tp_Released <> 0 then m.sum_ib_x_tp_Released / m.sum_ib_by_tp_Released 
-				   when m.ReleaseDate is not null then 0 end as ServiceTpSog_Released
+            , m.AvailabilityFee
+            , m.TaxAndDutiesW
+            , m.TaxAndDutiesOow
+            , m.Reinsurance
+            , m.ProActive
+            , m.ServiceSupportCost
+            , m.MaterialW
+            , m.MaterialOow
+            , m.FieldServiceCost
+            , m.Logistic
+            , m.OtherDirect
+            , m.LocalServiceStandardWarranty
+            , m.LocalServiceStandardWarrantyWithRisk
+            , m.Credits
 
-			, case when m.sum_ib_x_pro <> 0 and m.sum_ib_by_pro <> 0 then m.sum_ib_x_pro / m.sum_ib_by_pro else 0 end as ProActiveSog
+            , case when m.sum_ib_x_tc <> 0 and m.sum_ib_by_tc <> 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
+            , case when m.sum_ib_x_tp <> 0 and m.sum_ib_by_tp <> 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
+            , case when m.sum_ib_x_tp_Released <> 0 and m.sum_ib_by_tp_Released <> 0 then m.sum_ib_x_tp_Released / m.sum_ib_by_tp_Released 
+                   when m.ReleaseDate is not null then 0 end as ServiceTpSog_Released
 
-			, m.ReleaseDate
-			, m.ReleaseUser
+            , case when m.sum_ib_x_tp_reactive <> 0 and m.sum_ib_by_tp_reactive <> 0 then m.sum_ib_x_tp_reactive / m.sum_ib_by_tp_reactive else 0 end as ReactiveTpSog
 
-			, m.ListPrice
-			, m.DealerDiscount
-			, m.DealerPrice  
+            , case when m.sum_ib_x_pro <> 0 and m.sum_ib_by_pro <> 0 then m.sum_ib_x_pro / m.sum_ib_by_pro else 0 end as ProActiveSog
 
-	from cte m
+            , m.ReleaseDate
+            , m.ReleaseUser
+
+            , m.ListPrice
+            , m.DealerDiscount
+            , m.DealerPrice  
+
+    from cte m
 )
-GO
+
+go

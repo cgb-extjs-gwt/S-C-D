@@ -38,6 +38,7 @@ RETURNS @result table(
 	, ReinsuranceUpliftFactor_NBD_9x5   float
 	, [1stLevelSupportCosts]            float
 	, [2ndLevelSupportCosts]            float
+	, Sar                               float
 	, MaterialCostWarranty              float
 	, MaterialCostOow                   float
 	, OnsiteHourlyRate                  float
@@ -82,7 +83,7 @@ begin
 
 			 , case when @approved = 0 then ssc.[1stLevelSupportCosts] else ssc.[1stLevelSupportCosts_Approved] end as [1stLevelSupportCosts]
 			 , case when @approved = 0 then ssc.[2ndLevelSupportCosts] else ssc.[2ndLevelSupportCosts_Approved] end as [2ndLevelSupportCosts]
-
+			 , case when @approved = 0 then ssc.Sar	                   else ssc.Sar_Approved end                    as Sar 
 			 , case when @approved = 0 then mcw.MaterialCostIw else mcw.MaterialCostIw_Approved end as MaterialCostWarranty
 			 , case when @approved = 0 then mcw.MaterialCostOow else mcw.MaterialCostOow_Approved end as MaterialCostOow
 
@@ -162,7 +163,8 @@ begin
 			  , ReinsuranceUpliftFactor_4h_9x5   
 			  , ReinsuranceUpliftFactor_NBD_9x5  
 			  , [1stLevelSupportCosts]           
-			  , [2ndLevelSupportCosts]           
+			  , [2ndLevelSupportCosts]
+			  , Sar
 			  , MaterialCostWarranty             
 			  , MaterialCostOow                  
 			  , OnsiteHourlyRate                 

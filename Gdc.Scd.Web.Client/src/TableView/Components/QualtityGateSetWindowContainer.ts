@@ -5,7 +5,6 @@ import { QualtityGateTab, QualtityGateSetView } from "./QualtityGateSetView";
 import { getCostBlock, getCostElement } from "../../Common/Helpers/MetaHelper";
 import { resetQualityCheckResult } from "../Actions/TableViewActions";
 import { QualityGateSetWindow, QualityGateSetWindowProps } from "./QualityGateSetWindow";
-import { saveTableViewToServer } from "../Actions/TableViewActionsAsync";
 
 export const QualtityGateSetWindowContainer =
     connect<QualityGateSetWindowProps, QualityGateToolbarActions, QualityGateSetWindowProps, CommonState>(
@@ -35,14 +34,8 @@ export const QualtityGateSetWindowContainer =
                 position
             }
         },
-        dispatch => ({
-            onSave: explanationMessage => dispatch(
-                saveTableViewToServer({ 
-                    hasQualityGateErrors: true, 
-                    isApproving: true,
-                    qualityGateErrorExplanation: explanationMessage
-                })
-            ),
+        (dispatch, ownProps) => ({
+            onSave: ownProps.onSave,
             onCancel: () => dispatch(resetQualityCheckResult())
         })
     )(QualityGateSetWindow)

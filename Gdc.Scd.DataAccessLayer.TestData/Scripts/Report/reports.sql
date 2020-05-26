@@ -232,14 +232,14 @@ begin
             , c.ServiceTC4                       
             , c.ServiceTC5                       
             , c.ServiceTC1P
-			, c.ServiceTCResult                      
+            , c.ServiceTCResult                      
             , c.ServiceTP1                       
             , c.ServiceTP2                       
             , c.ServiceTP3                       
             , c.ServiceTP4                       
             , c.ServiceTP5                       
             , c.ServiceTP1P
-			, c.ServiceTPResult                      
+            , c.ServiceTPResult                      
             , c.ListPrice                        
             , c.DealerDiscount                   
             , c.DealerPrice                      
@@ -265,9 +265,9 @@ CREATE FUNCTION Report.GetReportColumnTypeByName
 RETURNS bigint 
 AS
 BEGIN
-	DECLARE @Id bigint
+    DECLARE @Id bigint
     select @Id=id from Report.ReportColumnType where Name=@name
-	RETURN @Id
+    RETURN @Id
 END
 GO
 
@@ -278,14 +278,14 @@ go
 CREATE FUNCTION Report.GetReportFilterTypeByName
 (
     @name nvarchar(max),
-	@multi bit
+    @multi bit
 )
 RETURNS bigint 
 AS
 BEGIN
-	DECLARE @Id bigint
+    DECLARE @Id bigint
     select @Id= id from Report.ReportFilterType where MultiSelect = @multi and name = @name
-	RETURN @Id
+    RETURN @Id
 END
 GO
 

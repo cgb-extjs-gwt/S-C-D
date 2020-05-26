@@ -257,6 +257,8 @@
     <Compile Include="Migrations\2020_05\Migration_2020_05_15_10_14.cs" />
     <Compile Include="Migrations\2020_05\Migration_2020_05_15_10_59.cs" />
     <Compile Include="Migrations\2020_05\Migration_2020_05_18_19_19.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_22_17_28.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_25_12_39.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -288,7 +290,15 @@
     <Content Include="MigrationScripts\2020-05-15-10-14.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2020-05-18-19-39.sql" />
+    <Content Include="MigrationScripts\2020-05-18-19-39.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-22-17-28.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-25-12-38.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_new.xml" />
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_old.xml" />
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_20_11_42_old.xml" />

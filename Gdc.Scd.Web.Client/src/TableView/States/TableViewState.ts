@@ -52,5 +52,8 @@ export interface TableViewState {
     info: TableViewInfo
     editedRecords: TableViewRecord[]
     qualityGateResultSet: QualityGateResultSet
-    importResults: ImportResult[]
+    import: {
+        results: ImportResult[]
+        fileBase64: string
+    }
 }

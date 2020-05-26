@@ -3,7 +3,7 @@ import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { CommonState } from "../../Layout/States/AppStates";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { updateRecords, importFromExcel } from "../Services/TableViewService";
-import { loadQualityCheckResult, resetQualityCheckResult, resetChanges, loadImportResults } from "./TableViewActions";
+import { loadQualityCheckResult, resetQualityCheckResult, resetChanges, loadImportResults, loadFileData } from "./TableViewActions";
 import { ImportData } from "../../Common/States/ImportData";
 import { getBase64Data } from "../../Common/Helpers/FileHelper";
 
@@ -37,6 +37,8 @@ export const importExcel = (file, isApproving: boolean) => asyncAction<CommonSta
                 }
             }
 
+            dispatch(loadFileData(fileData));
+
             handleRequest(
                 importFromExcel(importData).then(
                     ({ errors, qualityGateResult }) => {
@@ -54,5 +56,26 @@ export const importExcel = (file, isApproving: boolean) => asyncAction<CommonSta
                 )
             )
         });
+    }
+)
+
+export const importAfterQualityGateExplanation = (explanationMessage: string) => asyncAction<CommonState>(
+    (dispatch, getState) => {
+        const state = getState();
+
+        const importData: ImportData = {
+            excelFile: state.pages.tableView.import.fileBase64,
+            approvalOption: {
+                hasQualityGateErrors: true,
+                isApproving: true,
+                qualityGateErrorExplanation: explanationMessage
+            }
+        }
+
+        handleRequest(
+            importFromExcel(importData).then(() => {
+                dispatch(resetQualityCheckResult());
+            })
+        );
     }
 )
