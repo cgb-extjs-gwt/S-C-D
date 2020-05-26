@@ -1,5 +1,5 @@
 import { Reducer, Action } from "redux";
-import { TABLE_VIEW_LOAD_INFO, TABLE_VIEW_EDIT_RECORD, EditRecordAction, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT, TABLE_VIEW_LOAD_IMPORT_RESULTS, TABLE_VIEW_RESET_IMPORT_RESULTS } from "../Actions/TableViewActions";
+import { TABLE_VIEW_LOAD_INFO, TABLE_VIEW_EDIT_RECORD, EditRecordAction, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT, TABLE_VIEW_LOAD_IMPORT_RESULTS, TABLE_VIEW_RESET_IMPORT_RESULTS, TABLE_VIEW_LOAD_FILE_DATA } from "../Actions/TableViewActions";
 import { TableViewState, TableViewInfo, QualityGateResultSet, ImportResult } from "../States/TableViewState";
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { TableViewRecord } from "../States/TableViewRecord";
@@ -7,7 +7,11 @@ import { isEqualCoordinates } from "../Helpers/TableViewHelper";
 
 const init = () => (<TableViewState>{
     info: null,
-    editedRecords: []
+    editedRecords: [],
+    import: {
+        fileBase64: null,
+        results: []
+    }
 })
 
 const loadInfo: Reducer<TableViewState, CommonAction<TableViewInfo>> = (state, action) => ({
@@ -81,12 +85,26 @@ const resetQualityCheckResult: Reducer<TableViewState> = state => ({
 
 const loadImportResults: Reducer<TableViewState, CommonAction<ImportResult[]>> = (state, action) => ({
     ...state,
-    importResults: action.data
+    import: {
+        ...state.import,
+        results: action.data
+    }
 })
 
 const resetImportResults: Reducer<TableViewState, Action<string>> = state => ({
     ...state,
-    importResults: null
+    import: {
+        ...state.import,
+        results: null
+    }
+})
+
+const loadFileData: Reducer<TableViewState, CommonAction<string>> = (state, { data }) => ({
+    ...state,
+    import: {
+        ...state.import,
+        fileBase64: data
+    }
 })
 
 export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state = init(), action) => {
@@ -107,10 +125,13 @@ export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state 
             return resetQualityCheckResult(state, action);
 
         case TABLE_VIEW_LOAD_IMPORT_RESULTS:
-            return loadImportResults(state, <CommonAction<ImportResult[]>>action)
+            return loadImportResults(state, <CommonAction<ImportResult[]>>action);
 
         case TABLE_VIEW_RESET_IMPORT_RESULTS:
-            return resetImportResults(state, action)
+            return resetImportResults(state, action);
+
+        case TABLE_VIEW_LOAD_FILE_DATA:
+            return loadFileData(state, <CommonAction<string>>action);
 
         default:
             return state;

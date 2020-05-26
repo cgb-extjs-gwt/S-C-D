@@ -3,7 +3,7 @@ import { Container, FileField, Grid, Column } from "@extjs/ext-react";
 import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
 import { ImportResult } from "../States/TableViewState";
 import { Store } from "../../Common/States/ExtStates";
-import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
+import { QualtityGateSetImportWindowContainer } from "./QualtityGateSetImportWindowContainer";
 
 const STATUS_DATA_INDEX = 'status';
 
@@ -58,7 +58,7 @@ export class ImportFromExcelView extends React.Component<ImportFromExcelViewProp
                         onApproval={this.onApproveSave}
                     />
                 </Grid>
-                <QualtityGateSetWindowContainer position={{ top: '25%', left: '25%'}}/>
+                <QualtityGateSetImportWindowContainer position={{ top: '25%', left: '25%'}}/>
             </Container>
         );
     }
