@@ -8,7 +8,7 @@ import { buildComponentUrl } from "../../Common/Services/Ajax";
 
 export const ImportFromExcelContainer = connect<ImportFromExcelViewProps, ImportFromExcelViewActions, any, CommonState>(
     state => ({
-        importResults: state.pages.tableView.importResults
+        importResults: state.pages.tableView.import.results
     }),
     (dispatch, { history }) => ({
         onSave: file => dispatch(importExcel(file, false)),
