@@ -18,11 +18,13 @@ namespace Gdc.Scd.Export.ArchiveResultSenderJob.Concrete
                 select new ArchiveFolderDto
                 {
                     Name = folder.Name,
-                    FileCount = folder.GetFiles().Length,
-                    TotalFolderSize = Math.Floor(folder.GetFiles().Sum(f => f.Length) / 1024f / 1024f)
+                    FileCount = folder.GetFiles("*", SearchOption.AllDirectories).Length,
+                    TotalFolderSize = Math.Floor(folder.GetFiles("*", SearchOption.AllDirectories).Sum(f => f.Length) / 1024f / 1024f)
                 };
 
             return folders.ToList();
         }
+
+       
     }
 }
