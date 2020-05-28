@@ -10,10 +10,8 @@ namespace Gdc.Scd.Core.Entities.ProjectCalculator
 
         public double? AFR { get; set; }
 
-        public long? WgId { get; set; }
-
-        public Wg Wg { get; set; }
-
         public int Months { get; set; }
+
+        public bool IsProlongation { get; set; }
     }
 }

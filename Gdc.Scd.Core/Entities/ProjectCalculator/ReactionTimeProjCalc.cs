@@ -2,8 +2,10 @@
 {
     public class ReactionTimeProjCalc
     { 
-        public int Minutes { get; set; }
+        public string Name { get; set; }
 
-        public PeriodType PeriodType { get; set; }
+        public int? Minutes { get; set; }
+
+        public PeriodType? PeriodType { get; set; }
     }
 }

@@ -7,8 +7,7 @@ GO
 CREATE FUNCTION [Hardware].[CalcStdwYear](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
-    @wg             dbo.ListID READONLY,
-	@isProjectCalculator bit = 0
+    @wg             dbo.ListID READONLY
 )
 RETURNS @tbl TABLE  (
           CountryId                         bigint
@@ -32,6 +31,19 @@ RETURNS @tbl TABLE  (
 
         , StdWarranty                       int
         , StdWarrantyLocation               nvarchar(255)
+
+		--, AvailabilityId bigint null
+		--, [Availability] nvarchar(255)
+		--, DurationId bigint null
+		--, Duration nvarchar(255)
+		--, ReactionTimeId bigint null
+		--, ReactionTime nvarchar(255)
+		--, ReactionTypeId bigint null
+		----, ReactionType nvarchar(255)
+		--, ServiceLocationId bigint null
+		----, ServiceLocation nvarchar(255)
+		--, ProActiveSlaId bigint null
+		----, ProActiveSla nvarchar(255)
 
         --, AFR1                              float 
         --, AFR2                              float
@@ -134,6 +146,8 @@ RETURNS @tbl TABLE  (
         
 		, CreditWithoutSar            float
 
+		
+
         --, PRIMARY KEY CLUSTERED(CountryId, WgId)
     )
 AS
@@ -156,18 +170,18 @@ BEGIN
 			 , Year.Value as YearValue
 			 , Year.IsProlongation
 			 
-			 --, case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end as AFR
+			 , case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end as AFR
 			 --, Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, afr.AFR / 100, afr.AFR_Approved / 100) as AFR
-			 , case 
-			       when @isProjectCalculator = 1
-				   then AfrProjCalc.AFR / 100
-				   else case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end
-			   end as AFR
+			 --, case 
+			 --      when @isProjectCalculator = 1
+				--   then AfrProjCalc.AFR / 100
+				--   else case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end
+			 --  end as AFR
         from InputAtoms.Wg wg
         left join InputAtoms.Sog sog on sog.Id = wg.SogId
         left join InputAtoms.Pla pla on pla.id = wg.PlaId
-        left join Hardware.AFR afr on @isProjectCalculator = 0 and afr.Wg = wg.Id and afr.Deactivated = 0
-		left join ProjectCalculator.Afr AfrProjCalc on @isProjectCalculator = 1 and AfrProjCalc.WgId = wg.Id
+        left join Hardware.AFR afr on afr.Wg = wg.Id and afr.Deactivated = 0
+		--left join ProjectCalculator.Afr AfrProjCalc on @isProjectCalculator = 1 and AfrProjCalc.WgId = wg.Id
 		left join Dependencies.Year on afr.Year = Year.Id
         where wg.WgType = 1 and wg.Deactivated = 0 and (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
     )
@@ -191,108 +205,124 @@ BEGIN
         select c.*, wg.*
         from CntCte c, WgCte wg
     )
-	, ProjCalc as (
-		SELECT 
-			WgCnt.*,
-			case when @isProjectCalculator = 1 then Project.ServiceLocationId else stdw.ServiceLocationId end as ServiceLocationId,
-			case when @isProjectCalculator = 1 then Project.ReactionTypeId else stdw.ReactionTypeId end as ReactionTypeId,
-            Project.IsCalculated,
-			Project.AvailabilityFee_AverageContractDuration,
-			Project.AvailabilityFee_CostPerKit,
-			Project.AvailabilityFee_CostPerKitJapanBuy,
-			Project.AvailabilityFee_InstalledBaseHighAvailability,
-			Project.AvailabilityFee_JapanBuy,
-			Project.AvailabilityFee_MaxQty,
-			Project.AvailabilityFee_StockValueFj,
-			Project.AvailabilityFee_StockValueMv,
-			Project.AvailabilityFee_TotalLogisticsInfrastructureCost,
-			Project.Availability_Value,
-			Project.Availability_End_Day,
-			Project.Availability_End_Hour,
-			Project.Availability_Start_Day,
-			Project.Availability_Start_Hour,
-			Project.Duration_Months,
-			Project.Duration_PeriodType,
-			Project.FieldServiceCost_LabourCost,
-			Project.FieldServiceCost_PerformanceRate,
-			Project.FieldServiceCost_TimeAndMaterialShare,
-			Project.FieldServiceCost_TravelCost,
-			Project.FieldServiceCost_TravelTime,
-			Project.LogisticsCosts_ExpressDelivery,
-			Project.LogisticsCosts_HighAvailabilityHandling,
-			Project.LogisticsCosts_ReturnDeliveryFactory,
-			Project.LogisticsCosts_StandardDelivery,
-			Project.LogisticsCosts_StandardHandling,
-			Project.LogisticsCosts_TaxiCourierDelivery,
-			Project.MarkupOtherCosts_MarkupFactor,
-			Project.MarkupOtherCosts_ProlongationMarkup,
-			Project.MarkupOtherCosts_ProlongationMarkupFactor,
-			Project.ReactionTime_Minutes,
-			Project.ReactionTime_PeriodType,
-			Project.Reinsurance_Flatfee,
-			Project.Reinsurance_UpliftFactor,
+	--, ProjCalc as (
+	--	SELECT 
+	--		CntCte.*,
 
-			stdw.FspId,
-			stdw.Fsp,
-			stdw.AvailabilityId,
-			stdw.DurationId,
-			stdw.Duration,
-			stdw.DurationValue,
-			stdw.ReactionTimeId,
-			stdw.ServiceLocation,
-			stdw.ProActiveSlaId,
-			stdw.ReactionTime_Avalability,
-			stdw.ReactionTime_ReactionType,
-			stdw.ReactionTime_ReactionType_Avalability,
+	--		WgCte.WgId,
+	--		WgCte.Wg,
+	--		WgCte.SogId,
+	--		WgCte.Sog,
+	--		WgCte.ClusterPlaId,
+	--		WgCte.RoleCodeId,
 
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.OnsiteHourlyRates, hr.OnsiteHourlyRates, hr.OnsiteHourlyRates_Approved) / WgCnt.ExchangeRate AS OnsiteHourlyRates,
+	--		case when @isProjectCalculator = 1 then AftProj.Months / 12 else WgCte.YearValue end as YearValue,
+	--		case when @isProjectCalculator = 1 then AftProj.IsProlongation else WgCte.IsProlongation end as IsProlongation,
+	--		case when @isProjectCalculator = 1 then AftProj.AFR / 100 else WgCte.AFR end as AFR,
+	--		case when @isProjectCalculator = 1 then Project.ServiceLocationId else stdw.ServiceLocationId end as ServiceLocationId,
+	--		case when @isProjectCalculator = 1 then Project.ReactionTypeId else stdw.ReactionTypeId end as ReactionTypeId,
+	--		--case when @isProjectCalculator = 0 then stdw.AvailabilityId end as AvailabilityId,
+	--		--case when @isProjectCalculator = 1 then Project.Availability_Name end as [Availability],
+	--		--case when @isProjectCalculator = 0 then stdw.DurationId end as DurationId,
+	--		--case when @isProjectCalculator = 1 then Project.Duration_Name end as Duration,
+	--		--case when @isProjectCalculator = 0 then stdw.ReactionTimeId end as ReactionTimeId,
+	--		--case when @isProjectCalculator = 1 then Project.ReactionTime_Name end as ReactionTime,
 
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_LabourCost, fscStd.LabourCost, fscStd.LabourCost_Approved) AS LabourCost,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TravelCost, fscStd.TravelCost, fscStd.TravelCost_Approved) AS TravelCost,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TravelTime, fscStd.TravelTime, fscStd.TravelTime_Approved) AS TravelTime,
-			--Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_RepairTime, fscStd.RepairTime, fscStd.RepairTime_Approved) AS RepairTime,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_PerformanceRate, fstStd.PerformanceRate, fstStd.PerformanceRate_Approved) AS PerformanceRate,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TimeAndMaterialShare / 100, fstStd.TimeAndMaterialShare_norm, fstStd.TimeAndMaterialShare_norm_Approved) AS TimeAndMaterialShare_norm,
+ --           Project.IsCalculated,
+	--		--Project.AvailabilityFee_AverageContractDuration,
+	--		--Project.AvailabilityFee_CostPerKit,
+	--		--Project.AvailabilityFee_CostPerKitJapanBuy,
+	--		--Project.AvailabilityFee_InstalledBaseHighAvailability,
+	--		--Project.AvailabilityFee_JapanBuy,
+	--		--Project.AvailabilityFee_MaxQty,
+	--		--Project.AvailabilityFee_StockValueFj,
+	--		--Project.AvailabilityFee_StockValueMv,
+	--		--Project.AvailabilityFee_TotalLogisticsInfrastructureCost,
+	--		Project.Availability_Value,
+	--		Project.Availability_End_Day,
+	--		Project.Availability_End_Hour,
+	--		Project.Availability_Start_Day,
+	--		Project.Availability_Start_Hour,
+	--		Project.Duration_Months,
+	--		Project.Duration_PeriodType,
+	--		Project.FieldServiceCost_TimeAndMaterialShare,
+	--		Project.MarkupOtherCosts_MarkupFactor,
+	--		Project.MarkupOtherCosts_ProlongationMarkup,
+	--		Project.MarkupOtherCosts_ProlongationMarkupFactor,
+	--		Project.ReactionTime_Minutes,
+	--		Project.ReactionTime_PeriodType,
+	--		Project.Reinsurance_Flatfee,
+	--		Project.Reinsurance_UpliftFactor,
 
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_StandardHandling, lcStd.StandardHandling, lcStd.StandardHandling_Approved) AS StandardHandling,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_HighAvailabilityHandling, lcStd.HighAvailabilityHandling, lcStd.HighAvailabilityHandling_Approved) AS HighAvailabilityHandling,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_StandardDelivery, lcStd.StandardDelivery, lcStd.StandardDelivery_Approved) AS StandardDelivery,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ExpressDelivery, lcStd.ExpressDelivery, lcStd.ExpressDelivery_Approved) AS ExpressDelivery,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_TaxiCourierDelivery, lcStd.TaxiCourierDelivery, lcStd.TaxiCourierDelivery_Approved) AS TaxiCourierDelivery,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ReturnDeliveryFactory, lcStd.ReturnDeliveryFactory, lcStd.ReturnDeliveryFactory_Approved) AS ReturnDeliveryFactory
-		FROM 
-			WgCnt
-		LEFT JOIN 
-			Hardware.RoleCodeHourlyRates hr ON @isProjectCalculator = 0 and hr.Country = WgCnt.CountryId and hr.RoleCode = WgCnt.RoleCodeId and hr.Deactivated = 0
-		LEFT JOIN 
-			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Project.CountryId = WgCnt.Country AND Project.WgId = WgCnt.Wg
-		LEFT JOIN 
-			Fsp.HwStandardWarranty stdw ON stdw.Country = WgCnt.CountryId and stdw.Wg = WgCnt.WgId 
-		LEFT JOIN 
-			Hardware.FieldServiceCalc fscStd     ON @isProjectCalculator = 0 and fscStd.Country = WgCnt.Country AND fscStd.Wg = WgCnt.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId 
-        LEFT JOIN 
-			Hardware.FieldServiceTimeCalc fstStd ON @isProjectCalculator = 0 and fstStd.Country = WgCnt.Country AND fstStd.Wg = WgCnt.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType 
-        LEFT JOIN 
-			Hardware.LogisticsCosts lcStd        ON @isProjectCalculator = 0 and lcStd.Country  = WgCnt.Country AND lcStd.Wg = WgCnt.Wg  AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType and lcStd.Deactivated = 0
-	)
+	--		stdw.FspId,
+	--		stdw.Fsp,
+	--		stdw.AvailabilityId,
+	--		stdw.DurationId,
+	--		stdw.Duration,
+	--		stdw.DurationValue,
+	--		stdw.ReactionTimeId,
+	--		stdw.ServiceLocation,
+	--		stdw.ProActiveSlaId,
+	--		stdw.ReactionTime_Avalability,
+	--		stdw.ReactionTime_ReactionType,
+	--		stdw.ReactionTime_ReactionType_Avalability,
+
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.OnsiteHourlyRates, hr.OnsiteHourlyRates, hr.OnsiteHourlyRates_Approved) / CntCte.ExchangeRate AS OnsiteHourlyRates,
+
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_LabourCost, fscStd.LabourCost, fscStd.LabourCost_Approved) AS LabourCost,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TravelCost, fscStd.TravelCost, fscStd.TravelCost_Approved) AS TravelCost,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TravelTime, fscStd.TravelTime, fscStd.TravelTime_Approved) AS TravelTime,
+	--		--Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_RepairTime, fscStd.RepairTime, fscStd.RepairTime_Approved) AS RepairTime,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_PerformanceRate, fstStd.PerformanceRate, fstStd.PerformanceRate_Approved) AS PerformanceRate,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TimeAndMaterialShare / 100, fstStd.TimeAndMaterialShare_norm, fstStd.TimeAndMaterialShare_norm_Approved) AS TimeAndMaterialShare_norm,
+
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_StandardHandling, lcStd.StandardHandling, lcStd.StandardHandling_Approved) AS StandardHandling,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_HighAvailabilityHandling, lcStd.HighAvailabilityHandling, lcStd.HighAvailabilityHandling_Approved) AS HighAvailabilityHandling,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_StandardDelivery, lcStd.StandardDelivery, lcStd.StandardDelivery_Approved) AS StandardDelivery,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ExpressDelivery, lcStd.ExpressDelivery, lcStd.ExpressDelivery_Approved) AS ExpressDelivery,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_TaxiCourierDelivery, lcStd.TaxiCourierDelivery, lcStd.TaxiCourierDelivery_Approved) AS TaxiCourierDelivery,
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ReturnDeliveryFactory, lcStd.ReturnDeliveryFactory, lcStd.ReturnDeliveryFactory_Approved) AS ReturnDeliveryFactory,
+
+	--		Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.AvailabilityFee_Fee, af.Fee, af.Fee_Approved) AS Fee
+	--	FROM 
+	--		CntCte
+	--	CROSS JOIN 
+	--		WgCte
+	--	LEFT JOIN 
+	--		Hardware.RoleCodeHourlyRates hr ON @isProjectCalculator = 0 and hr.Country = CntCte.CountryId and hr.RoleCode = WgCte.RoleCodeId and hr.Deactivated = 0
+	--	LEFT JOIN 
+	--		ProjectCalculator.Project ON @isProjectCalculator = 1 AND Project.CountryId = CntCte.CountryId AND Project.WgId = WgCte.WgId
+	--	LEFT JOIN
+	--		ProjectCalculator.Afr AftProj ON @isProjectCalculator = 1 AND Project.Id = AftProj.ProjectId
+	--	LEFT JOIN 
+	--		Fsp.HwStandardWarranty stdw ON stdw.Country = CntCte.CountryId and stdw.Wg = WgCte.WgId 
+	--	LEFT JOIN 
+	--		Hardware.FieldServiceCalc fscStd     ON @isProjectCalculator = 0 and fscStd.Country = CntCte.CountryId AND fscStd.Wg = WgCte.WgId AND fscStd.ServiceLocation = stdw.ServiceLocationId 
+ --       LEFT JOIN 
+	--		Hardware.FieldServiceTimeCalc fstStd ON @isProjectCalculator = 0 and fstStd.Country = CntCte.CountryId AND fstStd.Wg = WgCte.WgId AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType 
+ --       LEFT JOIN 
+	--		Hardware.LogisticsCosts lcStd        ON @isProjectCalculator = 0 and lcStd.Country  = CntCte.CountryId AND lcStd.Wg = WgCte.WgId  AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType and lcStd.Deactivated = 0
+	--	LEFT JOIN 
+	--		Hardware.AvailabilityFeeCalc af ON @isProjectCalculator = 0 and af.Country = CntCte.CountryId AND af.Wg = WgCte.WgId 
+	--)
     , Std as (
         select  m.*
 
-              --, case when @approved = 0 then hr.OnsiteHourlyRates                     else hr.OnsiteHourlyRates_Approved                 end / m.ExchangeRate as OnsiteHourlyRates      
+              , case when @approved = 0 then hr.OnsiteHourlyRates                     else hr.OnsiteHourlyRates_Approved                 end / m.ExchangeRate as OnsiteHourlyRates      
 
-              , m.FspId                                    as StdFspId
-              , m.Fsp                                      as StdFsp
-              , m.AvailabilityId                           as StdAvailabilityId 
-              , m.Duration                                 as StdDuration
-              , m.DurationId                               as StdDurationId
-              , m.DurationValue                            as StdDurationValue
-              , m.IsProlongation                           as StdIsProlongation
-              , m.ProActiveSlaId                           as StdProActiveSlaId
-              , m.ReactionTime_Avalability                 as StdReactionTime_Avalability
-              , m.ReactionTime_ReactionType                as StdReactionTime_ReactionType
-              , m.ReactionTime_ReactionType_Avalability    as StdReactionTime_ReactionType_Avalability
-              , m.ServiceLocation                          as StdServiceLocation
-              , m.ServiceLocationId                        as StdServiceLocationId
+              , stdw.FspId                                    as StdFspId
+              , stdw.Fsp                                      as StdFsp
+              , stdw.AvailabilityId                           as StdAvailabilityId 
+              , stdw.Duration                                 as StdDuration
+              , stdw.DurationId                               as StdDurationId
+              , stdw.DurationValue                            as StdDurationValue
+              , stdw.IsProlongation                           as StdIsProlongation
+              , stdw.ProActiveSlaId                           as StdProActiveSlaId
+              , stdw.ReactionTime_Avalability                 as StdReactionTime_Avalability
+              , stdw.ReactionTime_ReactionType                as StdReactionTime_ReactionType
+              , stdw.ReactionTime_ReactionType_Avalability    as StdReactionTime_ReactionType_Avalability
+              , stdw.ServiceLocation                          as StdServiceLocation
+              , stdw.ServiceLocationId                        as StdServiceLocationId
 
               , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved                    end as MaterialCostWarranty
               , case when @approved = 0 then mcw.MaterialCostOow                     else mcw.MaterialCostOow_Approved                   end as MaterialCostOow     
@@ -318,6 +348,7 @@ BEGIN
                             then (case when @approved = 0 then af.Fee else af.Fee_Approved end) 
                         end, 
                     0) as FeeOrZero
+			  --, ISNULL(case when afEx.id is not null then m.Fee end, 0)as FeeOrZero
 
               --####### PROACTIVE COST ###################
 
@@ -330,10 +361,10 @@ BEGIN
               , case when @approved = 0 then pro.CentralExecutionShcReportCost                                    else pro.CentralExecutionShcReportCost_Approved                                           end as CentralExecutionReport
 
               --##### FIELD SERVICE COST STANDARD WARRANTY #########                                                                                               
-              --, case when @approved = 0 
-              --       then fscStd.LabourCost + fscStd.TravelCost + isnull(fstStd.PerformanceRate, 0)
-              --       else fscStd.LabourCost_Approved + fscStd.TravelCost_Approved + isnull(fstStd.PerformanceRate_Approved, 0)
-              --   end / m.ExchangeRate as FieldServicePerYearStdw
+              , case when @approved = 0 
+                     then fscStd.LabourCost + fscStd.TravelCost + isnull(fstStd.PerformanceRate, 0)
+                     else fscStd.LabourCost_Approved + fscStd.TravelCost_Approved + isnull(fstStd.PerformanceRate_Approved, 0)
+                 end / m.ExchangeRate as FieldServicePerYearStdw
 
 			  --, case 
 			  --      when @isProjectCalculator = 1
@@ -345,13 +376,13 @@ BEGIN
 					--	end
 			  --  end / m.ExchangeRate as FieldServicePerYearStdw
 
-			  , m.LabourCost + m.TravelCost + isnull(m.PerformanceRate, 0) / m.ExchangeRate as FieldServicePerYearStdw,
+			  --, (m.LabourCost + m.TravelCost + isnull(m.PerformanceRate, 0)) / m.ExchangeRate as FieldServicePerYearStdw
 
                --##### LOGISTICS COST STANDARD WARRANTY #########                                                                                               
-              --, case when @approved = 0
-              --       then lcStd.StandardHandling + lcStd.HighAvailabilityHandling + lcStd.StandardDelivery + lcStd.ExpressDelivery + lcStd.TaxiCourierDelivery + lcStd.ReturnDeliveryFactory 
-              --       else lcStd.StandardHandling_Approved + lcStd.HighAvailabilityHandling_Approved + lcStd.StandardDelivery_Approved + lcStd.ExpressDelivery_Approved + lcStd.TaxiCourierDelivery_Approved + lcStd.ReturnDeliveryFactory_Approved
-              --   end / m.ExchangeRate as LogisticPerYearStdw
+              , case when @approved = 0
+                     then lcStd.StandardHandling + lcStd.HighAvailabilityHandling + lcStd.StandardDelivery + lcStd.ExpressDelivery + lcStd.TaxiCourierDelivery + lcStd.ReturnDeliveryFactory 
+                     else lcStd.StandardHandling_Approved + lcStd.HighAvailabilityHandling_Approved + lcStd.StandardDelivery_Approved + lcStd.ExpressDelivery_Approved + lcStd.TaxiCourierDelivery_Approved + lcStd.ReturnDeliveryFactory_Approved
+                 end / m.ExchangeRate as LogisticPerYearStdw
 
 			  --, case 
 					--when @isProjectCalculator = 1
@@ -363,15 +394,15 @@ BEGIN
 					--	end 
 			  --  end / m.ExchangeRate as LogisticPerYearStdw
 
-			  m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory / m.ExchangeRate as LogisticPerYearStdw
+			  --, (m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory) / m.ExchangeRate as LogisticPerYearStdw
 
               , man.StandardWarranty / m.ExchangeRate as ManualStandardWarranty
 
-        from ProjCalc m
+        from WgCnt m
 
-        --LEFT JOIN Hardware.RoleCodeHourlyRates hr ON @isProjectCalculator = 0 and hr.Country = m.CountryId and hr.RoleCode = m.RoleCodeId and hr.Deactivated = 0
+        LEFT JOIN Hardware.RoleCodeHourlyRates hr ON hr.Country = m.CountryId and hr.RoleCode = m.RoleCodeId and hr.Deactivated = 0
 
-        --LEFT JOIN Fsp.HwStandardWarranty stdw ON stdw.Country = m.CountryId and stdw.Wg = m.WgId 
+        LEFT JOIN Fsp.HwStandardWarranty stdw ON stdw.Country = m.CountryId and stdw.Wg = m.WgId 
 
         LEFT JOIN Hardware.ServiceSupportCost ssc ON ssc.Country = m.CountryId and ssc.ClusterPla = m.ClusterPlaId and ssc.Deactivated = 0
 
@@ -379,15 +410,17 @@ BEGIN
 
         LEFT JOIN Hardware.MarkupStandardWaranty msw ON msw.Country = m.CountryId AND msw.Wg = m.WgId and msw.Deactivated = 0
 
-        LEFT JOIN Hardware.AvailabilityFeeCalc af ON @isProjectCalculator = 0 and af.Country = m.CountryId AND af.Wg = m.WgId 
-        LEFT JOIN Admin.AvailabilityFee afEx ON @isProjectCalculator = 0 and afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
+        LEFT JOIN Hardware.AvailabilityFeeCalc af ON af.Country = m.CountryId AND af.Wg = m.WgId 
+        LEFT JOIN Admin.AvailabilityFee afEx ON afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = stdw.ReactionTimeId AND afEx.ReactionTypeId = stdw.ReactionTypeId AND afEx.ServiceLocationId = stdw.ServiceLocationId
 
         LEFT JOIN Hardware.ProActive pro ON pro.Country= m.CountryId and pro.Wg= m.WgId
 
-        --LEFT JOIN Hardware.FieldServiceCalc fscStd     ON @isProjectCalculator = 0 and fscStd.Country = m.Country AND fscStd.Wg = m.Wg AND fscStd.ServiceLocation = m.ServiceLocationId 
-        --LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON @isProjectCalculator = 0 and fstStd.Country = m.Country AND fstStd.Wg = m.Wg AND fstStd.ReactionTimeType = m.ReactionTime_ReactionType 
+        --LEFT JOIN Hardware.FieldServiceCalc fscStd     ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId 
+        --LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType 
+		LEFT JOIN Hardware.FieldServiceLocation fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId AND fscStd.DeactivatedDateTime is null
+        LEFT JOIN Hardware.FieldServiceReactionTimeType fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType AND fstStd.DeactivatedDateTime is null
 
-        --LEFT JOIN Hardware.LogisticsCosts lcStd        ON @isProjectCalculator = 0 and lcStd.Country  = m.Country AND lcStd.Wg = m.Wg  AND lcStd.ReactionTimeType = m.ReactionTime_ReactionType and lcStd.Deactivated = 0
+        LEFT JOIN Hardware.LogisticsCosts lcStd        ON lcStd.Country  = stdw.Country AND lcStd.Wg = stdw.Wg  AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType and lcStd.Deactivated = 0
 
         LEFT JOIN Hardware.StandardWarrantyManualCost man on man.CountryId = m.CountryId and man.WgId = m.WgId
     )
@@ -415,7 +448,10 @@ BEGIN
                 --, m.MaterialCostOow * m.AFRP1                                                  as matO1P
 
 				, case when m.StdDurationValue >= m.YearValue then m.MaterialCostWarranty * m.AFR else 0 end as mat
-				, case when m.StdDurationValue >= m.YearValue then 0 else m.MaterialCostOow * m.AFR end as matO
+				, case 
+					  when m.IsProlongation = 1 then MaterialCostOow * m.AFR
+				      when m.StdDurationValue >= m.YearValue then 0 else m.MaterialCostOow * m.AFR 
+				  end as matO
 
                 , 1 - isnull(m.Sar, 0)/100 as SarCoeff
         from CostCte m
@@ -688,7 +724,7 @@ BEGIN
             --, m.mat5  + m.matO5  as matCost5
             --, m.matO1P           as matCost1P
 
-			, m.mat  + m.matO  as matCost
+			, case when m.IsProlongation = 1 then  m.matO else m.mat + m.matO end  as matCost
             
             --, m.tax1                
             --, m.tax2                
@@ -715,7 +751,7 @@ BEGIN
             --, m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
             --, m.TaxAndDutiesOrZero * m.matO1P as TaxAndDuties1P
 
-			, m.TaxAndDutiesOrZero * (m.mat  + m.matO)  as TaxAndDuties
+			, case when m.IsProlongation = 1 then m.TaxAndDutiesOrZero * matO else m.TaxAndDutiesOrZero * (m.mat  + m.matO) end as TaxAndDuties
 
             , case when  m.Sar is null then m.ServiceSupportPerYear else m.ServiceSupportPerYear * m.Sar / 100 end as ServiceSupportPerYear
             , m.ServiceSupportPerYear as ServiceSupportPerYearWithoutSar

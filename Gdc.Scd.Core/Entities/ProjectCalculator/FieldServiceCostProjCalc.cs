@@ -14,5 +14,7 @@
         /// Travel Time (MTTT)
         /// </summary>
         public double? TravelTime { get; set; }
+
+        public double? OohUpliftFactor { get; set; }
     }
 }

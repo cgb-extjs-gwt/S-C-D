@@ -39,6 +39,20 @@ namespace Gdc.Scd.MigrationTool.Migrations
 			this.UpdateReactionTimeMinutes();
 		}
 
+		private void Test()
+		{
+			//var wg = this.repositorySet.GetRepository<Wg>().GetAll().First(x => x.Name == "ACD");
+			//var serviceLocation = this.repositorySet.GetRepository<ServiceLocation>().GetAll().First(x => "");
+
+			//this.projectCalculatorService.Save(new Project
+			//{
+			//	FieldServiceCost = new FieldServiceCostProjCalc
+			//	{ 
+			//		LabourCost
+			//	}
+			//});
+		}
+
 		private void UpdateAvailabilityValue()
 		{
 			var availability24x7 = this.availabilityService.GetAll().First(x => x.Name == "24x7");
@@ -85,7 +99,7 @@ CREATE TABLE [ProjectCalculator].[Afr](
 	[AFR] [float] NULL,
 	[Months] [int] NOT NULL,
 	[ProjectId] [bigint] NULL,
-	[WgId] [bigint] NULL,
+	[IsProlongation] [bit] NOT NULL,
  CONSTRAINT [PK_Afr] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -100,19 +114,17 @@ CREATE TABLE [ProjectCalculator].[Project](
 	[ServiceLocationId] [bigint] NOT NULL,
 	[WgId] [bigint] NOT NULL,
 	[AvailabilityFee_AverageContractDuration] [float] NULL,
-	[AvailabilityFee_CostPerKit] [float] NULL,
-	[AvailabilityFee_CostPerKitJapanBuy] [float] NULL,
-	[AvailabilityFee_InstalledBaseHighAvailability] [float] NULL,
-	[AvailabilityFee_JapanBuy] [float] NULL,
-	[AvailabilityFee_MaxQty] [float] NULL,
 	[AvailabilityFee_StockValueFj] [float] NULL,
 	[AvailabilityFee_StockValueMv] [float] NULL,
 	[AvailabilityFee_TotalLogisticsInfrastructureCost] [float] NULL,
+	[AvailabilityFee_Fee] [float] NULL,
+	[Availability_Name] [nvarchar](max) NULL,
 	[Availability_Value] [int] NOT NULL,
 	[Availability_End_Day] [tinyint] NOT NULL,
 	[Availability_End_Hour] [tinyint] NOT NULL,
 	[Availability_Start_Day] [tinyint] NOT NULL,
 	[Availability_Start_Hour] [tinyint] NOT NULL,
+	[Duration_Name] [nvarchar](max) NULL,
 	[Duration_Months] [int] NOT NULL,
 	[Duration_PeriodType] [tinyint] NOT NULL,
 	[OnsiteHourlyRates] [float] NULL,
@@ -121,6 +133,7 @@ CREATE TABLE [ProjectCalculator].[Project](
 	[FieldServiceCost_TimeAndMaterialShare] [float] NULL,
 	[FieldServiceCost_TravelCost] [float] NULL,
 	[FieldServiceCost_TravelTime] [float] NULL,
+	[FieldServiceCost_OohUpliftFactor] [float] NULL,
 	[LogisticsCosts_ExpressDelivery] [float] NULL,
 	[LogisticsCosts_HighAvailabilityHandling] [float] NULL,
 	[LogisticsCosts_ReturnDeliveryFactory] [float] NULL,
@@ -130,8 +143,10 @@ CREATE TABLE [ProjectCalculator].[Project](
 	[MarkupOtherCosts_MarkupFactor] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkup] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkupFactor] [float] NULL,
-	[ReactionTime_Minutes] [int] NOT NULL,
-	[ReactionTime_PeriodType] [tinyint] NOT NULL,
+	[ReactionTime_Name] [nvarchar](max) NULL,
+	[ReactionTime_Minutes] [int] NULL,
+	[ReactionTime_PeriodType] [tinyint] NULL,
+	[Reinsurance_CurrencyId] [bigint] NULL,
 	[Reinsurance_Flatfee] [float] NULL,
 	[Reinsurance_UpliftFactor] [float] NULL,
  CONSTRAINT [PK_Project] PRIMARY KEY CLUSTERED 
@@ -145,16 +160,16 @@ REFERENCES [ProjectCalculator].[Project] ([Id])
 
 ALTER TABLE [ProjectCalculator].[Afr] CHECK CONSTRAINT [FK_Afr_Project_ProjectId]
 
-ALTER TABLE [ProjectCalculator].[Afr]  WITH CHECK ADD  CONSTRAINT [FK_Afr_Wg_WgId] FOREIGN KEY([WgId])
-REFERENCES [InputAtoms].[Wg] ([Id])
-
-ALTER TABLE [ProjectCalculator].[Afr] CHECK CONSTRAINT [FK_Afr_Wg_WgId]
-
 ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Country_CountryId] FOREIGN KEY([CountryId])
 REFERENCES [InputAtoms].[Country] ([Id])
 ON DELETE CASCADE
 
 ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_Country_CountryId]
+
+ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Currency_Reinsurance_CurrencyId] FOREIGN KEY([Reinsurance_CurrencyId])
+REFERENCES [References].[Currency] ([Id])
+
+ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_Currency_Reinsurance_CurrencyId]
 
 ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_ReactionType_ReactionTypeId] FOREIGN KEY([ReactionTypeId])
 REFERENCES [Dependencies].[ReactionType] ([Id])
