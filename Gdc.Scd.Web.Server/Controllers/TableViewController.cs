@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Entities.TableView;
+using Gdc.Scd.Web.Server.Entities;
 using Gdc.Scd.Web.Server.Heplers;
 using Gdc.Scd.Web.Server.Impl;
 using Newtonsoft.Json;
@@ -69,6 +71,15 @@ namespace Gdc.Scd.Web.Server.Controllers
             {
                 return this.ExcelContent(new MemoryStream(), "Error");
             }
+        }
+
+        [HttpPost]
+        public async Task<TableViewExcelImportResult> ImportExcel([FromBody]ImportData importData)
+        {
+            var bytes = Convert.FromBase64String(importData.ExcelFile);
+            var stream = new MemoryStream(bytes);
+
+            return await this.tableViewService.ImportFromExcel(stream, importData.ApprovalOption);
         }
     }
 }

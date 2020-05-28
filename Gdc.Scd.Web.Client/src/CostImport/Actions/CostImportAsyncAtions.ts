@@ -3,8 +3,9 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import * as CostBlockService from "../../Common/Services/CostBlockService";
 import { loadImportStatus, loadQualityGateErrors, loadDependencyItems, loadRegions } from "../Actions/CostImportActions";
-import { ImportData, getDependencyItems, getRegions } from "../../Common/Services/CostBlockService";
+import { getDependencyItems, getRegions } from "../../Common/Services/CostBlockService";
 import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
+import { ImportData } from "../../Common/States/ImportData";
 
 export const loadRegionsFromServer = (applicationId: string, costBlockId: string, costElementId: string) => asyncAction<CommonState>(
     (dispatch, getState) => {

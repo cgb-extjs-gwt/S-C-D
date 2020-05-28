@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +31,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockService costBlockService;
 
+        private readonly ISqlRepository sqlRepository;
+
+        private readonly IExcelConverterService converterService;
+
         private readonly DomainEnitiesMeta meta;
 
         private readonly DomainMeta domainMeta;
@@ -41,6 +46,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IDomainService<Wg> wgService,
             IRoleCodeService roleCodeService,
             ICostBlockService costBlockService,
+            ISqlRepository sqlRepository,
+            IExcelConverterService converterService,
             DomainEnitiesMeta meta,
             DomainMeta domainMeta)
         {
@@ -50,6 +57,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.wgService = wgService;
             this.roleCodeService = roleCodeService;
             this.costBlockService = costBlockService;
+            this.sqlRepository = sqlRepository;
+            this.converterService = converterService;
             this.meta = meta;
             this.domainMeta = domainMeta;
         }
@@ -151,14 +160,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var records = await this.GetRecords();
             var tableViewInfo = await this.GetTableViewInfo();
-            var costElementInfos = 
-                    tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new 
-                                                 { 
+            var costElementInfos =
+                    tableViewInfo.RecordInfo.Data.GroupBy(dataInfo => new
+                                                 {
                                                      dataInfo.ApplicationId,
                                                      dataInfo.CostBlockId,
                                                      CostElement = this.domainMeta.GetCostElement(dataInfo)
                                                  })
-                                                 .Select(group => new 
+                                                 .Select(group => new
                                                  {
                                                      group.Key.CostElement,
                                                      DataInfos = group.ToArray()
@@ -304,6 +313,221 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
+        public async Task<TableViewExcelImportResult> ImportFromExcel(Stream excelStream, ApprovalOption approvalOption)
+        {
+            const int StartRow = 3;
+            const int StartColumn = 1;
+
+            var result = new TableViewExcelImportResult
+            {
+                Errors = new List<string>()
+            };
+
+            using (var workbook = new XLWorkbook(excelStream))
+            {
+                var worksheetInfo =
+                    workbook.Worksheets.Select(worksheet => new
+                                       {
+                                           Worksheet = worksheet,
+                                           RowsUsed = worksheet.RowsUsed()
+                                       })
+                                       .FirstOrDefault(info => info.RowsUsed.Any());
+
+                if (worksheetInfo == null)
+                {
+                    result.Errors.Add("Excel file is empty");
+                }
+                else
+                {
+                    try
+                    {
+                        var column = StartColumn;
+                        var tableViewInfo = await this.GetTableViewInfo();
+
+                        var coordinateHandlers = new List<Func<IXLRow, Record, bool>>();
+
+                        foreach (var coordinateId in tableViewInfo.RecordInfo.Coordinates)
+                        {
+                            coordinateHandlers.Add(await BuildCoordinateRecordHandler(column++, coordinateId));
+                        }
+
+                        column += tableViewInfo.RecordInfo.AdditionalData.Length;
+
+                        var costElementHandlers = new List<Action<IXLRow, Record>> 
+                        { 
+                            await BuildRoleCodeRecordHandler(column++),
+                            BuildResponsiblePersonRecordHandler(column++),
+                            BuildPsmReleaseRecordHandler(column++)
+                        };
+
+                        foreach (var dataInfo in tableViewInfo.RecordInfo.Data)
+                        {
+                            costElementHandlers.Add(await BuildCostElementRecordHandler(column++, dataInfo));
+                        }
+
+                        var newRecords = new List<Record>();
+
+                        foreach (var row in worksheetInfo.RowsUsed.Skip(StartRow - 1))
+                        {
+                            try
+                            {
+                                var record = new Record();
+
+                                if (coordinateHandlers.All(handler => handler(row, record)))
+                                {
+                                    foreach (var costElementHandler in costElementHandlers)
+                                    {
+                                        try
+                                        {
+                                            costElementHandler(row, record);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            result.Errors.Add($"Row number: {row.RowNumber()}. {ex.Message}");
+                                        }
+                                    }
+
+                                    newRecords.Add(record);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                result.Errors.Add($"Row number: {row.RowNumber()}. {ex.Message}");
+                            }
+                        }
+
+                        var oldRecords = await this.GetRecords();
+                        var records = GetUpdateRecords(oldRecords, newRecords).ToArray();
+
+                        result.QualityGateResult = await this.UpdateRecords(records, approvalOption);
+                    }
+                    catch(Exception ex)
+                    {
+                        result.Errors.Add(ex.Message);
+                    }
+                }
+            }
+
+            return result;
+
+            async Task<Func<IXLRow, Record, bool>> BuildCoordinateRecordHandler(int column, string coordinateId)
+            {
+                var coordMeta = this.meta.GetInputLevel(coordinateId);
+                var converter = await this.converterService.BuildReferenceConverter(coordMeta);
+
+                return (row, record) =>
+                {
+                    var isContinueHandle = true;
+
+                    var value = row.Cell(column).GetValue<string>();
+
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        isContinueHandle = false;
+                    }
+                    else
+                    {
+                        record.Coordinates.Add(coordinateId, converter(value));
+                    }
+
+                    return isContinueHandle;
+                };
+            }
+
+            async Task<Action<IXLRow, Record>> BuildCostElementRecordHandler(int column, DataInfo dataInfo)
+            {
+                var costBlock = this.meta.CostBlocks[dataInfo];
+                var converterFn = await this.converterService.BuildConverter(costBlock, dataInfo.CostElementId);
+
+                return (row, record) =>
+                {
+                    var value = row.Cell(column).GetValue<string>();
+                    var convertedValue = converterFn(value);
+
+                    record.Data[dataInfo.DataIndex] = new TableViewCellData
+                    {
+                        Value = converterFn(value)
+                    };
+                };
+            }
+
+            async Task<Action<IXLRow, Record>> BuildRoleCodeRecordHandler(int column)
+            {
+                var roleCodeMeta = (NamedEntityMeta)this.meta.GetEntityMeta<RoleCode>();
+                var converter = await this.converterService.BuildReferenceConverter(roleCodeMeta);
+
+                return (row, record) =>
+                {
+                    var value = row.Cell(column).GetValue<string>();
+                    var roleCode = converter(value);
+
+                    record.WgRoleCodeId = roleCode?.Id;
+                };
+            }
+
+            Action<IXLRow, Record> BuildResponsiblePersonRecordHandler(int column)
+            {
+                return (row, record) =>
+                {
+                    record.WgResponsiblePerson = row.Cell(column).GetValue<string>();
+                };
+            }
+
+            Action<IXLRow, Record> BuildPsmReleaseRecordHandler(int column)
+            {
+                return (row, record) =>
+                {
+                    var value = row.Cell(column).GetValue<string>();
+
+                    record.WgPsmRelease = this.converterService.ConvertToBool(value);
+                };
+            }
+
+            IEnumerable<Record> GetUpdateRecords(IEnumerable<Record> oldRecords, IEnumerable<Record> newRecords)
+            {
+                var joinedRecords =
+                    oldRecords.Join(newRecords, GetJoinKey, GetJoinKey, (oldRec, newRec) => (oldRec, newRec));
+
+                foreach (var (oldRecord, newRecord) in joinedRecords)
+                {
+                    var updatedData = new Dictionary<string, TableViewCellData>();
+
+                    foreach (var oldData in oldRecord.Data)
+                    {
+                        if (newRecord.Data.TryGetValue(oldData.Key, out var newData) && 
+                            !Equals(oldData.Value.Value, newData.Value))
+                        {
+                            updatedData.Add(oldData.Key, newData);
+                        }
+                    }
+
+                    if (updatedData.Count > 0 ||
+                        !Equals(oldRecord.WgPsmRelease, newRecord.WgPsmRelease) ||
+                        !Equals(oldRecord.WgResponsiblePerson, newRecord.WgResponsiblePerson) ||
+                        !Equals(oldRecord.WgRoleCodeId, newRecord.WgRoleCodeId))
+                    {
+                        yield return new Record
+                        {
+                            Coordinates = oldRecord.Coordinates,
+                            Data = updatedData,
+                            WgPsmRelease = newRecord.WgPsmRelease,
+                            WgResponsiblePerson = newRecord.WgResponsiblePerson,
+                            WgRoleCodeId = newRecord.WgRoleCodeId
+                        };
+                    }
+                }
+
+                string GetJoinKey(Record record)
+                {
+                    var items =
+                        record.Coordinates.OrderBy(keyValue => keyValue.Key)
+                                          .Select(keyValue => $"{keyValue.Key}:{keyValue.Value.Id}");
+
+                    return string.Join(",", items);
+                }
+            }
+        }
+
         private IDictionary<long, Record> GetRecordDictionary(IEnumerable<Record> records)
         {
             return records.ToDictionary(record => record.Coordinates[MetaConstants.WgInputLevelName].Id);
@@ -334,26 +558,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     };
                 }
             }
-        }
-
-        private (string Id, long Value)? GetMaxInputLevel(
-            IDictionary<string, long> coordinates,
-            IDictionary<string, InputLevelMeta> inputLevelMetas)
-        {
-            InputLevelMeta maxInputLevelMeta = null;
-            (string, long)? maxInputLevel = null;
-
-            foreach (var coordinate in coordinates)
-            {
-                if (inputLevelMetas.TryGetValue(coordinate.Key, out var inputLevelMeta) &&
-                    (maxInputLevelMeta == null || maxInputLevelMeta.LevelNumber < inputLevelMeta.LevelNumber))
-                {
-                    maxInputLevelMeta = inputLevelMeta;
-                    maxInputLevel = (coordinate.Key, coordinate.Value);
-                }
-            }
-
-            return maxInputLevel;
         }
     }
 }
