@@ -43,7 +43,7 @@ RETURN
 			case when @isProjectCalculator = 0 then m.DurationId end as DurationId,
 			case when @isProjectCalculator = 1 then 0 else dur.IsProlongation end as DurationIsProlongation,
 			case when @isProjectCalculator = 1 then Project.Duration_Name else dur.[Name] end as Duration,
-			case when @isProjectCalculator = 1 then Project.Duration_Months / 12 else dur.[Value] end as DurationValue,
+			case when @isProjectCalculator = 1 then Project.Duration_Months else dur.[Value] * 12 end as DurationMonths,
 			case when @isProjectCalculator = 0 then m.ReactionTimeId end as ReactionTimeId,
 			case when @isProjectCalculator = 1 then Project.ReactionTime_Name else rtime.[Name] end as ReactionTime,
 			case when @isProjectCalculator = 1
@@ -72,7 +72,7 @@ RETURN
 			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_ProlongationMarkupFactor, moc.ProlongationMarkupFactor, moc.ProlongationMarkupFactor_Approved) AS ProlongationMarkupFactor,
 			case when @approved = 0 then moc.Markup else moc.Markup_Approved end as Markup
 
-		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg) std 
+		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg, @isProjectCalculator) std 
 
 		LEFT JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on @isProjectCalculator = 0 and std.CountryId = m.CountryId and std.WgId = m.WgId
 
@@ -121,9 +121,11 @@ RETURN
             --, dur.Value            as Year
             --, dur.IsProlongation   as IsProlongation
 			, m.Duration
-			, m.DurationValue as Year
+			--, m.DurationValue as Year
+			, m.DurationMonths
 			, m.DurationIsProlongation as IsProlongation
-			, m.YearValue		   as StdYear
+			--, m.YearValue		   as StdYear
+			, m.Months			 as StdMonths
 			, m.IsProlongation   as StdIsProlongation
             , m.AvailabilityId
             --, av.Name              as Availability
@@ -141,7 +143,8 @@ RETURN
             , m.Sla
             , m.SlaHash
 
-            , m.StdWarranty
+            --, m.StdWarranty
+			, m.StdWarrantyMonths
             , m.StdWarrantyLocation
 
             --Cost values
@@ -294,9 +297,21 @@ RETURN
             --                    )
             --    end as ProActive
 
+			--, case when proSla.Name = '0' 
+   --                 then 0 --we don't calc proactive(none)
+   --                 else m.LocalRemoteAccessSetup + m.DurationValue * (
+   --                                   m.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                
+   --                                 + m.LocalPreparation * proSla.LocalPreparationShcRepetition                      
+   --                                 + m.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition
+   --                                 + m.LocalOnsiteCustomerBriefing * proSla.LocalOnsiteShcCustomerBriefingRepetition
+   --                                 + m.Travel * proSla.TravellingTimeRepetition                                     
+   --                                 + m.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition          
+   --                             )
+   --             end as ProActive
+
 			, case when proSla.Name = '0' 
                     then 0 --we don't calc proactive(none)
-                    else m.LocalRemoteAccessSetup + m.DurationValue * (
+                    else m.LocalRemoteAccessSetup + m.DurationMonths * (
                                       m.LocalRegularUpdate * proSla.LocalRegularUpdateReadyRepetition                
                                     + m.LocalPreparation * proSla.LocalPreparationShcRepetition                      
                                     + m.LocalRemoteCustomerBriefing * proSla.LocalRemoteShcCustomerBriefingRepetition
@@ -359,5 +374,7 @@ RETURN
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 
     LEFT JOIN dbo.[User] u2 on u2.Id = man.ReleaseUserId
+
+	WHERE m.DurationMonths <= m.Months
 )
 go

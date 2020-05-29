@@ -7,7 +7,8 @@ GO
 CREATE FUNCTION [Hardware].[CalcStdwYear](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
-    @wg             dbo.ListID READONLY
+    @wg             dbo.ListID READONLY,
+	@isProjectCalculator bit = 0
 )
 RETURNS @tbl TABLE  (
           CountryId                         bigint
@@ -16,7 +17,8 @@ RETURNS @tbl TABLE  (
         , Currency                          nvarchar(255)
         , ClusterRegionId                   bigint
         , ExchangeRate                      float
-		, YearValue						    float
+		--, YearValue						    float
+		, Months						    int
 		, IsProlongation					bit
 
         , WgId                              bigint
@@ -29,7 +31,8 @@ RETURNS @tbl TABLE  (
         , StdFspId                          bigint
         , StdFsp                            nvarchar(255)
 
-        , StdWarranty                       int
+        --, StdWarranty                       int
+		, StdWarrantyMonths				    int
         , StdWarrantyLocation               nvarchar(255)
 
 		--, AvailabilityId bigint null
@@ -152,7 +155,43 @@ RETURNS @tbl TABLE  (
     )
 AS
 BEGIN
-    with WgCte as (
+    with Afr as (
+		SELECT 
+			AFR.Wg AS WgId,
+			case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end as AFR,
+			Year.Value * 12 as Months,
+			Year.IsProlongation
+		FROM
+			Hardware.AFR
+		INNER JOIN 
+			Dependencies.Year ON afr.Year = Year.Id
+		WHERE
+			AFR.Deactivated = 0
+	)
+	, AfrProj as (
+		SELECT 
+			Afr.WgId, 
+			Afr.AFR, 
+			Afr.Months, 
+			Afr.IsProlongation
+		FROM
+			Afr
+		LEFT JOIN 
+			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.WgId = Project.WgId
+		WHERE
+			@isProjectCalculator = 0 OR (Afr.Months <= Project.Duration_Months AND Afr.IsProlongation = 0)
+		UNION ALL
+		SELECT
+			Project.WgId, 
+			Afr.AFR / 100 AS AFR, 
+			Afr.Months, 
+			0 AS IsProlongation
+		FROM
+			ProjectCalculator.Afr
+		INNER JOIN	
+			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.ProjectId = Project.WgId
+	)
+	, WgCte as (
         select wg.Id as WgId
              , wg.Name as Wg
              , wg.SogId
@@ -167,22 +206,27 @@ BEGIN
              --, case when @approved = 0 then afr.AFR5                           else afr.AFR5_Approved                       end as AFR5 
              --, case when @approved = 0 then afr.AFRP1                          else afr.AFRP1_Approved                      end as AFRP1
 
-			 , Year.Value as YearValue
-			 , Year.IsProlongation
+			 --, Year.Value as YearValue
+			 --, Year.IsProlongation
+			 , AfrProj.Months
+			 , AfrProj.IsProlongation
 			 
-			 , case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end as AFR
+			 --, case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end as AFR
 			 --, Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, afr.AFR / 100, afr.AFR_Approved / 100) as AFR
 			 --, case 
 			 --      when @isProjectCalculator = 1
 				--   then AfrProjCalc.AFR / 100
 				--   else case when @approved = 0 then afr.AFR / 100 else afr.AFR_Approved / 100 end
 			 --  end as AFR
+			 
+			 , AfrProj.AFR
         from InputAtoms.Wg wg
-        left join InputAtoms.Sog sog on sog.Id = wg.SogId
-        left join InputAtoms.Pla pla on pla.id = wg.PlaId
-        left join Hardware.AFR afr on afr.Wg = wg.Id and afr.Deactivated = 0
+        join InputAtoms.Sog sog on sog.Id = wg.SogId
+        join InputAtoms.Pla pla on pla.id = wg.PlaId
+		join AfrProj on AfrProj.WgId = wg.Id
+        --left join Hardware.AFR afr on afr.Wg = wg.Id and afr.Deactivated = 0
 		--left join ProjectCalculator.Afr AfrProjCalc on @isProjectCalculator = 1 and AfrProjCalc.WgId = wg.Id
-		left join Dependencies.Year on afr.Year = Year.Id
+		--left join Dependencies.Year on afr.Year = Year.Id
         where wg.WgType = 1 and wg.Deactivated = 0 and (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
     )
     , CntCte as (
@@ -315,7 +359,8 @@ BEGIN
               , stdw.AvailabilityId                           as StdAvailabilityId 
               , stdw.Duration                                 as StdDuration
               , stdw.DurationId                               as StdDurationId
-              , stdw.DurationValue                            as StdDurationValue
+              --, stdw.DurationValue                            as StdDurationValue
+			  , stdw.DurationValue * 12						  as StdMonths
               , stdw.IsProlongation                           as StdIsProlongation
               , stdw.ProActiveSlaId                           as StdProActiveSlaId
               , stdw.ReactionTime_Avalability                 as StdReactionTime_Avalability
@@ -447,10 +492,16 @@ BEGIN
                 --, case when m.StdDurationValue >= 5 then 0 else m.MaterialCostOow * m.AFR5 end as matO5
                 --, m.MaterialCostOow * m.AFRP1                                                  as matO1P
 
-				, case when m.StdDurationValue >= m.YearValue then m.MaterialCostWarranty * m.AFR else 0 end as mat
+				--, case when m.StdDurationValue >= m.YearValue then m.MaterialCostWarranty * m.AFR else 0 end as mat
+				--, case 
+				--	  when m.IsProlongation = 1 then MaterialCostOow * m.AFR
+				--      when m.StdDurationValue >= m.YearValue then 0 else m.MaterialCostOow * m.AFR 
+				--  end as matO
+				
+				, case when m.StdMonths >= m.Months then m.MaterialCostWarranty * m.AFR else 0 end as mat
 				, case 
 					  when m.IsProlongation = 1 then MaterialCostOow * m.AFR
-				      when m.StdDurationValue >= m.YearValue then 0 else m.MaterialCostOow * m.AFR 
+				      when m.StdMonths >= m.Months then 0 else m.MaterialCostOow * m.AFR 
 				  end as matO
 
                 , 1 - isnull(m.Sar, 0)/100 as SarCoeff
@@ -471,8 +522,11 @@ BEGIN
                 --, case when m.StdDurationValue >= 4 then 0 else m.TaxAndDutiesOrZero * m.matO4 end as taxO4
                 --, case when m.StdDurationValue >= 5 then 0 else m.TaxAndDutiesOrZero * m.matO5 end as taxO5
 
-				, case when m.StdDurationValue >= m.YearValue then m.TaxAndDutiesOrZero * m.mat else 0 end as tax
-				, case when m.StdDurationValue >= m.YearValue then 0 else m.TaxAndDutiesOrZero * m.matO end as taxO
+				--, case when m.StdDurationValue >= m.YearValue then m.TaxAndDutiesOrZero * m.mat else 0 end as tax
+				--, case when m.StdDurationValue >= m.YearValue then 0 else m.TaxAndDutiesOrZero * m.matO end as taxO
+
+				, case when m.StdMonths >= m.Months then m.TaxAndDutiesOrZero * m.mat else 0 end as tax
+				, case when m.StdMonths >= m.Months then 0 else m.TaxAndDutiesOrZero * m.matO end as taxO
 
         from CostCte2 m
     )
@@ -521,12 +575,22 @@ BEGIN
                --        else 0 
                --    end as LocalServiceStandardWarranty5WithoutSar
 
-			   , case when m.StdDurationValue >= m.YearValue
+			  -- , case when m.StdDurationValue >= m.YearValue
+					--then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, m.SarCoeff)
+     --               else 0 
+     --            end as LocalServiceStandardWarranty
+
+			  -- , case when m.StdDurationValue >= m.YearValue
+					--then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
+     --               else 0 
+     --            end as LocalServiceStandardWarrantyWithoutSar
+
+			   , case when m.StdMonths >= m.Months
 					then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, m.SarCoeff)
                     else 0 
                  end as LocalServiceStandardWarranty
 
-			   , case when m.StdDurationValue >= m.YearValue
+			   , case when m.StdMonths >= m.Months
 					then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
                     else 0 
                  end as LocalServiceStandardWarrantyWithoutSar
@@ -539,7 +603,8 @@ BEGIN
                , Currency                     
                , ClusterRegionId              
                , ExchangeRate            
-			   , YearValue     
+			   --, YearValue     
+			   , Months
                , IsProlongation
 
                , WgId                         
@@ -552,7 +617,8 @@ BEGIN
                , StdFspId
                , StdFsp  
 
-               , StdWarranty         
+               --, StdWarranty         
+			   , StdWarrantyMonths
                , StdWarrantyLocation 
                
                --, AFR1                         
@@ -662,7 +728,8 @@ BEGIN
             , m.Currency                     
             , m.ClusterRegionId              
             , m.ExchangeRate          
-			, m.YearValue
+			--, m.YearValue
+			, m.Months
 			, m.IsProlongation       
 
             , m.WgId        
@@ -674,7 +741,8 @@ BEGIN
 
             , m.StdFspId
             , m.StdFsp
-            , m.StdDurationValue
+            --, m.StdDurationValue
+			, m.StdMonths
             , m.StdServiceLocation
 
             --, m.AFR1 
