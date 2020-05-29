@@ -57,6 +57,7 @@ RETURN (
             , case when @local = 1 then Logistic * costs.ExchangeRate else Logistic end as Logistic
             , case when @local = 1 then OtherDirect * costs.ExchangeRate else OtherDirect end as OtherDirect
             , case when @local = 1 then costs.ExchangeRate else 1 end * coalesce(LocalServiceStandardWarrantyManual, LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+            , case when @local = 1 then LocalServiceStandardWarrantyWithRisk * costs.ExchangeRate else LocalServiceStandardWarrantyWithRisk end as LocalServiceStandardWarrantyWithRisk
             , case when @local = 1 then Credits * costs.ExchangeRate else Credits end as Credits
             
             , case when @local = 1 then FullServiceTC * costs.ExchangeRate else FullServiceTC end as ServiceTC
@@ -125,7 +126,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTPManual', 'Service TP(manual)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTP_Released', 'Service TP(released)', 1, 1);
-
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'LocalServiceStandardWarrantyWithRisk', 'Local STDW (TP) external', 1, 1); 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ListPrice', 'List price', 1, 1);
 set @index = @index + 1;
