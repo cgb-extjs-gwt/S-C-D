@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Dto;
@@ -42,10 +44,19 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
             _countryAdminService.Save(records);
         }
 
-        [HttpPost]
-        public void ExportToExcel()
+        public HttpResponseMessage ExportToExcel()
         {
-            var request = JsonConvert.DeserializeObject<AdminCountryFilterDto>(HttpContext.Current.Request.Form["data"]);
+            try
+            {
+                var filter = JsonConvert.DeserializeObject<AdminCountryFilterDto>(HttpContext.Current.Request.Form["data"]);
+                var stream = _countryAdminService.ExportToExcel(filter);
+                return this.ExcelContent(stream, "CountryManagement.xlsx");
+            }
+            catch
+            {
+                return this.ExcelContent(new MemoryStream(), "Error");
+            }
+            
         }
     }
 }
