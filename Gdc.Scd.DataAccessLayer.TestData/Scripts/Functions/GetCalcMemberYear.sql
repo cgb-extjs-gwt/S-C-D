@@ -27,7 +27,7 @@ RETURN
 		SELECT 
 			std.*,
 			--m.*,
-			m.Id as PortfolioId,
+			--m.Id as PortfolioId,
 			m.ProActiveSlaId,
 			m.rownum,
 			m.Fsp,
@@ -36,6 +36,8 @@ RETURN
 
 			--case when @isProjectCalculator = 1 then Project.CountryId else m.CountryId end as CountryId,
 			--case when @isProjectCalculator = 1 then Project.WgId else m.WgId end as WgId,
+			
+			case when @isProjectCalculator = 1 then Project.Id else m.Id end as Id,
 			case when @isProjectCalculator = 1 then Project.ReactionTypeId else m.ReactionTypeId end as ReactionTypeId,
 			case when @isProjectCalculator = 1 then Project.ServiceLocationId else m.ServiceLocationId end as ServiceLocationId,
 			case when @isProjectCalculator = 0 then m.AvailabilityId end as AvailabilityId,
@@ -105,7 +107,7 @@ RETURN
 		LEFT JOIN [References].ExchangeRate on @isProjectCalculator = 1 and Project.Reinsurance_CurrencyId = ExchangeRate.CurrencyId
 	)
     SELECT    m.rownum
-            , m.PortfolioId
+            , m.Id
 
             --SLA
 
@@ -373,7 +375,7 @@ RETURN
 
     LEFT JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.PortfolioId
+    LEFT JOIN Hardware.ManualCost man on @isProjectCalculator = 0 and man.PortfolioId = m.Id
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 

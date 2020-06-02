@@ -3,6 +3,7 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.MigrationTool.Interfaces;
+using System;
 using System.Linq;
 
 using DayOfWeek = Gdc.Scd.Core.Entities.ProjectCalculator.DayOfWeek;
@@ -37,6 +38,8 @@ namespace Gdc.Scd.MigrationTool.Migrations
 			this.ExecuteDmlScript();
 			this.UpdateAvailabilityValue();
 			this.UpdateReactionTimeMinutes();
+
+			throw new NotImplementedException();
 		}
 
 		private void Test()
