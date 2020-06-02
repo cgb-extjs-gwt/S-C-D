@@ -33,6 +33,9 @@ module.exports = function (env) {
             new webpack.NamedModulesPlugin(),
             new CopyWebpackPlugin([
                 { from: 'Images', to: 'images' }
+            ]),
+            new CopyWebpackPlugin([
+                { from: 'app.css' }
             ])
         ];
 
@@ -74,7 +77,7 @@ module.exports = function (env) {
             output: {
                 path: path.join(__dirname, '../Gdc.Scd.Web.Server/Content'),
                 publicPath: '/scd/Content',
-                filename: 'bundle.js'
+                filename: 'bundle.js?v=' + new Date().getTime()
             },
 
             module: {
@@ -115,32 +118,8 @@ module.exports = function (env) {
                 colors: {
                     green: '\u001b[32m'
                 }
-            },
+            }
 
-            //devServer: {
-            //    contentBase: './build',
-            //    historyApiFallback: true,
-            //    host: '0.0.0.0',
-            //    disableHostCheck: true,
-            //    port,
-            //    compress: isProd,
-            //    inline: !isProd,
-            //    hot: !isProd,
-            //    stats: {
-            //        assets: true,
-            //        children: false,
-            //        chunks: false,
-            //        hash: false,
-            //        modules: false,
-            //        publicPath: false,
-            //        timings: true,
-            //        version: false,
-            //        warnings: true,
-            //        colors: {
-            //            green: '\u001b[32m'
-            //        }
-            //    },
-            //}
         };
     });
 };
