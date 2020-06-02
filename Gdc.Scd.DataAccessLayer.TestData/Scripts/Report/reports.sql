@@ -346,10 +346,12 @@ BEGIN
                 , fsp.ServiceDescription as FspDescription
 
                 , sog.SogDescription
+                , dur.Name as StdDuration
 
-        from cte m
+        from cte m 
         inner join InputAtoms.Country cnt on cnt.id = m.CountryId
         inner join InputAtoms.WgSogView sog on sog.Id = m.WgId
+        inner join Dependencies.Duration dur on dur.Id = m.StdWarranty
         left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
     )
     select    c.Country
@@ -366,6 +368,8 @@ BEGIN
             , case when c.IsProlongation = 1 then 'Prolongation' else CAST(c.Year as varchar(1)) end as ServicePeriod
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
+            , c.StdDuration 
+            , c.StdWarrantyLocation
             , c.LocalServiceStandardWarrantyWithRisk as LocalServiceStandardWarranty
             , case when @approved = 1 then c.ServiceTpSog else c.ServiceTpSog_Released end as ServiceTP
             , c.DealerPrice
@@ -407,6 +411,8 @@ BEGIN
             , case when c.IsProlongation = 1 then 'Prolongation' else CAST(c.Year as varchar(1)) end as ServicePeriod
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
+            , dur.Name as StdDuration
+            , c.StdWarrantyLocation 
             , c.LocalServiceStandardWarrantyWithRisk as LocalServiceStandardWarranty
             , case when @approved = 1 then c.ServiceTP else c.ServiceTP_Released end as ServiceTP
             , c.DealerPrice
@@ -414,6 +420,7 @@ BEGIN
     from Hardware.GetCosts(1, @nonEmeiaCnt, @nonEmeiaWg, @av, @dur, @rtime, @rtype, @loc, @pro, null, null) c
     inner join InputAtoms.Country cnt on cnt.id = c.CountryId
     inner join InputAtoms.WgSogView sog on sog.Id = c.WgId
+    inner join Dependencies.Duration dur on dur.Id = c.StdWarranty
     left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = c.SlaHash and fsp.Sla = c.Sla;
 
     if @limit > 0
