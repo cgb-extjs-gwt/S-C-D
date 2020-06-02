@@ -140,6 +140,7 @@ CREATE TABLE [ProjectCalculator].[Project](
 	[LogisticsCosts_StandardDelivery] [float] NULL,
 	[LogisticsCosts_StandardHandling] [float] NULL,
 	[LogisticsCosts_TaxiCourierDelivery] [float] NULL,
+	[MarkupOtherCosts_Markup] [float] NULL,
 	[MarkupOtherCosts_MarkupFactor] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkup] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkupFactor] [float] NULL,

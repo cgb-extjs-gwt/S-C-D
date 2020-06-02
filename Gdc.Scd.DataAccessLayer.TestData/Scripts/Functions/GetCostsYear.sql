@@ -15,7 +15,8 @@ CREATE FUNCTION [Hardware].[GetCostsYear](
     @loc dbo.ListID readonly,
     @pro dbo.ListID readonly,
     @lastid bigint,
-    @limit int
+    @limit int,
+	@isProjectCalculator bit = 0
 )
 RETURNS TABLE 
 AS
@@ -30,7 +31,7 @@ RETURN
 				, m.FieldServicePerYear * m.AFR  as FieldServiceCost
 				, m.LogisticPerYear * m.AFR  as Logistic
        
-        from Hardware.GetCalcMemberYear(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+        from Hardware.GetCalcMemberYear(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit, @isProjectCalculator) m
     )
     --, CostCte2 as (
     --    select    m.*
@@ -87,12 +88,14 @@ RETURN
              --, m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.Reinsurance5 + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5 as ServiceTP5
              --, m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.Reinsurance1P + m.OtherDirect1P + m.AvailabilityFeeOrZero            as ServiceTP1P
 
-			 , Hardware.CalcByYear(
-				m.Year, 
-				m.StdYear, 
-				m.IsProlongation, 
-				m.StdIsProlongation, 
-				m.FieldServiceCost + m.ServiceSupportPerYear + m.matCost + m.Logistic + m.TaxAndDuties + m.Reinsurance + m.OtherDirect + m.AvailabilityFeeOrZero - m.Credit) as ServiceTP
+			 --, Hardware.CalcByYear(
+				--m.Year, 
+				--m.StdYear, 
+				--m.IsProlongation, 
+				--m.StdIsProlongation, 
+				--m.FieldServiceCost + m.ServiceSupportPerYear + m.matCost + m.Logistic + m.TaxAndDuties + m.Reinsurance + m.OtherDirect + m.AvailabilityFeeOrZero - m.Credit) as ServiceTP
+
+			, m.FieldServiceCost + m.ServiceSupportPerYear + m.matCost + m.Logistic + m.TaxAndDuties + m.Reinsurance + m.OtherDirect + m.AvailabilityFeeOrZero - m.Credit as ServiceTP
 
         from CostCte3 m
     )
@@ -106,17 +109,19 @@ RETURN
                 --, m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
                 --, m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
 
-				, case when m.StdIsProlongation = 1 then 0 else m.LocalServiceStandardWarranty end as LocalServiceStandardWarrantyForSum
-				, case when m.StdIsProlongation = 1 then 0 else m.Credit end as CreditForSum
+				--, case when m.StdIsProlongation = 1 then 0 else m.LocalServiceStandardWarranty end as LocalServiceStandardWarrantyForSum
+				--, case when m.StdIsProlongation = 1 then 0 else m.Credit end as CreditForSum
 
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.ServiceTP - m.OtherDirect) as ServiceTC
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.TaxOow) as TaxOowForSum
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.MatOow) as MaterialOowForSum
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.FieldServiceCost) as FieldServiceCostForSum
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.Logistic) as LogisticForSum
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.OtherDirect) as OtherDirectForSum
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.TaxW) as TaxWForSum
-				, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.MatW) as MatWForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.ServiceTP - m.OtherDirect) as ServiceTC
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.TaxOow) as TaxOowForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.MatOow) as MaterialOowForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.FieldServiceCost) as FieldServiceCostForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.Logistic) as LogisticForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.OtherDirect) as OtherDirectForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.TaxW) as TaxWForSum
+				--, Hardware.CalcByYear(m.Year, m.StdYear, m.IsProlongation, m.StdIsProlongation, m.MatW) as MatWForSum
+
+				, m.ServiceTP - m.OtherDirect as ServiceTC
 
         from CostCte5 m
     )    
@@ -127,7 +132,7 @@ RETURN
              --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ReActiveTP 
 			 
 			   m.rownum
-			 , m.Id
+			 , m.PortfolioId as Id
 
 			 --SLA
 			 , m.Fsp
@@ -176,17 +181,28 @@ RETURN
 			 , m.ReActiveTPManual
 			 , m.ServiceTP_Released
 
-			 , SUM(m.ServiceTC) as ReActiveTC
+			 --, SUM(m.ServiceTC) as ReActiveTC
 			 , SUM(m.ServiceTP) as ReActiveTP
-			 , SUM(m.TaxOowForSum) as TaxAndDutiesOow
-			 , SUM(m.MaterialOowForSum) as MaterialOow
-			 , SUM(m.FieldServiceCostForSum) as FieldServiceCost
-			 , SUM(m.LogisticForSum) as Logistic
-			 , SUM(m.OtherDirectForSum) as OtherDirect
-			 , SUM(m.LocalServiceStandardWarrantyForSum) as LocalServiceStandardWarranty
-			 , SUM(m.CreditForSum) as Credits
-			 , SUM(m.TaxWForSum) as TaxAndDutiesW
-			 , SUM(m.MatWForSum) as MaterialW
+			 --, SUM(m.TaxOowForSum) as TaxAndDutiesOow
+			 --, SUM(m.MaterialOowForSum) as MaterialOow
+			 --, SUM(m.FieldServiceCostForSum) as FieldServiceCost
+			 --, SUM(m.LogisticForSum) as Logistic
+			 --, SUM(m.OtherDirectForSum) as OtherDirect
+			 --, SUM(m.LocalServiceStandardWarrantyForSum) as LocalServiceStandardWarranty
+			 --, SUM(m.CreditForSum) as Credits
+			 --, SUM(m.TaxWForSum) as TaxAndDutiesW
+			 --, SUM(m.MatWForSum) as MaterialW
+
+			 , SUM(LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+			 , SUM(m.Credit) as Credits
+			 , SUM(m.ServiceTC) as ReActiveTC
+			 , SUM(m.TaxOow) as TaxAndDutiesOow
+			 , SUM(m.MatOow) as MaterialOow
+			 , SUM(m.FieldServiceCost) as FieldServiceCost
+			 , SUM(m.Logistic) as Logistic
+			 , SUM(m.OtherDirect) as OtherDirect
+			 , SUM(m.TaxW) as TaxAndDutiesW
+			 , SUM(m.MatW) as MaterialW
 
 			 , m.ReleaseDate
 			 , m.ReleaseUserName
@@ -198,7 +214,7 @@ RETURN
         from CostCte6 m
 		group by 
 			   m.rownum
-			 , m.Id
+			 , m.PortfolioId
 
 			 --SLA
 			 , m.Fsp

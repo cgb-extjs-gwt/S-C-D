@@ -50,6 +50,7 @@ RETURN
 				 then Project.Reinsurance_Flatfee * ISNULL(1 + Reinsurance_UpliftFactor / 100, 1) / ExchangeRate.[Value]
 				 else case when @approved = 0 then r.Cost else r.Cost_approved end
 			end as Cost,
+			case when @isProjectCalculator = 1 or afEx.id is not null then std.Fee else 0 end as AvailabilityFee,
 
 			case when @approved = 0 then fsw.RepairTime else fsw.RepairTime_Approved end as RepairTime,
 			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_LabourCost, fsl.LabourCost, fsl.LabourCost_Approved) AS LabourCost,
@@ -67,10 +68,10 @@ RETURN
 			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_TaxiCourierDelivery, lc.TaxiCourierDelivery, lc.TaxiCourierDelivery_Approved) AS TaxiCourierDelivery,
 			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ReturnDeliveryFactory, lc.ReturnDeliveryFactory, lc.ReturnDeliveryFactory_Approved) AS ReturnDeliveryFactory,
 
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_MarkupFactor, moc.MarkupFactor, moc.MarkupFactor_Approved) AS MarkupFactor,
+			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_Markup, moc.Markup, moc.Markup_Approved) AS Markup,
+			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_MarkupFactor, moc.MarkupFactor, moc.MarkupFactor_Approved) / 100 AS MarkupFactor,
 			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_ProlongationMarkup, moc.ProlongationMarkup, moc.ProlongationMarkup_Approved) AS ProlongationMarkup,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_ProlongationMarkupFactor, moc.ProlongationMarkupFactor, moc.ProlongationMarkupFactor_Approved) AS ProlongationMarkupFactor,
-			case when @approved = 0 then moc.Markup else moc.Markup_Approved end as Markup
+			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_ProlongationMarkupFactor, moc.ProlongationMarkupFactor, moc.ProlongationMarkupFactor_Approved) / 100 AS ProlongationMarkupFactor
 
 		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg, @isProjectCalculator) std 
 
@@ -81,6 +82,8 @@ RETURN
 		LEFT JOIN Dependencies.Duration dur on @isProjectCalculator = 0 and dur.id = m.DurationId
 
 		LEFT JOIN Dependencies.ReactionTime rtime on @isProjectCalculator = 0 and rtime.Id = m.ReactionTimeId
+
+		LEFT JOIN Admin.AvailabilityFee afEx on @isProjectCalculator = 0 and afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
 		LEFT JOIN ProjectCalculator.Project ON @isProjectCalculator = 1 AND Project.CountryId = std.CountryId AND Project.WgId = std.WgId
 
@@ -122,6 +125,7 @@ RETURN
             --, dur.IsProlongation   as IsProlongation
 			, m.Duration
 			--, m.DurationValue as Year
+			, m.DurationMonths / 12 as Year
 			, m.DurationMonths
 			, m.DurationIsProlongation as IsProlongation
 			--, m.YearValue		   as StdYear
@@ -144,6 +148,7 @@ RETURN
             , m.SlaHash
 
             --, m.StdWarranty
+			, m.StdWarrantyMonths / 12 as StdWarranty
 			, m.StdWarrantyMonths
             , m.StdWarrantyLocation
 
@@ -271,7 +276,7 @@ RETURN
 
                                                                                                                        
             --, case when afEx.id is not null then std.Fee else 0 end as AvailabilityFee
-			, case when afEx.id is not null then m.Fee else 0 end as AvailabilityFee
+			, m.AvailabilityFee
 
             --, case when @approved = 0 
             --        then (case when dur.IsProlongation = 0 then moc.Markup else moc.ProlongationMarkup end)                             
@@ -282,7 +287,8 @@ RETURN
             --        else (case when dur.IsProlongation = 0 then moc.MarkupFactor_norm_Approved else moc.ProlongationMarkupFactor_norm_Approved end)                      
             --    end as MarkupFactorOtherCost                
 
-			, case when m.DurationIsProlongation = 0 then m.Markup else m.ProlongationMarkup end as MarkupFactorOtherCost     
+			, case when m.DurationIsProlongation = 0 then m.Markup else m.ProlongationMarkup end / m.ExchangeRate as MarkupOtherCost     
+			, case when m.DurationIsProlongation = 0 then m.MarkupFactor else m.ProlongationMarkupFactor end as MarkupFactorOtherCost     
 
             --####### PROACTIVE COST ###################
             --, case when proSla.Name = '0' 
@@ -367,14 +373,12 @@ RETURN
 
     LEFT JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
-
     LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.PortfolioId
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 
     LEFT JOIN dbo.[User] u2 on u2.Id = man.ReleaseUserId
 
-	WHERE m.DurationMonths <= m.Months
+	WHERE m.Months <= m.DurationMonths and m.IsProlongation = m.DurationIsProlongation
 )
 go

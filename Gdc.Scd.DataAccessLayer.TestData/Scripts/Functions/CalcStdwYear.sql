@@ -498,7 +498,10 @@ BEGIN
 				--      when m.StdDurationValue >= m.YearValue then 0 else m.MaterialCostOow * m.AFR 
 				--  end as matO
 				
-				, case when m.StdMonths >= m.Months then m.MaterialCostWarranty * m.AFR else 0 end as mat
+				, case 
+					  when m.IsProlongation = 1 then NULL
+					  when m.StdMonths >= m.Months then m.MaterialCostWarranty * m.AFR else 0 
+				  end as mat
 				, case 
 					  when m.IsProlongation = 1 then MaterialCostOow * m.AFR
 				      when m.StdMonths >= m.Months then 0 else m.MaterialCostOow * m.AFR 
@@ -525,8 +528,15 @@ BEGIN
 				--, case when m.StdDurationValue >= m.YearValue then m.TaxAndDutiesOrZero * m.mat else 0 end as tax
 				--, case when m.StdDurationValue >= m.YearValue then 0 else m.TaxAndDutiesOrZero * m.matO end as taxO
 
-				, case when m.StdMonths >= m.Months then m.TaxAndDutiesOrZero * m.mat else 0 end as tax
-				, case when m.StdMonths >= m.Months then 0 else m.TaxAndDutiesOrZero * m.matO end as taxO
+				, case 
+					  when m.IsProlongation = 1 then NULL
+					  when m.StdMonths >= m.Months then m.TaxAndDutiesOrZero * m.mat else 0 
+				  end as tax
+
+				, case 
+				      when m.IsProlongation = 1 then NULL
+					  when m.StdMonths >= m.Months then 0 else m.TaxAndDutiesOrZero * m.matO 
+				  end as taxO
 
         from CostCte2 m
     )
@@ -585,12 +595,16 @@ BEGIN
      --               else 0 
      --            end as LocalServiceStandardWarrantyWithoutSar
 
-			   , case when m.StdMonths >= m.Months
+			   , case 
+					when m.IsProlongation = 1 then NULL
+			        when m.StdMonths >= m.Months
 					then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, m.SarCoeff)
                     else 0 
                  end as LocalServiceStandardWarranty
 
-			   , case when m.StdMonths >= m.Months
+			   , case 
+					when m.IsProlongation = 1 then NULL
+					when m.StdMonths >= m.Months
 					then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
                     else 0 
                  end as LocalServiceStandardWarrantyWithoutSar
