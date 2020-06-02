@@ -5,7 +5,10 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using ClosedXML.Excel;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -28,7 +31,94 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             _currencyRepo = currencyRepo;
         }
 
-        public List<CountryDto> GetAll(int pageNumber, int limit, out int totalCount, AdminCountryFilterDto filter = null)
+        public Stream ExportToExcel(AdminCountryFilterDto filter = null)
+        {
+            var records = GetAll(null, null, out int totalCount, filter);
+            const int START_ROW = 1;
+            const int START_COLUMN = 1;
+            const string COUNTRY_SHEET = "Country Management";
+
+            MemoryStream stream;
+            using (var workbook = new XLWorkbook())
+            {
+                var sheet = workbook.Worksheets.Add(COUNTRY_SHEET);
+                var headerInfo = WriteHeaders(sheet, START_ROW, START_COLUMN);
+                var dataInfo = WriteData(sheet, headerInfo.EndRow + 1, START_COLUMN);
+
+                for (var column = START_COLUMN; column <= 5; column++)
+                {
+                    sheet.Column(column).AdjustToContents();
+                }
+
+                sheet.Range(headerInfo.EndRow, START_COLUMN, dataInfo.EndRow, dataInfo.EndColumn).SetAutoFilter();
+
+                workbook.SaveAs(stream = new MemoryStream());
+
+                stream.Position = 0;
+            }
+
+            return stream;
+
+            (int EndRow, int EndColumn) WriteHeaders(IXLWorksheet sheet, int row, int column)
+            {
+                var endRow = row + 1;
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Country";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Country Group";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Region";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "LUT";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Digit";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "ISO Code";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Currency Code";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Is Master";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Store List and Dealer Prices";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Override TC and TP";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Override 2nd Level Support local";
+                sheet.Range(row, column, endRow, column++).Merge().Value = "Quality Group";
+
+                column--;
+
+                var range = sheet.Range(row, 1, endRow, column);
+
+                range.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                range.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                range.Style.Alignment.WrapText = true;
+                range.Style.Font.Bold = true;
+                range.Style.Fill.BackgroundColor = XLColor.FromHtml("#8064A2");
+                range.Style.Font.FontColor = XLColor.White;
+
+                return (endRow, column);
+            }
+
+            (int EndRow, int EndColumn) WriteData(IXLWorksheet sheet, int row, int startColumn)
+            {
+                var column = startColumn;
+                foreach (var record in records)
+                {
+                    column = startColumn;
+                    sheet.Cell(row, column++).Value = record.CountryName;
+                    sheet.Cell(row, column++).Value = record.CountryGroup;
+                    sheet.Cell(row, column++).Value = record.Region;
+                    sheet.Cell(row, column++).Value = record.LUTCode;
+                    sheet.Cell(row, column++).Value = record.CountryDigit;
+                    sheet.Cell(row, column++).Value = record.ISO3Code;
+                    sheet.Cell(row, column++).Value = record.Currency;
+                    sheet.Cell(row, column++).Value = FormatBoolField(record.IsMaster);
+                    sheet.Cell(row, column++).Value = FormatBoolField(record.CanStoreListAndDealerPrices);
+                    sheet.Cell(row, column++).Value = FormatBoolField(record.CanOverrideTransferCostAndPrice);
+                    sheet.Cell(row, column++).Value = FormatBoolField(record.CanOverride2ndLevelSupportLocal);
+                    sheet.Cell(row, column++).Value = record.QualityGroup;
+
+                    row++;
+
+                }
+
+                return (row - 1, column - 1);
+            }
+
+            string FormatBoolField(bool value) => value ? "YES" : "NO";
+        }
+
+        public List<CountryDto> GetAll(int? pageNumber, int? limit, out int totalCount, AdminCountryFilterDto filter = null)
         {
             var countries = _countryRepo.GetAll();
 
@@ -49,7 +139,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             totalCount = countries.Count();
 
-            countries = countries.OrderBy(c => c.Name).Skip((pageNumber - 1) * limit);
+            countries = (pageNumber.HasValue && limit.HasValue) ? 
+                countries.OrderBy(c => c.Name).Skip((pageNumber.Value - 1) * limit.Value) :
+                countries.OrderBy(c => c.Name);
 
             return countries.Select(c => new CountryDto
             {

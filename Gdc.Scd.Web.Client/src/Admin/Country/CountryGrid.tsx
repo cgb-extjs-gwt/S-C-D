@@ -1,6 +1,6 @@
 import { Button, CheckColumn, Column, ComboBoxField, Container, Grid, TextField, Toolbar } from '@extjs/ext-react';
 import * as React from 'react';
-import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { buildMvcUrl, downloadFile } from "../../Common/Services/Ajax";
 import { CurrencyService } from '../../Dict/Services/CurrencyService';
 import { UserCountryService } from '../../Dict/Services/UserCountryService';
 import { CountryFilterModel } from "./CountryFilterModel";
@@ -97,6 +97,10 @@ export class CountryGrid extends React.Component {
 
         });
     }
+    private downloadToExcel = () => {
+        let filter = this.filter.getModel();
+        downloadFile<CountryFilterModel>(CONTROLLER_NAME, 'ExportToExcel', filter);
+    }
 
     public render() {
         return (
@@ -139,6 +143,11 @@ export class CountryGrid extends React.Component {
                             iconCls="x-fa fa-save"
                             disabled={this.state.disableSaveButton}
                         />
+                        <Button
+                            text="Download To Excel"
+                            flex={1}
+                            iconCls="x-fa fa-download"
+                            handler={this.downloadToExcel} />
                     </Toolbar>
                 </Grid>
             </Container>);
