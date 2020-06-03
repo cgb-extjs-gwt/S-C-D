@@ -1,7 +1,7 @@
 USE [SCD_2]
 
 IF OBJECT_ID('[Report].[spLocapNew]') IS NOT NULL
-  DROP FUNCTION [Report].[spLocapNew];
+  DROP PROCEDURE [Report].[spLocapNew];
 go 
 
 CREATE PROCEDURE [Report].[spLocapNew]
