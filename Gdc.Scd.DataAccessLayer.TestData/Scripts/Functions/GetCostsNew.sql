@@ -29,7 +29,7 @@ RETURN
              --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ReActiveTP 
 			 
 			   m.rownum
-			 , m.PortfolioId as Id
+			 , m.Id
 
 			 --SLA
 			 , m.Fsp
@@ -70,6 +70,7 @@ RETURN
 			 , m.ProActive
 			 , m.ServiceSupportPerYear
 			 , m.LocalServiceStandardWarrantyManual
+			 , m.LocalServiceStandardWarrantyWithRisk
 			 , m.ProActiveOrZero
 			 , m.ListPrice
 		     , m.DealerDiscount
@@ -111,7 +112,7 @@ RETURN
         from [Hardware].[GetCostsYear](@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit, @isProjectCalculator) m
 		group by 
 			   m.rownum
-			 , m.PortfolioId
+			 , m.Id
 
 			 --SLA
 			 , m.Fsp
@@ -152,6 +153,7 @@ RETURN
 			 , m.ProActive
 			 , m.ServiceSupportPerYear
 			 , m.LocalServiceStandardWarrantyManual
+			 , m.LocalServiceStandardWarrantyWithRisk
 			 , m.ProActiveOrZero
 			 , m.ListPrice
 		     , m.DealerDiscount
@@ -230,6 +232,7 @@ RETURN
        
          , m.LocalServiceStandardWarranty
          , m.LocalServiceStandardWarrantyManual
+		 , m.LocalServiceStandardWarrantyWithRisk
        
          , m.Credits
 

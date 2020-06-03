@@ -72,6 +72,7 @@ RETURN
              , m.Logistic
              , m.OtherDirect
              , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+			 , m.LocalServiceStandardWarrantyWithRisk
              , m.Credits
 
              , ib.InstalledBaseCountryNorm
@@ -95,7 +96,7 @@ RETURN
              , m.DealerDiscount
              , m.DealerPrice
 
-        from Hardware.GetCostsYear(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null, @isProjectCalculator) m
+        from Hardware.GetCostsNew(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null, @isProjectCalculator) m
         join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
         left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )

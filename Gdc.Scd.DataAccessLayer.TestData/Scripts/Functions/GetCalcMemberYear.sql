@@ -334,6 +334,7 @@ RETURN
             --, case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarrantyManual end as LocalServiceStandardWarrantyManual
 			, case when m.DurationIsProlongation <> 1 then m.LocalServiceStandardWarranty       end as LocalServiceStandardWarranty
             , case when m.DurationIsProlongation <> 1 then m.LocalServiceStandardWarrantyManual end as LocalServiceStandardWarrantyManual
+			, case when m.DurationIsProlongation <> 1 then Hardware.AddMarkup(m.LocalServiceStandardWarranty, m.RiskFactorStandardWarranty, m.RiskStandardWarranty) end as LocalServiceStandardWarrantyWithRisk
 
             --, std.Credit1 
             --, std.Credit2 

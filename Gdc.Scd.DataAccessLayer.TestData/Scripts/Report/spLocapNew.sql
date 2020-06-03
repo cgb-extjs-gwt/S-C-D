@@ -84,7 +84,7 @@ BEGIN
             , m.StdWarranty
             , m.StdWarrantyLocation
 
-            , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+            , m.LocalServiceStandardWarrantyWithRisk * m.ExchangeRate as LocalServiceStandardWarranty
             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
             , m.ServiceTpSog_Released  * m.ExchangeRate as ServiceTP_Released
             , m.ReleaseDate

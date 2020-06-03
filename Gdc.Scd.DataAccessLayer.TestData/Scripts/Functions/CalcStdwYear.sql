@@ -130,6 +130,8 @@ RETURNS @tbl TABLE  (
         , LocalServiceStandardWarranty           float
         , LocalServiceStandardWarrantyWithoutSar float
         , LocalServiceStandardWarrantyManual     float
+		, RiskFactorStandardWarranty             float
+		, RiskStandardWarranty                   float 
         
         --, Credit1                      float
         --, Credit2                      float
@@ -374,6 +376,8 @@ BEGIN
 
               , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / m.ExchangeRate as MarkupStandardWarranty      
               , case when @approved = 0 then msw.MarkupFactorStandardWarranty_norm   else msw.MarkupFactorStandardWarranty_norm_Approved end + 1              as MarkupFactorStandardWarranty
+			  , case when @approved = 0 then msw.RiskStandardWarranty				 else msw.RiskStandardWarranty_Approved                    end / m.ExchangeRate as RiskStandardWarranty
+			  , case when @approved = 0 then msw.RiskFactorStandardWarranty_norm     else msw.RiskFactorStandardWarranty_norm_Approved   end + 1              as RiskFactorStandardWarranty 
 
               --##### SERVICE SUPPORT COST #########                                                                                               
              , case when @approved = 0 then ssc.[1stLevelSupportCostsCountry]        else ssc.[1stLevelSupportCostsCountry_Approved]     end / m.ExchangeRate as [1stLevelSupportCosts] 
@@ -717,6 +721,8 @@ BEGIN
                , LocalServiceStandardWarranty
                , LocalServiceStandardWarrantyWithoutSar
                , LocalServiceStandardWarrantyManual
+			   , RiskFactorStandardWarranty
+			   , RiskStandardWarranty
                
                --, Credit1                      
                --, Credit2                      
@@ -843,6 +849,8 @@ BEGIN
             --!!!!!!!!!!!!!!!!!!, m.LocalServiceStandardWarranty1WithoutSar + m.LocalServiceStandardWarranty2WithoutSar + m.LocalServiceStandardWarranty3WithoutSar + m.LocalServiceStandardWarranty4WithoutSar + m.LocalServiceStandardWarranty5WithoutSar as LocalServiceStandardWarrantyWithoutSar
 			, m.LocalServiceStandardWarrantyWithoutSar
             , m.ManualStandardWarranty as LocalServiceStandardWarrantyManual
+			, m.RiskFactorStandardWarranty
+			, m.RiskStandardWarranty
 
             --, m.mat1 + m.LocalServiceStandardWarranty1 as Credit1
             --, m.mat2 + m.LocalServiceStandardWarranty2 as Credit2

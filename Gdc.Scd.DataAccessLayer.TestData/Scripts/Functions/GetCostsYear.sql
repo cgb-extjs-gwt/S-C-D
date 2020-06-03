@@ -186,6 +186,7 @@ RETURN
 
 			, m.ServiceTP
 			, m.LocalServiceStandardWarranty
+			, coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarrantyWithRisk, m.LocalServiceStandardWarranty) as LocalServiceStandardWarrantyWithRisk
 			, m.Credit
 			, m.ServiceTC
 			, m.TaxOow
