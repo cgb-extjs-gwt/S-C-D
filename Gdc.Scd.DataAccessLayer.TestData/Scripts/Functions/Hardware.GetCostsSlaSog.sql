@@ -69,6 +69,7 @@ RETURN
              , m.Logistic
              , m.OtherDirect
              , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+             , m.LocalServiceStandardWarrantyWithRisk
              , m.Credits
 
              , ib.InstalledBaseCountryNorm
@@ -152,6 +153,7 @@ RETURN
             , m.Logistic
             , m.OtherDirect
             , m.LocalServiceStandardWarranty
+            , m.LocalServiceStandardWarrantyWithRisk
             , m.Credits
 
             , case when m.sum_ib_x_tc <> 0 and m.sum_ib_by_tc <> 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog

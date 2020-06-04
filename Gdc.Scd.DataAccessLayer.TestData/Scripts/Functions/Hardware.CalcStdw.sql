@@ -1,5 +1,5 @@
 ﻿IF OBJECT_ID('[Hardware].[CalcStdw]') IS NOT NULL
-    DROP FUNCTION [Hardware].[CalcStdw]
+	DROP FUNCTION [Hardware].[CalcStdw]
 GO
 
 CREATE FUNCTION [Hardware].[CalcStdw](
@@ -93,9 +93,18 @@ RETURNS @tbl TABLE  (
 
         , ServiceSupportPerYear                  float
         , ServiceSupportPerYearWithoutSar        float
+
+        , ServiceSupportW                        float
+        , FieldServiceW                          float
+        , LogisticW                              float
+        , MarkupStandardWarranty                 float
+        , MarkupFactorStandardWarranty           float
+
         , LocalServiceStandardWarranty           float
         , LocalServiceStandardWarrantyWithoutSar float
         , LocalServiceStandardWarrantyManual     float
+        , RiskFactorStandardWarranty             float
+        , RiskStandardWarranty                   float 
         
         , Credit1                      float
         , Credit2                      float
@@ -181,6 +190,8 @@ BEGIN
 
               , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / m.ExchangeRate as MarkupStandardWarranty      
               , case when @approved = 0 then msw.MarkupFactorStandardWarranty_norm   else msw.MarkupFactorStandardWarranty_norm_Approved end + 1              as MarkupFactorStandardWarranty
+              , case when @approved = 0 then msw.RiskStandardWarranty          else msw.RiskStandardWarranty_Approved                    end / m.ExchangeRate as RiskStandardWarranty
+              , case when @approved = 0 then msw.RiskFactorStandardWarranty_norm     else msw.RiskFactorStandardWarranty_norm_Approved   end + 1              as RiskFactorStandardWarranty 
 
               --##### SERVICE SUPPORT COST #########                                                                                               
              , case when @approved = 0 then ssc.[1stLevelSupportCostsCountry]        else ssc.[1stLevelSupportCostsCountry_Approved]     end / m.ExchangeRate as [1stLevelSupportCosts] 
@@ -425,9 +436,18 @@ BEGIN
 
                , ServiceSupportPerYear
                , ServiceSupportPerYearWithoutSar
+
+               , ServiceSupportW                     
+               , FieldServiceW                       
+               , LogisticW                           
+               , MarkupStandardWarranty              
+               , MarkupFactorStandardWarranty        
+
                , LocalServiceStandardWarranty
                , LocalServiceStandardWarrantyWithoutSar
                , LocalServiceStandardWarrantyManual
+               , RiskFactorStandardWarranty
+               , RiskStandardWarranty
                
                , Credit1                      
                , Credit2                      
@@ -527,9 +547,17 @@ BEGIN
             , case when  m.Sar is null then m.ServiceSupportPerYear else m.ServiceSupportPerYear * m.Sar / 100 end as ServiceSupportPerYear
             , m.ServiceSupportPerYear as ServiceSupportPerYearWithoutSar
 
+            , m.StdDurationValue * case when  m.Sar is null then m.ServiceSupportPerYear else m.ServiceSupportPerYear * m.Sar / 100 end as ServiceSupportPerYear
+            , m.StdDurationValue * m.FieldServicePerYearStdw                       
+            , m.StdDurationValue * m.LogisticPerYearStdw                           
+            , m.MarkupStandardWarranty              
+            , m.MarkupFactorStandardWarranty        
+
             , m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5 as LocalServiceStandardWarranty
             , m.LocalServiceStandardWarranty1WithoutSar + m.LocalServiceStandardWarranty2WithoutSar + m.LocalServiceStandardWarranty3WithoutSar + m.LocalServiceStandardWarranty4WithoutSar + m.LocalServiceStandardWarranty5WithoutSar as LocalServiceStandardWarrantyWithoutSar
             , m.ManualStandardWarranty as LocalServiceStandardWarrantyManual
+            , m.RiskFactorStandardWarranty
+            , m.RiskStandardWarranty
 
             , m.mat1 + m.LocalServiceStandardWarranty1 as Credit1
             , m.mat2 + m.LocalServiceStandardWarranty2 as Credit2
@@ -559,4 +587,5 @@ BEGIN
 
     RETURN;
 END
+
 go

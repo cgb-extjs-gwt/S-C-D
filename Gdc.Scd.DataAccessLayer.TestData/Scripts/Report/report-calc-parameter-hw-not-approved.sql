@@ -54,6 +54,8 @@ RETURN (
 
               , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
               , m.MarkupStandardWarranty as MarkupStandardWarranty
+              , m.RiskFactorStandardWarranty as RiskFactorStandardWarranty
+              , m.RiskStandardWarranty as RiskStandardWarranty
       
               , m.AFR1
               , m.AFR2
@@ -191,7 +193,10 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupStandardWarranty', 'Markup for standard warranty local cost', 1, 1);
-
+set @index = @index + 1;
+INSERT into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) VALUES (@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'RiskFactorStandardWarranty', 'Standard Warranty risk factor', 1, 1);
+set @index = @index + 1;
+INSERT into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) VALUES (@reportId, @index, Report.GetReportColumnTypeByName('money'), 'RiskStandardWarranty', 'Standard Warranty risk', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'AFR1', 'AFR1', 1, 1);
 set @index = @index + 1;

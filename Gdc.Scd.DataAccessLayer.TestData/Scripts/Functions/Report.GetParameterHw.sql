@@ -72,10 +72,12 @@ RETURN (
                 , std.TaxAndDuties as TaxAndDutiesW
 
                 , case when @approved = 0 then moc.Markup else moc.Markup_Approved end as MarkupOtherCost                      
-                , case when @approved = 0 then moc.MarkupFactor_norm else moc.MarkupFactor_norm_Approved end as MarkupFactorOtherCost                
+                , case when @approved = 0 then moc.MarkupFactor else moc.MarkupFactor_Approved end as MarkupFactorOtherCost                
 
                 , std.MarkupFactorStandardWarranty
                 , std.MarkupStandardWarranty
+                , std.RiskFactorStandardWarranty
+                , std.RiskStandardWarranty
       
                 , std.AFR1
                 , std.AFR2
@@ -217,6 +219,8 @@ RETURN (
 
               , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
               , m.MarkupStandardWarranty as MarkupStandardWarranty
+              , m.RiskFactorStandardWarranty as RiskFactorStandardWarranty
+              , m.RiskStandardWarranty as RiskStandardWarranty
       
               , m.AFR1   * 100 as AFR1
               , m.AFR2   * 100 as AFR2

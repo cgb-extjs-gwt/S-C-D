@@ -106,6 +106,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Report>();
             Kernel.RegisterEntity<ReportColumn>();
             Kernel.RegisterEntity<ReportFilter>();
+            Kernel.RegisterEntity<ReportPart>();
             Kernel.RegisterEntity<JobsSchedule>();
         }
     }

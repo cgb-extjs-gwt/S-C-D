@@ -154,7 +154,7 @@ RETURN
        
          , m.LocalServiceStandardWarranty
          , m.LocalServiceStandardWarrantyManual
-       
+         , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarrantyWithRisk, m.LocalServiceStandardWarranty) as LocalServiceStandardWarrantyWithRisk
          , m.Credits
 
          , m.ReActiveTC
@@ -200,4 +200,3 @@ RETURN
     from CostCte7 m
 )
 GO
-
