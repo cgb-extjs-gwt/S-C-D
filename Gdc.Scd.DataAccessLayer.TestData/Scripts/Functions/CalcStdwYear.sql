@@ -180,8 +180,10 @@ BEGIN
 			Afr
 		LEFT JOIN 
 			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.WgId = Project.WgId
+		LEFT JOIN
+			ProjectCalculator.Afr AS afp ON Project.Id = afp.ProjectId AND Afr.Months = afp.Months
 		WHERE
-			@isProjectCalculator = 0 OR (Afr.Months <= Project.Duration_Months AND Afr.IsProlongation = 0)
+			@isProjectCalculator = 0 OR (Afr.Months <= Project.Duration_Months AND Afr.IsProlongation = 0 AND afp.Id IS NULL)
 		UNION ALL
 		SELECT
 			Project.WgId, 
@@ -191,7 +193,7 @@ BEGIN
 		FROM
 			ProjectCalculator.Afr
 		INNER JOIN	
-			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.ProjectId = Project.WgId
+			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.ProjectId = Project.Id
 	)
 	, WgCte as (
         select wg.Id as WgId
