@@ -68,6 +68,8 @@
 
         public double? ServiceTP { get; set; }
         public double? ServiceTP_Approved { get; set; }
+
+        public double? ReActiveTPManual { get; set; }
         public double? ServiceTPManual { get; set; }
         public double? ServiceTPManual_Approved { get; set; }
         public double? ServiceTP_Released { get; set; }

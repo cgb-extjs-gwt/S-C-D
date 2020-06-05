@@ -130,5 +130,10 @@ namespace Gdc.Scd.Tests.Integration.Import.CentralContractGroup
         {
             throw new NotImplementedException();
         }
+
+        public void UpdateByCoordinates(string coordinateId, IEnumerable<UpdateQueryOption> updateOptions = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

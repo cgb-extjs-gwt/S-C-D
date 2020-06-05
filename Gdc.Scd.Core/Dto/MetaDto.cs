@@ -13,7 +13,7 @@ namespace Gdc.Scd.Core.Dto
             return new MetaDto
             {
                 Id = meta.Id,
-                Name = meta.Name
+                Name = meta.Caption
             };
         }
     }

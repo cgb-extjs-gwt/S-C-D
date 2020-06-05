@@ -1,0 +1,1012 @@
+<SCDConfiguration>
+    <InputLevels>
+        <InputLevel Id="Country"/>
+        <InputLevel Id="NonEmeiaCountry" Caption="Country" Type="View"/>
+        <InputLevel Id="ClusterRegion" Caption="Region"/>
+        <InputLevel Id="ClusterPla" Caption="Cluster Pla"/>
+        <InputLevel Id="Company" Caption="Company"/>
+        <InputLevel Id="Pla" Caption="PLA"/>
+        <InputLevel Id="CentralContractGroup" Caption="Central Contract Group" HideFilter = "true"/>
+        <InputLevel Id="Sfab" Caption="SFAB"/>
+        <InputLevel Id="Wg" Caption="WG"/>
+        <InputLevel Id="Sog" Caption="SOG"/>
+        <InputLevel Id="SwDigit" Caption="SW Digit"/>
+        <InputLevel Id="RoleCode" Caption="Role Code"/>
+
+        <Default>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>CentralContractGroup</InputLevel>
+            <InputLevel>Wg</InputLevel>
+        </Default>
+    </InputLevels>
+
+    <RegionInputs>
+        <InputLevel>Country</InputLevel>
+        <InputLevel>ClusterPla</InputLevel>
+
+        <Default>
+            <InputLevel>Country</InputLevel>
+        </Default>
+    </RegionInputs>
+
+    <QualityGate>
+        <Default>
+            <CountryGroupCoeff>0.1</CountryGroupCoeff>
+            <PeriodCoeff>0.1</PeriodCoeff>
+        </Default>
+    </QualityGate>
+
+    <Dependencies>
+        <Dependency Id="Year"/>
+        <Dependency Id="Duration"/>
+        <Dependency Id="ServiceLocation" Caption="Service location"/>
+        <Dependency Id="ReactionTimeType" Caption="Reaction" Type="View"/>
+        <Dependency Id="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
+        <Dependency Id="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
+        <Dependency Id="Availability" Caption="Availability"/>
+        <Dependency Id="DurationAvailability" Caption="Duration Availability" Type="View"/>
+        <Dependency Id="ProActiveSla" Caption="Pro Active SLA"/>
+    </Dependencies>
+
+    <Applications>
+        <Application Id="Hardware"/>
+        <Application Id="SoftwareSolution" Caption="Software &amp; Solution"/>
+    </Applications>
+
+    <Tables>
+    </Tables>
+
+  <Blocks>
+        <Block Id="AFR">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="AFR"  Caption="AFR (%)" InputOption="ManuallyAutomatically" RegionInput="_none_" Dependency="Year">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="FieldServiceCost" Caption="Field Service Cost">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+                <Element Id="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="Percent"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="OohUpliftFactor" Caption="OOH uplift factor (%)" InputOption="Manually" Dependency="Availability">
+                  <TypeOption Type="Percent"/>
+                    <CostEditor>
+                      <Roles>
+                        <Role>Country Finance Director</Role>
+                        <Role>Country key user</Role>
+                        <Role>SCD Admin</Role>
+                      </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+            <QualityGate>
+                <CountryGroupCoeff>0.15</CountryGroupCoeff>
+                <PeriodCoeff>0.15</PeriodCoeff>
+            </QualityGate>
+        </Block>
+
+        <Block Id="ServiceSupportCost" Caption="Service Support Cost">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
+                    <InputLevels>
+                        <InputLevel>ClusterPla</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>GTS user</Role>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country" CountryReadOnlyColumn="CanOverride2ndLevelSupportLocal">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>ClusterPla</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="Sar" Caption="Service Attach Rate Factor" InputOption="Manually" RegionInput="Country">
+                    <TypeOption Type="Percent"/>
+                    <InputLevels>
+                      <InputLevel>ClusterPla</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                      <Roles>
+                        <Role>GTS user</Role>
+                        <Role>PRS Finance</Role>
+                        <Role>SCD Admin</Role>
+                      </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="LogisticsCosts" Caption="Logistics Costs">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="AvailabilityFee" Caption="Availability fee" DisableTriggers="True">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="StockValueFj" Caption="Stock value in country FJ" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="StockValueMv" Caption="Stock value in country MV" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Company</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="JapanBuy" Caption="Japan Buy" InputOption="Manually">
+                    <TypeOption Type="Flag"/>
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>Spares Logistics</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="InstallBase" Caption="Installed base">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="InstalledBaseCountry" Caption="Installed base country" InputOption="ManuallyAutomatically" RegionInput="Country">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                            <Role>Country key user</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="MarkupOtherCosts" Caption="Markup other costs">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+                    <TypeOption Type="Percent"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+                    <TypeOption Type="Percent"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="MarkupStandardWaranty" Caption="Markup standard warranty">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually">
+                    <TypeOption Type="Percent"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="MaterialCostWarrantyEmeia" Caption="Material cost Warranty EMEIA">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+                <Element Id="MaterialCostIw" Caption="Material cost iW EMEIA" InputOption="ManuallyAutomatically" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="MaterialCostWarranty" Caption="Material cost" DisableTriggers="True">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="NonEmeiaCountry">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="MaterialCostIw" Caption="Material cost iW" InputOption="Manually" RegionInput="NonEmeiaCountry">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManuallyAutomatically">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <InputLevels>
+                        <InputLevel>RoleCode</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>SCD Admin</Role>
+                            <Role>PRS Finance</Role>
+                            <Role>Country key user</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="HddRetention" Caption="HDD Retention">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="HddFr" Caption="HDD FR (%)" InputOption="Manually" Dependency="Year" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+                <Element Id="HddMaterialCost" Caption="HDD Material Cost" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="Reinsurance" DisableTriggers="True">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+                <Element Id="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Duration">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+                <Element Id="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor (%)" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="ProActive" Caption="ProActive">
+            <Applications>
+                <Application>Hardware</Application>
+            </Applications>
+            <Elements>
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Wg</InputLevel>
+                    </InputLevels>
+                    <TableView>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                            <Role>GTS user</Role>
+                        </Roles>
+                    </TableView>
+                </Element>
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually">
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+                    <TypeOption Type="CountryCurrencyCost"/>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="SwSpMaintenance" Caption="SW / SP Maintenance">
+            <Applications>
+                <Application>SoftwareSolution</Application>
+            </Applications>
+            <Elements>
+                <Element Id="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                            <Role>PRS PSM</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel Hide="True">Sfab</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS Finance</Role>
+                            <Role>SCD Admin</Role>
+                            <Role>PRS PSM</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                    <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
+                </Element>
+                <Element Id="RecommendedSwSpMaintenanceListPrice" Caption="SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+                    <TypeOption Type="Percent"/>
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="ShareSwSpMaintenanceListPrice" Caption="Share Reinsurance of SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+                    <TypeOption Type="Percent"/>
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manually" RegionInput="_none_">
+                    <TypeOption Type="Percent"/>
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sfab</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+
+        <Block Id="ProActiveSw" Caption="ProActive">
+            <Applications>
+                <Application>SoftwareSolution</Application>
+            </Applications>
+            <Elements>
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+                    <InputLevels>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>PRS Finance</Role>
+                            <Role>PRS PSM</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+                    <InputLevels>
+                        <InputLevel>Country</InputLevel>
+                        <InputLevel>Pla</InputLevel>
+                        <InputLevel>Sog</InputLevel>
+                        <InputLevel>SwDigit</InputLevel>
+                    </InputLevels>
+                    <CostEditor>
+                        <Roles>
+                            <Role>Country Finance Director</Role>
+                            <Role>Country key user</Role>
+                            <Role>SCD Admin</Role>
+                        </Roles>
+                    </CostEditor>
+                </Element>
+            </Elements>
+        </Block>
+    </Blocks>
+</SCDConfiguration>

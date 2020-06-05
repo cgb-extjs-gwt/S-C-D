@@ -15,5 +15,6 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
             List<UpdateQueryOption> updateOptions);
 
         bool DeactivateWgs(IEnumerable<WgPorDto> wgs, DateTime modifiedDatetime);
+        bool ChangeWgTypeToLogistic(IEnumerable<WgPorDto> wgs);
     }
 }

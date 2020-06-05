@@ -3,7 +3,7 @@ import { QualityGateToolbarActions } from "../../QualityGate/Components/QualityG
 import { CommonState } from "../../Layout/States/AppStates";
 import { QualtityGateTab, QualtityGateSetView } from "./QualtityGateSetView";
 import { getCostBlock, getCostElement } from "../../Common/Helpers/MetaHelper";
-import { saveTableViewToServer, resetQualityCheckResult } from "../Actions/TableViewActions";
+import { resetQualityCheckResult } from "../Actions/TableViewActions";
 import { QualityGateSetWindow, QualityGateSetWindowProps } from "./QualityGateSetWindow";
 
 export const QualtityGateSetWindowContainer =
@@ -34,14 +34,8 @@ export const QualtityGateSetWindowContainer =
                 position
             }
         },
-        dispatch => ({
-            onSave: explanationMessage => dispatch(
-                saveTableViewToServer({ 
-                    hasQualityGateErrors: true, 
-                    isApproving: true,
-                    qualityGateErrorExplanation: explanationMessage
-                })
-            ),
+        (dispatch, ownProps) => ({
+            onSave: ownProps.onSave,
             onCancel: () => dispatch(resetQualityCheckResult())
         })
     )(QualityGateSetWindow)

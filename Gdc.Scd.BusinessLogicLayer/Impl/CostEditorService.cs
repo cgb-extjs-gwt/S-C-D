@@ -27,11 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockHistoryService historySevice;
 
-        private readonly IRepositorySet repositorySet;
-
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
-
-        private readonly IQualityGateSevice qualityGateSevice;
 
         private readonly IUserService userService;
 
@@ -43,9 +39,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ICostEditorRepository costEditorRepository,
             ISqlRepository sqlRepository,
             ICostBlockHistoryService historySevice,
-            IRepositorySet repositorySet,
             ICostBlockFilterBuilder costBlockFilterBuilder,
-            IQualityGateSevice qualityGateSevice,
             IUserService userService,
             ICostBlockService costBlockService,
             IDomainService<Country> countryService,
@@ -57,9 +51,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.historySevice = historySevice;
             this.meta = meta;
             this.domainEnitiesMeta = domainEnitiesMeta;
-            this.repositorySet = repositorySet;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
-            this.qualityGateSevice = qualityGateSevice;
             this.userService = userService;
             this.costBlockService = costBlockService;
             this.countryService = countryService;
@@ -115,7 +107,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var userCountries = this.userService.GetCurrentUserCountries();
             var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[context];
 
             var editInfos = new[]
             {
@@ -205,7 +197,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             IEnumerable<NamedId> referenceValues = null;
 
-            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var costBlock = this.domainEnitiesMeta.CostBlocks[context];
             if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
                 referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);

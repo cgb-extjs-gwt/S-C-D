@@ -30,8 +30,6 @@ begin
     join Archive.GetCountries() c on c.id = pro.Country
     join Archive.GetWg(null) wg on wg.id = pro.Wg
     join InputAtoms.CentralContractGroup ccg on ccg.Id = pro.CentralContractGroup
-
-    where pro.Deactivated = 0
     order by c.Name, wg.Name
 end
 go

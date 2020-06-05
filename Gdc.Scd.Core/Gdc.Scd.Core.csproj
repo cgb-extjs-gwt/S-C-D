@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DomainConfig.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="DomainConfig.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>

@@ -37,7 +37,6 @@
   <ItemGroup>
     <Compile Include="CostBlockHistoryTest.cs" />
     <Compile Include="Helpers\ReportFormatterUnitTest.cs" />
-    <Compile Include="PortfolioInputServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

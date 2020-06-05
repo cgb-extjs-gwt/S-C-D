@@ -110,7 +110,8 @@ namespace Gdc.Scd.Import.Por
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
             var (success, added) = WgService.UploadWgs(wgs, GetSog(), GetPla(), DateTime.Now, UpdateQueryOptions);
             if (success)
-                success = WgService.DeactivateWgs(wgs, DateTime.Now);
+                success = WgService.DeactivateWgs(wgs, DateTime.Now) && WgService.ChangeWgTypeToLogistic(wgs);
+
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
             //
             return added;

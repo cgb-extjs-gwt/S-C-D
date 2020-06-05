@@ -26,6 +26,8 @@ namespace Gdc.Scd.Core.Entities.Calculation
 
         public double? ServiceTP { get; set; }
 
+        public double? ReActiveTP { get; set; }
+
         public double? ListPrice { get; set; }
 
         public double? DealerDiscount { get; set; }

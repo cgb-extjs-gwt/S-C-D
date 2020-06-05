@@ -267,9 +267,9 @@ namespace Gdc.Scd.MigrationTool.Migrations
                 costBlocks.SelectMany(costBlock => costBlock.CostElementsFields.Select(costElement => new
                           {
                               CostBlock = costBlock,
-                              CostElement = costBlock.DomainMeta.CostElements[costElement.Name]
+                              CostElement = costBlock.SliceDomainMeta.CostElements[costElement.Name]
                           }))
-                         .ToDictionary(info => info.CostElement.Name.Trim().ToUpper());
+                         .ToDictionary(info => info.CostElement.Caption.Trim().ToUpper());
 
             costElements = this.PrapareByNameMapping(costElements);
 
@@ -303,10 +303,10 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
                 foreach (var costBlock in costBlocks)
                 {
-                    var coordinateInfos = costBlock.DomainMeta.Coordinates.Select(coordiante => new
+                    var coordinateInfos = costBlock.SliceDomainMeta.Coordinates.Select(coordiante => new
                     {
                         Field = (ReferenceFieldMeta)costBlock.GetField(coordiante.Id),
-                        Name = coordiante.Name.Trim().ToUpper()
+                        Name = coordiante.Caption.Trim().ToUpper()
                     });
 
                     var costElementInfos =
@@ -314,7 +314,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
                                                     .Select(field => new
                                                     {
                                                         Field = field,
-                                                        Name = costBlock.DomainMeta.CostElements[field.Name].Name.Trim().ToUpper()
+                                                        Name = costBlock.SliceDomainMeta.CostElements[field.Name].Caption.Trim().ToUpper()
                                                     });
 
                     foreach(var info in coordinateInfos.Concat(costElementInfos))
@@ -380,7 +380,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
                         if (index != lastIndex && info.CostElement.Dependency != null)
                         {
-                            var dependencyMetaName = info.CostElement.Dependency.Name.Trim().ToUpper();
+                            var dependencyMetaName = info.CostElement.Dependency.Caption.Trim().ToUpper();
                             var dependencyItemName = string.Join(Separator, splitedValue.Skip(index + 1)).Trim().ToUpper();
                             var dependencyItem = await this.GetNamedId(references[dependencyMetaName], dependencyItemName, dependencyItemsCache);
 

@@ -7,27 +7,38 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
 {
     class FakeArchiveRepository : IArchiveRepository
     {
-        private FakeCostBlockDto[] blocks = new FakeCostBlockDto[]
+        private FakeArchiveDto[] blocks = new FakeArchiveDto[]
         {
-            new FakeCostBlockDto { TableName = "Afr"                      , Procedure = "spGetAfr"                       },
-            new FakeCostBlockDto { TableName = "AvailabilityFee"          , Procedure = "spGetAvailabilityFee"           },
-            new FakeCostBlockDto { TableName = "FieldServiceCost"         , Procedure = "spGetFieldServiceCost"          },
-            new FakeCostBlockDto { TableName = "HddRetention"             , Procedure = "spGetHddRetention"              },
-            new FakeCostBlockDto { TableName = "InstallBase"              , Procedure = "spGetInstallBase"               },
-            new FakeCostBlockDto { TableName = "LogisticsCosts"           , Procedure = "spGetLogisticsCosts"            },
-            new FakeCostBlockDto { TableName = "MarkupOtherCosts"         , Procedure = "spGetMarkupOtherCosts"          },
-            new FakeCostBlockDto { TableName = "MarkupStandardWaranty"    , Procedure = "spGetMarkupStandardWaranty"     },
-            new FakeCostBlockDto { TableName = "MaterialCostWarranty"     , Procedure = "spGetMaterialCostWarranty"      },
-            new FakeCostBlockDto { TableName = "MaterialCostWarrantyEmeia", Procedure = "spGetMaterialCostWarrantyEmeia" },
-            new FakeCostBlockDto { TableName = "ProActive"                , Procedure = "spGetProActive"                 },
-            new FakeCostBlockDto { TableName = "ProActiveSw"              , Procedure = "spGetProActiveSw"               },
-            new FakeCostBlockDto { TableName = "ProlongationMarkup"       , Procedure = "spGetProlongationMarkup"        },
-            new FakeCostBlockDto { TableName = "Reinsurance"              , Procedure = "spGetReinsurance"               },
-            new FakeCostBlockDto { TableName = "RoleCodeHourlyRates"      , Procedure = "spGetRoleCodeHourlyRates"       },
-            new FakeCostBlockDto { TableName = "ServiceSupportCost"       , Procedure = "spGetServiceSupportCost"        },
-            new FakeCostBlockDto { TableName = "SwSpMaintenance"          , Procedure = "spGetSwSpMaintenance"           },
-            new FakeCostBlockDto { TableName = "TaxAndDuties"             , Procedure = "spGetTaxAndDuties"              }
+            new FakeArchiveDto { ArchiveName = "Afr"                      , Procedure = "spGetAfr"                       },
+            new FakeArchiveDto { ArchiveName = "AvailabilityFee"          , Procedure = "spGetAvailabilityFee"           },
+            new FakeArchiveDto { ArchiveName = "FieldServiceCost"         , Procedure = "spGetFieldServiceCost"          },
+            new FakeArchiveDto { ArchiveName = "HddRetention"             , Procedure = "spGetHddRetention"              },
+            new FakeArchiveDto { ArchiveName = "InstallBase"              , Procedure = "spGetInstallBase"               },
+            new FakeArchiveDto { ArchiveName = "LogisticsCosts"           , Procedure = "spGetLogisticsCosts"            },
+            new FakeArchiveDto { ArchiveName = "MarkupOtherCosts"         , Procedure = "spGetMarkupOtherCosts"          },
+            new FakeArchiveDto { ArchiveName = "MarkupStandardWaranty"    , Procedure = "spGetMarkupStandardWaranty"     },
+            new FakeArchiveDto { ArchiveName = "MaterialCostWarranty"     , Procedure = "spGetMaterialCostWarranty"      },
+            new FakeArchiveDto { ArchiveName = "MaterialCostWarrantyEmeia", Procedure = "spGetMaterialCostWarrantyEmeia" },
+            new FakeArchiveDto { ArchiveName = "ProActive"                , Procedure = "spGetProActive"                 },
+            new FakeArchiveDto { ArchiveName = "ProActiveSw"              , Procedure = "spGetProActiveSw"               },
+            new FakeArchiveDto { ArchiveName = "ProlongationMarkup"       , Procedure = "spGetProlongationMarkup"        },
+            new FakeArchiveDto { ArchiveName = "Reinsurance"              , Procedure = "spGetReinsurance"               },
+            new FakeArchiveDto { ArchiveName = "RoleCodeHourlyRates"      , Procedure = "spGetRoleCodeHourlyRates"       },
+            new FakeArchiveDto { ArchiveName = "ServiceSupportCost"       , Procedure = "spGetServiceSupportCost"        },
+            new FakeArchiveDto { ArchiveName = "SwSpMaintenance"          , Procedure = "spGetSwSpMaintenance"           },
+            new FakeArchiveDto { ArchiveName = "TaxAndDuties"             , Procedure = "spGetTaxAndDuties"              }
         };
+
+        public ArchiveDto[] GetCountryArchives()
+        {
+            return new ArchiveDto[]
+            {
+                new ArchiveDto { ArchiveName = "Hardware cost"            , Procedure = "Archive.spGetHwCosts"   },
+                new ArchiveDto { ArchiveName = "ProActive"                , Procedure = "Archive.spProActive"    },
+                new ArchiveDto { ArchiveName = "LOCAP detailed"           , Procedure = "Archive.spLocap"        },
+                new ArchiveDto { ArchiveName = "HDD retention"            , Procedure = "Archive.spHddRetention" }
+            };
+        }
 
         private FakeCountryDto[] countries = new FakeCountryDto[]
         {
@@ -41,7 +52,7 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             new FakeCountryDto { Id = 110, Name = "Colombia",   ISO = "COL" }
         };
 
-        public CostBlockDto[] GetCostBlocks()
+        public ArchiveDto[] GetCostBlocks()
         {
             return blocks;
         }
@@ -51,27 +62,27 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             return countries;
         }
 
-        public Stream GetData(CostBlockDto costBlock)
+        public Stream GetData(ArchiveDto costBlock)
         {
-            var b = costBlock as FakeCostBlockDto;
+            var b = costBlock as FakeArchiveDto;
             b.loaded = true;
             return new MemoryStream(255);
         }
 
-        public Stream GetData(CountryDto cnt)
+        public Stream GetData(CountryDto cnt, ArchiveDto archive)
         {
             var b = cnt as FakeCountryDto;
             b.loaded = true;
             return new MemoryStream(255);
         }
 
-        public void Save(CostBlockDto costBlock, Stream stream)
+        public void Save(ArchiveDto costBlock, Stream stream)
         {
-            var b = costBlock as FakeCostBlockDto;
+            var b = costBlock as FakeArchiveDto;
             b.saved = true;
         }
 
-        public void Save(CountryDto cnt, Stream stream)
+        public void Save(CountryDto cnt, ArchiveDto archive, Stream stream)
         {
             var b = cnt as FakeCountryDto;
             b.saved = true;
@@ -97,7 +108,7 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             return countries.All(x => x.saved);
         }
 
-        private class FakeCostBlockDto : CostBlockDto
+        private class FakeArchiveDto : ArchiveDto
         {
             public bool loaded;
             public bool saved;

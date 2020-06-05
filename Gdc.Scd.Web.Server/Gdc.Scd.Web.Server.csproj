@@ -256,6 +256,7 @@
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
+    <Compile Include="Entities\ImportData.cs" />
     <Compile Include="Entities\QualityGateResultDto.cs" />
     <Compile Include="Entities\RequestInfo.cs" />
     <Compile Include="Entities\RequestLogging.cs" />

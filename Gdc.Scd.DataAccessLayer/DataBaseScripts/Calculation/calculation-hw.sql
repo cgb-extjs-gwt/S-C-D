@@ -608,32 +608,40 @@ END
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
-    select   fee.Country
-           , fee.Wg
+    select   feeCountryWg.Country
+           , feeCountryWg.Wg
            
            , case  when wg.WgType = 0 then 1 else 0 end as IsMultiVendor
            
-           , fee.InstalledBaseHighAvailability as IB
-           , fee.InstalledBaseHighAvailability_Approved as IB_Approved
+           , feeCountryWg.InstalledBaseHighAvailability as IB
+           , feeCountryWg.InstalledBaseHighAvailability_Approved as IB_Approved
            
-           , fee.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
-           , fee.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
+           , feeCountryCompany.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
+           , feeCountryCompany.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
            
-           , case when wg.WgType = 0 then fee.StockValueMv          else fee.StockValueFj          end / er.Value as StockValue
-           , case when wg.WgType = 0 then fee.StockValueMv_Approved else fee.StockValueFj_Approved end / er.Value as StockValue_Approved
+           , case when wg.WgType = 0 then feeCountryCompany.StockValueMv          else feeCountryCompany.StockValueFj          end / er.Value as StockValue
+           , case when wg.WgType = 0 then feeCountryCompany.StockValueMv_Approved else feeCountryCompany.StockValueFj_Approved end / er.Value as StockValue_Approved
            
-           , fee.AverageContractDuration
-           , fee.AverageContractDuration_Approved
+           , feeCountryCompany.AverageContractDuration
+           , feeCountryCompany.AverageContractDuration_Approved
            
-           , case when fee.JapanBuy = 1          then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit
-           , case when fee.JapanBuy_Approved = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit_Approved
+           , case when feeCountryWg.JapanBuy = 1          then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit
+           , case when feeCountryWg.JapanBuy_Approved = 1 then feeWg.CostPerKitJapanBuy else feeWg.CostPerKit end as CostPerKit_Approved
            
-           , fee.MaxQty
+           , feeWg.MaxQty
 
-    from Hardware.AvailabilityFee fee
-    JOIN InputAtoms.Wg wg on wg.Id = fee.Wg
-    JOIN InputAtoms.Country c on c.Id = fee.Country
+    from Hardware.AvailabilityFeeWgCountry AS feeCountryWg
+    JOIN InputAtoms.Wg wg on wg.Id = feeCountryWg.Wg
+	JOIN Hardware.AvailabilityFeeWg AS feeWg ON feeCountryWg.Wg = feeWg.Wg
+    JOIN Hardware.AvailabilityFeeCountryCompany AS feeCountryCompany ON feeCountryWg.Country = feeCountryCompany.Country AND wg.CompanyId = feeCountryCompany.Company
+    JOIN InputAtoms.Country c on c.Id = feeCountryWg.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
+    where 
+		feeCountryWg.DeactivatedDateTime is null and 
+		feeWg.DeactivatedDateTime is null and 
+        feeCountryCompany.DeactivatedDateTime is null and 
+		wg.DeactivatedDateTime is null
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as 
@@ -1121,6 +1129,9 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
                , ssc.[2ndLevelSupportCostsClusterRegion]               as '2ndLevelSupportCostsClusterRegion'
                , ssc.[2ndLevelSupportCostsClusterRegion_Approved]      as '2ndLevelSupportCostsClusterRegion_Approved'
 
+               , ssc.Sar / 100                                         as Sar
+               , ssc.Sar_Approved / 100                                as Sar_Approved
+
                , case when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] / er.Value 
                         else ssc.[2ndLevelSupportCostsClusterRegion]
                    end as '2ndLevelSupportCosts'
@@ -1150,6 +1161,12 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
          , ssc.[1stLevelSupportCosts_Approved]
          , ssc.[2ndLevelSupportCosts]
          , ssc.[2ndLevelSupportCosts_Approved]
+         , ssc.Sar
+         , ssc.Sar_Approved
+         , ssc.TotalIb
+         , ssc.TotalIb_Approved
+         , ssc.Total_IB_Pla
+         , ssc.Total_IB_Pla_Approved
 
          , case when ssc.TotalIb <> 0 and ssc.Total_IB_Pla <> 0 
                 then ssc.[1stLevelSupportCosts] / ssc.TotalIb + ssc.[2ndLevelSupportCosts] / ssc.Total_IB_Pla
@@ -1162,7 +1179,7 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
     from cte ssc
 GO
 
-CREATE VIEW [Hardware].[ProActiveView] with schemabinding as 
+CREATE VIEW [Hardware].[ProActiveView] as 
     with ProActiveCte as 
     (
         select pro.Country,

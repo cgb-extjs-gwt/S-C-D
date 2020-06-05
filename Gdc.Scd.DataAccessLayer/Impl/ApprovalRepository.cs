@@ -40,7 +40,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var query = BuildQuery();
             
             var maxInputLevelId = this.GetMaxInputLevelId(history, historyValueId);
@@ -60,11 +60,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 InputLevelJoinType inputLevelJoinType;
                 IEnumerable<ReferenceFieldMeta> domainCoordinateFields;
 
-                var costElementMeta = costBlockMeta.DomainMeta.CostElements[history.Context.CostElementId];
+                var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[history.Context.CostElementId];
 
                 if (historyValueId.HasValue)
                 {
-                    var inputLevel = costElementMeta.InputLevels.Last();
+                    var inputLevel = costElementMeta.SortInputLevel().Last();
 
                     inputLevelId = inputLevel.Id;
                     inputLevelJoinType = InputLevelJoinType.All;
@@ -135,7 +135,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<int> Approve(CostBlockHistory history)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var costElementField = costBlockMeta.CostElementsFields[history.Context.CostElementId];
             var historyValueColumn = new ColumnSqlBuilder
             {
@@ -162,7 +162,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, userCountyGroupCheck, historyValueId, costBlockFilter);
 
             var maxInputLevelId = this.GetMaxInputLevelId(history, historyValueId);
@@ -175,7 +175,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
-            return await this.repositorySet.ReadBySqlAsync(query, mapper.Map);
+            return await this.repositorySet.ReadBySqlAsync(query.ToSqlScript(), mapper.Map);
         }
 
         private string GetMaxInputLevelId(CostBlockHistory history, long? historyValueId)

@@ -67,7 +67,11 @@
 
         public const string CentralContractGroupInputLevel = "CentralContractGroup";
 
-        public const string AvailabilityFeeCostBlock = "AvailabilityFee";
+        public const string AvailabilityFeeWgCountryCostBlock = "AvailabilityFeeWgCountry";
+
+        public const string AvailabilityFeeCountryCompanyCostBlock = "AvailabilityFeeCountryCompany";
+
+        public const string AvailabilityFeeWgCostBlock = "AvailabilityFeeWg";
 
         public const string SwDigitInputLevel = "SwDigit";
 

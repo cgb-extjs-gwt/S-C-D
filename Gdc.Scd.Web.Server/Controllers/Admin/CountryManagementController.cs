@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Web.Server.Impl;
+using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
@@ -37,6 +42,21 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         public void SaveAll([FromBody]IEnumerable<CountryDto> records)
         {
             _countryAdminService.Save(records);
+        }
+
+        public HttpResponseMessage ExportToExcel()
+        {
+            try
+            {
+                var filter = JsonConvert.DeserializeObject<AdminCountryFilterDto>(HttpContext.Current.Request.Form["data"]);
+                var stream = _countryAdminService.ExportToExcel(filter);
+                return this.ExcelContent(stream, "CountryManagement.xlsx");
+            }
+            catch
+            {
+                return this.ExcelContent(new MemoryStream(), "Error");
+            }
+            
         }
     }
 }

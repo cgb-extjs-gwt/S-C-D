@@ -1,4 +1,7 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using Gdc.Scd.Import.Por.Core.Scripts;
@@ -10,10 +13,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
     public class CostBlockUpdateService : ICostBlockUpdateService
     {
         private readonly IRepositorySet _repo;
+        private readonly ICostBlockService costBlockService;
+        private readonly DomainEnitiesMeta meta;
 
-        public CostBlockUpdateService(IRepositorySet repo)
+        public CostBlockUpdateService(IRepositorySet repo, ICostBlockService costBlockService, DomainEnitiesMeta meta)
         {
             _repo = repo;
+            this.costBlockService = costBlockService;
+            this.meta = meta;
         }
 
         public void UpdateByPla(Wg[] wgs)
@@ -43,10 +50,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateFieldServiceCost(Wg[] wgs)
         {
-            var tpl = new UpdateFieldServiceCost(wgs);
-            _repo.ExecuteSql(tpl.ByCentralContractGroup());
-            _repo.ExecuteSql(tpl.ByPla());
-            _repo.ExecuteSql(ReadText("UpdateFieldServiceCost.sql"));
+            //var tpl = new UpdateFieldServiceCost(wgs);
+            //_repo.ExecuteSql(tpl.ByCentralContractGroup());
+            //_repo.ExecuteSql(tpl.ByPla());
+            //_repo.ExecuteSql(ReadText("UpdateFieldServiceCost.sql"));
+
+            var costBlocks = this.meta.CostBlocks.GetSome(MetaConstants.HardwareSchema, "FieldServiceCost");
+
+            this.costBlockService.UpdateByCoordinates(costBlocks);
         }
 
         public virtual void UpdateLogisticsCost(Wg[] wgs)
@@ -72,9 +83,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateProactive(Wg[] wgs)
         {
-            var tpl = new UpdateProactive(wgs);
-            _repo.ExecuteSql(tpl.ByCentralContractGroup());
-            _repo.ExecuteSql(tpl.ByPla());
+            //var tpl = new UpdateProactive(wgs);
+            //_repo.ExecuteSql(tpl.ByCentralContractGroup());
+            //_repo.ExecuteSql(tpl.ByPla());
+
+            var costBlocks = this.meta.CostBlocks.GetSome(MetaConstants.HardwareSchema, "ProActive");
+
+            this.costBlockService.UpdateByCoordinates(costBlocks);
         }
 
         public virtual void UpdateSwSpMaintenance(SwDigit[] digits)

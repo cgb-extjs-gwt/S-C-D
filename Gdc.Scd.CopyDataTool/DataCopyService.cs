@@ -68,16 +68,16 @@ namespace Gdc.Scd.CopyDataTool
 
             var costBlockInfos = costBlocks.SelectMany(
                 block =>
-                    block.DomainMeta.CostElements.Where(elem => !excludedCostElements.Any(x => x.CostBlock == block.Name && x.Name == elem.Id))
-                                                 .Select(elem => new
-                                                 {
-                                                     CostBlock = block,
-                                                     CostElement = elem,
-                                                     CoordinateIds =
-                                                        elem.Coordinates.Select(coord => coord.Id)
-                                                                        .OrderBy(x => x)
-                                                                        .ToArray()
-                                                 }));
+                    block.SliceDomainMeta.CostElements.Where(elem => !excludedCostElements.Any(x => x.CostBlock == block.Name && x.Name == elem.Id))
+                                                      .Select(elem => new
+                                                      {
+                                                          CostBlock = block,
+                                                          CostElement = elem,
+                                                          CoordinateIds =
+                                                             elem.Coordinates.Select(coord => coord.Id)
+                                                                             .OrderBy(x => x)
+                                                                             .ToArray()
+                                                      }));
 
             if (this.config.HasCountry)
             {
@@ -274,7 +274,7 @@ namespace Gdc.Scd.CopyDataTool
                     {
                         result =
                             costElementId =>
-                                costBlock.DomainMeta.CostElements[costElementId].IsCountryCurrencyCost
+                                costBlock.SliceDomainMeta.CostElements[costElementId].IsCountryCurrencyCost
                                     ? GetCostElementFields(costElementId, BuildCostElementExchangeRateColumn)
                                     : GetCostElementFields(costElementId, BuildCostElementColumn);
                     }

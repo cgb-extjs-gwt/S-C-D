@@ -69,9 +69,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Identity.cs" />
+    <Compile Include="Entities\MetaSet.cs" />
     <Compile Include="Entities\Migration.cs" />
     <Compile Include="Entities\Principal.cs" />
+    <Compile Include="Helpers\MigratorSql.cs" />
     <Compile Include="Helpers\RepositorySetExtensions.cs" />
+    <Compile Include="Impl\AutoNumberMigrationAction.cs" />
+    <Compile Include="Impl\DataMigrator.cs" />
+    <Compile Include="Interfaces\IDataMigrator.cs" />
+    <Compile Include="Interfaces\IMetaProvider.cs" />
+    <Compile Include="Impl\MetaProvider.cs" />
     <Compile Include="Impl\MigrationService.cs" />
     <Compile Include="Impl\PrincipalProvider.cs" />
     <Compile Include="Interfaces\IMigrationAction.cs" />
@@ -217,6 +224,7 @@
     <Compile Include="Migrations\2020_01\Migration_2020_01_06_14_33.cs" />
     <Compile Include="Migrations\2020_01\Migration_2020_01_20.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_14_18_25.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_17_10_59.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_26_11_04.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_21_14_50.cs" />
     <Compile Include="Migrations\2020_02\Migration_2020_02_19_21_45.cs" />
@@ -240,6 +248,20 @@
     <Compile Include="Migrations\2020_03\Migration_2020_03_03_12_37.cs" />
     <Compile Include="Migrations\2020_03\Migration_2020_03_05_12_54.cs" />
     <Compile Include="Migrations\2020_03\Migration_2020_03_20_14_19.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_09_13_08.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_14_11_39.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_22_18_50.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_20_11_42.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_17_13_23.cs" />
+    <Compile Include="Migrations\2020_04\Migration_2020_04_17_15_11.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_15_10_14.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_18_19_19.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_22_17_28.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_25_12_39.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_28_17_24.cs" />
+    <Compile Include="Migrations\2020_05\Migration_2020_05_29_14_30.cs" />
+    <Compile Include="Migrations\2020_06\Migration_2020_06_03_10_28.cs" />
+    <Compile Include="Migrations\2020_06\Migration_2020_06_04_16_22.cs" />
     <Compile Include="Migrations\2020_06\Migration_2020_06_03_10_19.cs" />
     <Compile Include="Migrations\2020_06\Migration_2020_06_03_20_20.cs" />
     <Compile Include="Module.cs" />
@@ -261,6 +283,43 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="MigrationScripts\2020-04-17-15-11-2.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-04-17-15-11-3.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-04-17-15-11.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-15-10-14.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-18-19-39.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-22-17-28.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-25-12-38.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-28-17-21.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-05-29-13-53.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-06-03-10-28.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-06-04-16-22.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_new.xml" />
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_old.xml" />
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_20_11_42_old.xml" />
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_20_11_42_new.xml" />
     <Content Include="MigrationScripts\2019-02-12_101.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -687,8 +746,18 @@
     <Content Include="MigrationScripts\2020-03-20-14-19.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2020-06-03-10-19.sql" />
-    <Content Include="MigrationScripts\2020-06-03-20-20.sql" />
+    <Content Include="MigrationScripts\2020-04-09-13-08.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-04-14-11-39-2.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-04-14-11-39-3.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-04-14-11-39.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>

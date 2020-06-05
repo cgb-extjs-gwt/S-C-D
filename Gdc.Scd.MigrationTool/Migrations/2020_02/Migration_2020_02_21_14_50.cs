@@ -60,7 +60,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
                     MetaConstants.HistoryRelatedItemsSchema);
 
             var serviceSupportCostBlock = 
-                this.enitiesMeta.GetCostBlockEntityMeta(MetaConstants.HardwareSchema, "ServiceSupportCost");
+                this.enitiesMeta.CostBlocks[MetaConstants.HardwareSchema, "ServiceSupportCost"];
 
             using (var transaction = this.repositorySet.GetTransaction())
             {

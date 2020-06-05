@@ -42,6 +42,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
             Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
+            Bind<IExcelConverterService>().To<ExcelConverterService>().InScdRequestScope();
 
             //Need to optimize
             //Bind<IAfterAddingInterceptor<Wg>>().To<PortfolioInheritanceInterceptor>().InScdRequestScope(); 
@@ -82,7 +83,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ProActiveDigit>();
             Kernel.RegisterEntity<SwSpMaintenance>();
             /*----------cost block entities---------*/
-            Kernel.RegisterEntity<AvailabilityFee>();
+            Kernel.RegisterEntity<AvailabilityFeeWg>();
             Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<Afr>();
             Kernel.RegisterEntity<InstallBase>();
@@ -105,6 +106,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Report>();
             Kernel.RegisterEntity<ReportColumn>();
             Kernel.RegisterEntity<ReportFilter>();
+            Kernel.RegisterEntity<ReportPart>();
             Kernel.RegisterEntity<JobsSchedule>();
         }
     }

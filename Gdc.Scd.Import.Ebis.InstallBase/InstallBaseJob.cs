@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
     public class InstallBaseJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "InstallBaseJob";
 
         protected InstallBaseService installBaseService;
 
@@ -53,7 +54,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "InstallBaseJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)

@@ -232,14 +232,14 @@ begin
             , c.ServiceTC4                       
             , c.ServiceTC5                       
             , c.ServiceTC1P
-			, c.ServiceTCResult                      
+            , c.ServiceTCResult                      
             , c.ServiceTP1                       
             , c.ServiceTP2                       
             , c.ServiceTP3                       
             , c.ServiceTP4                       
             , c.ServiceTP5                       
             , c.ServiceTP1P
-			, c.ServiceTPResult                      
+            , c.ServiceTPResult                      
             , c.ListPrice                        
             , c.DealerDiscount                   
             , c.DealerPrice                      
@@ -265,9 +265,9 @@ CREATE FUNCTION Report.GetReportColumnTypeByName
 RETURNS bigint 
 AS
 BEGIN
-	DECLARE @Id bigint
+    DECLARE @Id bigint
     select @Id=id from Report.ReportColumnType where Name=@name
-	RETURN @Id
+    RETURN @Id
 END
 GO
 
@@ -278,14 +278,14 @@ go
 CREATE FUNCTION Report.GetReportFilterTypeByName
 (
     @name nvarchar(max),
-	@multi bit
+    @multi bit
 )
 RETURNS bigint 
 AS
 BEGIN
-	DECLARE @Id bigint
+    DECLARE @Id bigint
     select @Id= id from Report.ReportFilterType where MultiSelect = @multi and name = @name
-	RETURN @Id
+    RETURN @Id
 END
 GO
 
@@ -346,10 +346,12 @@ BEGIN
                 , fsp.ServiceDescription as FspDescription
 
                 , sog.SogDescription
+                , dur.Name as StdDuration
 
-        from cte m
+        from cte m 
         inner join InputAtoms.Country cnt on cnt.id = m.CountryId
         inner join InputAtoms.WgSogView sog on sog.Id = m.WgId
+        inner join Dependencies.Duration dur on dur.Id = m.StdWarranty
         left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
     )
     select    c.Country
@@ -366,7 +368,9 @@ BEGIN
             , case when c.IsProlongation = 1 then 'Prolongation' else CAST(c.Year as varchar(1)) end as ServicePeriod
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
-            , c.LocalServiceStandardWarranty
+            , c.StdDuration 
+            , c.StdWarrantyLocation
+            , c.LocalServiceStandardWarrantyWithRisk as LocalServiceStandardWarranty
             , case when @approved = 1 then c.ServiceTpSog else c.ServiceTpSog_Released end as ServiceTP
             , c.DealerPrice
             , c.ListPrice
@@ -407,13 +411,16 @@ BEGIN
             , case when c.IsProlongation = 1 then 'Prolongation' else CAST(c.Year as varchar(1)) end as ServicePeriod
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
-            , c.LocalServiceStandardWarranty
+            , dur.Name as StdDuration
+            , c.StdWarrantyLocation 
+            , c.LocalServiceStandardWarrantyWithRisk as LocalServiceStandardWarranty
             , case when @approved = 1 then c.ServiceTP else c.ServiceTP_Released end as ServiceTP
             , c.DealerPrice
             , c.ListPrice
     from Hardware.GetCosts(1, @nonEmeiaCnt, @nonEmeiaWg, @av, @dur, @rtime, @rtype, @loc, @pro, null, null) c
     inner join InputAtoms.Country cnt on cnt.id = c.CountryId
     inner join InputAtoms.WgSogView sog on sog.Id = c.WgId
+    inner join Dependencies.Duration dur on dur.Id = c.StdWarranty
     left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = c.SlaHash and fsp.Sla = c.Sla;
 
     if @limit > 0

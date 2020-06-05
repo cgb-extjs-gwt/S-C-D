@@ -6,7 +6,7 @@ CREATE FUNCTION Report.StandardWarranty
 (
     @cnt           bigint,
     @wg dbo.ListID readonly,
-	@islocal	   bit
+    @islocal	   bit
 )
 RETURNS @tbl TABLE (
       Country                      nvarchar(255)
@@ -24,7 +24,7 @@ RETURNS @tbl TABLE (
     , LocalServiceStandardWarrantyManual float
     , StandardWarrantyAndMaterial  float
     , StandardWarrantyManualAndMaterial  float
-	, Currency                     nvarchar(255)
+    , Currency                     nvarchar(255)
 )
 AS
 begin
@@ -43,12 +43,12 @@ begin
          , std.StdWarrantyLocation as Location
 
          , case when @islocal = 1 then std.ExchangeRate else 1 end * std.MaterialW
-         , case when @islocal = 1 then std.ExchangeRate else 1 end * std.LocalServiceStandardWarranty
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * coalesce(Hardware.AddMarkup(std.LocalServiceStandardWarranty, std.RiskFactorStandardWarranty, std.RiskStandardWarranty), std.LocalServiceStandardWarranty)
          , case when @islocal = 1 then std.ExchangeRate else 1 end * std.LocalServiceStandardWarrantyManual
 
-         , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + std.LocalServiceStandardWarranty) as StandardWarrantyAndMaterial
+         , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + coalesce(Hardware.AddMarkup(std.LocalServiceStandardWarranty, std.RiskFactorStandardWarranty, std.RiskStandardWarranty), std.LocalServiceStandardWarranty)) as StandardWarrantyAndMaterial
          , case when @islocal = 1 then std.ExchangeRate else 1 end * (std.MaterialW + std.LocalServiceStandardWarrantyManual) as StandardWarrantyManualAndMaterial
-		 , case when @islocal = 1 then std.Currency else 'EUR' end
+         , case when @islocal = 1 then std.Currency else 'EUR' end
     from Hardware.CalcStdw(1, @cntTbl, @wg) std
     join InputAtoms.Wg wg on wg.Id = std.WgId
     join InputAtoms.Pla pla on pla.Id = wg.PlaId

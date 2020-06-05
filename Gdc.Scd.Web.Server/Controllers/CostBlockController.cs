@@ -7,6 +7,7 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Entities;
 using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -45,13 +46,6 @@ namespace Gdc.Scd.Web.Server.Controllers
             return await this.costElementExcelService.Import(importData.Context, stream, importData.ApprovalOption);
         }
 
-        public class ImportData
-        {
-            public CostImportContext Context { get; set; }
-
-            public ApprovalOption ApprovalOption { get; set; }
-
-            public string ExcelFile { get; set; }
-        }
+        
     }
 }

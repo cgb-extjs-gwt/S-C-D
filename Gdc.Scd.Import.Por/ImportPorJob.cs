@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.Por
     public class ImportPorJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "PorJob";
 
         protected ImportPor por;
 
@@ -51,7 +52,7 @@ namespace Gdc.Scd.Import.Por
 
         public string WhoAmI()
         {
-            return "PorJob";
+            return JobName;
         }
 
         protected virtual void Notify(string msg, Exception ex)

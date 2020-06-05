@@ -15,6 +15,10 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public string CountryReadOnlyColumn { get; set; }
 
+        public QualityGate QualityGate { get; set; }
+
+        public TableMeta Table { get; set; }
+
         public override IEnumerable<InputLevelMeta> InputLevels => this.InputLevelMetaInfos.Select(inputLevelInfo => inputLevelInfo.InputLevel);
 
         public IEnumerable<BaseMeta> Coordinates

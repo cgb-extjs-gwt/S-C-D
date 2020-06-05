@@ -28,7 +28,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<BundleDetail>> Check(CostElementContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter, bool userCountyGroupCheck)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert(), userCountyGroupCheck);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, historyContext.CostElementId)
             {
@@ -42,7 +42,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, bool userCountyGroupCheck, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, userCountyGroupCheck, costBlockFilter);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {

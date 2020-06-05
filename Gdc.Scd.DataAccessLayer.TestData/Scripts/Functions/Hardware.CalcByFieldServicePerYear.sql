@@ -11,8 +11,7 @@ CREATE FUNCTION [Hardware].[CalcByFieldServicePerYear]
 	@travelTime FLOAT,
 	@repairTime FLOAT,
 	@onsiteHourlyRates FLOAT,
-	@upliftFactor FLOAT,
-	@availabilityId BIGINT
+	@upliftFactor FLOAT
 )
 RETURNS FLOAT
 AS
@@ -23,8 +22,7 @@ BEGIN
 		(1 - @TimeAndMaterialShare_norm) * (@travelCost + @labourCost + @performanceRate) / @exchangeRate + 
         @timeAndMaterialShare_norm * ((@travelTime + @repairTime) * @onsiteHourlyRates + @performanceRate / @exchangeRate) 
 
-	-- HACK: Availability 9x5 ignoring 
-	IF @upliftFactor IS NOT NULL AND @availabilityId <> 1
+	IF @upliftFactor IS NOT NULL
 		SET @result = @result * (1 + @upliftFactor / 100)
 
 	RETURN @result

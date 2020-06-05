@@ -9,6 +9,7 @@ namespace Gdc.Scd.Import.SfabImport
     public class SfabJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "SfabImportJob";
 
         protected SFabService sfab;
 
@@ -55,7 +56,7 @@ namespace Gdc.Scd.Import.SfabImport
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "SfabImportJob";
+            return JobName;
         }
 
         public OperationResult<bool> Result(bool ok)

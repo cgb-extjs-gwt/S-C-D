@@ -83,8 +83,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public QualityGateOption GetQualityGateOption(ICostElementIdentifier context, EditorType editorType)
         {
             var option = new QualityGateOption();
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[context];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.HasInputLevel(MetaConstants.WgInputLevelName))
             {
@@ -95,7 +95,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     if (editorType == EditorType.CostEditor)
                     {
-                        option.IsCountryCheck = costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName);
+                        option.IsCountryCheck =
+                            costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName) ||
+                            costElementMeta.RegionInput?.Id == MetaConstants.CountryInputLevelName;
                     }
                 }
             }

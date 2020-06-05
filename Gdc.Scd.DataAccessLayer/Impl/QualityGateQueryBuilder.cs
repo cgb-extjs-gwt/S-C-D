@@ -65,7 +65,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IDictionary<string, IEnumerable<object>> costBlockFilter,
             bool useCountryGroupCheck)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             var options = new QualityGateQueryOptions
             {
                 OnlyFailed = true,
@@ -130,10 +130,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
-                var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+                var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
+                var qualityGate = costBlockMeta.GetQualityGate(history.Context.CostElementId);
 
                 options.CustomCheckColumns =
-                    this.BuildQualityGateQueryCheckColumns(costBlockMeta, options)
+                    this.BuildQualityGateQueryCheckColumns(options, qualityGate)
                         .Select(column => SqlFunctions.Min(column.Alias, ResultQualityGateTable, column.Alias));
 
                 query = this.BuildQualityGateQuery(history.Context, options);
@@ -156,7 +157,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[history.Context];
             var costElementValueTableColumns = this.BuildCostElementValueTableColumns(
                 history.Context, 
                 options, 
@@ -197,11 +198,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return $"{item1}_{item2}";
         }
 
-        private SqlHelper BuildQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        private SqlHelper BuildQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-
-            var checkColumns = this.BuildQualityGateQueryCheckColumns(costBlockMeta, options);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
+            var qualityGate = costBlockMeta.GetQualityGate(historyContext.CostElementId);
+            var checkColumns = this.BuildQualityGateQueryCheckColumns(options, qualityGate);
             var domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId);
             var resultQualityGateTableColumns = 
                 domainCoordinateFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
@@ -278,9 +279,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Sql.With(qualityQateResultQuery, wihtQueries.ToArray());
         }
 
-        private List<QueryColumnInfo> BuildQualityGateQueryCheckColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options)
+        private List<QueryColumnInfo> BuildQualityGateQueryCheckColumns(
+            QualityGateQueryOptions options,
+            QualityGate qualityGate)
         {
-            var qualityGate = costBlockMeta.DomainMeta.QualityGate;
             var periodCheckColumn = BuildCheckResultColumn(
                 InnerQualityGateTable,
                 OldValueColumn,
@@ -327,7 +329,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 columns.Add(new ColumnInfo(HistoryValueIdColumn, ResultQualityGateTable));
             }
 
-            var costElement = costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId];
+            var costElement = costBlockMeta.SliceDomainMeta.CostElements[historyContext.CostElementId];
             var fields = costElement.SortInputLevel().Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
             var dependencyField = costBlockMeta.GetDomainDependencyField(historyContext.CostElementId);
             if (dependencyField != null)
@@ -347,7 +349,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private BaseColumnInfo[] BuildCountryGroupAverageColumns(CostElementContext historyContext)
         {
             var countryMeta = this.domainEnitiesMeta.GetCountryEntityMeta();
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             var countryField = costBlockMeta.GetFieldByReferenceMeta(countryMeta);
             var approvedCostElement = costBlockMeta.GetApprovedCostElement(historyContext.CostElementId);
 
@@ -356,7 +358,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var costElementColumn = new ColumnInfo(approvedCostElement.Name, costBlockMeta.Name);
 
-            if (costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].IsCountryCurrencyCost)
+            if (costBlockMeta.SliceDomainMeta.CostElements[historyContext.CostElementId].IsCountryCurrencyCost)
             {
                 var exchangeRateMeta = this.domainEnitiesMeta.ExchangeRate;
                 var exchangeRateColumn = new ColumnInfo(exchangeRateMeta.Value.Name, exchangeRateMeta.Name);
@@ -442,7 +444,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildCountryGroupAverageTable(CostElementContext historyContext)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             var columns = this.BuildCountryGroupAverageColumns(historyContext);
 
             var qualityGroupCountryGroupColumn = 
@@ -461,7 +463,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string table = null, 
             string newValueColumnTable = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             var columns = 
                 costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId)
                              .Select(field => new ColumnInfo(field.Name, table))
@@ -488,7 +490,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildInnerQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.CostBlocks[historyContext];
             var coordinateColumns = 
                 costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId)
                              .Select(field => new ColumnInfo(field.Name, CostElementValuesTable));

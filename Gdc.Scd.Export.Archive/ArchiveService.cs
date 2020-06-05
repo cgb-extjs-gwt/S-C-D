@@ -8,9 +8,9 @@ namespace Gdc.Scd.Export.ArchiveJob
 {
     public class ArchiveService
     {
-        private IArchiveRepository repo;
+        protected IArchiveRepository repo;
 
-        private ILogger logger;
+        protected ILogger logger;
 
         public ArchiveService(IArchiveRepository repo, ILogger logger)
         {
@@ -39,9 +39,9 @@ namespace Gdc.Scd.Export.ArchiveJob
             logger.Info(ArchiveConstants.END_PROCESS);
         }
 
-        private void Process(CostBlockDto b)
+        protected virtual void Process(ArchiveDto b)
         {
-            logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName));
+            logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.ArchiveName));
 
             Stream data = null;
 
@@ -49,11 +49,11 @@ namespace Gdc.Scd.Export.ArchiveJob
             {
                 data = repo.GetData(b);
                 repo.Save(b, data);
-                logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName, ". OK"));
+                logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.ArchiveName, ". OK"));
             }
             catch (Exception e)
             {
-                logger.Fatal(e, string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName, " failed!"));
+                logger.Fatal(e, string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.ArchiveName, " failed!"));
                 throw;
             }
             finally
@@ -65,21 +65,32 @@ namespace Gdc.Scd.Export.ArchiveJob
             }
         }
 
-        private void Process(CountryDto cnt)
+        protected virtual void Process(CountryDto cnt)
         {
-            logger.Info(string.Concat(ArchiveConstants.PROCESS_COUNTRY_HW, " ", cnt.Name));
+            logger.Info(string.Concat(ArchiveConstants.PROCESS_COUNTRY, " ", cnt.Name));
+
+            var archives = repo.GetCountryArchives();
+            for(var i = 0; i < archives.Length; i++)
+            {
+                Process(cnt, archives[i]);
+            }
+        }
+
+        protected virtual void Process(CountryDto cnt, ArchiveDto archive)
+        {
+            var log = string.Concat(ArchiveConstants.PROCESS_COUNTRY, " ", cnt.Name, " ", archive.ArchiveName);
 
             Stream data = null;
 
             try
             {
-                data = repo.GetData(cnt);
-                repo.Save(cnt, data);
-                logger.Info(string.Concat(ArchiveConstants.PROCESS_COUNTRY_HW, " ", cnt.Name, ". OK"));
+                data = repo.GetData(cnt, archive);
+                repo.Save(cnt, archive, data);
+                logger.Info(string.Concat(log, ". OK"));
             }
             catch (Exception e)
             {
-                logger.Fatal(e, string.Concat(ArchiveConstants.PROCESS_COUNTRY_HW, " ", cnt.Name, " failed!"));
+                logger.Fatal(e, string.Concat(log, " failed!"));
                 throw;
             }
             finally

@@ -19,15 +19,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ISqlRepository sqlRepository;
 
+        private readonly IExcelConverterService converterService;
+
         private readonly DomainEnitiesMeta metas;
 
         public CostImportExcelService(
             ICostBlockService costBlockService,
             ISqlRepository sqlRepository,
+            IExcelConverterService converterService,
             DomainEnitiesMeta metas)
         {
             this.costBlockService = costBlockService;
             this.sqlRepository = sqlRepository;
+            this.converterService = converterService;
             this.metas = metas;
         }
 
@@ -107,7 +111,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var errors = new List<string>();
 
-            var costBlockMeta = this.metas.GetCostBlockEntityMeta(context);
+            var costBlockMeta = this.metas.CostBlocks[context];
             var inputLevelField = costBlockMeta.InputLevelFields[context.InputLevelId];
 
             var inputLevelItems =
@@ -118,7 +122,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var inputLevelItemsDictionary = inputLevelItems.ToDictionary(item => item.Name);
 
-            var converter = await this.BuildConverter(costBlockMeta, context.CostElementId);
+            var converter = await this.converterService.BuildConverter(costBlockMeta, context.CostElementId);
             var valueInfos = new List<ValuesInfo>();
             var dependencyFilter = this.BuildFilter(costBlockMeta, context);
 
@@ -160,76 +164,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (editInfo, errors);
         }
 
-        private async Task<Func<string, object>> BuildConverter(CostBlockEntityMeta meta, string costElementId)
-        {
-            Func<string, object> converter;
-
-            switch (meta.CostElementsFields[costElementId])
-            {
-                case SimpleFieldMeta simpleField:
-                    switch(simpleField.Type)
-                    {
-                        case TypeCode.Boolean:
-                            converter = rawValue =>
-                            {
-                                bool result;
-
-                                var rawValueUpper = rawValue.ToUpper();
-
-                                if (rawValueUpper == "0" || rawValueUpper == "FALSE")
-                                {
-                                    result = false;
-                                }
-                                else if (rawValueUpper == "1" || rawValueUpper == "TRUE")
-                                {
-                                    result = true;
-                                }
-                                else
-                                {
-                                    throw new Exception($"Unable to convert value from '{rawValue}' to boolean");
-                                }
-
-                                return result;
-                            };
-                            break;
-
-                        default:
-                            converter = rawValue => Convert.ChangeType(rawValue, simpleField.Type);
-                            break;
-                    }
-                    break;
-
-                case ReferenceFieldMeta referenceField:
-                    var referenceItems = 
-                        await this.sqlRepository.GetNameIdItems(
-                            referenceField.ReferenceMeta, 
-                            referenceField.ReferenceValueField, 
-                            referenceField.ReferenceFaceField);
-
-                    var referenceItemsDict = referenceItems.ToDictionary(item => item.Name.ToUpper(), item => item.Id);
-
-                    converter = rawValue =>
-                    {
-                        if (!referenceItemsDict.TryGetValue(rawValue.ToUpper(), out var id))
-                        {
-                            throw new Exception($"'{rawValue}' not found in {referenceField.Name}");
-                        }
-
-                        return id;
-                    };
-                    break;
-
-                default:
-                    throw new NotSupportedException("Cost element field type not supported");
-            }
-
-            return converter;
-        }
+        
 
         private IDictionary<string, long[]> BuildFilter(CostBlockEntityMeta costBlockMeta, CostImportContext context)
         {
             var filter = new Dictionary<string, long[]>();
-            var costElement = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costElement = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (context.DependencyItemId.HasValue)
             {

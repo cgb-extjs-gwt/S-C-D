@@ -22,30 +22,41 @@ namespace Gdc.Scd.Export.ArchiveJob.Impl
             this.path = Config.FilePath;
         }
 
-        public virtual CostBlockDto[] GetCostBlocks()
+        public virtual ArchiveDto[] GetCostBlocks()
         {
-            return new CostBlockDto[]
+            return new ArchiveDto[]
             {
-                new CostBlockDto { TableName = "Afr"                      , Procedure = "Archive.spGetAfr"                       },
-                new CostBlockDto { TableName = "AvailabilityFee"          , Procedure = "Archive.spGetAvailabilityFee"           },
-                new CostBlockDto { TableName = "FieldServiceCost"         , Procedure = "Archive.spGetFieldServiceCalc"          },
-                new CostBlockDto { TableName = "FieldServiceTime"         , Procedure = "Archive.spGetFieldServiceTimeCalc"      },
-                new CostBlockDto { TableName = "HddRetention"             , Procedure = "Archive.spGetHddRetention"              },
-                new CostBlockDto { TableName = "InstallBase"              , Procedure = "Archive.spGetInstallBase"               },
-                new CostBlockDto { TableName = "LogisticsCosts"           , Procedure = "Archive.spGetLogisticsCosts"            },
-                new CostBlockDto { TableName = "MarkupOtherCosts"         , Procedure = "Archive.spGetMarkupOtherCosts"          },
-                new CostBlockDto { TableName = "MarkupStandardWaranty"    , Procedure = "Archive.spGetMarkupStandardWaranty"     },
-                new CostBlockDto { TableName = "MaterialCostWarranty"     , Procedure = "Archive.spGetMaterialCostWarranty"      },
-                new CostBlockDto { TableName = "MaterialCostWarrantyEmeia", Procedure = "Archive.spGetMaterialCostWarrantyEmeia" },
-                new CostBlockDto { TableName = "ProActive"                , Procedure = "Archive.spGetProActive"                 },
-                new CostBlockDto { TableName = "ProActiveSw"              , Procedure = "Archive.spGetProActiveSw"               },
-                new CostBlockDto { TableName = "Reinsurance"              , Procedure = "Archive.spGetReinsurance"               },
-                new CostBlockDto { TableName = "RoleCodeHourlyRates"      , Procedure = "Archive.spGetRoleCodeHourlyRates"       },
-                new CostBlockDto { TableName = "ServiceSupportCost"       , Procedure = "Archive.spGetServiceSupportCost"        },
-                new CostBlockDto { TableName = "SwSpMaintenance"          , Procedure = "Archive.spGetSwSpMaintenance"           },
-                new CostBlockDto { TableName = "TaxAndDuties"             , Procedure = "Archive.spGetTaxAndDuties"              },
-                new CostBlockDto { TableName = "SW costs"                 , Procedure = "Archive.spGetSwCosts"                   },
-                new CostBlockDto { TableName = "SW ProActive costs"       , Procedure = "Archive.spGetSwProActiveCosts"          }
+                new ArchiveDto { ArchiveName = "Afr"                      , Procedure = "Archive.spGetAfr"                       },
+                new ArchiveDto { ArchiveName = "AvailabilityFee"          , Procedure = "Archive.spGetAvailabilityFee"           },
+                new ArchiveDto { ArchiveName = "FieldServiceCost"         , Procedure = "Archive.spGetFieldServiceCalc"          },
+                new ArchiveDto { ArchiveName = "FieldServiceTime"         , Procedure = "Archive.spGetFieldServiceTimeCalc"      },
+                new ArchiveDto { ArchiveName = "HddRetention"             , Procedure = "Archive.spGetHddRetention"              },
+                new ArchiveDto { ArchiveName = "InstallBase"              , Procedure = "Archive.spGetInstallBase"               },
+                new ArchiveDto { ArchiveName = "LogisticsCosts"           , Procedure = "Archive.spGetLogisticsCosts"            },
+                new ArchiveDto { ArchiveName = "MarkupOtherCosts"         , Procedure = "Archive.spGetMarkupOtherCosts"          },
+                new ArchiveDto { ArchiveName = "MarkupStandardWaranty"    , Procedure = "Archive.spGetMarkupStandardWaranty"     },
+                new ArchiveDto { ArchiveName = "MaterialCostWarranty"     , Procedure = "Archive.spGetMaterialCostWarranty"      },
+                new ArchiveDto { ArchiveName = "MaterialCostWarrantyEmeia", Procedure = "Archive.spGetMaterialCostWarrantyEmeia" },
+                new ArchiveDto { ArchiveName = "ProActive"                , Procedure = "Archive.spGetProActive"                 },
+                new ArchiveDto { ArchiveName = "ProActiveSw"              , Procedure = "Archive.spGetProActiveSw"               },
+                new ArchiveDto { ArchiveName = "Reinsurance"              , Procedure = "Archive.spGetReinsurance"               },
+                new ArchiveDto { ArchiveName = "RoleCodeHourlyRates"      , Procedure = "Archive.spGetRoleCodeHourlyRates"       },
+                new ArchiveDto { ArchiveName = "ServiceSupportCost"       , Procedure = "Archive.spGetServiceSupportCost"        },
+                new ArchiveDto { ArchiveName = "SwSpMaintenance"          , Procedure = "Archive.spGetSwSpMaintenance"           },
+                new ArchiveDto { ArchiveName = "TaxAndDuties"             , Procedure = "Archive.spGetTaxAndDuties"              },
+                new ArchiveDto { ArchiveName = "SW costs"                 , Procedure = "Archive.spGetSwCosts"                   },
+                new ArchiveDto { ArchiveName = "SW ProActive costs"       , Procedure = "Archive.spGetSwProActiveCosts"          }
+            };
+        }
+
+        public ArchiveDto[] GetCountryArchives()
+        {
+            return new ArchiveDto[]
+            {
+                new ArchiveDto { ArchiveName = "Hardware cost"            , Procedure = "Archive.spGetHwCosts"   },
+                new ArchiveDto { ArchiveName = "ProActive"                , Procedure = "Archive.spProActive"    },
+                new ArchiveDto { ArchiveName = "LOCAP detailed"           , Procedure = "Archive.spLocap"        },
+                new ArchiveDto { ArchiveName = "HDD retention"            , Procedure = "Archive.spHddRetention" }
             };
         }
 
@@ -54,31 +65,34 @@ namespace Gdc.Scd.Export.ArchiveJob.Impl
             return new GetCountries(repo).Execute();
         }
 
-        public virtual Stream GetData(CostBlockDto costBlock)
+        public virtual Stream GetData(ArchiveDto costBlock)
         {
-            return new GetExcelArchive(repo).ExecuteExcel(costBlock.TableName, costBlock.Procedure, null);
+            return new GetExcelArchive(repo).ExecuteExcel(costBlock.ArchiveName, costBlock.Procedure, null);
         }
 
-        public Stream GetData(CountryDto cnt)
+        public Stream GetData(CountryDto cnt, ArchiveDto archive)
         {
-            return new GetExcelArchive(repo).ExecuteCountryHwExcel(cnt);
+            return new GetExcelArchive(repo).ExecuteCountryExcel(cnt, archive);
         }
 
-        public void Save(CostBlockDto dto, Stream stream)
+        public void Save(ArchiveDto dto, Stream stream)
         {
-            Save(GenFn(dto), stream);
+            Save(GetPath(), GenFn(dto), stream);
         }
 
         public void Save(CountryDto cnt, Stream stream)
         {
-            Save(GenFn(cnt), stream);
+            Save(GetPath(), GenFn(cnt), stream);
         }
 
-        public virtual void Save(string fn, Stream stream)
+        public void Save(CountryDto cnt, ArchiveDto archive, Stream stream)
+        {
+            Save(Path.Combine(GetPath(), cnt.Name), archive.ArchiveName, stream);
+        }
+
+        public virtual void Save(string path, string fn, Stream stream)
         {
             fn = fn + ".xlsx";
-
-            var path = GetPath();
 
             if (!Directory.Exists(path))
             {
@@ -93,14 +107,19 @@ namespace Gdc.Scd.Export.ArchiveJob.Impl
             }
         }
 
-        public string GenFn(CostBlockDto block)
+        public string GenFn(ArchiveDto block)
         {
-            return block.TableName;
+            return block.ArchiveName;
         }
 
         public string GenFn(CountryDto cnt)
         {
             return string.Concat(cnt.Name, "_", "HW_costs");
+        }
+
+        public string GenFn(CountryDto cnt, ArchiveDto archive)
+        {
+            return Path.Combine(cnt.Name, archive.ArchiveName);
         }
 
         public string GetPath()

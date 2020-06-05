@@ -46,6 +46,7 @@ RETURN (
 
             , case when @local = 1 then ReActiveTC * costs.ExchangeRate else ReActiveTC end as ReActiveTC
             , case when @local = 1 then ReActiveTP * costs.ExchangeRate else ReActiveTP end as ReActiveTP
+            , case when @local = 1 then ReActiveTPManual * costs.ExchangeRate else ReActiveTPManual end as ReActiveTPManual
             , case when @local = 1 then ProActive * costs.ExchangeRate else ProActive end as ProActive
 
             , case when @local = 1 then ServiceSupportCost * costs.ExchangeRate else ServiceSupportCost end as ServiceSupportCost
@@ -56,6 +57,7 @@ RETURN (
             , case when @local = 1 then Logistic * costs.ExchangeRate else Logistic end as Logistic
             , case when @local = 1 then OtherDirect * costs.ExchangeRate else OtherDirect end as OtherDirect
             , case when @local = 1 then costs.ExchangeRate else 1 end * coalesce(LocalServiceStandardWarrantyManual, LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+            , case when @local = 1 then LocalServiceStandardWarrantyWithRisk * costs.ExchangeRate else LocalServiceStandardWarrantyWithRisk end as LocalServiceStandardWarrantyWithRisk
             , case when @local = 1 then Credits * costs.ExchangeRate else Credits end as Credits
             
             , case when @local = 1 then FullServiceTC * costs.ExchangeRate else FullServiceTC end as ServiceTC
@@ -115,32 +117,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StdWarrantyLocation', 'Standard Warranty Service Location', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'FieldServiceCost', 'Field service cost', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceSupportCost', 'Service support cost', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Logistic', 'Logistic cost', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'AvailabilityFee', 'Availability fee', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Reinsurance', 'Reinsurance', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'TaxAndDutiesW', 'Tax & Duties iW period', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'TaxAndDutiesOow', 'Tax & Duties OOW period', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialW', 'Material cost iW period', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialOow', 'Material cost OOW period', 1, 1);
-
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTC', 'ReActive TC (calc)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTP', 'ReActive TP (calc)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ProActive', 'ProActive', 1, 1);
-
-set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTC', 'Service TC(calc)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTCManual', 'Service TC(manual)', 1, 1);
@@ -150,7 +126,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTPManual', 'Service TP(manual)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTP_Released', 'Service TP(released)', 1, 1);
-
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'LocalServiceStandardWarrantyWithRisk', 'Local STDW (TP) external', 1, 1); 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ListPrice', 'List price', 1, 1);
 set @index = @index + 1;
@@ -170,11 +147,40 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'OtherDirect', 'Other direct cost', 1, 1);
-set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'LocalServiceStandardWarranty', 'Local service standard warranty', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Credits', 'Credits', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTC', 'ReActive TC (calc)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTP', 'ReActive TP (calc)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ReActiveTPManual', 'ReActive TP (manual)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ProActive', 'ProActive', 1, 1);
+
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'FieldServiceCost', 'Field service cost', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceSupportCost', 'Service support cost', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Logistic', 'Logistic cost', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'AvailabilityFee', 'Availability fee', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Reinsurance', 'Reinsurance', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'OtherDirect', 'Other direct cost', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'TaxAndDutiesW', 'Tax & Duties iW period', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'TaxAndDutiesOow', 'Tax & Duties OOW period', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialW', 'Material cost iW period', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialOow', 'Material cost OOW period', 1, 1);
+
 
 ------------------------------------
 set @index = 0;

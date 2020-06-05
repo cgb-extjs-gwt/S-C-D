@@ -28,5 +28,7 @@
         public const string CHECKING_SW_PROACTIVE = "Checking SW Proactive Info for SW Digit {0}";
         public const string DELETE_BEGIN = "Deletion {0} is started...";
         public const string DELETE_END = "Deletion ended.";
+        public const string CHANGING_WG_TYPE_BEGIN = "Changing wg type for deactivated Wgs in POR System.";
+        public const string CHANGING_WG_TYPE_ENDS = "{0} Wgs was modified. WgType was change to logistics.";
     }
 }

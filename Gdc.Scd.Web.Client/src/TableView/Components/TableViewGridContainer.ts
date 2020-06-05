@@ -6,7 +6,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { FieldType, CostElementMeta, CostMetaData, InputLevelMeta } from "../../Common/States/CostMetaStates";
 import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl, exportToExcel } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
-import { loadTableViewInfo, editRecord, resetChanges, saveTableViewToServer } from "../Actions/TableViewActions";
+import { loadTableViewInfo, editRecord, resetChanges } from "../Actions/TableViewActions";
 import { TableViewInfo, DataInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { Dispatch } from "redux";
@@ -19,6 +19,7 @@ import { RouteComponentProps } from "react-router";
 import { VALUE_DATA_INDEX, CHECKED_DATA_INDEX } from "../../Common/Components/LocalDynamicGrid";
 import { toArray } from "../../Common/Helpers/ArrayHelper";
 import { hasQueryParams, deleteQueryParams } from "../../Common/Helpers/RouterHelper";
+import { saveTableViewToServer } from "../Actions/TableViewActionsAsync";
 
 const buildProps = (() => {
     let oldMeta: CostMetaData;
@@ -27,7 +28,6 @@ const buildProps = (() => {
     let oldProps = buildGridProps(oldTableViewInfo, oldEditedRecords, oldMeta);
     let oldColumns = oldProps.columns;
     let oldApiUrls = oldProps.apiUrls;
-    let oldBuildHistotyDataLoadUrl = oldProps.buildHistotyDataLoadUrl;
 
     return (state: CommonState) => {
         let newResult: TableViewGridProps;
@@ -51,14 +51,15 @@ const buildProps = (() => {
     }
 
     function buildGridProps (tableViewInfo: TableViewInfo, editedRecords: TableViewRecord[], meta: CostMetaData) {
+        let readUrl: string;
         let columns: ColumnInfo<TableViewRecord>[];
         let apiUrls: ApiUrls;
-        let buildHistotyDataLoadUrlFn: (selection: Model<TableViewRecord>[], selectedDataIndex: string) => string
+
+        const hasChanges = editedRecords && editedRecords.length > 0;
 
         if (tableViewInfo == oldTableViewInfo) {
             columns = oldColumns;
             apiUrls = oldApiUrls;
-            buildHistotyDataLoadUrlFn = oldBuildHistotyDataLoadUrl;
         } else {
             const roleCodeReferences = new Map<number, NamedId<number>>();
 
@@ -95,15 +96,12 @@ const buildProps = (() => {
             apiUrls = {
                 read: buildGetRecordsUrl()
             };
-
-            buildHistotyDataLoadUrlFn = tableViewInfo ? buildHistotyDataLoadUrl : () => '';
         }
 
         return <TableViewGridProps>{
             columns,
             apiUrls: apiUrls,
-            hasChanges: editedRecords && editedRecords.length > 0,
-            buildHistotyDataLoadUrl: buildHistotyDataLoadUrlFn
+            hasChanges: editedRecords && editedRecords.length > 0
         };
 
         function buildCoordinateColumns (coordinateIds: string[]) { 
@@ -203,25 +201,6 @@ const buildProps = (() => {
                 mappingFn: record => record.additionalData[dataIndex],
             }));
         }
-
-        function buildHistotyDataLoadUrl([selection]: Model<TableViewRecord>[], selectedDataIndex: string) {
-            const costElementField =
-                tableViewInfo.recordInfo.data.find(fieldInfo => fieldInfo.dataIndex == selectedDataIndex);
-        
-            const coordinates = {};
-        
-            for (const key of Object.keys(selection.data.coordinates)) {
-                coordinates[key] = selection.data.coordinates[key].id;
-            }
-        
-            if (costElementField.dependencyItemId != null) {
-                const costElement = getCostElementByAppMeta(meta, costElementField.costBlockId, costElementField.costElementId);
-        
-                coordinates[costElement.dependency.id] = costElementField.dependencyItemId;
-            }
-        
-            return buildGetHistoryUrl(costElementField, coordinates);
-        }
     }
 })()
 
@@ -307,8 +286,7 @@ const buildActions = (() => {
                 }
 
                 setFiltersByUrl(filterStores, ownProps);
-            },
-            onExportToExcelClick: exportToExcel
+            }
         }
 
         function setFiltersByUrl(filterStores: Map<string, Store<FilterItem>>, router: RouteComponentProps) {

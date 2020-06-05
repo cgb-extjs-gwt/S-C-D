@@ -1,19 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Helpers;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -33,7 +29,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockHistoryService costBlockHistoryService;
 
-        private readonly DomainEnitiesMeta meta;
+        private readonly DomainEnitiesMeta entitiesMeta;
+
+        private readonly DomainMeta domainMeta;
 
         public CostBlockService(
             ICostBlockRepository costBlockRepository,
@@ -43,7 +41,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ISqlRepository sqlRepository,
             IQualityGateSevice qualityGateSevice,
             ICostBlockHistoryService costBlockHistoryService,
-            DomainEnitiesMeta meta)
+            DomainEnitiesMeta entitiesMeta,
+            DomainMeta domainMeta)
         {
             this.costBlockRepository = costBlockRepository;
             this.repositorySet = repositorySet;
@@ -52,7 +51,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.sqlRepository = sqlRepository;
             this.qualityGateSevice = qualityGateSevice;
             this.costBlockHistoryService = costBlockHistoryService;
-            this.meta = meta;
+            this.entitiesMeta = entitiesMeta;
+            this.domainMeta = domainMeta;
         }
 
         public async Task<QualityGateResultSet> Update(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType)
@@ -73,8 +73,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var editContextGroup in editContextGroups)
                 {
-                    var costBlock = this.meta.GetCostBlockEntityMeta(editContextGroup.Key);
-                    var regionInputId = costBlock.DomainMeta.CostElements[editContextGroup.Key.CostElementId].RegionInput?.Id;
+                    var costElement = this.domainMeta.GetCostElement(editContextGroup.Key);
+                    var regionInputId = costElement.RegionInput?.Id;
 
                     IEnumerable<EditItemSet> editItemSets = null;
 
@@ -231,17 +231,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task UpdateByCoordinatesAsync(IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            await this.UpdateByCoordinatesAsync(this.meta.CostBlocks, updateOptions);
+            await this.UpdateByCoordinatesAsync(this.entitiesMeta.CostBlocks, updateOptions);
         }
 
         public void UpdateByCoordinates(IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            this.UpdateByCoordinates(this.meta.CostBlocks, updateOptions);
+            this.UpdateByCoordinates(this.entitiesMeta.CostBlocks, updateOptions);
+        }
+
+        public void UpdateByCoordinates(string coordinateId, IEnumerable<UpdateQueryOption> updateOptions = null)
+        {
+            var costBlocks = 
+                this.entitiesMeta.CostBlocks.Where(costBlock => costBlock.ContainsCoordinateField(coordinateId));
+
+            this.UpdateByCoordinates(costBlocks, updateOptions);
         }
 
         public async Task<IEnumerable<NamedId>> GetCoordinateItems(CostElementContext context, string coordinateId)
         {
-            var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
+            var costBlockMeta = this.entitiesMeta.CostBlocks[context];
             var referenceField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, coordinateId);
 
             var userCountries = this.userService.GetCurrentUserCountries();
@@ -254,33 +262,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<NamedId>> GetDependencyItems(CostElementContext context)
         {
-            var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            IEnumerable<NamedId> result;
+
+            var costBlockMeta = this.entitiesMeta.CostBlocks[context];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.Dependency == null)
             {
-                return null; //no dependency, it's ok
+                result = Enumerable.Empty<NamedId>();
             }
-
-            if (context.IsHardware())
+            else if (context.ApplicationId == MetaConstants.HardwareSchema)
             {
-                //Find items from Portfolio and Standard warranty
-                return await new PortfolioInputService(repositorySet)
-                               .GetCoordinateItemsByPorfolio(context.RegionInputId.Value, costElementMeta.Dependency.Id);
+                result = await this.costBlockRepository.GetDependencyByPortfolio(context) ?? await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
             }
             else
-            {
-                //simple get from config
-                return await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
+            { 
+                result = await this.GetCoordinateItems(context, costElementMeta.Dependency.Id);
             }
+
+            return result;
         }
 
         public async Task<IEnumerable<NamedId>> GetRegions(CostElementContext context)
         {
             IEnumerable<NamedId> regions = null;
 
-            var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var costBlockMeta = this.entitiesMeta.CostBlocks[context];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.RegionInput != null)
             {
@@ -307,8 +315,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             async Task<IEnumerable<NamedId>> GetRegions()
             {
                 return await this.sqlRepository.GetDistinctItems(
-                    context.CostBlockId, 
-                    context.ApplicationId, 
+                    costBlockMeta.Name,
+                    costBlockMeta.Schema, 
                     costElementMeta.RegionInput.Id,
                     isolationLevel: IsolationLevel.ReadUncommitted);
             }
@@ -318,80 +326,80 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var filterCache = new Dictionary<string, IDictionary<string, long[]>>();
 
-            foreach (var editInfo in editInfos)
-            {
-                var costElementGroups =
-                    editInfo.ValueInfos.SelectMany(info => BuildCoordinateInfo(info.CoordinateFilter, editInfo.Meta).Select(coordinateInfo => new
-                    {
-                        CostElementValues = info.Values,
-                        CoordinateInfo = coordinateInfo
-                    }))
-                                      .SelectMany(info => info.CostElementValues.Select(costElemenValue => new
-                                      {
-                                          CostElementValue = costElemenValue,
-                                          info.CoordinateInfo.Filter,
-                                          info.CoordinateInfo.InputLevel
-                                      }))
-                                      .GroupBy(info => info.CostElementValue.Key);
-
-                foreach (var costElementGroup in costElementGroups)
-                {
-                    foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
-                    {
-                        var filterGroups = inputLevelGroup.GroupBy(info => info.Filter.Count == 0 ? null : info.Filter);
-
-                        foreach (var filterGroup in filterGroups)
+            var costElementEditInfos = editInfos.SelectMany(
+                info => info.ValueInfos.SelectMany(
+                    valueInfo => valueInfo.Values.SelectMany(
+                        costElementValue => 
                         {
-                            var editItems =
-                                filterGroup.Select(info => new EditItem { Id = info.InputLevel.Value, Value = info.CostElementValue.Value })
-                                           .ToArray();
+                            var costElementId = this.entitiesMeta.CostBlocks.GetCostElementIdentifier(info.Meta, costElementValue.Key);
 
-                            var filter = filterGroup.Key ?? new Dictionary<string, long[]>();
-
-                            var context = new CostElementContext
+                            return BuildCoordinateInfos(valueInfo.CoordinateFilter, costElementId.CostBlockId).Select(coordinateInfo => new
                             {
-                                ApplicationId = editInfo.Meta.ApplicationId,
-                                CostBlockId = editInfo.Meta.CostBlockId,
-                                InputLevelId = inputLevelGroup.Key,
-                                CostElementId = costElementGroup.Key
-                            };
+                                info.Meta,
+                                CostElemenId = costElementId,
+                                CostElementValue = costElementValue.Value,
+                                coordinateInfo.Filter,
+                                coordinateInfo.InputLevel
+                            });
+                        })));
 
-                            var inputRegionInfo = editInfo.Meta.DomainMeta.CostElements[costElementGroup.Key].RegionInput;
-                            if (inputRegionInfo != null)
-                            {
-                                var inputRegionIdColumn = inputRegionInfo.Id;
-                                if (filter.TryGetValue(inputRegionIdColumn, out var inputRegionValue))
-                                {
-                                    if (inputRegionValue.Length == 1)
-                                        context.RegionInputId = inputRegionValue[0];
-                                    else
-                                        throw new System.Exception($"{nameof(context.RegionInputId)} must have single value.");
-                                }
-                                else if (inputRegionInfo.Id == context.InputLevelId)
-                                {
-                                    if (editItems.Length == 1)
-                                        context.RegionInputId = editItems[0].Id;
-                                    else
-                                        throw new System.Exception($"{inputRegionInfo.Id} must have single value on input level {inputRegionInfo.Id}.");
-                                }
-                            }
+            var editGroups = costElementEditInfos.GroupBy(info => new
+            {
+                info.CostElemenId,
+                Filter = info.Filter.Count == 0 ? null : info.Filter,
+                InputLevelId = info.InputLevel.Id
+            });
 
-                            yield return new EditItemContext
-                            {
-                                Context = context,
-                                EditItems = editItems,
-                                Filter = filter
-                            };
-                        }
+            foreach (var editGroup in editGroups)
+            {
+                var editItems =
+                        editGroup.Select(info => new EditItem { Id = info.InputLevel.Value, Value = info.CostElementValue })
+                                 .ToArray();
+
+                var filter = editGroup.Key.Filter ?? new Dictionary<string, long[]>();
+
+                var context = new CostElementContext
+                {
+                    ApplicationId = editGroup.Key.CostElemenId.ApplicationId,
+                    CostBlockId = editGroup.Key.CostElemenId.CostBlockId,
+                    InputLevelId = editGroup.Key.InputLevelId,
+                    CostElementId = editGroup.Key.CostElemenId.CostElementId
+                };
+
+                var costElement = this.domainMeta.GetCostElement(context);
+                var inputRegionInfo = costElement.RegionInput;
+                if (inputRegionInfo != null)
+                {
+                    var inputRegionIdColumn = inputRegionInfo.Id;
+                    if (filter.TryGetValue(inputRegionIdColumn, out var inputRegionValue))
+                    {
+                        if (inputRegionValue.Length == 1)
+                            context.RegionInputId = inputRegionValue[0];
+                        else
+                            throw new System.Exception($"{nameof(context.RegionInputId)} must have single value.");
+                    }
+                    else if (inputRegionInfo.Id == context.InputLevelId)
+                    {
+                        if (editItems.Length == 1)
+                            context.RegionInputId = editItems[0].Id;
+                        else
+                            throw new System.Exception($"{inputRegionInfo.Id} must have single value on input level {inputRegionInfo.Id}.");
                     }
                 }
+
+                yield return new EditItemContext
+                {
+                    Context = context,
+                    EditItems = editItems,
+                    Filter = filter
+                };
             }
 
-            IEnumerable<(IDictionary<string, long[]> Filter, (string Id, long Value) InputLevel)> BuildCoordinateInfo(
+            IEnumerable<(IDictionary<string, long[]> Filter, (string Id, long Value) InputLevel)> BuildCoordinateInfos(
                 IDictionary<string, long[]> coordinateFilter,
-                CostBlockEntityMeta meta)
+                string costBlockId)
             {
-                var maxInputLevelMeta = meta.DomainMeta.GetMaxInputLevel(coordinateFilter.Keys);
+                var maxInputLevelMeta = this.domainMeta.CostBlocks[costBlockId].GetMaxInputLevel(coordinateFilter.Keys);
                 var filterKeys = coordinateFilter.Keys.Where(coordinateId => coordinateId != maxInputLevelMeta.Id).ToArray();
                 var key = string.Join(
                     "_",
@@ -410,103 +418,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     yield return (filter, (maxInputLevelMeta.Id, inputLevelValue));
                 }
-            }
-        }
-
-        private async Task<IEnumerable<NamedId>> GetCoordinateItemsByPorfolio(CostElementContext context, string coordinateId)
-        {
-            IEnumerable<NamedId> items;
-
-            var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
-            var coordinateField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, coordinateId);
-            var portfolioField = this.meta.LocalPortfolio.GetFieldByReferenceMeta(coordinateField.ReferenceMeta);
-
-            var userCountries = this.userService.GetCurrentUserCountries();
-            var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var coordinateFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(costBlockMeta, context.CostElementId, coordinateId);
-
-            if (portfolioField == null)
-            {
-                var joinConditions = new List<ConditionHelper>();
-                var portfolioReferenceFields = this.meta.LocalPortfolio.ReferenceFields.ToDictionary(field => field.ReferenceMeta);
-
-                foreach (var coordinateReferenceField in coordinateField.ReferenceMeta.ReferenceFields)
-                {
-                    if (portfolioReferenceFields.TryGetValue(coordinateReferenceField.ReferenceMeta, out var portfolioRefernceField))
-                    {
-                        joinConditions.Add(
-                            SqlOperators.Equals(
-                                new ColumnInfo(coordinateReferenceField.Name, coordinateField.ReferenceMeta.Name),
-                                new ColumnInfo(portfolioRefernceField.Name, this.meta.LocalPortfolio.Name)));
-                    }
-                }
-
-                if (joinConditions.Count > 0)
-                {
-                    var portfolioFilter = GetPortfolioFilter();
-                    var filters = new List<FilterInfo>();
-
-                    if (portfolioFilter != null)
-                    {
-                        filters.Add(new FilterInfo(portfolioFilter, this.meta.LocalPortfolio.Name));
-                    }
-
-                    if (coordinateFilter != null)
-                    {
-                        filters.Add(new FilterInfo(coordinateFilter, coordinateField.ReferenceMeta.Name));
-                    }
-
-                    filters.Add(new FilterInfo(costBlockFilter, costBlockMeta.Name));
-
-                    items = await this.sqlRepository.GetDistinctItems(new DistinctItemsInfo
-                    {
-                        Meta = costBlockMeta,
-                        ReferenceFieldName = coordinateField.Name,
-                        JoinInfos = new[]
-                        {
-                            new JoinInfoAdvanced(this.meta.LocalPortfolio, ConditionHelper.And(joinConditions))
-                        },
-                        Filters = filters
-                    });
-                }
-                else
-                {
-                    items = await this.GetCoordinateItems(costBlockMeta, coordinateId, costBlockFilter, coordinateFilter);
-                }
-            }
-            else
-            {
-                var countryField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, MetaConstants.CountryInputLevelName);
-                if (countryField == null)
-                {
-                    items = await this.GetCoordinateItems(costBlockMeta, coordinateId, costBlockFilter, coordinateFilter);
-                }
-                else
-                {
-                    var portfolioFilter = GetPortfolioFilter();
-
-                    items = await this.sqlRepository.GetDistinctItems(this.meta.LocalPortfolio, portfolioField.Name, portfolioFilter);
-                }
-            }
-
-            return items;
-
-            IDictionary<string, IEnumerable<object>> GetPortfolioFilter()
-            {
-                Dictionary<string, IEnumerable<object>> portfolioFilter = null;
-
-                var countryMeta = this.meta.GetCountryEntityMeta();
-                var portfolioCountryField = this.meta.LocalPortfolio.GetFieldByReferenceMeta(countryMeta);
-
-                if (portfolioCountryField != null && costBlockFilter.TryGetValue(MetaConstants.CountryInputLevelName, out var countryIds))
-                {
-                    portfolioFilter = new Dictionary<string, IEnumerable<object>>
-                    {
-                        [portfolioCountryField.Name] = countryIds
-                    };
-                }
-
-                return portfolioFilter;
             }
         }
 

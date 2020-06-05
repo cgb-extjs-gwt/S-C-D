@@ -1,6 +1,8 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
@@ -18,15 +20,19 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Country> _repositoryCountry;
         private readonly IRepository<Pla> _repositoryPla;
         private readonly IRepository<Wg> _repositoryWg;
-        private readonly IRepository<AvailabilityFee> _availabilityFeeRepo;
+        private readonly IRepository<AvailabilityFeeWg> _availabilityFeeRepo;
         private readonly IRepository<CentralContractGroup> _centralContractGroupRepo;
+        private readonly ICostBlockService costBlockService;
         private readonly ILogger<LogLevel> _logger;
         private List<Wg> _newlyAddedWgs = new List<Wg>();
         private List<long> _deletedWgs = new List<long>();
         private List<long> _allCountries;
         private List<long> _multiVendorCountries;
 
-        public LogisticUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public LogisticUploader(
+            IRepositorySet repositorySet,
+            ICostBlockService costBlockService,
+            ILogger<LogLevel> logger)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -34,11 +40,12 @@ namespace Gdc.Scd.Import.Core.Impl
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
+            this.costBlockService = costBlockService;
             this._repositorySet = repositorySet;
             this._repositoryPla = this._repositorySet.GetRepository<Pla>();
             this._repositoryWg = this._repositorySet.GetRepository<Wg>();
             this._repositoryCountry = this._repositorySet.GetRepository<Country>();
-            this._availabilityFeeRepo = this._repositorySet.GetRepository<AvailabilityFee>();
+            this._availabilityFeeRepo = this._repositorySet.GetRepository<AvailabilityFeeWg>();
             this._centralContractGroupRepo = this._repositorySet.GetRepository<CentralContractGroup>();
             this._logger = logger;
             this._allCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster).Select(c => c.Id).ToList();
@@ -48,14 +55,11 @@ namespace Gdc.Scd.Import.Core.Impl
         public IEnumerable<UpdateQueryOption> Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             UpdateWg(items, modifiedDateTime);
-            _availabilityFeeRepo.DisableTrigger();
-            var updateSuccess = UpdateAvailabilityFee();
-            if (updateSuccess)
-            {
-                var result = UpdateLogistic(items, modifiedDateTime);
-                _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);
-            }
-            _availabilityFeeRepo.EnableTrigger();
+            this.costBlockService.UpdateByCoordinates(MetaConstants.WgInputLevelName);
+            
+            var result = UpdateLogistic(items, modifiedDateTime);
+             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);
+
             return new List<UpdateQueryOption>();
         }
 
@@ -165,14 +169,9 @@ namespace Gdc.Scd.Import.Core.Impl
                         if (wg != null)
                         {
                             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_START, wg.Name);
-                            Func<AvailabilityFee, bool> pred = null;
-                            if (item.IsMultiVendor)
-                                pred = af => af.WgId == wg.Id && _multiVendorCountries.Contains(af.CountryId.Value) && !af.DeactivatedDateTime.HasValue;
-                            else
-                                pred = af => af.WgId == wg.Id && _allCountries.Contains(af.CountryId.Value) && !af.DeactivatedDateTime.HasValue;
-
-                            var itemsToUpdate = allAvFees.Where(pred).ToList();
-                            var batchList = new List<AvailabilityFee>();
+                           
+                            var itemsToUpdate = allAvFees.Where(af => af.WgId == wg.Id && !af.DeactivatedDateTime.HasValue).ToList();
+                            var batchList = new List<AvailabilityFeeWg>();
                             foreach (var itemToUpdate in itemsToUpdate)
                             {
                                 if (item.IsJapanCostPerKit.ToLower() == "y")
@@ -214,59 +213,6 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             return result;
-        }
-
-        private bool UpdateAvailabilityFee()
-        {
-            var result = true;
-            try
-            {
-                _logger.Log(LogLevel.Info, ImportConstants.UPDATE_AVAILABILITY_FEE_NEW_WG_START);
-                var addedCount = 0;
-                var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue && !wg.IsSoftware).ToList();
-                foreach (var wg in this._newlyAddedWgs)
-                {
-                    var availabilityFees = new List<AvailabilityFee>();
-                    var dbWg = wgs.FirstOrDefault(w => w.Name.Equals(wg.Name, StringComparison.OrdinalIgnoreCase));
-                    var countries = wg.WgType == WgType.MultiVendor ? _multiVendorCountries : _allCountries;
-                    foreach (var country in countries)
-                    {
-                        if (dbWg != null)
-                        {
-                            availabilityFees.Add(CreateFee(dbWg, country));
-                        }
-                    }
-
-                    if (availabilityFees.Any())
-                    {
-                        _availabilityFeeRepo.Save(availabilityFees);
-                        _repositorySet.Sync();
-                        addedCount += availabilityFees.Count;
-                    }
-                }
-                _logger.Log(LogLevel.Info, ImportConstants.UPDATE_AVAILABILITY_FEE_NEW_WG_FINISH, addedCount);
-            }
-            catch(Exception ex)
-            {
-                _logger.Log(LogLevel.Error, ex, ImportConstants.UPDATE_AVAILABILITY_FEE_ERROR);
-                result = false;
-            }
-            return result;
-        }
-
-        public static AvailabilityFee CreateFee(Wg dbWg, long country)
-        {
-            var now = DateTime.Now;
-            return new AvailabilityFee
-            {
-                CountryId = country,
-                WgId = dbWg.Id,
-                PlaId = dbWg.Pla.Id,
-                CompanyId = dbWg.Pla.CompanyId,
-                CreatedDateTime = now,
-                ModifiedDateTime = now,
-                DeactivatedDateTime = null
-            };
         }
     }
 }

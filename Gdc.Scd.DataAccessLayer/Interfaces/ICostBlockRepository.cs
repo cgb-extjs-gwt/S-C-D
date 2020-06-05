@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
@@ -16,8 +16,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         void CreatRegionIndexes();
 
-        void AddCostElements(IEnumerable<CostElementInfo> costElementInfos);
+        SqlHelper BuildUpdateByCoordinatesQuery(CostBlockEntityMeta meta, IEnumerable<UpdateQueryOption> updateOptions = null);
 
-        void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks);
+        Task<NamedId[]> GetDependencyByPortfolio(CostElementContext context);
     }
 }

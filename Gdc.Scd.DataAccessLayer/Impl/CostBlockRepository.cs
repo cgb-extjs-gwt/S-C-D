@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -22,20 +20,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private const string CoordinateTable = "#Coordinates";
 
-        private readonly IKernel serviceProvider;
-
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
         public CostBlockRepository(
-            IRepositorySet repositorySet, 
-            DomainEnitiesMeta domainEnitiesMeta,
-            IKernel serviceProvider)
+            IRepositorySet repositorySet,
+            DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
             this.domainEnitiesMeta = domainEnitiesMeta;
-            this.serviceProvider = serviceProvider;
         }
 
         public async Task<int> Update(IEnumerable<EditInfo> editInfos)
@@ -58,12 +52,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                     var filterConditions = valueInfoGroup.Select(valueInfo => new BracketsSqlBuilder
                     {
-                        Query = 
+                        Query =
                             ConditionHelper.AndStatic(valueInfo.CoordinateFilter.Convert(), editInfoGroup.Key.Name)
                                            .ToSqlBuilder()
                     });
 
-                    var whereCondition = 
+                    var whereCondition =
                         CostBlockQueryHelper.BuildNotDeletedCondition(editInfoGroup.Key, editInfoGroup.Key.Name)
                                             .AndBrackets(ConditionHelper.Or(filterConditions));
 
@@ -74,7 +68,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     metaQueries.Add(query);
                 }
 
-                if (editInfoGroup.Key.DomainMeta.DisableTriggers && metaQueries.Count > 1)
+                if (editInfoGroup.Key.SliceDomainMeta.DisableTriggers && metaQueries.Count > 1)
                 {
                     metaQueries.Insert(0, Sql.DisableTriggers(editInfoGroup.Key));
                     metaQueries.Insert(metaQueries.Count - 1, Sql.EnableTriggers(editInfoGroup.Key));
@@ -123,11 +117,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 this.domainEnitiesMeta.CostBlocks.Select(costBlock => new
                 {
                     CostBlock = costBlock,
-                    RegionIds = 
-                        costBlock.DomainMeta.CostElements.Where(costElement => costElement.RegionInput != null)
-                                                         .GroupBy(costElement => costElement.RegionInput.Id)
-                                                         .Select(group => group.Key)
-                                                         .ToArray()
+                    RegionIds =
+                        costBlock.SliceDomainMeta.CostElements.Where(costElement => costElement.RegionInput != null)
+                                                              .GroupBy(costElement => costElement.RegionInput.Id)
+                                                              .Select(group => group.Key)
+                                                              .ToArray()
                 });
 
             var queries = new List<ISqlBuilder>();
@@ -157,76 +151,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
-        public void AddCostElements(IEnumerable<CostElementInfo> costElementInfos)
-        {
-            var queries =
-                costElementInfos.SelectMany(info => new[]
-                                {
-                                    BuildAlterCostBlockQuery(info),
-                                    BuildAlterHistoryQuery(info)
-                                })
-                                .ToList();
-
-            this.repositorySet.ExecuteSql(Sql.Queries(queries));
-
-            ISqlBuilder BuildAlterCostBlockQuery(CostElementInfo costElementInfo)
-            {
-                var alterTableBuilder = this.serviceProvider.Get<AlterTableMetaSqlBuilder>();
-
-                alterTableBuilder.Meta = costElementInfo.Meta;
-
-                var approvedCostElements =
-                    costElementInfo.CostElementIds.Select(costElementInfo.Meta.GetApprovedCostElement)
-                                                  .Select(field => field.Name);
-
-                alterTableBuilder.NewFields = costElementInfo.CostElementIds.Concat(approvedCostElements).ToArray();
-
-                return alterTableBuilder;
-            }
-
-            ISqlBuilder BuildAlterHistoryQuery(CostElementInfo costElementInfo)
-            {
-                var alterTableBuilder = this.serviceProvider.Get<AlterTableMetaSqlBuilder>();
-
-                alterTableBuilder.Meta = costElementInfo.Meta.HistoryMeta;
-                alterTableBuilder.NewFields = costElementInfo.CostElementIds;
-
-                return alterTableBuilder;
-            }
-        }
-
-        public void AddCostBlocks(IEnumerable<CostBlockEntityMeta> costBlocks)
-        {
-            var queries = costBlocks.SelectMany(costBlock => new[]
-            {
-                BuildCreateTableQuery(costBlock),
-                this.BuildUpdateByCoordinatesQuery(costBlock),
-                BuildCreateTableQuery(costBlock.HistoryMeta)
-            });
-
-            this.repositorySet.ExecuteSql(Sql.Queries(queries));
-
-            SqlHelper BuildCreateTableQuery(BaseEntityMeta meta)
-            {
-                var createTableBuilder = this.serviceProvider.Get<CreateTableMetaSqlBuilder>();
-                createTableBuilder.Meta = meta;
-
-                var queryList = new List<ISqlBuilder>
-                {
-                    createTableBuilder
-                };
-
-                queryList.AddRange(meta.AllFields.Select(field => new CreateColumnConstraintMetaSqlBuilder 
-                {
-                    Meta = meta,
-                    Field = field.Name
-                }));
-
-                return Sql.Queries(queryList);
-            }
-        }
-
-        private SqlHelper BuildUpdateByCoordinatesQuery(
+        public SqlHelper BuildUpdateByCoordinatesQuery(
             CostBlockEntityMeta meta,
             IEnumerable<UpdateQueryOption> updateOptions = null)
         {
@@ -258,6 +183,68 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
 
             return Sql.Queries(queries.ToArray());
+        }
+
+        public async Task<NamedId[]> GetDependencyByPortfolio(CostElementContext context)
+        {
+            var costBlock = this.domainEnitiesMeta.CostBlocks[context];
+            var regionField = costBlock.GetDomainRegionInputField(context.CostElementId);
+            var regionMeta = regionField?.ReferenceMeta;
+            var dependencyField = costBlock.GetDomainDependencyField(context.CostElementId);
+            var dependencyMeta = (NamedEntityMeta)dependencyField.ReferenceMeta;
+
+            if (this.domainEnitiesMeta.LocalPortfolio.GetFieldByReferenceMeta(dependencyMeta) == null ||
+                this.domainEnitiesMeta.HwStandardWarranty.GetFieldByReferenceMeta(dependencyMeta) == null)
+            {
+                return null;
+            }
+
+            var selectIdsQuery = Sql.Union(new[]
+            {
+                BuildSelectIdsQuery(this.domainEnitiesMeta.LocalPortfolio),
+                BuildSelectIdsQuery(this.domainEnitiesMeta.HwStandardWarranty)
+            });
+
+            var query =
+                Sql.Select(dependencyMeta.IdField.Name, dependencyMeta.NameField.Name)
+                   .From(dependencyField.ReferenceMeta)
+                   .Where(SqlOperators.In(dependencyMeta.IdField.Name, selectIdsQuery, dependencyMeta.Name));
+
+            var items = await this.repositorySet.ReadBySqlAsync(query, reader =>
+            {
+                return new NamedId
+                {
+                    Id = reader.GetInt64(0),
+                    Name = reader.GetString(1)
+                };
+            });
+
+            return items.ToArray();
+
+            SqlHelper BuildSelectIdsQuery(BaseEntityMeta meta)
+            {
+                var selectField = meta.GetFieldByReferenceMeta(dependencyMeta);
+                var conditions = new List<ConditionHelper>();
+
+                if (context.RegionInputId.HasValue && regionMeta != null)
+                {
+                    var field = meta.GetFieldByReferenceMeta(regionMeta);
+                    if (field != null)
+                    {
+                        conditions.Add(SqlOperators.Equals(field.Name, context.RegionInputId.Value));
+                    }
+                }
+
+                if (conditions.Any())
+                    return
+                        Sql.SelectDistinct(new ColumnInfo(selectField.Name, alias: MetaConstants.IdFieldKey))
+                            .From(meta)
+                            .Where(ConditionHelper.And(conditions));
+
+                return
+                    Sql.SelectDistinct(new ColumnInfo(selectField.Name, alias: MetaConstants.IdFieldKey))
+                        .From(meta);
+            }
         }
 
         private SqlHelper BuildCoordinatesTableQuery(CostBlockEntityMeta costBlockMeta)
@@ -318,7 +305,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 for (var j = i + 1; j < joinInfos.Count; j++)
                 {
-                    if(joinInfos[i].InnerJoinInfo.Meta.FullName == joinInfos[j].ReferenceMeta.FullName)
+                    if (joinInfos[i].InnerJoinInfo.Meta.FullName == joinInfos[j].ReferenceMeta.FullName)
                     {
                         var tmp = joinInfos[i];
                         joinInfos[i] = joinInfos[j];
@@ -360,45 +347,59 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             const string NewRowsTableName = "NewRows";
             const string ValuesTableName = "Values";
 
-            var lastInputLevel = costBlockMeta.DomainMeta.InputLevels.Last();
-            var valuesQueryCoordinateFields = 
-                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Name)
+            var lastInputLevel = costBlockMeta.SliceDomainMeta.InputLevels.Last();
+            var valuesQueryCoordinateFields =
+                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Id)
                                               .ToArray();
 
-            var insertedFieldNames = 
-                costBlockMeta.CoordinateFields.Concat(costBlockMeta.CostElementsFields)
-                                              .Select(field => field.Name)
-                                              .ToArray();
+            var insertedFieldNames = costBlockMeta.CoordinateFields.ToNamesArray();
+            var selectedColumns = costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, NewRowsTableName)).ToArray();
 
-            var selectedColumns =
-                costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, NewRowsTableName))
-                                              .Concat(costBlockMeta.CostElementsFields.Select(field => new ColumnInfo(field.Name, ValuesTableName)))
-                                              .ToArray();
+            SelectJoinSqlHelper selectQuery;
+
+            if (valuesQueryCoordinateFields.Length == 0)
+            {
+                selectQuery = BuildSelectQuery();
+                insertedFieldNames = costBlockMeta.CoordinateFields.Select(field => field.Name).ToArray();
+            }
+            else
+            {
+                insertedFieldNames = insertedFieldNames.Concat(costBlockMeta.CostElementsFields.ToNames()).ToArray();
+                selectedColumns =
+                    selectedColumns.Concat(costBlockMeta.CostElementsFields.Select(field => new ColumnInfo(field.Name, ValuesTableName)))
+                                   .ToArray();
+
+                selectQuery = BuildSelectQuery().Join(
+                    new AliasSqlBuilder
+                    {
+                        Alias = ValuesTableName,
+                        Query = new BracketsSqlBuilder
+                        {
+                            Query = BuildValuesQuery()
+                        }
+                    },
+                    ConditionHelper.And(
+                        valuesQueryCoordinateFields.Select(
+                            field => SqlOperators.Equals(
+                                new ColumnInfo(field.Name, NewRowsTableName),
+                                new ColumnInfo(field.Name, ValuesTableName)))),
+                    JoinType.Left);
+            }
 
             return
                  Sql.Insert(costBlockMeta, insertedFieldNames)
-                    .Query(
-                        Sql.Select(selectedColumns)
-                           .FromQuery(
-                                Sql.Except(
-                                    this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
-                                    this.BuildSelectFromCostBlockQuery(costBlockMeta)),
-                                NewRowsTableName)
-                           .Join(
-                                new AliasSqlBuilder
-                                {
-                                    Alias = ValuesTableName,
-                                    Query = new BracketsSqlBuilder
-                                    {
-                                        Query = BuildValuesQuery()
-                                    } 
-                                },
-                                ConditionHelper.And(
-                                    valuesQueryCoordinateFields.Select(
-                                        field => SqlOperators.Equals(
-                                            new ColumnInfo(field.Name, NewRowsTableName), 
-                                            new ColumnInfo(field.Name, ValuesTableName)))),
-                                JoinType.Left));
+                    .Query(selectQuery);
+
+            SelectJoinSqlHelper BuildSelectQuery()
+            {
+                return
+                    Sql.Select(selectedColumns)
+                       .FromQuery(
+                           Sql.Except(
+                               this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
+                               this.BuildSelectFromCostBlockQuery(costBlockMeta)),
+                           NewRowsTableName);
+            }
 
             ISqlBuilder BuildValuesQuery()
             {
@@ -518,7 +519,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                                .Concat(new BaseUpdateColumnInfo[]
                                                {
                                                    new QueryUpdateColumnInfo(
-                                                       costBlock.ActualVersionField.Name, 
+                                                       costBlock.ActualVersionField.Name,
                                                        new ColumnSqlBuilder(costBlock.IdField.Name))
                                                })
                                                .ToArray();
@@ -535,9 +536,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var condition =
                 ConditionHelper.And(
                     costBlockMeta.CoordinateFields.Select(
-                        field => 
+                        field =>
                             SqlOperators.Equals(
-                                new ColumnInfo(field.Name, DeletedCoordinateTable), 
+                                new ColumnInfo(field.Name, DeletedCoordinateTable),
                                 new ColumnInfo(field.Name, costBlockMeta.Name))));
 
             return
@@ -581,7 +582,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
-                var referenceField = 
+                var referenceField =
                     (ReferenceFieldMeta)referenceJoinInfo.InnerJoinInfo.Meta.GetField(referenceJoinInfo.InnerJoinInfo.ReferenceFieldName);
 
                 joinType = JoinType.Inner;
@@ -603,10 +604,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 conditions.Add(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name));
             }
 
-            switch(referenceMeta)
+            switch (referenceMeta)
             {
                 case WgEnityMeta wgMeta:
-                    if (costBlockMeta.Name != MetaConstants.AvailabilityFeeCostBlock)
+                    if (costBlockMeta.Name != MetaConstants.AvailabilityFeeWgCountryCostBlock &&
+                        costBlockMeta.Name != MetaConstants.AvailabilityFeeWgCostBlock)
                     {
                         conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, (int)WgType.Por));
                     }

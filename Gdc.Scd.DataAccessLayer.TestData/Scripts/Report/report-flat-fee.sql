@@ -2,7 +2,7 @@
   DROP FUNCTION Report.FlatFeeReport;
 go 
 
-CREATE FUNCTION Report.FlatFeeReport
+CREATE FUNCTION [Report].[FlatFeeReport]
 (
     @cnt bigint,
     @wg bigint
@@ -18,23 +18,28 @@ RETURN (
             , c.Currency
             , calc.Fee_Approved * er.Value / 12 as Fee
         
-            , fee.InstalledBaseHighAvailability_Approved as IB
+            , fee2.InstalledBaseHighAvailability_Approved as IB
             , fee.CostPerKit as CostPerKit
             , fee.CostPerKitJapanBuy as CostPerKitJapanBuy
             , fee.MaxQty as MaxQty
-            , fee.JapanBuy_Approved as JapanBuy
+            , fee2.JapanBuy_Approved as JapanBuy
 
-    from Hardware.AvailabilityFee fee
-    left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee.Country
-    join InputAtoms.CountryView c on c.Id = fee.Country
+    from Hardware.AvailabilityFeeWg fee
     join InputAtoms.Wg wg on wg.id = fee.Wg
+    
+    join Hardware.AvailabilityFeeWgCountry fee2 on fee2.Wg = wg.Id and fee2.DeactivatedDateTime is null
+    left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee2.Country 
+    
+    join InputAtoms.CountryView c on c.Id = fee2.Country
+    
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
     where     fee.DeactivatedDateTime is null
-          and (@cnt is null or fee.Country = @cnt)
-          and (@wg is null or fee.Wg = @wg))
+          and (@cnt is null or fee2.Country = @cnt)
+          and (@wg is null or fee.Wg = @wg)
 
-GO
+)
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'FLAT-FEE-REPORTS');
 declare @index int = 0;

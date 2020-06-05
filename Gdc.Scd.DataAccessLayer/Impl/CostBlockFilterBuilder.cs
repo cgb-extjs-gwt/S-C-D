@@ -20,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public IDictionary<string, long[]> BuildRegionFilter(CostElementContext context, IEnumerable<Country> userCountries = null)
         {
             var filter = new Dictionary<string, long[]>();
-            var costBlock = this.meta.GetCostBlockEntityMeta(context);
+            var costBlock = this.meta.CostBlocks[context];
 
             if (costBlock.ContainsCoordinateField(MetaConstants.CountryInputLevelName) && userCountries != null)
             {
@@ -34,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             if (context.RegionInputId != null)
             {
-                var costElement = costBlock.DomainMeta.CostElements[context.CostElementId];
+                var costElement = costBlock.SliceDomainMeta.CostElements[context.CostElementId];
 
                 if (filter.TryGetValue(costElement.RegionInput.Id, out var regionValues))
                 {
@@ -98,7 +98,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IDictionary<string, IEnumerable<object>> filter = null;
 
             var coordinateField = costBlockMeta.GetDomainCoordinateField(costElementId, coordinateId);
-            var costElementMeta = costBlockMeta.DomainMeta.CostElements[costElementId];
+            var costElementMeta = costBlockMeta.SliceDomainMeta.CostElements[costElementId];
 
             if (costElementMeta.Dependency?.Id == coordinateId && !costElementMeta.IncludeDisabledDependcyItems)
             {
@@ -127,9 +127,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private CostElementMeta GetCostElement(CostEditorContext context)
         {
-            var costBlock = this.meta.GetCostBlockEntityMeta(context);
+            var costBlock = this.meta.CostBlocks[context];
 
-            return costBlock.DomainMeta.CostElements[context.CostElementId];
+            return costBlock.SliceDomainMeta.CostElements[context.CostElementId];
         }
     }
 }

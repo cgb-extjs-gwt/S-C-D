@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Constants;
-using Gdc.Scd.Core.Meta.Helpers;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -23,7 +22,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        public MetaCollection<CostBlockEntityMeta> CostBlocks { get; } = new MetaCollection<CostBlockEntityMeta>();
+        public CostBlockEntityMetaCollection CostBlocks { get; } = new CostBlockEntityMetaCollection();
 
         public MetaCollection<NamedEntityMeta> Dependencies { get; } = new MetaCollection<NamedEntityMeta>();
 
@@ -34,6 +33,8 @@ namespace Gdc.Scd.Core.Meta.Entities
         public EntityMeta PrincipalPortfolio { get; set; }
 
         public EntityMeta LocalPortfolio { get; set; }
+
+        public EntityMeta HwStandardWarranty { get; set; }
 
         public ExchangeRateEntityMeta ExchangeRate { get; set; }
 
@@ -63,6 +64,11 @@ namespace Gdc.Scd.Core.Meta.Entities
                 if (this.ExchangeRate != null)
                 {
                     yield return this.ExchangeRate;
+                }
+
+                if (this.HwStandardWarranty != null)
+                {
+                    yield return this.HwStandardWarranty;
                 }
 
                 var metas =
@@ -125,18 +131,6 @@ namespace Gdc.Scd.Core.Meta.Entities
             return this.InputLevels[fullName] as WgEnityMeta;
         }
 
-        public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
-        {
-            return this.GetCostBlockEntityMeta(costBlockIdentifier.ApplicationId, costBlockIdentifier.CostBlockId);
-        }
-
-        public CostBlockEntityMeta GetCostBlockEntityMeta(string applicationId, string costBlockId)
-        {
-            var fullName = BaseEntityMeta.BuildFullName(costBlockId, applicationId);
-
-            return this.CostBlocks[fullName];
-        }
-
         public EntityMeta GetPortfolioMeta(PortfolioType portfolioType)
         {
             EntityMeta meta;
@@ -156,6 +150,13 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
 
             return meta;
+        }
+
+        public RelatedItemsHistoryEntityMeta GetRelatedItemsHistoryMeta(string name)
+        {
+            var fullName = BaseEntityMeta.BuildFullName(name, MetaConstants.HistoryRelatedItemsSchema);
+
+            return this.RelatedItemsHistories[fullName];
         }
     }
 }

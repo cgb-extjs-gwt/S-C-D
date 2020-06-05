@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
@@ -15,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<EqualsSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Equals(string columnName, object value = null, string tableName = null)
+        public static ConditionHelper Equals(string columnName, object value, string tableName = null)
         {
             return CreateConditionHelper<EqualsSqlBuilder>(columnName, value, tableName);
         }
@@ -299,6 +300,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<ExistsSqlBuilder>(query);
         }
 
+        public static ConditionHelper Exists(string table, string schema = null)
+        {
+            return Exists(SelectFromTable(table, schema));
+        }
+
+        public static ConditionHelper Exists(BaseEntityMeta meta)
+        {
+            return Exists(meta.Name, meta.Schema);
+        }
+
         public static ConditionHelper NotExists(ISqlBuilder query)
         {
             return CreateConditionHelper<NotExistsSqlBuilder>(query);
@@ -307,6 +318,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static ConditionHelper NotExists(SqlHelper query)
         {
             return CreateConditionHelper<NotExistsSqlBuilder>(query);
+        }
+
+        public static ConditionHelper NotExists(string table, string schema = null)
+        {
+            return NotExists(SelectFromTable(table, schema));
+        }
+
+        public static ConditionHelper NotExists(BaseEntityMeta meta)
+        {
+            return NotExists(meta.Name, meta.Schema);
         }
 
         public static T BinaryOperator<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
@@ -412,6 +433,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         private static ConditionHelper CreateConditionHelper<T>(SqlHelper query) where T : BaseQuerySqlBuilder, new()
         {
             return CreateConditionHelper<T>(query.ToSqlBuilder());
+        }
+
+        private static SqlHelper SelectFromTable(string table, string schema)
+        {
+            return Sql.Select().From(table, schema);
         }
     }
 }

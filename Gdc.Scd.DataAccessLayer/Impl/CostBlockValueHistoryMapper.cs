@@ -29,7 +29,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             this.costBlockMeta = costBlockMeta;
 
-            var costElement = costBlockMeta.DomainMeta.CostElements[costElementId];
+            var costElement = costBlockMeta.SliceDomainMeta.CostElements[costElementId];
 
             this.inputLevelIds = costElement.SortInputLevel().Select(inputLevel => inputLevel.Id).ToArray();
 

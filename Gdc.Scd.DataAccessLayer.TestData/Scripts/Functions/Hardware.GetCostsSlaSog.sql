@@ -69,6 +69,7 @@ RETURN
              , m.Logistic
              , m.OtherDirect
              , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+             , m.LocalServiceStandardWarrantyWithRisk
              , m.Credits
 
              , ib.InstalledBaseCountryNorm
@@ -82,6 +83,11 @@ RETURN
              , (sum(m.ServiceTPResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
              , (sum(case when m.ServiceTPResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
 
+             --##################################################
+
+             , (sum(m.ReActiveTPResult * ib.InstalledBaseCountryNorm)                          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_reactive
+             , (sum(case when m.ReActiveTPResult <> 0 then ib.InstalledBaseCountryNorm end)    over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_reactive
+             
              , (sum(m.ProActive * ib.InstalledBaseCountryNorm)                                over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
              , (sum(case when m.ProActive <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by m.CountryId, wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
                                                                                             
@@ -147,12 +153,15 @@ RETURN
             , m.Logistic
             , m.OtherDirect
             , m.LocalServiceStandardWarranty
+            , m.LocalServiceStandardWarrantyWithRisk
             , m.Credits
 
             , case when m.sum_ib_x_tc <> 0 and m.sum_ib_by_tc <> 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
             , case when m.sum_ib_x_tp <> 0 and m.sum_ib_by_tp <> 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
             , case when m.sum_ib_x_tp_Released <> 0 and m.sum_ib_by_tp_Released <> 0 then m.sum_ib_x_tp_Released / m.sum_ib_by_tp_Released 
                    when m.ReleaseDate is not null then 0 end as ServiceTpSog_Released
+
+            , case when m.sum_ib_x_tp_reactive <> 0 and m.sum_ib_by_tp_reactive <> 0 then m.sum_ib_x_tp_reactive / m.sum_ib_by_tp_reactive else 0 end as ReactiveTpSog
 
             , case when m.sum_ib_x_pro <> 0 and m.sum_ib_by_pro <> 0 then m.sum_ib_x_pro / m.sum_ib_by_pro else 0 end as ProActiveSog
 
@@ -165,4 +174,5 @@ RETURN
 
     from cte m
 )
+
 go

@@ -10,6 +10,7 @@ namespace Gdc.Scd.Import.Logistics
     public class LogisticsJob : IJob
     {
         protected ILogger log;
+        public const string JobName = "LogisticsImportJob";
 
         protected LogisticsImportService logistic;
 
@@ -57,7 +58,7 @@ namespace Gdc.Scd.Import.Logistics
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "LogisticsImportJob";
+            return JobName;
         }
 
         protected virtual void Notify(string msg, Exception ex)

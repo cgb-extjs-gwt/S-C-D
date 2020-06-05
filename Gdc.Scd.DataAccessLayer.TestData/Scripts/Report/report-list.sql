@@ -55,6 +55,7 @@
 
 ('AFR', 'AFR overview', 1,  1, 'Report.Afr'),
 
-('Standard-Warranty-overview', 'Standard Warranty overview', 1,  1, 'Report.StandardWarranty');
+('Standard-Warranty-overview', 'Standard Warranty overview', 1,  1, 'Report.StandardWarranty'),
+('Standard-Warranty-detailed', 'Standard warranty detailed', 0, 0, 'Report.StandardWarrantyDetailed');
 
 

@@ -126,12 +126,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ConditionHelper And(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            return CreateConditionHelper<AndSqlBuilder>(filter, tableName);
+            return this.And(CreateConditionHelper<AndSqlBuilder>(filter, tableName));
         }
 
         public ConditionHelper And(IDictionary<ColumnInfo, IEnumerable<object>> filter, string tableName = null)
         {
-            return CreateConditionHelper<AndSqlBuilder>(filter);
+            return this.And(CreateConditionHelper<AndSqlBuilder>(filter));
         }
 
         public ConditionHelper AndBrackets(ISqlBuilder rightOperand)
@@ -156,12 +156,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ConditionHelper Or(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            return CreateConditionHelper<OrSqlBuilder>(filter, tableName);
+            return this.Or(CreateConditionHelper<OrSqlBuilder>(filter, tableName));
         }
 
         public ConditionHelper Or(IDictionary<ColumnInfo, IEnumerable<object>> filter, string tableName = null)
         {
-            return CreateConditionHelper<OrSqlBuilder>(filter);
+            return this.Or(CreateConditionHelper<OrSqlBuilder>(filter));
         }
 
         public ConditionHelper OrBrackets(ISqlBuilder rightOperand)

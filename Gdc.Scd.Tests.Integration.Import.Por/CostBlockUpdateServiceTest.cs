@@ -23,7 +23,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [SetUp]
         public void Setup()
         {
-            this.testing = new CostBlockUpdateService(repo);
+            this.testing = new CostBlockUpdateService(repo, null, null);
         }
 
         [TestCase]

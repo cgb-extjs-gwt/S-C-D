@@ -6,6 +6,9 @@ import {
   NumberField,
   TextField,
   SelectField,
+  Toolbar,
+  Button,
+  Container
 } from "@extjs/ext-react";
 import {
   ColumnInfo,
@@ -15,10 +18,12 @@ import {
 } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
+import { ReactNode } from "react-redux";
 import {
   DynamicGridProps,
   ToolbarDynamicGridProps
 } from "./Props/DynamicGridProps";
+import { objectPropsEqual } from "../Helpers/CommonHelpers";
 import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
 
 export interface StoreDynamicGridProps extends ToolbarDynamicGridProps {
@@ -31,7 +36,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
   private columnsMap = new Map<string, ColumnInfo>();
   private store: Store;
   private columns: ColumnInfo[];
-  private grid;
 
   public componentDidMount() {
     const { init, store, columns } = this.props;
@@ -64,7 +68,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
     const gridProps = isEditable
       ? {
-          plugins: ["cellediting", "selectionreplicator", 'gridexporter'],
+          plugins: ["cellediting", "selectionreplicator"],
           selectable: {
             rows: true,
             cells: true,
@@ -80,7 +84,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     return this.store ? (
       <Grid
         {...gridProps}
-        ref={this.gridRef}
         flex={flex}
         store={this.store}
         columnLines={true}
@@ -137,13 +140,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     this.saveWithCallback(this.props.onSave);
   };
 
-  public exportToExcel = (fileName: string) => {
-    this.grid.saveDocumentAs({
-        type: 'xlsx',
-        fileName
-    });
-  }
-
   private init() {
     const { store, columns } = this.props;
 
@@ -167,10 +163,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         this.columns = [];
       }
     }
-  }
-
-  private gridRef = grid => {
-    this.grid = grid;
   }
 
   private runByEachColumn(columns: ColumnInfo[], fn: (column) => void) {
@@ -262,8 +254,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
       dataIndex: column.dataIndex,
       editable: column.isEditable,
       text: column.title,
-      width: column.width,
-      ignoreExport: false
+      width: column.width
     };
 
     //TODO: Breaks editing
@@ -316,8 +307,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         }
         break;
     }
-
-    columnOption.exportRenderer = columnOption.renderer;
 
     return columnOption;
   }

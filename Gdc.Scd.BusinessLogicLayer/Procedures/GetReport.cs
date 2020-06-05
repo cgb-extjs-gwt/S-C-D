@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using System;
 using System.Data;
 using System.Data.Common;
 using System.IO;
@@ -142,5 +143,56 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             return result;
         }
+
+        public class MultiSheetReport : IDisposable
+        {
+            private ReportExcelWriter writer;
+
+            private IRepositorySet repo;
+
+            public MultiSheetReport(IRepositorySet repo)
+            {
+                this.repo = repo;
+                this.writer = new ReportExcelWriter();
+            }
+
+            public Stream GetData()
+            {
+                return writer.GetData();
+            }
+
+            public Task ExecuteExcelAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
+            {
+                if (IsProcedure(func))
+                {
+                    return ExecuteExcelProcAsync(schema, func, parameters);
+                }
+                else
+                {
+                    return ExecuteExcelFuncAsync(schema, func, parameters);
+                }
+            }
+
+            private async Task ExecuteExcelFuncAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
+            {
+                var sql = SelectAllQuery(func, parameters);
+                writer.AddSheet(schema);
+                await repo.ReadBySqlAsync(sql, writer.WriteBody, parameters);
+            }
+
+            private async Task ExecuteExcelProcAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
+            {
+                parameters = Prepare(parameters, -1, -1);
+                writer.AddSheet(schema);
+                await repo.ExecuteProcAsync(func, writer.WriteBody, parameters);
+            }
+
+            public void Dispose()
+            {
+                writer?.Dispose();
+            }
+        }
     }
+
+
 }

@@ -110,8 +110,7 @@ RETURN
 							fsc.TravelTime,
 							fsc.repairTime,
 							std.OnsiteHourlyRates,
-							fsc.OohUpliftFactor,
-							m.AvailabilityId)
+							UpliftFactor.OohUpliftFactor)
 					else
 						Hardware.CalcByFieldServicePerYear(
 							fst.TimeAndMaterialShare_norm_Approved, 
@@ -122,8 +121,7 @@ RETURN
 							fsc.TravelTime_Approved,
 							fsc.repairTime_Approved,
 							std.OnsiteHourlyRates,
-							fsc.OohUpliftFactor_Approved,
-							m.AvailabilityId)
+							UpliftFactor.OohUpliftFactor_Approved)
 
                end as FieldServicePerYear
 
@@ -172,8 +170,10 @@ RETURN
                 end as ProActive
 
             --We don't use STDW and credits for Prolongation
-            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarranty       end as LocalServiceStandardWarranty
-            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarrantyManual end as LocalServiceStandardWarrantyManual
+            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarranty																							end as LocalServiceStandardWarranty
+            , case when dur.IsProlongation <> 1 then std.LocalServiceStandardWarrantyManual																						end as LocalServiceStandardWarrantyManual
+			, case when dur.IsProlongation <> 1 then Hardware.AddMarkup(std.LocalServiceStandardWarranty, std.RiskFactorStandardWarranty, std.RiskStandardWarranty)				end as LocalServiceStandardWarrantyWithRisk
+
 
             , std.Credit1 
             , std.Credit2 
@@ -187,7 +187,7 @@ RETURN
             , man.DealerDiscount                        as DealerDiscount              
             , man.DealerPrice        / std.ExchangeRate as DealerPrice                 
             , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTC     / std.ExchangeRate) end as ServiceTCManual                   
-            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTP     / std.ExchangeRate) end as ServiceTPManual                   
+            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ReActiveTP    / std.ExchangeRate) end as ReActiveTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
 
             , man.ReleaseDate                           as ReleaseDate
@@ -218,6 +218,7 @@ RETURN
 
     LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.UpliftFactor ON UpliftFactor.Country = m.CountryId AND UpliftFactor.Wg = m.WgId AND UpliftFactor.[Availability] = m.AvailabilityId
 
     LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType and lc.Deactivated = 0
 
@@ -231,4 +232,5 @@ RETURN
 
     LEFT JOIN dbo.[User] u2 on u2.Id = man.ReleaseUserId
 )
-go
+
+GO

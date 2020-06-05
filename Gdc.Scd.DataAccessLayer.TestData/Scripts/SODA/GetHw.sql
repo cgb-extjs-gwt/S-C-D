@@ -108,7 +108,7 @@ begin
     join Dependencies.Duration dur on dur.id = p.DurationId
     join Dependencies.ProActiveSla proSla on proSla.id = p.ProactiveSlaId
 
-    left join Hardware.ProActive pro ON pro.Country= p.CountryId and pro.Wg = p.WgId and pro.Deactivated = 0
+    left join Hardware.ProActive pro ON pro.Country= p.CountryId and pro.Wg = p.WgId
 
     left join dbo.[User] u on u.Id = man.ChangeUserId
 

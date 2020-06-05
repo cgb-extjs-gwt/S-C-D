@@ -3,165 +3,170 @@
 go
 
 CREATE PROCEDURE [Hardware].[SpGetCosts]
-    @approved     bit,
-    @local        bit,
-    @cnt          dbo.ListID readonly,
-    @fsp          nvarchar(255),
-    @hasFsp       bit,
-    @wg           dbo.ListID readonly,
-    @av           dbo.ListID readonly,
-    @dur          dbo.ListID readonly,
-    @reactiontime dbo.ListID readonly,
-    @reactiontype dbo.ListID readonly,
-    @loc          dbo.ListID readonly,
-    @pro          dbo.ListID readonly,
-    @lastid       bigint,
-    @limit        int
+	@approved     bit,
+	@local        bit,
+	@cnt          dbo.ListID readonly,
+	@fsp          nvarchar(255),
+	@hasFsp       bit,
+	@wg           dbo.ListID readonly,
+	@av           dbo.ListID readonly,
+	@dur          dbo.ListID readonly,
+	@reactiontime dbo.ListID readonly,
+	@reactiontype dbo.ListID readonly,
+	@loc          dbo.ListID readonly,
+	@pro          dbo.ListID readonly,
+	@lastid       bigint,
+	@limit        int
 AS
 BEGIN
 
-    SET NOCOUNT ON;
+	SET NOCOUNT ON;
 
-    if @local = 1
-    begin
-    
-        --convert values from EUR to local
+	if @local = 1
+	begin
+	
+		--convert values from EUR to local
 
-        select 
-               rownum
-             , Id
+		select 
+			   rownum
+			 , Id
 
-             , Fsp
-             , Country
-             , Currency
-             , ExchangeRate
+			 , Fsp
+			 , Country
+			 , Currency
+			 , ExchangeRate
 
-             , Sog
-             , Wg
-             , Availability
-             , Duration
-             , ReactionTime
-             , ReactionType
-             , ServiceLocation
-             , ProActiveSla
+			 , Sog
+			 , Wg
+			 , Availability
+			 , Duration
+			 , ReactionTime
+			 , ReactionType
+			 , ServiceLocation
+			 , ProActiveSla
 
-             , StdWarranty
-             , StdWarrantyLocation
+			 , StdWarranty
+			 , StdWarrantyLocation
 
-             --Cost
+			 --Cost
 
-             , AvailabilityFee               * ExchangeRate  as AvailabilityFee 
-             , TaxAndDutiesW                 * ExchangeRate  as TaxAndDutiesW
-             , TaxAndDutiesOow               * ExchangeRate  as TaxAndDutiesOow
-             , Reinsurance                   * ExchangeRate  as Reinsurance
-             
-             , ReActiveTC                    * ExchangeRate  as ReActiveTC
-             , ReActiveTP                    * ExchangeRate  as ReActiveTP
-             , ProActive                     * ExchangeRate  as ProActive
-             
-             , ServiceSupportCost            * ExchangeRate  as ServiceSupportCost
+			 , AvailabilityFee               * ExchangeRate  as AvailabilityFee 
+			 , TaxAndDutiesW                 * ExchangeRate  as TaxAndDutiesW
+			 , TaxAndDutiesOow               * ExchangeRate  as TaxAndDutiesOow
+			 , Reinsurance                   * ExchangeRate  as Reinsurance
+			 
+			 , ReActiveTC                    * ExchangeRate  as ReActiveTC
+			 , ReActiveTP                    * ExchangeRate  as ReActiveTP
+			 , ReActiveTPManual              * ExchangeRate  as ReActiveTPManual
 
-             , MaterialW                     * ExchangeRate  as MaterialW
-             , MaterialOow                   * ExchangeRate  as MaterialOow
-             , FieldServiceCost              * ExchangeRate  as FieldServiceCost
-             , Logistic                      * ExchangeRate  as Logistic
-             , OtherDirect                   * ExchangeRate  as OtherDirect
-             , LocalServiceStandardWarranty  * ExchangeRate  as LocalServiceStandardWarranty
-             , LocalServiceStandardWarrantyManual  * ExchangeRate  as LocalServiceStandardWarrantyManual
-             , Credits                       * ExchangeRate  as Credits
-             
-             , FullServiceTC                 * ExchangeRate  as ServiceTC
-             , FullServiceTP                 * ExchangeRate  as ServiceTP
+			 , ProActive                     * ExchangeRate  as ProActive
+			 
+			 , ServiceSupportCost            * ExchangeRate  as ServiceSupportCost
 
-             , ServiceTCManual               * ExchangeRate  as ServiceTCManual
-             , ServiceTPManual               * ExchangeRate  as ServiceTPManual
+			 , MaterialW                     * ExchangeRate  as MaterialW
+			 , MaterialOow                   * ExchangeRate  as MaterialOow
+			 , FieldServiceCost              * ExchangeRate  as FieldServiceCost
+			 , Logistic                      * ExchangeRate  as Logistic
+			 , OtherDirect                   * ExchangeRate  as OtherDirect
+			 , LocalServiceStandardWarranty  * ExchangeRate  as LocalServiceStandardWarranty
+			 , LocalServiceStandardWarrantyManual  * ExchangeRate  as LocalServiceStandardWarrantyManual
+			 , LocalServiceStandardWarrantyWithRisk * ExchangeRate as LocalServiceStandardWarrantyWithRisk
+			 , Credits                       * ExchangeRate  as Credits
+			 
+			 , FullServiceTC                 * ExchangeRate  as ServiceTC
+			 , FullServiceTP                 * ExchangeRate  as ServiceTP
 
-             , ServiceTP_Released            * ExchangeRate  as ServiceTP_Released
+			 , ServiceTCManual               * ExchangeRate  as ServiceTCManual
+			 , ServiceTPManual               * ExchangeRate  as ServiceTPManual
 
-             , ListPrice                     * ExchangeRate  as ListPrice
-             , DealerPrice                   * ExchangeRate  as DealerPrice
-             , DealerDiscount                                as DealerDiscount
-                                                       
-             , ReleaseDate                                    
-             , ReleaseUserName
-             , ReleaseUserEmail
+			 , ServiceTP_Released            * ExchangeRate  as ServiceTP_Released
 
-             , ChangeDate
-             , ChangeUserName                                as ChangeUserName
-             , ChangeUserEmail                               as ChangeUserEmail
+			 , ListPrice                     * ExchangeRate  as ListPrice
+			 , DealerPrice                   * ExchangeRate  as DealerPrice
+			 , DealerDiscount                                as DealerDiscount
+													   
+			 , ReleaseDate                                    
+			 , ReleaseUserName
+			 , ReleaseUserEmail
 
-        from Hardware.GetCosts2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
-        order by rownum
-        
-    end
-    else
-    begin
+			 , ChangeDate
+			 , ChangeUserName                                as ChangeUserName
+			 , ChangeUserEmail                               as ChangeUserEmail
 
-        select                
-               rownum
-             , Id
+		from Hardware.GetCosts2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
+		order by rownum
+		
+	end
+	else
+	begin
 
-             , Fsp
-             , Country
-             , 'EUR' as Currency
-             , ExchangeRate
+		select                
+			   rownum
+			 , Id
 
-             , Sog
-             , Wg
-             , Availability
-             , Duration
-             , ReactionTime
-             , ReactionType
-             , ServiceLocation
-             , ProActiveSla
+			 , Fsp
+			 , Country
+			 , 'EUR' as Currency
+			 , ExchangeRate
 
-             , StdWarranty
-             , StdWarrantyLocation
+			 , Sog
+			 , Wg
+			 , Availability
+			 , Duration
+			 , ReactionTime
+			 , ReactionType
+			 , ServiceLocation
+			 , ProActiveSla
 
-             --Cost
+			 , StdWarranty
+			 , StdWarrantyLocation
 
-             , AvailabilityFee               
-             , TaxAndDutiesW                 
-             , TaxAndDutiesOow               
-             , Reinsurance                   
+			 --Cost
 
-             , ReActiveTC 
-             , ReActiveTP 
-             , ProActive  
+			 , AvailabilityFee               
+			 , TaxAndDutiesW                 
+			 , TaxAndDutiesOow               
+			 , Reinsurance                   
 
-             , ServiceSupportCost            
+			 , ReActiveTC 
+			 , ReActiveTP 
+			 , ReActiveTPManual
+			 , ProActive  
 
-             , MaterialW                     
-             , MaterialOow                   
-             , FieldServiceCost              
-             , Logistic                      
-             , OtherDirect                   
-             , LocalServiceStandardWarranty  
-             , LocalServiceStandardWarrantyManual
-             , Credits                       
+			 , ServiceSupportCost            
 
-             , FullServiceTC as ServiceTC 
-             , FullServiceTP as ServiceTP 
+			 , MaterialW                     
+			 , MaterialOow                   
+			 , FieldServiceCost              
+			 , Logistic                      
+			 , OtherDirect                   
+			 , LocalServiceStandardWarranty  
+			 , LocalServiceStandardWarrantyManual
+			 , LocalServiceStandardWarrantyWithRisk
+			 , Credits                       
 
-             , ServiceTCManual               
-             , ServiceTPManual               
+			 , FullServiceTC as ServiceTC 
+			 , FullServiceTP as ServiceTP 
 
-             , ServiceTP_Released            
+			 , ServiceTCManual               
+			 , ServiceTPManual               
 
-             , ListPrice                     
-             , DealerPrice                   
-             , DealerDiscount                
-                                             
-             , ReleaseDate                                    
-             , ReleaseUserName
-             , ReleaseUserEmail
+			 , ServiceTP_Released            
 
-             , ChangeDate
-             , ChangeUserName                
-             , ChangeUserEmail               
+			 , ListPrice                     
+			 , DealerPrice                   
+			 , DealerDiscount                
+											 
+			 , ReleaseDate                                    
+			 , ReleaseUserName
+			 , ReleaseUserEmail
 
-        from Hardware.GetCosts2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
-        order by rownum
-    end
+			 , ChangeDate
+			 , ChangeUserName                
+			 , ChangeUserEmail               
+
+		from Hardware.GetCosts2(@approved, @cnt, @fsp, @hasFsp, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) 
+		order by rownum
+	end
 END
-go
+GO

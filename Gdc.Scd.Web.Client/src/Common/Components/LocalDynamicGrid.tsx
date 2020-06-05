@@ -75,10 +75,6 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         this.innerGrid.save();
     }
 
-    public exportToExcel(fileName: string) {
-        this.innerGrid.exportToExcel(fileName);
-    } 
-
     protected init() {
         const { columns = [] } = this.props;        
         
