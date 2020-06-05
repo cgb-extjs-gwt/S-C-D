@@ -91,6 +91,18 @@ namespace Gdc.Scd.Web.Server.Controllers
                           .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
         }
 
+        [HttpPost]
+        public Task UploadToSap([FromUri]long id, [FromBody]ReportFormData data)
+        {
+            if (!IsRangeValid(data.Start, data.Limit))
+            {
+                return null;
+            }
+            
+            return service.MarkUploadToSap(id, data.AsFilterCollection())
+                .ContinueWith(x => this.View(id, data));
+        }
+
         private static bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;

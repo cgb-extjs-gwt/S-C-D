@@ -23,11 +23,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private static readonly string SCHEMA_CACHE_KEY = typeof(ReportService).FullName + ".GetSchemas"; // report and schemas cache
 
         private readonly IRepositorySet repositorySet;
-
         private readonly IUserService userService;
 
         public ReportService(
                 IRepositorySet repositorySet,
+                ISapUploadRepository sapUploadRepository,
                 IUserService userService
             )
         {

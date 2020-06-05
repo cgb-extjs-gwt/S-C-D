@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29728.190
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.DataAccessLayer", "Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj", "{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}"
 EndProject
@@ -93,6 +93,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Common", "Gdc.Scd.Tests.Common\Gdc.Scd.Tests.Common.csproj", "{30B236A8-CCD8-4F5F-9DB4-52497B25C3C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Spooler.Core", "Gdc.Scd.Spooler.Core\Gdc.Scd.Spooler.Core.csproj", "{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.Sap", "Gdc.Scd.Export.Sap\Gdc.Scd.Export.Sap.csproj", "{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.Export.Sap", "Gdc.Scd.Tests.Integration.Export.Sap\Gdc.Scd.Tests.Integration.Export.Sap.csproj", "{EC20B79F-124E-4BC8-9B4A-BB6B624068FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -264,6 +268,14 @@ Global
 		{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF99B8EF-25BD-447D-ADC7-2ABB08F09DAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6EDF7A-0155-4D4F-8629-BBDEB0EB1405}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC20B79F-124E-4BC8-9B4A-BB6B624068FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC20B79F-124E-4BC8-9B4A-BB6B624068FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC20B79F-124E-4BC8-9B4A-BB6B624068FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC20B79F-124E-4BC8-9B4A-BB6B624068FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -287,6 +299,7 @@ Global
 		{59A90715-4B88-459B-8211-1552821F858C} = {F83C2639-1AD2-4660-86A8-984B64DD9CAA}
 		{37A51E57-9000-4E0C-8551-664119831EC9} = {F83C2639-1AD2-4660-86A8-984B64DD9CAA}
 		{30B236A8-CCD8-4F5F-9DB4-52497B25C3C4} = {C927EC61-9181-455D-8473-3FB7AB88A997}
+		{EC20B79F-124E-4BC8-9B4A-BB6B624068FD} = {F83C2639-1AD2-4660-86A8-984B64DD9CAA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A46F9BCF-9A07-4273-89CA-A06CF807AFCC}

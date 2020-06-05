@@ -21,5 +21,11 @@ namespace Gdc.Scd.Core.Entities
 
         public bool? IsStandardWarranty { get; set; }
         public string LUT { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public string Sla { get; private set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public string SlaHash { get; private set; }
     }
 }
