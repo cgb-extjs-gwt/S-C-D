@@ -72,7 +72,7 @@ RETURN (
                 , std.TaxAndDuties as TaxAndDutiesW
 
                 , case when @approved = 0 then moc.Markup else moc.Markup_Approved end as MarkupOtherCost                      
-                , case when @approved = 0 then moc.MarkupFactor_norm else moc.MarkupFactor_norm_Approved end as MarkupFactorOtherCost                
+                , case when @approved = 0 then moc.MarkupFactor else moc.MarkupFactor_Approved end as MarkupFactorOtherCost                
 
                 , std.MarkupFactorStandardWarranty
                 , std.MarkupStandardWarranty
