@@ -23,7 +23,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private static readonly string SCHEMA_CACHE_KEY = typeof(ReportService).FullName + ".GetSchemas"; // report and schemas cache
 
         private readonly IRepositorySet repositorySet;
-        private readonly ISapUploadRepository sapUploadRepository;
         private readonly IUserService userService;
 
         public ReportService(
@@ -34,7 +33,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             this.repositorySet = repositorySet;
             this.userService = userService;
-            this.sapUploadRepository = sapUploadRepository;
         }
 
         public Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
