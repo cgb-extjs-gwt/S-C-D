@@ -8,13 +8,12 @@ import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { readonly, setFloatOrEmpty } from "./Components/GridExts";
-import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer, locationRenderer, N_A } from "./Components/GridRenderer";
+import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer, locationRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
-import { Model } from "../Common/States/ExtStates";
 
 const SELECTED_FIELD = 'selected';
 
@@ -256,8 +255,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     <HwReleasePanel
                         onRelease={this.releaseSelected}
                         onReleaseAll={this.releaseAll}
-                        onUploadToSap={this.uploadToSapSelected}
-                        onUploadToSapAll={this.uploadToSapAll}
                         checkAccess={!this.props.approved}
                         hidden={this.state.hideReleaseButton}
                         disabled={!this.state.disableSaveButton} />
@@ -326,7 +323,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <Column text="Release user" minWidth="60" maxWidth="90" dataIndex="ReleaseUserCalc" renderer={emptyRenderer} />
                         <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
-                        <Column text="Sap upload date" dataIndex="sapUploadDate" renderer={this.sapUploadRender} />
 
                         <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
                         <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
@@ -367,24 +363,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             </Container>
         );
-    }
-
-    private sapUploadRender = (value, record: Model) => {
-        let result;
-
-        if (record.get('roFsp')) {
-            if (record.get('roReleaseDate')) {
-                const sapUloadDate = record.get('SapUploadDate')
-
-                result = sapUloadDate ? ddMMyyyyRenderer(sapUloadDate) : 'Pending';
-            } else {
-                result = ' ';
-            }
-        } else {
-            result = N_A;
-        }
-
-        return result;
     }
 
     private filterRef = (x) => {
@@ -476,37 +454,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
     }
 
-    private releaseSelected = () => {
-        this.handleSelected(
-            'releasehwcost', 
-            'Release',  
-            recs => `Do you want to approve for release ${recs.length} record(s)?`)
-    }
-
-    private releaseAll = () => {
-        this.handleAll(
-            'releasehwcostall', 
-            'Release', 
-            'Do you want to approve for release all filtered records?')
-    }
-
-    private uploadToSapSelected = () => {
-        this.handleSelected(
-            'UploadToSapSelected', 
-            'Upload to SAP',  
-            recs => `Do you want to upload to SAP ${recs.length} record(s)?`)
-    }
-
-    private uploadToSapAll = () => {
-        this.handleAll(
-            'UploadToSapAll', 
-            'Upload to SAP', 
-            'Do you want to upload to SAP all filtered records?')
-    }
-
-    private handleSelected(action: string, title: string, getMessageFn: (ids: string[]) => string) {
+    private releaseSelected() {
         let recs = this.getSelectedRows();
-        const cnt = this.state.selectedCountry;
+        let cnt = this.state.selectedCountry;
 
         if (cnt) {
             if (recs && recs.length > 0) {
@@ -514,32 +464,24 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             }
         }
 
-        const message = getMessageFn(recs);
-
-        ExtMsgHelper.confirm(title, message, () => {
-            const data = { 
-                items: recs, 
-                countryId: cnt.id, 
-                filter: this.filter.getModel() 
-            };
-
-            handleRequest(
-                post('calc', action, data).then(() => {
-                    this.reset();
-                    this.reload();
-                })
-            );
+        ExtMsgHelper.confirm('Release', `Do you want to approve for release ${recs.length} record(s)?`, () => {
+            let me = this;
+            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id, filter: this.filter.getModel() }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
         });
     }
 
-    private handleAll(action: string, title: string, message: string) {
-        ExtMsgHelper.confirm(title, message, () => {
-            handleRequest(
-                post('calc', action, { ...this.filter.getModel() }).then(() => {
-                    this.reset();
-                    this.reload();
-                })
-            );
+    private releaseAll() {
+        ExtMsgHelper.confirm('Release', `Do you want to approve for release all filtered records?`, () => {
+            let me = this;
+            let p = post('calc', 'releasehwcostall', { ...this.filter.getModel() }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
         });
     }
 

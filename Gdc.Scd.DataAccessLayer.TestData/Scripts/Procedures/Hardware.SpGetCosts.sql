@@ -82,8 +82,7 @@ BEGIN
              , DealerPrice                   * ExchangeRate  as DealerPrice
              , DealerDiscount                                as DealerDiscount
                                                        
-             , ReleaseDate           
-			 , SapUploadDate                         
+             , ReleaseDate                                    
              , ReleaseUserName
              , ReleaseUserEmail
 

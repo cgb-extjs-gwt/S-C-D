@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
-using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
@@ -21,18 +20,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
-        private readonly ISapUploadRepository sapUploadRepository;
-
         public CalculationService(
                 IRepositorySet repositorySet,
                 IRepository<HardwareManualCost> hwManualRepo,
-                IRepository<LocalPortfolio> portfolioRepo,
-                ISapUploadRepository sapUploadRepository)
+                IRepository<LocalPortfolio> portfolioRepo
+            )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
             this.portfolioRepo = portfolioRepo;
-            this.sapUploadRepository = sapUploadRepository;
         }
 
         public Task<(string json, int total, bool hasMore)> GetHardwareCost(bool approved, HwFilterDto filter, int start, int limit)

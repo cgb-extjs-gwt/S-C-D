@@ -193,7 +193,6 @@ RETURN
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
 
             , man.ReleaseDate                           as ReleaseDate
-			, man.SapUploadDate                         as SapUploadDate
             , u2.Name                                   as ReleaseUserName
             , u2.Email                                  as ReleaseUserEmail
 

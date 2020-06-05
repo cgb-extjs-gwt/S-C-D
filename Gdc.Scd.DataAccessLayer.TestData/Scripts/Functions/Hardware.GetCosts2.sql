@@ -178,7 +178,6 @@ RETURN
              , m.ServiceTP_Released
 
              , m.ReleaseDate
-			 , m.SapUploadDate
              , m.ReleaseUserName
              , m.ReleaseUserEmail
 
