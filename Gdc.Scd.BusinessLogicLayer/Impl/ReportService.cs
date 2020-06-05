@@ -82,18 +82,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (d.json, d.total < limit ? start + d.total : start + limit + 1);
         }
 
-        public async Task MarkUploadToSap(long reportId, ReportFilterCollection filter)
-        {
-            var r = GetSchemas().GetSchema(reportId);
-            var hwFilter = r.GetHwFilter(filter);
-
-            if (hwFilter?.Country == null || hwFilter.Country.Length == 0)
-            {
-                throw new ArgumentException("No country specified");
-            }
-            await this.sapUploadRepository.UploadToSap(hwFilter);
-        }
-
         public ReportDto[] GetReports()
         {
             return GetSchemas().GetReportDto();
@@ -399,11 +387,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return builder.Build();
-        }
-
-        public HwFilterDto GetHwFilter(ReportFilterCollection src)
-        {
-            return new HwFilterDto();
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public async Task UploadToSap(HwFilterDto filter)
+        /*public async Task UploadToSap(HwFilterDto filter)
         {
             var selectPortfolioIdQuery =
                 Sql.Select(MetaConstants.IdFieldKey)
@@ -50,29 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var updateQuery = this.BuildUpdateSapUploadDateQuery(condition);
 
             await this.repositorySet.ExecuteSqlAsync(updateQuery);
-        }
-
-        //public async Task UploadToSap(IEnumerable<long> localPortfolioIds)
-        //{
-        //    var selectPortfolioIdQuery =
-        //        Sql.Select(new ColumnInfo(MetaConstants.IdFieldKey, this.meta.LocalPortfolio.Name))
-        //           .From(this.meta.LocalPortfolio)
-        //           .Join(
-        //                MetaConstants.FspCodeTranslationSchema, 
-        //                MetaConstants.HwFspCodeTranslation,
-        //                SqlOperators.Equals(
-        //                    new ColumnInfo(SlaHashColumn, this.meta.LocalPortfolio.Name), 
-        //                    new ColumnInfo(SlaHashColumn, MetaConstants.HwFspCodeTranslation)))
-        //           .Where(
-        //                ConditionHelper.And( 
-        //                    SqlOperators.InValues(MetaConstants.IdFieldKey, localPortfolioIds, this.meta.LocalPortfolio.Name),
-        //                    SqlOperators.IsNotNull(MetaConstants.NameFieldKey, MetaConstants.HwFspCodeTranslation)));
-
-        //    var condition = SqlOperators.In(ManualCostPortfolioIdColumn, selectPortfolioIdQuery);
-        //    var updateQuery = this.BuildUpdateSapUploadDateQuery(condition);
-
-        //    await this.repositorySet.ExecuteSqlAsync(updateQuery);
-        //}
+        }*/
 
         private SqlHelper BuildUpdateSapUploadDateQuery(SqlHelper condition)
         {

@@ -76,7 +76,12 @@ namespace Gdc.Scd.Export.Sap.Impl
         private void Do()
         {
             var locapMergedData = new LocapReportService(repository).Execute(this.StartPeriod);
-            
+            if (locapMergedData == null)
+            {
+                //Log.Info(msg);
+                return;
+            }
+
             //upload Hardware packs data
             var hwPacksResult = this.ExportPacks(locapMergedData, SapUploadPackType.HW);
 

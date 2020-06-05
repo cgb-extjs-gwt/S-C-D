@@ -6,7 +6,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ISapUploadRepository
     {
-        Task UploadToSap(HwFilterDto filter);
+        //Task UploadToSap(HwFilterDto filter);
 
         //Task UploadToSap(IEnumerable<long> localPortfolioIds);
     }
