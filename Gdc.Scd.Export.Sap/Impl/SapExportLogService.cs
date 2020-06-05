@@ -4,6 +4,7 @@ using Gdc.Scd.Export.Sap.Enitities;
 using Gdc.Scd.Export.Sap.Interfaces;
 using System;
 using System.Linq;
+using Gdc.Scd.Export.Sap.Dto;
 
 namespace Gdc.Scd.Export.Sap.Impl
 {
@@ -14,12 +15,15 @@ namespace Gdc.Scd.Export.Sap.Impl
         {
         }
 
-        public void Log(ExportType exportType)
+        public void Log(ExportType exportType, DateTime uploadDate, DateTime? startPeriod, int fieNumber, bool isSend)
         {
             var log = new SapExportLog
             {
-                ExportType = exportType,
-                DateTime = DateTime.UtcNow
+                UploadDate = uploadDate,
+                PeriodStartDate = startPeriod,
+                ExportType = (int) exportType,
+                FileNumber = fieNumber,
+                IsSend = isSend
             };
 
             this.repository.Save(log);
@@ -29,7 +33,7 @@ namespace Gdc.Scd.Export.Sap.Impl
         public void DeleteOverYear()
         {
             var date = DateTime.UtcNow.AddYears(-1);
-            var ids = this.GetAll().Where(item => item.DateTime < date).Select(item => item.Id);
+            var ids = this.GetAll().Where(item => item.UploadDate < date).Select(item => item.Id);
 
             foreach (var id in ids)
             {

@@ -33,11 +33,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Select(MetaConstants.IdFieldKey)
                    .FromFunctionWithParams(
                         MetaConstants.PortfolioSchema,
-                        "GetBySlaFsp",
+                        "GetBySla",
                         new object[] 
                         {
                             filter.Country ?? new long[0],
-                            filter.Fsp,
                             filter.Wg ?? new long[0],
                             filter.Availability ?? new long[0],
                             filter.Duration ?? new long[0],
@@ -45,8 +44,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             filter.ReactionType ?? new long[0],
                             filter.ServiceLocation ?? new long[0],
                             filter.ProActive ?? new long[0]
-                        })
-                   .Where(SqlOperators.IsNotNull("Fsp"));
+                        });
 
             var condition = SqlOperators.In(ManualCostPortfolioIdColumn, selectPortfolioIdQuery);
             var updateQuery = this.BuildUpdateSapUploadDateQuery(condition);
@@ -54,27 +52,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(updateQuery);
         }
 
-        public async Task UploadToSap(IEnumerable<long> localPortfolioIds)
-        {
-            var selectPortfolioIdQuery =
-                Sql.Select(new ColumnInfo(MetaConstants.IdFieldKey, this.meta.LocalPortfolio.Name))
-                   .From(this.meta.LocalPortfolio)
-                   .Join(
-                        MetaConstants.FspCodeTranslationSchema, 
-                        MetaConstants.HwFspCodeTranslation,
-                        SqlOperators.Equals(
-                            new ColumnInfo(SlaHashColumn, this.meta.LocalPortfolio.Name), 
-                            new ColumnInfo(SlaHashColumn, MetaConstants.HwFspCodeTranslation)))
-                   .Where(
-                        ConditionHelper.And( 
-                            SqlOperators.InValues(MetaConstants.IdFieldKey, localPortfolioIds, this.meta.LocalPortfolio.Name),
-                            SqlOperators.IsNotNull(MetaConstants.NameFieldKey, MetaConstants.HwFspCodeTranslation)));
+        //public async Task UploadToSap(IEnumerable<long> localPortfolioIds)
+        //{
+        //    var selectPortfolioIdQuery =
+        //        Sql.Select(new ColumnInfo(MetaConstants.IdFieldKey, this.meta.LocalPortfolio.Name))
+        //           .From(this.meta.LocalPortfolio)
+        //           .Join(
+        //                MetaConstants.FspCodeTranslationSchema, 
+        //                MetaConstants.HwFspCodeTranslation,
+        //                SqlOperators.Equals(
+        //                    new ColumnInfo(SlaHashColumn, this.meta.LocalPortfolio.Name), 
+        //                    new ColumnInfo(SlaHashColumn, MetaConstants.HwFspCodeTranslation)))
+        //           .Where(
+        //                ConditionHelper.And( 
+        //                    SqlOperators.InValues(MetaConstants.IdFieldKey, localPortfolioIds, this.meta.LocalPortfolio.Name),
+        //                    SqlOperators.IsNotNull(MetaConstants.NameFieldKey, MetaConstants.HwFspCodeTranslation)));
 
-            var condition = SqlOperators.In(ManualCostPortfolioIdColumn, selectPortfolioIdQuery);
-            var updateQuery = this.BuildUpdateSapUploadDateQuery(condition);
+        //    var condition = SqlOperators.In(ManualCostPortfolioIdColumn, selectPortfolioIdQuery);
+        //    var updateQuery = this.BuildUpdateSapUploadDateQuery(condition);
 
-            await this.repositorySet.ExecuteSqlAsync(updateQuery);
-        }
+        //    await this.repositorySet.ExecuteSqlAsync(updateQuery);
+        //}
 
         private SqlHelper BuildUpdateSapUploadDateQuery(SqlHelper condition)
         {
@@ -82,7 +80,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Update(
                     MetaConstants.HardwareSchema,
                     MetaConstants.ManualCostTable,
-                    new ValueUpdateColumnInfo(nameof(HardwareManualCost.SapUploadDate), DateTime.UtcNow))
+                    new ValueUpdateColumnInfo(nameof(HardwareManualCost.NextSapUploadDate), DateTime.UtcNow))
                    .Where(
                         ConditionHelper.And(
                             SqlOperators.IsNotNull(nameof(HardwareManualCost.ReleaseDate), MetaConstants.ManualCostTable),

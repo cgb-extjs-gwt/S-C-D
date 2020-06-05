@@ -36,5 +36,6 @@ namespace Gdc.Scd.Import.Por.Core.DataAccessLayer
         public string Atom_R_Time { get; set; }
         public string Atom_Availability { get; set; }
         public string Atom_Duration { get; set; }
+        public string Item_Category { get; set; }
     }
 }

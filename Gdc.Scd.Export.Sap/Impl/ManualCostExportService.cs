@@ -10,237 +10,171 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Export.Sap.Dto;
 
 namespace Gdc.Scd.Export.Sap.Impl
 {
     public class ManualCostExportService : IManualCostExportService
     {
-        private readonly IDomainService<HardwareManualCost> manualCostService;
-
-        private readonly IDomainService<StandardWarrantyManualCost> standardWarrantyService;
-
-        private readonly IDomainService<SapMapping> sapMappingService;
-
-        private readonly IDomainService<HwFspCodeTranslation> fspService;
-
+        private readonly IDomainService<SapTable> sapTableService;
+        private readonly IFileService fileService;
+        private readonly IRepository<HardwareManualCost> hwManualRepo;
+        private readonly IRepository<User> userRepo;
+        private readonly IRepositorySet repository;
         private readonly ISapExportLogService sapLogService;
 
+        private ExportType ExportType { get; set; }
+        private DateTime UploadDate => DateTime.Now;
+        private DateTime? StartPeriod => this.ExportType == (ExportType.Partial) ? (DateTime?) DateTime.Today.AddDays(-1) : null;
+
         public ManualCostExportService(
-            IDomainService<HardwareManualCost> manualCostService,
-            IDomainService<StandardWarrantyManualCost> standardWarrantyService,
-            IDomainService<SapMapping> sapMappingService,
-            IDomainService<HwFspCodeTranslation> fspService,
-            ISapExportLogService sapLogService)
+            IRepository<HardwareManualCost> hwManualRepo,
+            IRepository<User> userRepo,
+            IDomainService<SapTable> sapTableService,
+            ISapExportLogService sapLogService,
+            IRepositorySet repo)
         {
-            this.manualCostService = manualCostService;
-            this.standardWarrantyService = standardWarrantyService;
-            this.sapMappingService = sapMappingService;
-            this.fspService = fspService;
+            this.hwManualRepo = hwManualRepo;
+            this.userRepo = userRepo;
+            this.sapTableService = sapTableService;
             this.sapLogService = sapLogService;
+            this.repository = repo;
+            this.fileService = new FileService();
+
+            this.ExportType = ExportType.Partial;
         }
 
         public void Export()
         {
             var lastSapLog = 
                 this.sapLogService.GetAll()
-                                  .OrderBy(log => log.DateTime)
-                                  .FirstOrDefault();
+                                  .OrderBy(log => log.UploadDate)
+                                  .LastOrDefault();
 
             if (lastSapLog == null)
             {
-                this.ExportAll();
+                this.ExportType = ExportType.Full;
             }
-            else if (DateTime.UtcNow.Month == lastSapLog.DateTime.Month)
+            else if (!lastSapLog.IsSend)
             {
-                this.ExportByDate(lastSapLog.DateTime);
+                //Log.Error(msg);
+                return;
             }
-            else
+            else if (Enum.TryParse(Config.ExportType, out ExportType exportTypeParam))
             {
-                this.ExportAll();
+                this.ExportType = exportTypeParam;
+            }
+            else if ((DateTime.Now - lastSapLog.UploadDate).Days != 1)
+            {
+                this.ExportType = ExportType.Full;
+            }
 
-                this.sapLogService.DeleteOverYear();
+            this.Do();
+        }
+
+        private void Do()
+        {
+            var locapMergedData = new LocapReportService(repository).Execute(this.StartPeriod);
+            
+            //upload Hardware packs data
+            var hwPacksResult = this.ExportPacks(locapMergedData, SapUploadPackType.HW);
+
+            //upload StandardWarranty data
+            var stdwResult = this.ExportPacks(locapMergedData, SapUploadPackType.STDW);
+
+            if (hwPacksResult && stdwResult)
+            {
+                this.SetUploadedHwManualCosts(locapMergedData);
             }
         }
 
-        private void ExportAll()
+        private bool ExportPacks(List<LocapMergedData> locapMergedData, SapUploadPackType packType)
         {
-            var manualCosts = this.manualCostService.GetAll();
+            var lastSapLog =
+                this.sapLogService.GetAll()
+                    .OrderBy(log => log.UploadDate)
+                    .LastOrDefault();
+            if (lastSapLog != null && lastSapLog.IsSend == false)
+            {
+                //Log.Error(msg);
+                return false;
+            }
 
-            this.Export(manualCosts, ExportType.Full);
+            var fileNumber = lastSapLog?.FileNumber + 1 ?? 1;
+
+            var sapUploadData = this.GetSapMappedData(locapMergedData, packType);
+            var fileName = fileService.CreateFileOnServer(sapUploadData, fileNumber);
+            var isSend = fileService.SendFileToSap(fileName);
+
+            this.sapLogService.Log(this.ExportType, this.UploadDate, this.StartPeriod, fileNumber, isSend);
+
+            return isSend;
         }
 
-        private void ExportByDate(DateTime date)
+        private List<ReleasedData> GetSapMappedData(List<LocapMergedData> locapMergedDatas, SapUploadPackType packType)
         {
-            var manualCosts =
-                this.manualCostService.GetAll()
-                    .Where(manualCost => manualCost.SapUploadDate >= date);
-
-            this.Export(manualCosts, ExportType.Partial);
+            var saptables = this.sapTableService.GetAll().Where(sp => sp.SapUploadPackType == packType.ToString()).ToList();
+            return locapMergedDatas.Select(lp => new ReleasedData
+            {
+                CurrencyName = lp.Currency,
+                SapDivision = lp.SapDivision,
+                SapSalesOrg = lp.SapSalesOrganization,
+                FspCodeWg = (packType == SapUploadPackType.HW) ? lp.FspCode : lp.WgName,
+                PriceDb = (packType == SapUploadPackType.HW) ? lp.ServiceTP : lp.LocalServiceStdw,
+                ValidFromDt = lp.ReleaseDate ?? (lp.NextSapUploadDate ?? DateTime.Today),
+                ValidToDt = DateTime.MaxValue,
+                SapTable = saptables.FirstOrDefault(s => s.SapSalesOrganization == lp.SapSalesOrganization).Name,
+                SapItemCategory = lp.SapItemCategory
+            }).Distinct().ToList();
         }
 
-        private void Export(IQueryable<HardwareManualCost> manualCosts, ExportType exportType)
+        private void SetUploadedHwManualCosts(List<LocapMergedData> locapMergedDatas)
         {
-            var releasedData = this.GetReleasedData(manualCosts);
-            var excelStream = this.BuildExcelStream(releasedData);
+            var recordsId = locapMergedDatas.Select(x => x.PortfolioId);
+            var sapUser = userRepo
+                .GetAll()
+                .FirstOrDefault(u => u.Login.Equals(Config.SapDBUserLogin, StringComparison.InvariantCultureIgnoreCase));
 
-            var fileName = this.SaveFileToServer(excelStream);
+            var entities = (
+                from hw in hwManualRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+                select hw).ToDictionary(x => x.Id, y => y);
 
-            this.ExportFile(fileName);
-
-            this.sapLogService.Log(exportType);
-        }
-
-        private string SaveFileToServer(Stream fileStream)
-        {
-        }
-
-        private void ExportFile(string filename)
-        {
+            ITransaction transaction = null;
             try
             {
-                var errCode = NetCopyFile(filename, Config.ExportDirectory, filename, Config.ExportHost, Config.Admission);
-                if (errCode != 0)
+                transaction = repository.GetTransaction();
+
+                foreach (var rec in locapMergedDatas)
                 {
-                    var msg = string.Format("net copy file: ERROR : '{0}'", errCode);
+                    if (!entities.ContainsKey(rec.PortfolioId))
+                    {
+                        continue;
+                    }
+
+                    var hwManual = entities[rec.PortfolioId];
+
+                        hwManual.NextSapUploadDate = null;
+                        hwManual.SapUploadDate = DateTime.Now;
+                        hwManual.ChangeUser = sapUser;
+
+                        hwManualRepo.Save(hwManual);
                 }
-            }
-            catch (Exception ex)
-            {
-                var msg = string.Format(
-                    "Error occured when try to send file '{0}' from dir='{1}' to host='{2}' with params='{3}' ",
-                    filename, Config.ExportDirectory, Config.ExportHost, Config.Admission);
-               
-            }
-        }
 
-        public int NetCopyFile(string filenameFrom, string pathFrom, string filenameTo, string pathTo, string additionalParams)
-        {
-            var proc = new Process
-            {
-                StartInfo =
-                {
-                    FileName = "ncopy.exe",
-                    UseShellExecute = true,
-                    WorkingDirectory = pathFrom,
-                    Arguments = filenameFrom + " " + pathTo + "!" + filenameTo + " " + additionalParams
-                }
-            };
-            //Log.Info("net copy file: sending " + filenameFrom + "...");
-            //Log.Info("net copy file: startcode=" + proc.Start() + "...");
-            //Log.Info("net copy file: waiting...");
-            proc.WaitForExit(30000);
-
-            if (proc.ExitCode != 0)
-            {
-                //Log.Info("net copy file: ERROR " + proc.ExitCode);
+                repository.Sync();
+                transaction.Commit();
             }
-            else
+            catch(Exception ex)
             {
-                //Log.Info("net copy file: ok");
+                //Log.Error(ex, msg);
+                transaction?.Rollback();
+                throw;
+            }
+            finally
+            {
+                transaction?.Dispose();
             }
 
-            return proc.ExitCode;
-        }
-
-        //private Stream BuildExcelStream(IEnumerable<HardwareManualCost> manualCosts)
-        //{
-        //    const int StartColumn = 1;
-
-        //    var stream = new MemoryStream();
-
-        //    using (var workbook = new XLWorkbook())
-        //    {
-        //        var sheet = workbook.Worksheets.Add("ManualCosts");
-
-        //        var row = 1;
-        //        var column = StartColumn;
-
-        //        sheet.Cell(row, column++).Value = "Country";
-        //        sheet.Cell(row, column++).Value = "Availability";
-        //        sheet.Cell(row, column++).Value = "Duration";
-        //        sheet.Cell(row, column++).Value = "ProActiveSla";
-        //        sheet.Cell(row, column++).Value = "ReactionTime";
-        //        sheet.Cell(row, column++).Value = "ReactionType";
-        //        sheet.Cell(row, column++).Value = "Wg";
-        //        sheet.Cell(row, column++).Value = "ServiceTP1";
-        //        sheet.Cell(row, column++).Value = "ServiceTP2";
-        //        sheet.Cell(row, column++).Value = "ServiceTP3";
-        //        sheet.Cell(row, column++).Value = "ServiceTP4";
-        //        sheet.Cell(row, column++).Value = "ServiceTP5";
-        //        sheet.Cell(row, column).Value = "ServiceTP";
-
-        //        foreach (var manulaCost in manualCosts)
-        //        {
-        //            row++;
-        //            column = StartColumn;
-
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.Country.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.Availability.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.Duration.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.ProActiveSla.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.ReactionTime.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.ReactionType.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.LocalPortfolio.Wg.Name;
-        //            sheet.Cell(row, column++).Value = manulaCost.ServiceTP1_Released;
-        //            sheet.Cell(row, column++).Value = manulaCost.ServiceTP2_Released;
-        //            sheet.Cell(row, column++).Value = manulaCost.ServiceTP3_Released;
-        //            sheet.Cell(row, column++).Value = manulaCost.ServiceTP4_Released;
-        //            sheet.Cell(row, column++).Value = manulaCost.ServiceTP5_Released;
-        //            sheet.Cell(row, column).Value = manulaCost.ServiceTP_Released;
-
-        //            workbook.SaveAs(stream);
-
-        //            stream.Position = 0;
-        //        }
-        //    }
-
-        //    return stream;
-        //}
-
-        private Stream BuildExcelStream(IEnumerable<ReleasedDataDto> releasedDatas)
-        {
-            throw new NotImplementedException();
-        }
-
-        //private IQueryable<HardwareManualCost> GetManulaCosts()
-        //{
-        //    return
-        //        this.manualCostService.GetAll()
-        //                              .Include(manualCost => manualCost.LocalPortfolio.Availability)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.Country)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.Duration)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.ProActiveSla)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.ReactionTime)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.ReactionType)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.ServiceLocation)
-        //                              .Include(manualCost => manualCost.LocalPortfolio.Wg);
-        //}
-
-        private IQueryable<ReleasedDataDto> GetReleasedData(IQueryable<HardwareManualCost> manualCosts)
-        {
-            return
-                from manualCost in manualCosts
-                join fsp in this.fspService.GetAll()
-                    on new { manualCost.LocalPortfolio.Sla, manualCost.LocalPortfolio.SlaHash }
-                    equals new { fsp.Sla, fsp.SlaHash }
-                join standartWarranty in this.standardWarrantyService.GetAll()
-                    on new { manualCost.LocalPortfolio.Country, fsp.Wg }
-                    equals new { standartWarranty.Country, standartWarranty.Wg }
-                join sapMapping in this.sapMappingService.GetAll()
-                    on manualCost.LocalPortfolio.Country
-                    equals sapMapping.Country
-                select new ReleasedDataDto
-                {
-                    CurrencyName = manualCost.LocalPortfolio.Country.Currency.Name,
-                    FspCode = fsp.Name,
-                    SapCountryCode = sapMapping.SapCountryName,
-                    SapDivision = sapMapping.SapDivision,
-                    SapSalesOrganization = sapMapping.SapSalesOrganization,
-                    WgName = manualCost.LocalPortfolio.Wg.Name,
-                    ServiceTP = manualCost.ServiceTP.Value,
-                    StandardWarranty = standartWarranty.StandardWarranty.Value,
-                    ReleasedDate = manualCost.ReleaseDate ?? DateTime.Today
-                };
         }
     }
 }

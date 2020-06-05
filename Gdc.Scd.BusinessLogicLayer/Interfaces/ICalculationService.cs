@@ -21,9 +21,5 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task ReleaseHardwareCost(User changeUser, HwFilterDto filter);
 
         Task ReleaseSelectedHardwareCost(User changeUser, HwFilterDto filter, HwCostDto[] items);
-
-        Task UploadToSap(HwFilterDto filter);
-
-        Task UploadToSap(HwCostDto[] items);
     }
 }

@@ -85,28 +85,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
         }
 
-        public async Task UploadToSap(HwFilterDto filter)
-        {
-            if (filter?.Country == null || filter.Country.Length == 0)
-            {
-                throw new ArgumentException("No country specified");
-            }
-
-            await this.sapUploadRepository.UploadToSap(filter);
-        }
-
-        public async Task UploadToSap(HwCostDto[] items)
-        {
-            if (items == null || items.Length == 0)
-            {
-                throw new ArgumentException("No records specified");
-            }
-
-            var ids = items.Select(item => item.Id).ToArray();
-
-            await this.sapUploadRepository.UploadToSap(ids);
-        }
-
         public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);

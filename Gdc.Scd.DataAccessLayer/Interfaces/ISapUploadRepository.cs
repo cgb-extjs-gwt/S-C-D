@@ -8,6 +8,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     {
         Task UploadToSap(HwFilterDto filter);
 
-        Task UploadToSap(IEnumerable<long> localPortfolioIds);
+        //Task UploadToSap(IEnumerable<long> localPortfolioIds);
     }
 }

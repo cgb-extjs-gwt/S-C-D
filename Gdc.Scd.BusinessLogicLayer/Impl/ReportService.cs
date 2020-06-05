@@ -8,7 +8,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using Gdc.Scd.Core.Dto;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -30,6 +30,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<ReportFilter> filterRepo;
 
+        private readonly ISapUploadRepository sapUploadRepository;
+
         private readonly IUserService userService;
 
         public ReportService(
@@ -37,7 +39,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IRepository<Report> reportRepo,
                 IRepository<ReportColumn> columnRepo,
                 IRepository<ReportFilter> filterRepo,
-                IUserService userService
+                IUserService userService,
+                ISapUploadRepository sapUploadRepository
             )
         {
             this.repositorySet = repositorySet;
@@ -45,6 +48,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.columnRepo = columnRepo;
             this.filterRepo = filterRepo;
             this.userService = userService;
+            this.sapUploadRepository = sapUploadRepository;
         }
 
         public async Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
@@ -82,6 +86,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var d = await new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit + 1, parameters);
 
             return (d.json, d.total < limit ? start + d.total : start + limit + 1);
+        }
+
+        public async Task MarkUploadToSap(long reportId, ReportFilterCollection filter)
+        {
+            var r = GetSchemas().GetSchema(reportId);
+            var hwFilter = r.GetHwFilter(filter);
+
+            if (hwFilter?.Country == null || hwFilter.Country.Length == 0)
+            {
+                throw new ArgumentException("No country specified");
+            }
+            await this.sapUploadRepository.UploadToSap(hwFilter);
         }
 
         public ReportDto[] GetReports()
@@ -361,6 +377,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return builder.Build();
+        }
+
+        public HwFilterDto GetHwFilter(ReportFilterCollection src)
+        {
+            return new HwFilterDto();
         }
     }
 }

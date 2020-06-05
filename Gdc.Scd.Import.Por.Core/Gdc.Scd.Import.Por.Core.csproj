@@ -158,6 +158,7 @@
     </EntityDeploy>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.Config" />
     <None Include="DataAccessLayer\FrieseModel.edmx.diagram">
       <DependentUpon>FrieseModel.edmx</DependentUpon>
     </None>

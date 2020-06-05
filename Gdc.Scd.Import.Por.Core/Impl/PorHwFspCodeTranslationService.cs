@@ -246,7 +246,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                                 ProactiveSlaId = sla.ProActive,
                                 ServiceType = code.ServiceType,
                                 CreatedDateTime = createdDateTime,
-                                IsStandardWarranty = false
+                                IsStandardWarranty = false,
+                                SapItemCategory = code.Item_Category
                             };
 
                             _logger.Debug(PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
@@ -294,7 +295,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 ServiceType = code.ServiceType,
                 CreatedDateTime = createdDateTime,
                 IsStandardWarranty = true,
-                LUT = lutCode
+                LUT = lutCode,
+                SapItemCategory = code.Item_Category
             };
 
             if (country.HasValue)

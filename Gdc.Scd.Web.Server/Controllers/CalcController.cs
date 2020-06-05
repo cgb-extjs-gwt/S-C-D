@@ -155,32 +155,6 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.NotFoundContentAsync();
         }
 
-        [HttpPost]
-        public async Task UploadToSapSelected([FromBody]SaveCostManualDto m)
-        {
-            if (this.HasAccess(m.CountryId))
-            {
-                await calcSrv.UploadToSap(m.Items);
-            }
-            else 
-            {
-                throw this.NotFoundException();
-            }
-        }
-
-        [HttpPost]
-        public async Task UploadToSapAll([FromBody]HwFilterDto filter)
-        {
-            if (this.HasAccess(false, filter.Country))
-            {
-                await calcSrv.UploadToSap(filter);
-            }
-            else
-            {
-                await this.NotFoundContentAsync();
-            }
-        }
-
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;
