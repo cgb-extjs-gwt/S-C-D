@@ -106,12 +106,13 @@ warning 6002: The table/view 'friese.dbo.SCD2_v_SAR_new_codes' does not have a p
           <Property Name="MaxSpares" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="EKSchluessel" Type="nvarchar" MaxLength="250" />
           <Property Name="Project" Type="nvarchar" MaxLength="50" />
-          <Property Name="SCD_ServiceType" Type="varchar" MaxLength="50" />
-          <Property Name="Atom_Location" Type="varchar" MaxLength="50" />
+          <Property Name="SCD_ServiceType" Type="varchar(max)" />
+          <Property Name="Atom_Location" Type="varchar" MaxLength="250" />
           <Property Name="Atom_R_Type" Type="nvarchar" MaxLength="255" />
           <Property Name="Atom_R_Time" Type="nvarchar" MaxLength="255" />
           <Property Name="Atom_Availability" Type="nvarchar" MaxLength="255" />
           <Property Name="Atom_Duration" Type="nvarchar" MaxLength="255" />
+          <Property Name="Item_Category" Type="varchar" MaxLength="10" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -222,7 +223,8 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
     [SCD2_v_SAR_new_codes].[Atom_R_Type] AS [Atom_R_Type], 
     [SCD2_v_SAR_new_codes].[Atom_R_Time] AS [Atom_R_Time], 
     [SCD2_v_SAR_new_codes].[Atom_Availability] AS [Atom_Availability], 
-    [SCD2_v_SAR_new_codes].[Atom_Duration] AS [Atom_Duration]
+    [SCD2_v_SAR_new_codes].[Atom_Duration] AS [Atom_Duration], 
+    [SCD2_v_SAR_new_codes].[Item_Category] AS [Item_Category]
     FROM [dbo].[SCD2_v_SAR_new_codes] AS [SCD2_v_SAR_new_codes]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="SCD2_WarrantyGroups" EntityType="Self.SCD2_WarrantyGroups" store:Type="Views" store:Schema="dbo">
@@ -330,12 +332,13 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
           <Property Name="MaxSpares" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="EKSchluessel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="Project" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="SCD_ServiceType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Atom_Location" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Atom_Location" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="Atom_R_Type" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Atom_R_Time" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Atom_Availability" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Atom_Duration" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Item_Category" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="SCD2_WarrantyGroups">
           <Key>
@@ -444,6 +447,7 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
           <EntitySetMapping Name="SCD2_v_SAR_new_codes">
             <EntityTypeMapping TypeName="FrieseModel.SCD2_v_SAR_new_codes">
               <MappingFragment StoreEntitySet="SCD2_v_SAR_new_codes">
+                <ScalarProperty Name="Item_Category" ColumnName="Item_Category" />
                 <ScalarProperty Name="Service_Code" ColumnName="Service_Code" />
                 <ScalarProperty Name="Country" ColumnName="Country" />
                 <ScalarProperty Name="WG" ColumnName="WG" />

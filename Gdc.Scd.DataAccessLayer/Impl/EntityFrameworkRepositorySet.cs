@@ -11,6 +11,7 @@ using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -511,17 +512,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             foreach (var paramInfo in parameters)
             {
-                var commandParameter = command.CreateParameter();
-
-                commandParameter.ParameterName = paramInfo.Name;
-                commandParameter.Value = paramInfo.Value ?? DBNull.Value;
-
-                if (paramInfo.Type.HasValue)
+                if (paramInfo.Value is long[] ids)
                 {
-                    commandParameter.DbType = paramInfo.Type.Value;
+                    yield return new DbParameterBuilder().WithName(paramInfo.Name).WithListIdValue(ids).Build();
                 }
+                else
+                {
+                    var commandParameter = command.CreateParameter();
 
-                yield return commandParameter;
+                    commandParameter.ParameterName = paramInfo.Name;
+                    commandParameter.Value = paramInfo.Value ?? DBNull.Value;
+
+                    if (paramInfo.Type.HasValue)
+                    {
+                        commandParameter.DbType = paramInfo.Type.Value;
+                    }
+
+                    yield return commandParameter;
+                }
             }
         }
 

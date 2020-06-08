@@ -37,5 +37,7 @@ namespace Gdc.Scd.Core.Entities
 
         public ProActiveSla ProActiveSla { get; set; }
         public long? ProactiveSlaId { get; set; }
+
+        public string SapItemCategory { get; set; }
     }
 }
