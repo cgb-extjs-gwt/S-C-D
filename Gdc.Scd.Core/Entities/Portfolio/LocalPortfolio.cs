@@ -9,5 +9,11 @@ namespace Gdc.Scd.Core.Entities.Portfolio
     {
         [Required]
         public Country Country { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public string Sla { get; private set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public string SlaHash { get; private set; }
     }
 }

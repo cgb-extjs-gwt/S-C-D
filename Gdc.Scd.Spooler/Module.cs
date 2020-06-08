@@ -4,6 +4,7 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Export.ArchiveJob;
 using Gdc.Scd.Export.ArchiveResultSenderJob;
 using Gdc.Scd.Export.CdCsJob;
+using Gdc.Scd.Export.Sap.Impl;
 using Gdc.Scd.Import.AmberRoad;
 using Gdc.Scd.Import.CentralContractGroup;
 using Gdc.Scd.Import.Ebis.Afr;
