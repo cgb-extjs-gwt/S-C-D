@@ -18,6 +18,14 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_06
 
         public void Execute()
         {
+            this.repositorySet.ExecuteSql(@"ALTER TABLE [Hardware].[ManualCost] ADD [SapUploadDate] DATETIME NULL");
+
+            this.repositorySet.ExecuteSql(@"ALTER TABLE [Hardware].[ManualCost] ADD [NextSapUploadDate] DATETIME NULL");
+
+            this.repositorySet.ExecuteSql(@"ALTER TABLE [Fsp].[HwFspCodeTranslation] ADD [SapItemCategory] [nvarchar](10) NULL");
+
+            this.repositorySet.ExecuteSql(@"ALTER TABLE [Temp].[HwFspCodeTranslation] ADD [SapItemCategory] [nvarchar](10) NULL");
+
             //create table [dbo].[SapMappings]
             this.repositorySet.ExecuteSql(@"
             CREATE TABLE [dbo].[SapMappings](
@@ -75,9 +83,9 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_06
             this.repositorySet.ExecuteSql(@"
             IF OBJECT_ID('[Report].[LocapSapUpload]') IS NOT NULL
                 DROP PROCEDURE [Report].[LocapSapUpload]; 
-            go 
+            ");
 
-
+            this.repositorySet.ExecuteSql(@"
             create PROCEDURE Report.LocapSapUpload
             (
             @periodStartDate DateTime=null
@@ -150,14 +158,6 @@ namespace Gdc.Scd.MigrationTool.Migrations._2020_06
             End
 
             ");
-
-            this.repositorySet.ExecuteSql(@"ALTER TABLE [Hardware].[ManualCost] ADD [SapUploadDate] DATETIME NULL");
-
-            this.repositorySet.ExecuteSql(@"ALTER TABLE [Hardware].[ManualCost] ADD [NextSapUploadDate] DATETIME NULL");
-
-            this.repositorySet.ExecuteSql(@"ALTER TABLE [Fsp].[HwFspCodeTranslation] ADD [SapItemCategory] [nvarchar](10) NULL");
-
-            this.repositorySet.ExecuteSql(@"ALTER TABLE [Temp].[HwFspCodeTranslation] ADD [SapItemCategory] [nvarchar](10) NULL");
 
             //update procedure [Temp].[CopyHwFspCodeTranslations]
             this.repositorySet.ExecuteSql(@"
