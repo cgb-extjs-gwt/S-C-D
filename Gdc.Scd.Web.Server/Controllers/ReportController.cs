@@ -94,13 +94,16 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpPost]
         public Task UploadToSap([FromUri]long id, [FromBody]ReportFormData data)
         {
-            if (!IsRangeValid(data.Start, data.Limit))
-            {
-                return null;
-            }
+            throw new System.NotImplementedException();
+
+
+            //if (!IsRangeValid(data.Start, data.Limit))
+            //{
+            //    return null;
+            //}
             
-            return service.MarkUploadToSap(id, data.AsFilterCollection())
-                .ContinueWith(x => this.View(id, data));
+            //return service.MarkUploadToSap(id, data.AsFilterCollection())
+            //    .ContinueWith(x => this.View(id, data));
         }
 
         private static bool IsRangeValid(int start, int limit)
