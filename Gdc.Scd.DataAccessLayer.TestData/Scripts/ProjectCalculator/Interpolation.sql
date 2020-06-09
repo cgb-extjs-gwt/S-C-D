@@ -60,6 +60,10 @@ IF OBJECT_ID('[ProjectCalculator].[CalcReactionTimeTypeAvailabilityCoeff]') IS N
     DROP FUNCTION [ProjectCalculator].[CalcReactionTimeTypeAvailabilityCoeff]
 GO
 
+IF OBJECT_ID('[ProjectCalculator].[GetRecursiveAfrMonths]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetRecursiveAfrMonths]
+GO
+
 IF TYPE_ID('[ProjectCalculator].[XY]') IS NOT NULL
     DROP TYPE [ProjectCalculator].[XY]
 GO
@@ -102,6 +106,26 @@ RETURNS FLOAT
 AS
 BEGIN
 	RETURN [ProjectCalculator].[CalcReactionTimeAvailabilityCoeff](@reactionTimeMinutes, @availabilityValue) * @typeCoeff
+END
+GO
+
+CREATE FUNCTION [ProjectCalculator].[GetRecursiveAfrMonths]
+(
+	@maxAfrMonths INT,
+	@projectMonths INT
+)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @months INT
+	DECLARE @reaminder INT = @projectMonths % 12
+
+	IF @reaminder = 0
+		SET @months = @projectMonths - 12
+	ELSE
+		SET @months = @projectMonths - @reaminder
+
+	RETURN @months
 END
 GO
 
@@ -288,7 +312,7 @@ INNER JOIN
 INNER JOIN
 	[Dependencies].[Year] ON [AFR].[Year] = [Year].[Id]
 WHERE
-	[AFR].[Deactivated] = 0
+	[AFR].[Deactivated] = 0 AND [Year].[IsProlongation] = 0
 GO
 
 CREATE PROCEDURE [ProjectCalculator].[GetY]
@@ -296,34 +320,19 @@ CREATE PROCEDURE [ProjectCalculator].[GetY]
 	@xySql NVARCHAR(MAX),
 	@conditionOperator NVARCHAR(2),
 	@xy [ProjectCalculator].[XY] READONLY,
-	@skip INT = 0
+	@skip INT = 0,
+	@isDescending BIT = 0
 )
 AS 
 BEGIN
 	DECLARE @y FLOAT
-	--DECLARE @sql NVARCHAR(MAX) = 
-	--	N'SELECT\
-	--		XY.X,\
-	--		(\
-	--			SELECT TOP 1\
-	--				t.Y\
-	--			FROM\
-	--			(\
-	--				SELECT\ 
-	--					ROW_NUMBER() OVER(ORDER BY t.X) AS RowNumber,\
-	--					t.Y\
-	--				FROM\
-	--					(' + @xySql + ') AS t\ 
-	--				WHERE\
-	--					t.X ' + @conditionOperator + 'XY.X\
-	--				ORDER BY\
-	--					t.X\
-	--			) AS t\
-	--			WHERE\
-	--				t.RowNumber > @skip\
-	--		) AS Y\
-	--	 FROM\
-	--		@xy AS XY'
+	DECLARE @orderByType NVARCHAR(4)
+
+	IF @isDescending = 1
+		SET @orderByType = 'DESC'
+	ELSE
+		SET @orderByType = 'ASC'
+
 	DECLARE @sql NVARCHAR(MAX) = 
 		N'SELECT
 			ProjectId,
@@ -333,19 +342,18 @@ BEGIN
 		  FROM
 		  (
 			SELECT
-				ROW_NUMBER() OVER(PARTITION BY XY.ProjectId ORDER BY ResultQuery.X) AS RowNumber,
+				ROW_NUMBER() OVER(PARTITION BY XY.ProjectId, XY.X ORDER BY ResultQuery.X ' + @orderByType + ') AS RowNumber,
 				XY.ProjectId,
 				XY.X,
 				ResultQuery.X AS X_Result,
 				ResultQuery.Y AS Y_Result
 			FROM
 				@xy AS XY
-			INNER JOIN
+			LEFT JOIN
 				(' + @xySql + ') AS ResultQuery ON ResultQuery.X ' + @conditionOperator + 'XY.X
 		  ) AS t
 		  WHERE
 			RowNumber = @skip + 1'
-
 
 	EXEC sp_executesql @sql, N'@xy [ProjectCalculator].[XY] READONLY, @skip INT', @xy, @skip
 END
@@ -363,10 +371,10 @@ BEGIN
 	INSERT INTO @fullCompliance EXEC [ProjectCalculator].[GetY] @xySql, '=', @xy
 
 	DECLARE @notFullCompliance [ProjectCalculator].[XY]
-	INSERT INTO @notFullCompliance(X, X_Result, Y_Result) SELECT X, X_Result, Y_Result FROM @fullCompliance AS t WHERE Y_Result IS NULL
+	INSERT INTO @notFullCompliance(ProjectId, X, X_Result, Y_Result) SELECT ProjectId, X, X_Result, Y_Result FROM @fullCompliance AS t WHERE Y_Result IS NULL
 
 	DECLARE @less [ProjectCalculator].[XY]
-	INSERT INTO @less EXEC [ProjectCalculator].[GetY] @xySql, '<', @notFullCompliance
+	INSERT INTO @less EXEC [ProjectCalculator].[GetY] @xySql, '<', @notFullCompliance, 0, 1
 
 	DECLARE @more [ProjectCalculator].[XY]
 	INSERT INTO @more EXEC [ProjectCalculator].[GetY] @xySql, '>', @notFullCompliance
@@ -401,7 +409,7 @@ BEGIN
 		Less.Y_Result IS NOT NULL AND More.Y_Result IS NULL
 
 	DECLARE @lessThenLess [ProjectCalculator].[XY]
-	INSERT INTO @lessThenLess EXEC [ProjectCalculator].[GetY] @xySql, '<', @lessThenLessParam, 1
+	INSERT INTO @lessThenLess EXEC [ProjectCalculator].[GetY] @xySql, '<', @lessThenLessParam, 1, 1
 
 	IF OBJECT_ID('tempdb..#InterpolateResults') IS NOT NULL 
 		DROP TABLE #InterpolateResults;
@@ -427,9 +435,8 @@ BEGIN
 			LessThenLess.X_Result AS LessThenLess_X_Result,
 			LessThenLess.Y_Result AS LessThenLess_Y_Result,
 
-			CASE WHEN FullCompliance.X IS NOT NULL THEN FullCompliance.X END AS Y,
 			CASE 
-				WHEN FullCompliance.X  IS NOT NULL THEN 'FullCompliance'
+				WHEN FullCompliance.X_Result  IS NOT NULL THEN 'FullCompliance'
 
 				WHEN Less.X_Result IS NOT NULL THEN CASE 
 					WHEN More.X_Result			IS NOT NULL THEN 'Less_More'
@@ -513,9 +520,14 @@ BEGIN
 
 	WITH [NullAfr] AS 
 	(
-		SELECT * FROM [AfrNotCalculatedProjects] WHERE [AFR] IS NULL AND [AfrMonths] < [ProjectMonths]
+		SELECT 
+			* 
+		FROM 
+			[ProjectCalculator].[AfrNotCalculatedProjects] 
+		WHERE 
+			[AFR] IS NULL AND [AfrMonths] < [ProjectMonths]
 	),
-	[ProjecMoreExistingAfr] AS
+	[NotExistingAfr] AS
 	(
 		SELECT
 			*
@@ -526,34 +538,31 @@ BEGIN
 				[ProjectMonths],
 				MAX([AfrMonths]) AS MaxAfrMonths
 			FROM
-				[AfrNotCalculatedProjects]
+				[ProjectCalculator].[AfrNotCalculatedProjects] 
 			GROUP BY
 				[ProjectId],
 				[ProjectMonths]
 		) AS t
 		WHERE
-			[MaxAfrMonths] < [ProjectMonths]
+			[MaxAfrMonths] < [ProjectMonths] OR
+			[ProjectMonths] NOT IN(SELECT [AfrMonths] FROM [ProjectCalculator].[AfrNotCalculatedProjects])
 	),
 	[RecurciveAfr] AS 
 	(
 		SELECT 
 			[ProjectId],
-
-			CASE 
-				WHEN [MaxAfrMonths] < [ProjectMonths] - 12 THEN [ProjectMonths] - 12 
-				ELSE [ProjectMonths]
-			END AS AfrMonths
-		FROM
-			[ProjecMoreExistingAfr]
+			[ProjectMonths] AS AfrMonths
+		FROM	
+			[NotExistingAfr]
 		UNION ALL
 		SELECT
 			[RecurciveAfr].[ProjectId],
-			[RecurciveAfr].[AfrMonths] - 12 AS AfrMonths
+			[ProjectCalculator].[GetRecursiveAfrMonths]([NotExistingAfr].[MaxAfrMonths], [RecurciveAfr].[AfrMonths])
 		FROM
-			[RecurciveAfr], [ProjecMoreExistingAfr]
+			[RecurciveAfr], [NotExistingAfr]
 		WHERE
-			[RecurciveAfr].[ProjectId] = [ProjecMoreExistingAfr].[ProjectId] AND
-			[ProjecMoreExistingAfr].MaxAfrMonths < [AfrMonths] - 12 
+			[RecurciveAfr].[ProjectId] = [NotExistingAfr].[ProjectId] AND
+			[NotExistingAfr].[MaxAfrMonths] < [AfrMonths]
 	)
 	INSERT INTO @xy(ProjectId, X) 
 	SELECT [ProjectId], [AfrMonths] FROM [NullAfr]
@@ -597,7 +606,7 @@ BEGIN
 					[AfrNotCalculatedProjects].[AfrMonths] DESC
 			) AS PreviousAfr
 		FROM
-		#interpolatedAfr AS [InterpolatedAfr]
+			#interpolatedAfr AS [InterpolatedAfr]
 	) AS t
 
 	DROP TABLE #interpolatedAfr

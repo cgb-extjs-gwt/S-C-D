@@ -189,7 +189,7 @@ BEGIN
 			Project.WgId, 
 			Afr.AFR / 100 AS AFR, 
 			Afr.Months, 
-			0 AS IsProlongation
+			Afr.IsProlongation AS IsProlongation
 		FROM
 			ProjectCalculator.Afr
 		INNER JOIN	

@@ -53,7 +53,7 @@ CREATE TABLE [ProjectCalculator].[Project](
 	[AvailabilityFee_StockValueFj] [float] NULL,
 	[AvailabilityFee_StockValueMv] [float] NULL,
 	[AvailabilityFee_TotalLogisticsInfrastructureCost] [float] NULL,
-	[AvailabilityFee_Fee] [float] NULL,
+	--[AvailabilityFee_Fee] [float] NULL,
 	[Availability_Name] [nvarchar](max) NULL,
 	[Availability_Value] [int] NOT NULL,
 	[Availability_End_Day] [tinyint] NOT NULL,

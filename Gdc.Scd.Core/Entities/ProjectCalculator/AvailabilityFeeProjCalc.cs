@@ -20,6 +20,6 @@
 
         //public double? JapanBuy { get; set; }
 
-        public double? Fee { get; set; }
+        //public double? Fee { get; set; }
     }
 }
