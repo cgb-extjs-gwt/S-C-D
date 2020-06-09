@@ -1,7 +1,10 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.ProjectCalculator;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -14,22 +17,50 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private const int MinutesInYear = MinutesInMonth * 12;
 
         private static readonly PeriodNameBuilder periodNameBuilder = new PeriodNameBuilder();
+        private static readonly PeriodService periodService = new PeriodService();
 
-        public ProjectCalculatorService(IRepositorySet repositorySet) 
+        private readonly IDomainService<Wg> wgService;
+        private readonly IDomainService<Country> countryService;
+        private readonly IDomainService<ReactionType> reactionTypeService;
+        private readonly IDomainService<ServiceLocation> serviceLocationService;
+
+        public ProjectCalculatorService(
+            IRepositorySet repositorySet, 
+            IDomainService<Wg> wgService,
+            IDomainService<Country> countryService,
+            IDomainService<ReactionType> reactionTypeService,
+            IDomainService<ServiceLocation> serviceLocationService) 
             : base(repositorySet)
         {
+            this.wgService = wgService;
+            this.countryService = countryService;
+            this.reactionTypeService = reactionTypeService;
+            this.serviceLocationService = serviceLocationService;
         }
 
-        public override void Save(Project item)
+        public ProjectCalculatorData GetProjectCalculatorData()
         {
-            base.Save(item);
-            this.InterpolateProjects();
+            return new ProjectCalculatorData
+            {
+                Wgs = this.wgService.GetAll().Where(wg => wg.WgType == WgType.Por).ToArray(),
+                Countries = this.countryService.GetAll().Where(country => country.IsMaster).ToArray(),
+                ReactionTypes = this.reactionTypeService.GetAll().ToArray(),
+                ServiceLocations = this.serviceLocationService.GetAll().ToArray(),
+                ReactionTimePeriods = periodService.GetPeriods(PeriodType.Minutes, PeriodType.Hours),
+                DurationPeriods = periodService.GetPeriods(PeriodType.Months, PeriodType.Years)
+            };
         }
 
-        public override void Save(IEnumerable<Project> items)
+        public void SaveWithInterpolation(Project[] projects)
         {
-            base.Save(items);
-            this.InterpolateProjects();
+            foreach (var project in projects)
+            {
+                project.IsCalculated = true;
+            }
+
+            this.Save(projects);
+
+            this.repositorySet.ExecuteProc("[ProjectCalculator].[InterpolateProjects]");
         }
 
         protected override void InnerSave(Project item)
@@ -37,14 +68,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             item.Availability.Name = item.Availability.ToString();
             item.Duration.Name = periodNameBuilder.GetPeriodName(item.Duration.Months * MinutesInMonth, item.Duration.PeriodType);
             item.ReactionTime.Name = periodNameBuilder.GetPeriodName(item.ReactionTime.Minutes, item.ReactionTime.PeriodType);
-            item.IsCalculated = false;
 
             base.InnerSave(item);
-        }
-
-        private void InterpolateProjects()
-        {
-            this.repositorySet.ExecuteProc("[ProjectCalculator].[InterpolateProjects]");
         }
 
         private class PeriodInfo
@@ -83,6 +108,35 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 return minutes.HasValue
                     ? this.GetPeriodName(minutes.Value, periodType.Value)
                     : "none";
+            }
+        }
+
+        private class PeriodService
+        {
+            private readonly Dictionary<PeriodType, NamedId> periods = new Dictionary<PeriodType, NamedId>();
+
+            public PeriodService()
+            {
+                this.AddPeriod(PeriodType.Minutes, "min");
+                this.AddPeriod(PeriodType.Hours, "h");
+                this.AddPeriod(PeriodType.Months, "m");
+                this.AddPeriod(PeriodType.Years, "y");
+            }
+
+            public NamedId[] GetPeriods(params PeriodType[] periodTypes)
+            {
+                return periodTypes.Select(periodType => this.periods[periodType]).ToArray();
+            }
+
+            private void AddPeriod(PeriodType periodType, string name)
+            {
+                var period = new NamedId
+                {
+                    Id = (long)periodType,
+                    Name = name
+                };
+
+                this.periods.Add(periodType, period);
             }
         }
     }

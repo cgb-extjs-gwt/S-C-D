@@ -136,15 +136,24 @@ IF COL_LENGTH('[Dependencies].[Availability]', 'Value') IS NULL
 	ALTER TABLE [Dependencies].[Availability] ADD [Value] INT NOT NULL DEFAULT(0)
 GO
 
+IF COL_LENGTH('[Dependencies].[Availability]', 'IsMax') IS NULL
+	ALTER TABLE [Dependencies].[Availability] ADD [IsMax] BIT NOT NULL DEFAULT(0)
+GO
+
 IF COL_LENGTH('[Dependencies].[ReactionType]', 'Coeff') IS NULL
 	ALTER TABLE [Dependencies].[ReactionType] ADD [Coeff] INT NOT NULL DEFAULT(0)
 GO
 
 CREATE TABLE [ProjectCalculator].[AvailabilityWeight]
 (
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Day] [tinyint] NOT NULL,
 	[Hour] [tinyint] NOT NULL,
-	[Weight] [float] NOT NULL 
+	[Weight] [float] NOT NULL,
+	CONSTRAINT [PK_AvailabilityWeight] PRIMARY KEY CLUSTERED 
+	(
+		[Id] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 )
 GO
 
@@ -379,7 +388,7 @@ UPDATE [Dependencies].[ReactionTime] SET [Minutes] = 2 *24 * 60 WHERE [Name] = '
 UPDATE [Dependencies].[ReactionTime] SET [Minutes] = 3 *24 * 60 WHERE [Name] = '2nd Business Day'
 
 UPDATE [Dependencies].[Availability] SET [Value] = [ProjectCalculator].[CalcAvailabilityCoeff](0, 8, 4, 17) WHERE [Name] = '9x5'
-UPDATE [Dependencies].[Availability] SET [Value] = [ProjectCalculator].[CalcAvailabilityCoeff](0, 0, 6, 23) WHERE [Name] = '24x7'
+UPDATE [Dependencies].[Availability] SET [Value] = [ProjectCalculator].[CalcAvailabilityCoeff](0, 0, 6, 23), [IsMax] = 1 WHERE [Name] = '24x7'
 
 UPDATE [Dependencies].[ReactionType] SET [Coeff] = -1  WHERE [Name] = 'none'
 UPDATE [Dependencies].[ReactionType] SET [Coeff] = 100 WHERE [Name] = 'response'

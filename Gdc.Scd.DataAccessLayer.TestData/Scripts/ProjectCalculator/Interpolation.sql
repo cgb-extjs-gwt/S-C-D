@@ -52,6 +52,10 @@ IF OBJECT_ID('[ProjectCalculator].[AfrNotCalculatedProjects]') IS NOT NULL
     DROP VIEW [ProjectCalculator].[AfrNotCalculatedProjects]
 GO
 
+IF OBJECT_ID('[ProjectCalculator].[InterpolatedOohUpliftFactor]') IS NOT NULL
+    DROP VIEW [ProjectCalculator].[InterpolatedOohUpliftFactor]
+GO
+
 IF OBJECT_ID('[ProjectCalculator].[CalcReactionTimeAvailabilityCoeff]') IS NOT NULL
     DROP FUNCTION [ProjectCalculator].[CalcReactionTimeAvailabilityCoeff]
 GO
@@ -171,7 +175,13 @@ AS
 SELECT
 	[FieldServiceAvailability].*,
 	[NotCalculatedProjects].[Id] AS ProjectId,
+	[NotCalculatedProjects].[Availability_Start_Day] AS ProjectStartDay,
+	[NotCalculatedProjects].[Availability_Start_Hour] AS ProjectStartHour,
+	[NotCalculatedProjects].[Availability_End_Day] AS ProjectEndDay,
+	[NotCalculatedProjects].[Availability_End_Hour] AS ProjectEndHour,
 	[Availability].[Name] AS AvailabilityName,
+	[Availability].[Value] AS AvailabilityValue,
+	[Availability].[IsMax] AS AvailabilityIsMax,
 	[Availability].[Value] AS X
 FROM
 	[Hardware].[FieldServiceAvailability]
@@ -182,7 +192,32 @@ INNER JOIN
 INNER JOIN
 	[Dependencies].[Availability] ON [FieldServiceAvailability].[Availability] = [Availability].[Id]
 WHERE
-	[FieldServiceAvailability].[DeactivatedDateTime] IS NOT NULL
+	[FieldServiceAvailability].[DeactivatedDateTime] IS NULL
+GO
+
+CREATE VIEW [ProjectCalculator].[InterpolatedOohUpliftFactor]
+AS
+WITH [UpliftMax] AS
+(
+	SELECT [ProjectCalculator].[CalcAvailabilityCoeff](0, 0, 6, 23) AS [Value]
+),
+[Uplift] AS
+(
+	SELECT
+		[FieldServiceAvailability].[ProjectId],
+		[FieldServiceAvailability].[OohUpliftFactor],
+		[UpliftMax].[Value] AS [UpliftMax],
+		[ProjectCalculator].[CalcAvailabilityCoeff]([ProjectStartDay], [ProjectStartHour], [ProjectEndDay], [ProjectEndHour]) AS Uplift
+	FROM
+		[ProjectCalculator].[FieldServiceAvailability], [UpliftMax]
+	WHERE
+		[FieldServiceAvailability].[AvailabilityIsMax] = 1
+)
+SELECT
+	[ProjectId],
+	[OohUpliftFactor] * [Uplift] / [UpliftMax] AS OohUpliftFactor
+FROM
+	[Uplift]
 GO
 
 CREATE VIEW [ProjectCalculator].[LogisticsCosts]
@@ -655,12 +690,6 @@ BEGIN
 		@projectReactionTime,
 		'#TimeAndMaterialShare'
 
-	CREATE TABLE #OohUpliftFactor(ProjectId BIGINT, X FLOAT, Y FLOAT)
-	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, OohUpliftFactor AS Y FROM [ProjectCalculator].[FieldServiceAvailability]',
-		@projectAvailability,
-		'#OohUpliftFactor'
-
 	CREATE TABLE #ExpressDelivery(ProjectId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
 		'SELECT ProjectId, X, ExpressDelivery AS Y FROM [ProjectCalculator].[LogisticsCosts]',
@@ -777,7 +806,7 @@ BEGIN
 		[FieldServiceCost_TimeAndMaterialShare] = [TimeAndMaterialShare].[Y],
 		[FieldServiceCost_TravelCost] = [FieldServiceLocation].[TravelCost],
 		[FieldServiceCost_TravelTime] = [FieldServiceLocation].[TravelTime],
-		[FieldServiceCost_OohUpliftFactor] = [OohUpliftFactor].[Y],
+		[FieldServiceCost_OohUpliftFactor] = [InterpolatedOohUpliftFactor].[OohUpliftFactor],
 
 		[LogisticsCosts_ExpressDelivery] = [ExpressDelivery].[Y],
 		[LogisticsCosts_HighAvailabilityHandling] = [HighAvailabilityHandling].[Y],
@@ -814,7 +843,7 @@ BEGIN
 	LEFT JOIN
 		#TimeAndMaterialShare AS [TimeAndMaterialShare] ON [TimeAndMaterialShare].[ProjectId] = [NotCalculatedProjects].[Id]
 	LEFT JOIN
-		#OohUpliftFactor AS [OohUpliftFactor] ON [OohUpliftFactor].[ProjectId] = [NotCalculatedProjects].[Id]
+		[ProjectCalculator].[InterpolatedOohUpliftFactor] ON [InterpolatedOohUpliftFactor].[ProjectId] = [NotCalculatedProjects].[Id]
 	LEFT JOIN
 		#ExpressDelivery AS [ExpressDelivery] ON [ExpressDelivery].[ProjectId] = [NotCalculatedProjects].[Id]
 	LEFT JOIN
@@ -848,7 +877,6 @@ BEGIN
 
 	DROP TABLE #PerformanceRate
 	DROP TABLE #TimeAndMaterialShare
-	DROP TABLE #OohUpliftFactor
 	DROP TABLE #ExpressDelivery
 	DROP TABLE #HighAvailabilityHandling
 	DROP TABLE #ReturnDeliveryFactory

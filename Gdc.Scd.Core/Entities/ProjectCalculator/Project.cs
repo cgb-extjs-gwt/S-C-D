@@ -32,8 +32,6 @@ namespace Gdc.Scd.Core.Entities.ProjectCalculator
 
         public DurationProjCalc Duration { get; set; }
 
-        //public HwHddFspCodeTranslation FspCode { get; set; }
-
         public bool IsCalculated { get; set; }
 
         public List<AfrProjCalc> Afrs { get; set; }
@@ -49,77 +47,5 @@ namespace Gdc.Scd.Core.Entities.ProjectCalculator
         public LogisticsCostsProjCalc LogisticsCosts { get; set; }
 
         public AvailabilityFeeProjCalc AvailabilityFee { get; set; }
-
-        //#region FieldServiceCost
-        //public double? TimeAndMaterialShare { get; set; }
-
-        //public double? TravelCost { get; set; }
-
-        //public double? LabourCost { get; set; }
-
-        //public double? PerformanceRate { get; set; }
-
-        ///// <summary>
-        ///// Travel Time (MTTT)
-        ///// </summary>
-        //public double? TravelTime { get; set; }
-        //#endregion
-
-        //#region Reinsurance
-        //public double? ReinsuranceFlatfee { get; set; }
-
-        //public double? ReinsuranceUpliftFactor { get; set; }
-        //#endregion
-
-        //#region MarkupOtherCosts
-        ///// <summary>
-        ///// Markup factor for other cost (%)
-        ///// </summary>
-        //public double? MarkupFactor { get; set; }
-
-        ///// <summary>
-        ///// Prolongation markup factor for other cost (%)
-        ///// </summary>
-        //public double? ProlongationMarkupFactor { get; set; }
-
-        ///// <summary>
-        ///// Prolongation markup for other cost
-        ///// </summary>
-        //public double? ProlongationMarkup { get; set; }
-        //#endregion
-
-        //#region LogisticsCosts
-        //public double? ExpressDelivery { get; set; }
-
-        //public double? HighAvailabilityHandling { get; set; }
-
-        //public double? StandardDelivery { get; set; }
-
-        //public double? StandardHandling { get; set; }
-
-        //public double? ReturnDeliveryFactory { get; set; }
-
-        //public double? TaxiCourierDelivery { get; set; }
-        //#endregion
-
-        //#region AvailabilityFee
-        //public double? InstalledBaseHighAvailability { get; set; }
-
-        //public double? TotalLogisticsInfrastructureCost { get; set; }
-
-        //public double? StockValueFj { get; set; }
-
-        //public double? StockValueMv { get; set; }
-
-        //public double? AverageContractDuration { get; set; }
-
-        //public double? CostPerKit { get; set; }
-
-        //public double? CostPerKitJapanBuy { get; set; }
-
-        //public double? MaxQty { get; set; }
-
-        //public double? JapanBuy { get; set; }
-        //#endregion
     }
 }

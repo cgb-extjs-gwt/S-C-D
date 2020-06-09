@@ -247,6 +247,7 @@
     <Compile Include="Controllers\NotifyController.cs" />
     <Compile Include="Controllers\PortfolioController.cs" />
     <Compile Include="Controllers\PortfolioPivotGridController.cs" />
+    <Compile Include="Controllers\ProjectCalculatorController.cs" />
     <Compile Include="Controllers\ReadonlyDomainController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\Admin\RoleCodeController.cs" />

@@ -4,6 +4,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IProjectCalculatorService : IDomainService<Project>
     {
-        //int GetAvailabilityValue(DayHour start, DayHour end);
+        ProjectCalculatorData GetProjectCalculatorData();
+
+        void SaveWithInterpolation(Project[] projects);
     }
 }

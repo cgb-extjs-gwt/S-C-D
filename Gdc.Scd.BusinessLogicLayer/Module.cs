@@ -110,6 +110,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ReportFilter>();
             Kernel.RegisterEntity<ReportPart>();
             Kernel.RegisterEntity<JobsSchedule>();
+
+            Kernel.RegisterEntity<AfrProjCalc>();
+            Kernel.RegisterEntity<AvailabilityWeight>();
         }
     }
 }
