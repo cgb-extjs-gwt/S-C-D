@@ -15,7 +15,7 @@ CREATE PROCEDURE [Report].[spLocapNew]
     @loc          bigint,
     @lastid       bigint,
     @limit        int,
-	@isProjectCalculator bit = 0
+	@projectItemId  BIGINT = NULL
 )
 AS
 BEGIN
@@ -50,7 +50,7 @@ BEGIN
     with cte as (
         select m.* 
                , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
-        from Hardware.GetCostsSlaSogNew(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, @isProjectCalculator) m
+        from Hardware.GetCostsSlaSogNew(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, @projectItemId) m
         where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
     , cte2 as (

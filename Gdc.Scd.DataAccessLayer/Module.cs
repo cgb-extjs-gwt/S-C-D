@@ -57,6 +57,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IPortfolioPivotGridQueryBuilder>().To<PortfolioPivotGridQueryBuilder>().InSingletonScope();
             Bind<IPortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>, IRepository<PrincipalPortfolio>>().To<PortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>>().InScdRequestScope();
             Bind<IPortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>, IRepository<LocalPortfolio>>().To<PortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>>().InScdRequestScope();
+            Bind<IProjectRepository, IRepository<Project>>().To<ProjectRepository>().InScdRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
@@ -77,21 +78,21 @@ namespace Gdc.Scd.DataAccessLayer
             Kernel.RegisterEntityAsUniqueName<Role>();
             Kernel.RegisterEntityAsUniqueName<Permission>();
             Kernel.RegisterEntity<RolePermission>();
-            Kernel.RegisterEntity<Project>(
+            Kernel.RegisterEntity<ProjectItem>(
                 builder =>
                 {
-                    var availabilityBuilder = builder.OwnsOne(typeof(AvailabilityProjCalc), nameof(Project.Availability));
+                    var availabilityBuilder = builder.OwnsOne(typeof(AvailabilityProjCalc), nameof(ProjectItem.Availability));
 
                     availabilityBuilder.OwnsOne(typeof(DayHour), nameof(AvailabilityProjCalc.Start));
                     availabilityBuilder.OwnsOne(typeof(DayHour), nameof(AvailabilityProjCalc.End));
 
-                    builder.OwnsOne(typeof(ReactionTimeProjCalc), nameof(Project.ReactionTime));
-                    builder.OwnsOne(typeof(DurationProjCalc), nameof(Project.Duration));
-                    builder.OwnsOne(typeof(FieldServiceCostProjCalc), nameof(Project.FieldServiceCost));
-                    builder.OwnsOne(typeof(ReinsuranceProjCalc), nameof(Project.Reinsurance));
-                    builder.OwnsOne(typeof(MarkupOtherCostsProjCalc), nameof(Project.MarkupOtherCosts));
-                    builder.OwnsOne(typeof(LogisticsCostsProjCalc), nameof(Project.LogisticsCosts));
-                    builder.OwnsOne(typeof(AvailabilityFeeProjCalc), nameof(Project.AvailabilityFee));
+                    builder.OwnsOne(typeof(ReactionTimeProjCalc), nameof(ProjectItem.ReactionTime));
+                    builder.OwnsOne(typeof(DurationProjCalc), nameof(ProjectItem.Duration));
+                    builder.OwnsOne(typeof(FieldServiceCostProjCalc), nameof(ProjectItem.FieldServiceCost));
+                    builder.OwnsOne(typeof(ReinsuranceProjCalc), nameof(ProjectItem.Reinsurance));
+                    builder.OwnsOne(typeof(MarkupOtherCostsProjCalc), nameof(ProjectItem.MarkupOtherCosts));
+                    builder.OwnsOne(typeof(LogisticsCostsProjCalc), nameof(ProjectItem.LogisticsCosts));
+                    builder.OwnsOne(typeof(AvailabilityFeeProjCalc), nameof(ProjectItem.AvailabilityFee));
                 });
         }
 

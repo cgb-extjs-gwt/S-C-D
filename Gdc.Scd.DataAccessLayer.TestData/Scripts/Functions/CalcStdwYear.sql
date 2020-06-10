@@ -8,7 +8,7 @@ CREATE FUNCTION [Hardware].[CalcStdwYear](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
     @wg             dbo.ListID READONLY,
-	@isProjectCalculator bit = 0
+	@projectItemId  BIGINT = NULL
 )
 RETURNS @tbl TABLE  (
           CountryId                         bigint
@@ -179,21 +179,21 @@ BEGIN
 		FROM
 			Afr
 		LEFT JOIN 
-			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.WgId = Project.WgId
+			ProjectCalculator.ProjectItem ON ProjectItem.Id = @projectItemId AND Afr.WgId = ProjectItem.WgId
 		LEFT JOIN
-			ProjectCalculator.Afr AS afp ON Project.Id = afp.ProjectId AND Afr.Months = afp.Months
+			ProjectCalculator.Afr AS afp ON ProjectItem.Id = afp.ProjectItemId AND Afr.Months = afp.Months
 		WHERE
-			@isProjectCalculator = 0 OR (Afr.Months <= Project.Duration_Months AND Afr.IsProlongation = 0 AND afp.Id IS NULL)
+			@projectItemId IS NULL OR (Afr.Months <= ProjectItem.Duration_Months AND Afr.IsProlongation = 0 AND afp.Id IS NULL)
 		UNION ALL
 		SELECT
-			Project.WgId, 
+			ProjectItem.WgId, 
 			Afr.AFR / 100 AS AFR, 
 			Afr.Months, 
 			Afr.IsProlongation AS IsProlongation
 		FROM
 			ProjectCalculator.Afr
 		INNER JOIN	
-			ProjectCalculator.Project ON @isProjectCalculator = 1 AND Afr.ProjectId = Project.Id
+			ProjectCalculator.ProjectItem ON ProjectItem.Id = @projectItemId AND Afr.ProjectItemId = ProjectItem.Id
 	)
 	, WgCte as (
         select wg.Id as WgId

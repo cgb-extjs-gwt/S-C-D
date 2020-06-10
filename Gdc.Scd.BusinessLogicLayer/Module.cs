@@ -44,7 +44,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
             Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
             Bind<IExcelConverterService>().To<ExcelConverterService>().InScdRequestScope();
-            Bind<IDomainService<Project>, IProjectCalculatorService>().To<ProjectCalculatorService>().InScdRequestScope();
 
             //Need to optimize
             //Bind<IAfterAddingInterceptor<Wg>>().To<PortfolioInheritanceInterceptor>().InScdRequestScope(); 
@@ -111,8 +110,11 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ReportPart>();
             Kernel.RegisterEntity<JobsSchedule>();
 
+            /*---------Project Calculator----------*/
+            Kernel.RegisterEntity<Project>();
             Kernel.RegisterEntity<AfrProjCalc>();
             Kernel.RegisterEntity<AvailabilityWeight>();
+            Bind<IProjectService, IDomainService<Project>, ProjectService>().To<ProjectService>().InScdRequestScope();
         }
     }
 }

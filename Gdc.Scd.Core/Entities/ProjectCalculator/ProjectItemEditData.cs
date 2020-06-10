@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.Core.Entities.ProjectCalculator
 {
-    public class ProjectCalculatorData
+    public class ProjectItemEditData
     {
         public Wg[] Wgs { get; set; }
 

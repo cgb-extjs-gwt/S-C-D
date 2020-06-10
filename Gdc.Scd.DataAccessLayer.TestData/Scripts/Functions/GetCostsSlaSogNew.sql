@@ -14,7 +14,7 @@ CREATE FUNCTION [Hardware].[GetCostsSlaSogNew](
     @reactiontype dbo.ListID readonly,
     @loc dbo.ListID readonly,
     @pro dbo.ListID readonly,
-	@isProjectCalculator bit = 0
+	@projectItemId  BIGINT = NULL
 )
 RETURNS TABLE 
 AS
@@ -96,7 +96,7 @@ RETURN
              , m.DealerDiscount
              , m.DealerPrice
 
-        from Hardware.GetCostsNew(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null, @isProjectCalculator) m
+        from Hardware.GetCostsNew(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null, @projectItemId) m
         join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
         left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )

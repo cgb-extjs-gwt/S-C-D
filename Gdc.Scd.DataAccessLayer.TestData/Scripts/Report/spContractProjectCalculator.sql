@@ -15,7 +15,8 @@ CREATE PROCEDURE [Report].[spContractProjectCalculator]
     @loc          bigint,
     @pro          bigint,
     @lastid       bigint,
-    @limit        int
+    @limit        int,
+	@projectItemId  BIGINT
 )
 AS
 BEGIN
@@ -38,7 +39,7 @@ BEGIN
 			t.StdMonths % 12 AS LastMonths,
 			CEILING(t.StdMonths / 12.0) AS RoundYear
 		FROM 
-			[Hardware].[GetCostsYear](0, @cnt, @wg, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, @lastId, @limit, 1) t
+			[Hardware].[GetCostsYear](0, @cnt, @wg, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, @lastId, @limit, @projectItemId) t
 	),
 	Cost2 AS 
 	(

@@ -12,6 +12,10 @@ IF OBJECT_ID('[ProjectCalculator].[Afr]') IS NOT NULL
 	DROP TABLE [ProjectCalculator].[Afr]
 GO
 
+IF OBJECT_ID('[ProjectCalculator].[ProjectItem]') IS NOT NULL
+	DROP TABLE [ProjectCalculator].[ProjectItem]
+GO
+
 IF OBJECT_ID('[ProjectCalculator].[Project]') IS NOT NULL
 	DROP TABLE [ProjectCalculator].[Project]
 GO
@@ -27,105 +31,122 @@ GO
 CREATE TABLE [ProjectCalculator].[Afr](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[AFR] [float] NULL,
-	[Months] [int] NOT NULL,
-	[ProjectId] [bigint] NULL,
 	[IsProlongation] [bit] NOT NULL,
+	[Months] [int] NOT NULL,
+	[ProjectItemId] [bigint] NULL,
  CONSTRAINT [PK_Afr] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
 GO
 
 CREATE TABLE [ProjectCalculator].[Project](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[CreationDate] [datetime2](7) NOT NULL,
+	[Name] [nvarchar](max) NULL,
+	[UserId] [bigint] NOT NULL,
+ CONSTRAINT [PK_Project] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+CREATE TABLE [ProjectCalculator].[ProjectItem](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[CountryId] [bigint] NOT NULL,
-	[IsCalculated] [bit] NOT NULL,
+	[OnsiteHourlyRates] [float] NULL,
+	[ProjectId] [bigint] NULL,
 	[ReactionTypeId] [bigint] NOT NULL,
 	[ServiceLocationId] [bigint] NOT NULL,
 	[WgId] [bigint] NOT NULL,
 	[AvailabilityFee_AverageContractDuration] [float] NULL,
-	--[AvailabilityFee_CostPerKit] [float] NULL,
-	--[AvailabilityFee_CostPerKitJapanBuy] [float] NULL,
-	--[AvailabilityFee_InstalledBaseHighAvailability] [float] NULL,
-	--[AvailabilityFee_JapanBuy] [float] NULL,
-	--[AvailabilityFee_MaxQty] [float] NULL,
 	[AvailabilityFee_StockValueFj] [float] NULL,
 	[AvailabilityFee_StockValueMv] [float] NULL,
 	[AvailabilityFee_TotalLogisticsInfrastructureCost] [float] NULL,
-	--[AvailabilityFee_Fee] [float] NULL,
 	[Availability_Name] [nvarchar](max) NULL,
 	[Availability_Value] [int] NOT NULL,
 	[Availability_End_Day] [tinyint] NOT NULL,
 	[Availability_End_Hour] [tinyint] NOT NULL,
 	[Availability_Start_Day] [tinyint] NOT NULL,
 	[Availability_Start_Hour] [tinyint] NOT NULL,
-	[Duration_Name] [nvarchar](max) NULL,
 	[Duration_Months] [int] NOT NULL,
+	[Duration_Name] [nvarchar](max) NULL,
 	[Duration_PeriodType] [tinyint] NOT NULL,
-	[OnsiteHourlyRates] [float] NULL,
 	[FieldServiceCost_LabourCost] [float] NULL,
+	[FieldServiceCost_OohUpliftFactor] [float] NULL,
 	[FieldServiceCost_PerformanceRate] [float] NULL,
 	[FieldServiceCost_TimeAndMaterialShare] [float] NULL,
 	[FieldServiceCost_TravelCost] [float] NULL,
 	[FieldServiceCost_TravelTime] [float] NULL,
-	[FieldServiceCost_OohUpliftFactor] [float] NULL,
 	[LogisticsCosts_ExpressDelivery] [float] NULL,
 	[LogisticsCosts_HighAvailabilityHandling] [float] NULL,
 	[LogisticsCosts_ReturnDeliveryFactory] [float] NULL,
 	[LogisticsCosts_StandardDelivery] [float] NULL,
 	[LogisticsCosts_StandardHandling] [float] NULL,
 	[LogisticsCosts_TaxiCourierDelivery] [float] NULL,
-	[MarkupOtherCosts_Markup] [float] NULL,
 	[MarkupOtherCosts_MarkupFactor] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkup] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkupFactor] [float] NULL,
-	[ReactionTime_Name] [nvarchar](max) NULL,
 	[ReactionTime_Minutes] [int] NULL,
+	[ReactionTime_Name] [nvarchar](max) NULL,
 	[ReactionTime_PeriodType] [tinyint] NULL,
 	[Reinsurance_CurrencyId] [bigint] NULL,
 	[Reinsurance_Flatfee] [float] NULL,
 	[Reinsurance_UpliftFactor] [float] NULL,
- CONSTRAINT [PK_Project] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_ProjectItem] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-ALTER TABLE [ProjectCalculator].[Afr]  WITH CHECK ADD  CONSTRAINT [FK_Afr_Project_ProjectId] FOREIGN KEY([ProjectId])
-REFERENCES [ProjectCalculator].[Project] ([Id])
+ALTER TABLE [ProjectCalculator].[Afr]  WITH CHECK ADD  CONSTRAINT [FK_Afr_ProjectItem_ProjectItemId] FOREIGN KEY([ProjectItemId])
+REFERENCES [ProjectCalculator].[ProjectItem] ([Id])
 GO
-ALTER TABLE [ProjectCalculator].[Afr] CHECK CONSTRAINT [FK_Afr_Project_ProjectId]
+ALTER TABLE [ProjectCalculator].[Afr] CHECK CONSTRAINT [FK_Afr_ProjectItem_ProjectItemId]
 GO
-ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Country_CountryId] FOREIGN KEY([CountryId])
+ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_User_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_User_UserId]
+GO
+ALTER TABLE [ProjectCalculator].[ProjectItem]  WITH CHECK ADD  CONSTRAINT [FK_ProjectItem_Country_CountryId] FOREIGN KEY([CountryId])
 REFERENCES [InputAtoms].[Country] ([Id])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_Country_CountryId]
+ALTER TABLE [ProjectCalculator].[ProjectItem] CHECK CONSTRAINT [FK_ProjectItem_Country_CountryId]
 GO
-ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Currency_Reinsurance_CurrencyId] FOREIGN KEY([Reinsurance_CurrencyId])
+ALTER TABLE [ProjectCalculator].[ProjectItem]  WITH CHECK ADD  CONSTRAINT [FK_ProjectItem_Currency_Reinsurance_CurrencyId] FOREIGN KEY([Reinsurance_CurrencyId])
 REFERENCES [References].[Currency] ([Id])
 GO
-ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_Currency_Reinsurance_CurrencyId]
+ALTER TABLE [ProjectCalculator].[ProjectItem] CHECK CONSTRAINT [FK_ProjectItem_Currency_Reinsurance_CurrencyId]
 GO
-ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_ReactionType_ReactionTypeId] FOREIGN KEY([ReactionTypeId])
+ALTER TABLE [ProjectCalculator].[ProjectItem]  WITH CHECK ADD  CONSTRAINT [FK_ProjectItem_Project_ProjectId] FOREIGN KEY([ProjectId])
+REFERENCES [ProjectCalculator].[Project] ([Id])
+GO
+ALTER TABLE [ProjectCalculator].[ProjectItem] CHECK CONSTRAINT [FK_ProjectItem_Project_ProjectId]
+GO
+ALTER TABLE [ProjectCalculator].[ProjectItem]  WITH CHECK ADD  CONSTRAINT [FK_ProjectItem_ReactionType_ReactionTypeId] FOREIGN KEY([ReactionTypeId])
 REFERENCES [Dependencies].[ReactionType] ([Id])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_ReactionType_ReactionTypeId]
+ALTER TABLE [ProjectCalculator].[ProjectItem] CHECK CONSTRAINT [FK_ProjectItem_ReactionType_ReactionTypeId]
 GO
-ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_ServiceLocation_ServiceLocationId] FOREIGN KEY([ServiceLocationId])
+ALTER TABLE [ProjectCalculator].[ProjectItem]  WITH CHECK ADD  CONSTRAINT [FK_ProjectItem_ServiceLocation_ServiceLocationId] FOREIGN KEY([ServiceLocationId])
 REFERENCES [Dependencies].[ServiceLocation] ([Id])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_ServiceLocation_ServiceLocationId]
+ALTER TABLE [ProjectCalculator].[ProjectItem] CHECK CONSTRAINT [FK_ProjectItem_ServiceLocation_ServiceLocationId]
 GO
-ALTER TABLE [ProjectCalculator].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Wg_WgId] FOREIGN KEY([WgId])
+ALTER TABLE [ProjectCalculator].[ProjectItem]  WITH CHECK ADD  CONSTRAINT [FK_ProjectItem_Wg_WgId] FOREIGN KEY([WgId])
 REFERENCES [InputAtoms].[Wg] ([Id])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ProjectCalculator].[Project] CHECK CONSTRAINT [FK_Project_Wg_WgId]
+ALTER TABLE [ProjectCalculator].[ProjectItem] CHECK CONSTRAINT [FK_ProjectItem_Wg_WgId]
 GO
 
 IF COL_LENGTH('[Dependencies].[ReactionTime]', 'Minutes') IS NULL

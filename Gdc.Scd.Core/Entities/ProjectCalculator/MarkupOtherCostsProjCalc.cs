@@ -2,6 +2,8 @@
 {
     public class MarkupOtherCostsProjCalc
     {
+        public double? Markup { get; set; }
+
         /// <summary>
         /// Markup factor for other cost (%)
         /// </summary>

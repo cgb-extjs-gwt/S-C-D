@@ -16,44 +16,44 @@ IF OBJECT_ID('[ProjectCalculator].[InterpolateAfr]') IS NOT NULL
     DROP PROCEDURE [ProjectCalculator].[InterpolateAfr]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[NotCalculatedProjects]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[NotCalculatedProjects]
+IF OBJECT_ID('[ProjectCalculator].[GetCalculatingProjectItems]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetCalculatingProjectItems]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[FieldServiceReactionTimeType]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[FieldServiceReactionTimeType]
+IF OBJECT_ID('[ProjectCalculator].[GetFieldServiceReactionTimeType]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetFieldServiceReactionTimeType]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[FieldServiceAvailability]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[FieldServiceAvailability]
+IF OBJECT_ID('[ProjectCalculator].[GetFieldServiceAvailability]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetFieldServiceAvailability]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[LogisticsCosts]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[LogisticsCosts]
+IF OBJECT_ID('[ProjectCalculator].[GetInterpolatedOohUpliftFactor]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetInterpolatedOohUpliftFactor]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[MarkupOtherCosts]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[MarkupOtherCosts]
+IF OBJECT_ID('[ProjectCalculator].[GetLogisticsCosts]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetLogisticsCosts]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[Reinsurance]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[Reinsurance]
+IF OBJECT_ID('[ProjectCalculator].[GetMarkupOtherCosts]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetMarkupOtherCosts]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[ReinsuranceDuration]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[ReinsuranceDuration]
+IF OBJECT_ID('[ProjectCalculator].[GetReinsurance]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetReinsurance]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[ReinsuranceReactionTimeAvailability]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[ReinsuranceReactionTimeAvailability]
+IF OBJECT_ID('[ProjectCalculator].[GetReinsuranceDuration]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetReinsuranceDuration]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[AfrNotCalculatedProjects]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[AfrNotCalculatedProjects]
+IF OBJECT_ID('[ProjectCalculator].[GetReinsuranceReactionTimeAvailability]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetReinsuranceReactionTimeAvailability]
 GO
 
-IF OBJECT_ID('[ProjectCalculator].[InterpolatedOohUpliftFactor]') IS NOT NULL
-    DROP VIEW [ProjectCalculator].[InterpolatedOohUpliftFactor]
+IF OBJECT_ID('[ProjectCalculator].[GetAfrCalculatingProjectItems]') IS NOT NULL
+    DROP FUNCTION [ProjectCalculator].[GetAfrCalculatingProjectItems]
 GO
 
 IF OBJECT_ID('[ProjectCalculator].[CalcReactionTimeAvailabilityCoeff]') IS NOT NULL
@@ -74,7 +74,7 @@ GO
 
 CREATE TYPE [ProjectCalculator].[XY] AS TABLE
 (
-	ProjectId BIGINT,
+	ProjectItemId BIGINT,
 	X FLOAT,
 	X_Result FLOAT,
 	Y_Result FLOAT
@@ -133,28 +133,32 @@ BEGIN
 END
 GO
 
-CREATE VIEW [ProjectCalculator].[NotCalculatedProjects]
+CREATE FUNCTION [ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT 
-	[Project].*,
+	[ProjectItem].*,
 	[ProjectCalculator].[CalcAvailabilityCoeff](
 		[Availability_Start_Day], 
 		[Availability_Start_Hour],
 		[Availability_End_Day],
 		[Availability_End_Hour]) AS Availability_Value_New
 FROM
-	[ProjectCalculator].[Project]
+	[ProjectCalculator].[ProjectItem]
 WHERE
-	[IsCalculated] = 0
+	[Id] IN (SELECT [Id] FROM @projectItemIds)
 GO
 
-CREATE VIEW [ProjectCalculator].[FieldServiceReactionTimeType]
+CREATE FUNCTION [ProjectCalculator].[GetFieldServiceReactionTimeType](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
 	[FieldServiceReactionTimeType].*,
 	[ReactionTime].[Name] AS ReactionTimeName,
 	[ReactionTime].[Minutes] AS X,
-	[NotCalculatedProjects].[Id] AS ProjectId
+	[CalculatingProjectItems].[Id] AS ProjectItemId
 FROM
 	[Hardware].[FieldServiceReactionTimeType]
 INNER JOIN
@@ -162,23 +166,25 @@ INNER JOIN
 INNER JOIN
 	[Dependencies].[ReactionTime] ON [ReactionTimeType].[ReactionTimeId] = [ReactionTime].[Id]
 INNER JOIN
-	[ProjectCalculator].[NotCalculatedProjects] ON 
-		[NotCalculatedProjects].[CountryId] = [FieldServiceReactionTimeType].[Country] AND
-		[NotCalculatedProjects].[WgId] = [FieldServiceReactionTimeType].[Wg] AND
-		[NotCalculatedProjects].[ReactionTypeId] = [ReactionTimeType].[ReactionTypeId]
+	[ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds) AS [CalculatingProjectItems] ON 
+		[CalculatingProjectItems].[CountryId] = [FieldServiceReactionTimeType].[Country] AND
+		[CalculatingProjectItems].[WgId] = [FieldServiceReactionTimeType].[Wg] AND
+		[CalculatingProjectItems].[ReactionTypeId] = [ReactionTimeType].[ReactionTypeId]
 WHERE
 	[FieldServiceReactionTimeType].[DeactivatedDateTime] IS NULL
 GO
 
-CREATE VIEW [ProjectCalculator].[FieldServiceAvailability]
+CREATE FUNCTION [ProjectCalculator].[GetFieldServiceAvailability](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
 	[FieldServiceAvailability].*,
-	[NotCalculatedProjects].[Id] AS ProjectId,
-	[NotCalculatedProjects].[Availability_Start_Day] AS ProjectStartDay,
-	[NotCalculatedProjects].[Availability_Start_Hour] AS ProjectStartHour,
-	[NotCalculatedProjects].[Availability_End_Day] AS ProjectEndDay,
-	[NotCalculatedProjects].[Availability_End_Hour] AS ProjectEndHour,
+	[CalculatingProjectItems].[Id] AS ProjectItemId,
+	[CalculatingProjectItems].[Availability_Start_Day] AS ProjectStartDay,
+	[CalculatingProjectItems].[Availability_Start_Hour] AS ProjectStartHour,
+	[CalculatingProjectItems].[Availability_End_Day] AS ProjectEndDay,
+	[CalculatingProjectItems].[Availability_End_Hour] AS ProjectEndHour,
 	[Availability].[Name] AS AvailabilityName,
 	[Availability].[Value] AS AvailabilityValue,
 	[Availability].[IsMax] AS AvailabilityIsMax,
@@ -186,17 +192,19 @@ SELECT
 FROM
 	[Hardware].[FieldServiceAvailability]
 INNER JOIN
-	[ProjectCalculator].[NotCalculatedProjects] ON 
-		[NotCalculatedProjects].[CountryId] = [FieldServiceAvailability].[Country] AND
-		[NotCalculatedProjects].[WgId] = [FieldServiceAvailability].[Wg] 
+	[ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds) AS [CalculatingProjectItems] ON 
+		[CalculatingProjectItems].[CountryId] = [FieldServiceAvailability].[Country] AND
+		[CalculatingProjectItems].[WgId] = [FieldServiceAvailability].[Wg] 
 INNER JOIN
 	[Dependencies].[Availability] ON [FieldServiceAvailability].[Availability] = [Availability].[Id]
 WHERE
 	[FieldServiceAvailability].[DeactivatedDateTime] IS NULL
 GO
 
-CREATE VIEW [ProjectCalculator].[InterpolatedOohUpliftFactor]
+CREATE FUNCTION [ProjectCalculator].[GetInterpolatedOohUpliftFactor](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 WITH [UpliftMax] AS
 (
 	SELECT [ProjectCalculator].[CalcAvailabilityCoeff](0, 0, 6, 23) AS [Value]
@@ -204,27 +212,29 @@ WITH [UpliftMax] AS
 [Uplift] AS
 (
 	SELECT
-		[FieldServiceAvailability].[ProjectId],
+		[FieldServiceAvailability].[ProjectItemId],
 		[FieldServiceAvailability].[OohUpliftFactor],
 		[UpliftMax].[Value] AS [UpliftMax],
 		[ProjectCalculator].[CalcAvailabilityCoeff]([ProjectStartDay], [ProjectStartHour], [ProjectEndDay], [ProjectEndHour]) AS Uplift
 	FROM
-		[ProjectCalculator].[FieldServiceAvailability], [UpliftMax]
+		[ProjectCalculator].[GetFieldServiceAvailability](@projectItemIds) AS[FieldServiceAvailability], [UpliftMax]
 	WHERE
 		[FieldServiceAvailability].[AvailabilityIsMax] = 1
 )
 SELECT
-	[ProjectId],
+	[ProjectItemId],
 	[OohUpliftFactor] * [Uplift] / [UpliftMax] AS OohUpliftFactor
 FROM
 	[Uplift]
 GO
 
-CREATE VIEW [ProjectCalculator].[LogisticsCosts]
+CREATE FUNCTION [ProjectCalculator].[GetLogisticsCosts](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
 	[LogisticsCosts].*,
-	[NotCalculatedProjects].[Id] AS ProjectId,
+	[CalculatingProjectItems].[Id] AS ProjectItemId,
 	[ReactionTime].[Name] AS ReactionTimeName,
 	[ReactionTime].[Minutes] AS X
 FROM
@@ -234,19 +244,21 @@ INNER JOIN
 INNER JOIN
 	[Dependencies].[ReactionTime] ON [ReactionTimeType].[ReactionTimeId] = [ReactionTime].[Id]
 INNER JOIN
-	[ProjectCalculator].[NotCalculatedProjects] ON 
-		[NotCalculatedProjects].[CountryId] = [LogisticsCosts].[Country] AND
-		[NotCalculatedProjects].[WgId] = [LogisticsCosts].[Wg] AND
-		[NotCalculatedProjects].[ReactionTypeId] = [ReactionTimeType].[ReactionTypeId]
+	[ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds) AS [CalculatingProjectItems] ON 
+		[CalculatingProjectItems].[CountryId] = [LogisticsCosts].[Country] AND
+		[CalculatingProjectItems].[WgId] = [LogisticsCosts].[Wg] AND
+		[CalculatingProjectItems].[ReactionTypeId] = [ReactionTimeType].[ReactionTypeId]
 WHERE
 	[LogisticsCosts].[Deactivated] = 0
 GO
 
-CREATE VIEW [ProjectCalculator].[MarkupOtherCosts]
+CREATE FUNCTION [ProjectCalculator].[GetMarkupOtherCosts](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
 	[MarkupOtherCosts].*,
-	[NotCalculatedProjects].[Id] AS ProjectId,
+	[CalculatingProjectItems].[Id] AS ProjectItemId,
 	[ReactionTimeTypeAvailability].[Name] AS ReactionTimeTypeAvailabilityName,
 	[ProjectCalculator].[CalcReactionTimeTypeAvailabilityCoeff]([ReactionTime].[Minutes], [Availability].[Value], [ReactionType].[Coeff]) AS X
 FROM
@@ -260,70 +272,76 @@ INNER JOIN
 INNER JOIN
 	[Dependencies].[Availability] ON [ReactionTimeTypeAvailability].[AvailabilityId] = [Availability].[Id]
 INNER JOIN
-	[ProjectCalculator].[NotCalculatedProjects] ON 
-		[NotCalculatedProjects].[CountryId] = [MarkupOtherCosts].[Country] AND
-		[NotCalculatedProjects].[WgId] = [MarkupOtherCosts].[Wg] AND
-		[NotCalculatedProjects].[ReactionTypeId] = [ReactionTimeTypeAvailability].[ReactionTypeId]
+	[ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds) AS [CalculatingProjectItems] ON 
+		[CalculatingProjectItems].[CountryId] = [MarkupOtherCosts].[Country] AND
+		[CalculatingProjectItems].[WgId] = [MarkupOtherCosts].[Wg] AND
+		[CalculatingProjectItems].[ReactionTypeId] = [ReactionTimeTypeAvailability].[ReactionTypeId]
 WHERE
 	[MarkupOtherCosts].[Deactivated] = 0
 GO
 
-CREATE VIEW [ProjectCalculator].[Reinsurance]
+CREATE FUNCTION [ProjectCalculator].[GetReinsurance](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
 	[Reinsurance].*,
-	[NotCalculatedProjects].[Id] AS ProjectId
+	[CalculatingProjectItems].[Id] AS ProjectItemId
 FROM
 	[Hardware].[Reinsurance]
 INNER JOIN
-	[ProjectCalculator].[NotCalculatedProjects] ON [NotCalculatedProjects].[WgId] = [Reinsurance].[Wg]
+	[ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds) AS [CalculatingProjectItems] ON [CalculatingProjectItems].[WgId] = [Reinsurance].[Wg]
 WHERE
 	[Reinsurance].[Deactivated] = 0
 GO
 
-CREATE VIEW [ProjectCalculator].[ReinsuranceDuration]
+CREATE FUNCTION [ProjectCalculator].[GetReinsuranceDuration](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
-	t.[ProjectId],
+	t.[ProjectItemId],
 	t.[ReinsuranceFlatfee],
 	[Duration].[Name] AS DurationName,
 	[Duration].[Value] * 12 AS X
 FROM
 (
 	SELECT
-		[ProjectId],
+		[ProjectItemId],
 		[Duration],
 		MIN([ReinsuranceFlatfee]) AS [ReinsuranceFlatfee]
 	FROM
-		[ProjectCalculator].[Reinsurance]
+		[ProjectCalculator].[GetReinsurance](@projectItemIds) AS [Reinsurance]
 	GROUP BY
 		[Wg],
 		[Duration],
-		[ProjectId]
+		[ProjectItemId]
 ) AS t
 INNER JOIN
 	[Dependencies].[Duration] ON t.[Duration] = [Duration].[Id]
 GO
 
-CREATE VIEW [ProjectCalculator].[ReinsuranceReactionTimeAvailability]
+CREATE FUNCTION [ProjectCalculator].[GetReinsuranceReactionTimeAvailability](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
-	t.[ProjectId],
+	t.[ProjectItemId],
 	t.[ReinsuranceUpliftFactor],
 	[ReactionTimeAvailability].[Name] AS ReactionTimeAvailabilityName,
 	[ProjectCalculator].[CalcReactionTimeAvailabilityCoeff]([ReactionTime].[Minutes], [Availability].[Value]) AS X
 FROM
 (
 	SELECT
-		[ProjectId],
+		[ProjectItemId],
 		[ReactionTimeAvailability],
 		MIN([ReinsuranceUpliftFactor]) AS [ReinsuranceUpliftFactor]
 	FROM
-		[ProjectCalculator].[Reinsurance]
+		[ProjectCalculator].[GetReinsurance](@projectItemIds) AS [Reinsurance]
 	GROUP BY
 		[Wg],
 		[ReactionTimeAvailability],
-		[ProjectId]
+		[ProjectItemId]
 ) AS t
 INNER JOIN
 	[Dependencies].[ReactionTimeAvailability] ON t.[ReactionTimeAvailability] = [ReactionTimeAvailability].[Id]
@@ -333,17 +351,19 @@ INNER JOIN
 	[Dependencies].[Availability] ON [ReactionTimeAvailability].[AvailabilityId] = [Availability].[Id]
 GO
 
-CREATE VIEW [ProjectCalculator].[AfrNotCalculatedProjects]
+CREATE FUNCTION [ProjectCalculator].[GetAfrCalculatingProjectItems](@projectItemIds [dbo].[ListID] READONLY)
+RETURNS TABLE
 AS
+RETURN
 SELECT
-	[NotCalculatedProjects].[Id] AS ProjectId,
-	[NotCalculatedProjects].[Duration_Months] AS ProjectMonths,
+	[CalculatingProjectItems].[Id] AS ProjectItemId,
+	[CalculatingProjectItems].[Duration_Months] AS ProjectMonths,
 	[AFR].[AFR],
 	[Year].[Value] * 12 AS AfrMonths
 FROM
-	[ProjectCalculator].[NotCalculatedProjects]
+	[ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds) AS [CalculatingProjectItems]
 INNER JOIN
-	[Hardware].[AFR] ON [NotCalculatedProjects].[WgId] = [AFR].[Wg]
+	[Hardware].[AFR] ON [CalculatingProjectItems].[WgId] = [AFR].[Wg]
 INNER JOIN
 	[Dependencies].[Year] ON [AFR].[Year] = [Year].[Id]
 WHERE
@@ -370,15 +390,15 @@ BEGIN
 
 	DECLARE @sql NVARCHAR(MAX) = 
 		N'SELECT
-			ProjectId,
+			ProjectItemId,
 			X,
 			X_Result,
 			Y_Result
 		  FROM
 		  (
 			SELECT
-				ROW_NUMBER() OVER(PARTITION BY XY.ProjectId, XY.X ORDER BY ResultQuery.X ' + @orderByType + ') AS RowNumber,
-				XY.ProjectId,
+				ROW_NUMBER() OVER(PARTITION BY XY.ProjectItemId, XY.X ORDER BY ResultQuery.X ' + @orderByType + ') AS RowNumber,
+				XY.ProjectItemId,
 				XY.X,
 				ResultQuery.X AS X_Result,
 				ResultQuery.Y AS Y_Result
@@ -406,7 +426,7 @@ BEGIN
 	INSERT INTO @fullCompliance EXEC [ProjectCalculator].[GetY] @xySql, '=', @xy
 
 	DECLARE @notFullCompliance [ProjectCalculator].[XY]
-	INSERT INTO @notFullCompliance(ProjectId, X, X_Result, Y_Result) SELECT ProjectId, X, X_Result, Y_Result FROM @fullCompliance AS t WHERE Y_Result IS NULL
+	INSERT INTO @notFullCompliance(ProjectItemId, X, X_Result, Y_Result) SELECT ProjectItemId, X, X_Result, Y_Result FROM @fullCompliance AS t WHERE Y_Result IS NULL
 
 	DECLARE @less [ProjectCalculator].[XY]
 	INSERT INTO @less EXEC [ProjectCalculator].[GetY] @xySql, '<', @notFullCompliance, 0, 1
@@ -416,14 +436,14 @@ BEGIN
 
 	DECLARE @moreThanMoreParam [ProjectCalculator].[XY]
 	INSERT INTO 
-		@moreThanMoreParam(ProjectId, X) 
+		@moreThanMoreParam(ProjectItemId, X) 
 	SELECT
-		Less.ProjectId,
+		Less.ProjectItemId,
 		Less.X
 	FROM 
 		@less AS Less
 	INNER JOIN
-		@more AS More ON Less.ProjectId = More.ProjectId AND Less.X = More.X
+		@more AS More ON Less.ProjectItemId = More.ProjectItemId AND Less.X = More.X
 	WHERE
 		Less.Y_Result IS NULL AND More.Y_Result IS NOT NULL
 
@@ -432,14 +452,14 @@ BEGIN
 
 	DECLARE @lessThenLessParam [ProjectCalculator].[XY]
 	INSERT INTO 
-		@lessThenLessParam(ProjectId, X) 
+		@lessThenLessParam(ProjectItemId, X) 
 	SELECT 
-		Less.ProjectId,
+		Less.ProjectItemId,
 		Less.X
 	FROM 
 		@less AS Less
 	INNER JOIN
-		@more AS More ON Less.ProjectId = More.ProjectId AND Less.X = More.X
+		@more AS More ON Less.ProjectItemId = More.ProjectItemId AND Less.X = More.X
 	WHERE
 		Less.Y_Result IS NOT NULL AND More.Y_Result IS NULL
 
@@ -452,7 +472,7 @@ BEGIN
 	WITH UseType AS 
 	(
 		SELECT
-			FullCompliance.ProjectId,
+			FullCompliance.ProjectItemId,
 			FullCompliance.X,
 
 			FullCompliance.X_Result AS FullCompliance_X_Result,
@@ -494,7 +514,7 @@ BEGIN
 	XY AS 
 	(
 		SELECT
-			ProjectId,
+			ProjectItemId,
 			X,
 			CASE UseType WHEN 'FullCompliance' THEN FullCompliance_Y_Result END AS Y,
 
@@ -525,12 +545,11 @@ BEGIN
 			UseType
 	)
 	SELECT
-		ProjectId,
+		ProjectItemId,
 		X,
 		CASE 
 			WHEN XY.Y IS NOT NULL THEN XY.Y
-			ELSE
-				(X - X1)/(X2 - X1) * (Y2 - Y1) + Y1
+			WHEN XY.X1 <> XY.X2 THEN (X - X1)/(X2 - X1) * (Y2 - Y1) + Y1
 		END AS Y
 	INTO
 		#InterpolateResults
@@ -541,24 +560,26 @@ BEGIN
 		SELECT * FROM #InterpolateResults
 	ELSE BEGIN
 		DECLARE @insertIntoResultTablSql NVARCHAR(MAX) = 
-			N'INSERT INTO ' + @tempResultTable + '( ProjectId, X, Y) SELECT ProjectId, X, Y FROM #InterpolateResults'
+			N'INSERT INTO ' + @tempResultTable + '( ProjectItemId, X, Y) SELECT ProjectItemId, X, Y FROM #InterpolateResults'
 
 		EXEC sp_executesql @insertIntoResultTablSql
 	END
 END
 GO
 
-CREATE PROCEDURE [ProjectCalculator].[InterpolateAfr]
+CREATE PROCEDURE [ProjectCalculator].[InterpolateAfr] @projectItemIds [dbo].[ListID] READONLY
 AS
 BEGIN
-	DECLARE @xy [ProjectCalculator].[XY];
+	DECLARE @xy [ProjectCalculator].[XY]
+
+	SELECT * INTO #AfrCalculatingProjectItems FROM [ProjectCalculator].[GetAfrCalculatingProjectItems](@projectItemIds);
 
 	WITH [NullAfr] AS 
 	(
 		SELECT 
 			* 
 		FROM 
-			[ProjectCalculator].[AfrNotCalculatedProjects] 
+			#AfrCalculatingProjectItems 
 		WHERE 
 			[AFR] IS NULL AND [AfrMonths] < [ProjectMonths]
 	),
@@ -569,52 +590,52 @@ BEGIN
 		FROM
 		(
 			SELECT
-				[ProjectId],
+				[ProjectItemId],
 				[ProjectMonths],
 				MAX([AfrMonths]) AS MaxAfrMonths
 			FROM
-				[ProjectCalculator].[AfrNotCalculatedProjects] 
+				#AfrCalculatingProjectItems 
 			GROUP BY
-				[ProjectId],
+				[ProjectItemId],
 				[ProjectMonths]
 		) AS t
 		WHERE
 			[MaxAfrMonths] < [ProjectMonths] OR
-			[ProjectMonths] NOT IN(SELECT [AfrMonths] FROM [ProjectCalculator].[AfrNotCalculatedProjects])
+			[ProjectMonths] NOT IN(SELECT [AfrMonths] FROM #AfrCalculatingProjectItems)
 	),
 	[RecurciveAfr] AS 
 	(
 		SELECT 
-			[ProjectId],
+			[ProjectItemId],
 			[ProjectMonths] AS AfrMonths
 		FROM	
 			[NotExistingAfr]
 		UNION ALL
 		SELECT
-			[RecurciveAfr].[ProjectId],
+			[RecurciveAfr].[ProjectItemId],
 			[ProjectCalculator].[GetRecursiveAfrMonths]([NotExistingAfr].[MaxAfrMonths], [RecurciveAfr].[AfrMonths])
 		FROM
 			[RecurciveAfr], [NotExistingAfr]
 		WHERE
-			[RecurciveAfr].[ProjectId] = [NotExistingAfr].[ProjectId] AND
+			[RecurciveAfr].[ProjectItemId] = [NotExistingAfr].[ProjectItemId] AND
 			[NotExistingAfr].[MaxAfrMonths] < [AfrMonths]
 	)
-	INSERT INTO @xy(ProjectId, X) 
-	SELECT [ProjectId], [AfrMonths] FROM [NullAfr]
+	INSERT INTO @xy(ProjectItemId, X) 
+	SELECT [ProjectItemId], [AfrMonths] FROM [NullAfr]
 	UNION ALL
-	SELECT [ProjectId], [AfrMonths] FROM [RecurciveAfr]
+	SELECT [ProjectItemId], [AfrMonths] FROM [RecurciveAfr]
 
-	CREATE TABLE #interpolatedAfr(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #interpolatedAfr(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, AfrMonths AS X, Afr AS Y FROM [ProjectCalculator].[AfrNotCalculatedProjects]',
+		'SELECT ProjectItemId, AfrMonths AS X, Afr AS Y FROM #AfrCalculatingProjectItems',
 		@xy,
 		'#interpolatedAfr'
 
-	DELETE FROM [ProjectCalculator].[Afr] WHERE [ProjectId] IN (SELECT [ProjectId] FROM #interpolatedAfr)
+	DELETE FROM [ProjectCalculator].[Afr] WHERE [ProjectItemId] IN (SELECT [ProjectItemId] FROM #interpolatedAfr)
 
-	INSERT INTO [ProjectCalculator].[Afr]([ProjectId], [AFR], [Months], [IsProlongation])
+	INSERT INTO [ProjectCalculator].[Afr]([ProjectItemId], [AFR], [Months], [IsProlongation])
 	SELECT
-		[ProjectId],
+		[ProjectItemId],
 		
 		CASE 
 			WHEN [AFR] < [PreviousAfr] THEN [PreviousAfr] 
@@ -626,143 +647,154 @@ BEGIN
 	FROM
 	(
 		SELECT 
-			[InterpolatedAfr].[ProjectId],
+			[InterpolatedAfr].[ProjectItemId],
 			[InterpolatedAfr].[X] AS [Months],
 			[InterpolatedAfr].[Y] AS [AFR],
 			(
 				SELECT TOP 1
-					[AfrNotCalculatedProjects].[AFR]
+					[AfrCalculatingProjectItems].[AFR]
 				FROM
-					[ProjectCalculator].[AfrNotCalculatedProjects]
+					#AfrCalculatingProjectItems AS [AfrCalculatingProjectItems]
 				WHERE
-					[AfrNotCalculatedProjects].[ProjectId] = [InterpolatedAfr].[ProjectId] AND 
-					[AfrNotCalculatedProjects].[AfrMonths] < [InterpolatedAfr].[X]
+					[AfrCalculatingProjectItems].[ProjectItemId] = [InterpolatedAfr].[ProjectItemId] AND 
+					[AfrCalculatingProjectItems].[AfrMonths] < [InterpolatedAfr].[X]
 				ORDER BY
-					[AfrNotCalculatedProjects].[AfrMonths] DESC
+					[AfrCalculatingProjectItems].[AfrMonths] DESC
 			) AS PreviousAfr
 		FROM
 			#interpolatedAfr AS [InterpolatedAfr]
 	) AS t
 
 	DROP TABLE #interpolatedAfr
+	DROP TABLE #AfrCalculatingProjectItems
 END
 GO
 
-CREATE PROCEDURE [ProjectCalculator].[InterpolateProjects]
+CREATE PROCEDURE [ProjectCalculator].[InterpolateProjects] @projectItemIds [dbo].[ListID] READONLY
 AS
 BEGIN
+	SELECT * INTO #CalculatingProjectItems FROM [ProjectCalculator].[GetCalculatingProjectItems](@projectItemIds)
+
 	DECLARE @projectReactionTime [ProjectCalculator].[XY] 
-	INSERT INTO @projectReactionTime(ProjectId, X) SELECT [Id], [ReactionTime_Minutes] FROM [ProjectCalculator].[NotCalculatedProjects]
+	INSERT INTO @projectReactionTime(ProjectItemId, X) SELECT [Id], [ReactionTime_Minutes] FROM #CalculatingProjectItems
 
 	DECLARE @projectAvailability [ProjectCalculator].[XY] 
-	INSERT INTO @projectAvailability(ProjectId, X) SELECT [Id], [Availability_Value_New] FROM [ProjectCalculator].[NotCalculatedProjects]
+	INSERT INTO @projectAvailability(ProjectItemId, X) SELECT [Id], [Availability_Value_New] FROM #CalculatingProjectItems
 
 	DECLARE @projectReactionTimeAvailability [ProjectCalculator].[XY] 
-	INSERT INTO @projectReactionTimeAvailability(ProjectId, X) 
+	INSERT INTO @projectReactionTimeAvailability(ProjectItemId, X) 
 	SELECT 
 		[Id], 
 		[ProjectCalculator].[CalcReactionTimeAvailabilityCoeff]([ReactionTime_Minutes], [Availability_Value_New]) 
 	FROM 
-		[ProjectCalculator].[NotCalculatedProjects]
+		#CalculatingProjectItems
 
 	DECLARE @projectReactionTimeTypeAvailability [ProjectCalculator].[XY] 
-	INSERT INTO @projectReactionTimeTypeAvailability(ProjectId, X) 
+	INSERT INTO @projectReactionTimeTypeAvailability(ProjectItemId, X) 
 	SELECT 
-		[NotCalculatedProjects].[Id], 
+		[CalculatingProjectItems].[Id], 
 		[ProjectCalculator].[CalcReactionTimeTypeAvailabilityCoeff]([ReactionTime_Minutes], [Availability_Value_New], [ReactionType].[Coeff]) 
 	FROM 
-		[ProjectCalculator].[NotCalculatedProjects]
+		#CalculatingProjectItems AS [CalculatingProjectItems]
 	INNER JOIN
-		[Dependencies].[ReactionType] ON [NotCalculatedProjects].[ReactionTypeId] = [ReactionType].[Id]
+		[Dependencies].[ReactionType] ON [CalculatingProjectItems].[ReactionTypeId] = [ReactionType].[Id]
 
 	DECLARE @projectDuration [ProjectCalculator].[XY] 
-	INSERT INTO @projectDuration(ProjectId, X) SELECT [Id], [Duration_Months] FROM [ProjectCalculator].[NotCalculatedProjects]
+	INSERT INTO @projectDuration(ProjectItemId, X) SELECT [Id], [Duration_Months] FROM #CalculatingProjectItems
 
-	CREATE TABLE #PerformanceRate(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	SELECT * INTO #FieldServiceReactionTimeType FROM [ProjectCalculator].[GetFieldServiceReactionTimeType](@projectItemIds)
+
+	CREATE TABLE #PerformanceRate(ProjectItemId BIGINT, X FLOAT, Y FLOAT)	
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, PerformanceRate AS Y FROM [ProjectCalculator].[FieldServiceReactionTimeType]',
+		'SELECT ProjectItemId, X, PerformanceRate AS Y FROM #FieldServiceReactionTimeType',
 		@projectReactionTime,
 		'#PerformanceRate'
 
-	CREATE TABLE #TimeAndMaterialShare(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #TimeAndMaterialShare(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, TimeAndMaterialShare AS Y FROM [ProjectCalculator].[FieldServiceReactionTimeType]',
+		'SELECT ProjectItemId, X, TimeAndMaterialShare AS Y FROM #FieldServiceReactionTimeType',
 		@projectReactionTime,
 		'#TimeAndMaterialShare'
 
-	CREATE TABLE #ExpressDelivery(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	SELECT * INTO #LogisticsCosts FROM [ProjectCalculator].[GetLogisticsCosts](@projectItemIds)
+
+	CREATE TABLE #ExpressDelivery(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, ExpressDelivery AS Y FROM [ProjectCalculator].[LogisticsCosts]',
+		'SELECT ProjectItemId, X, ExpressDelivery AS Y FROM #LogisticsCosts',
 		@projectReactionTime,
 		'#ExpressDelivery'
 
-	CREATE TABLE #HighAvailabilityHandling(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #HighAvailabilityHandling(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, HighAvailabilityHandling AS Y FROM [ProjectCalculator].[LogisticsCosts]',
+		'SELECT ProjectItemId, X, HighAvailabilityHandling AS Y FROM #LogisticsCosts',
 		@projectReactionTime,
 		'#HighAvailabilityHandling'
 
-	CREATE TABLE #ReturnDeliveryFactory(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #ReturnDeliveryFactory(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, ReturnDeliveryFactory AS Y FROM [ProjectCalculator].[LogisticsCosts]',
+		'SELECT ProjectItemId, X, ReturnDeliveryFactory AS Y FROM #LogisticsCosts',
 		@projectReactionTime,
 		'#ReturnDeliveryFactory'
 
-	CREATE TABLE #StandardDelivery(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #StandardDelivery(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, StandardDelivery AS Y FROM [ProjectCalculator].[LogisticsCosts]',
+		'SELECT ProjectItemId, X, StandardDelivery AS Y FROM #LogisticsCosts',
 		@projectReactionTime,
 		'#StandardDelivery'
 
-	CREATE TABLE #StandardHandling(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #StandardHandling(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, StandardHandling AS Y FROM [ProjectCalculator].[LogisticsCosts]',
+		'SELECT ProjectItemId, X, StandardHandling AS Y FROM #LogisticsCosts',
 		@projectReactionTime,
 		'#StandardHandling'
 
-	CREATE TABLE #TaxiCourierDelivery(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #TaxiCourierDelivery(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, TaxiCourierDelivery AS Y FROM [ProjectCalculator].[LogisticsCosts]',
+		'SELECT ProjectItemId, X, TaxiCourierDelivery AS Y FROM #LogisticsCosts',
 		@projectReactionTime,
 		'#TaxiCourierDelivery'
 
-	CREATE TABLE #Markup(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	SELECT * INTO #MarkupOtherCosts FROM [ProjectCalculator].[GetMarkupOtherCosts](@projectItemIds)
+
+	CREATE TABLE #Markup(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, Markup AS Y FROM [ProjectCalculator].[MarkupOtherCosts]',
+		'SELECT ProjectItemId, X, Markup AS Y FROM #MarkupOtherCosts',
 		@projectReactionTimeTypeAvailability,
 		'#Markup'
 
-	CREATE TABLE #MarkupFactor(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #MarkupFactor(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, MarkupFactor AS Y FROM [ProjectCalculator].[MarkupOtherCosts]',
+		'SELECT ProjectItemId, X, MarkupFactor AS Y FROM #MarkupOtherCosts',
 		@projectReactionTimeTypeAvailability,
 		'#MarkupFactor'
 
-	CREATE TABLE #ProlongationMarkup(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #ProlongationMarkup(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, ProlongationMarkup AS Y FROM [ProjectCalculator].[MarkupOtherCosts]',
+		'SELECT ProjectItemId, X, ProlongationMarkup AS Y FROM #MarkupOtherCosts',
 		@projectReactionTimeTypeAvailability,
 		'#ProlongationMarkup'
 
-	CREATE TABLE #ProlongationMarkupFactor(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	CREATE TABLE #ProlongationMarkupFactor(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, ProlongationMarkupFactor AS Y FROM [ProjectCalculator].[MarkupOtherCosts]',
+		'SELECT ProjectItemId, X, ProlongationMarkupFactor AS Y FROM #MarkupOtherCosts',
 		@projectReactionTimeTypeAvailability,
 		'#ProlongationMarkupFactor'
 
-	CREATE TABLE #ReinsuranceFlatfee(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	SELECT * INTO #ReinsuranceDuration FROM [ProjectCalculator].[GetReinsuranceDuration](@projectItemIds)
+	CREATE TABLE #ReinsuranceFlatfee(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, ReinsuranceFlatfee AS Y FROM [ProjectCalculator].[ReinsuranceDuration]',
+		'SELECT ProjectItemId, X, ReinsuranceFlatfee AS Y FROM #ReinsuranceDuration',
 		@projectDuration,
 		'#ReinsuranceFlatfee';
 
-	CREATE TABLE #ReinsuranceUpliftFactor(ProjectId BIGINT, X FLOAT, Y FLOAT)
+	SELECT * INTO #ReinsuranceReactionTimeAvailability FROM [ProjectCalculator].[GetReinsuranceReactionTimeAvailability](@projectItemIds)
+	CREATE TABLE #ReinsuranceUpliftFactor(ProjectItemId BIGINT, X FLOAT, Y FLOAT)
 	EXEC [ProjectCalculator].[InterpolateY] 
-		'SELECT ProjectId, X, ReinsuranceUpliftFactor AS Y FROM [ProjectCalculator].[ReinsuranceReactionTimeAvailability]',
+		'SELECT ProjectItemId, X, ReinsuranceUpliftFactor AS Y FROM #ReinsuranceReactionTimeAvailability',
 		@projectReactionTimeAvailability,
 		'#ReinsuranceUpliftFactor'
 
-	EXEC [ProjectCalculator].[InterpolateAfr];
+	EXEC [ProjectCalculator].[InterpolateAfr] @projectItemIds;
 
 	WITH [AvailabilityFeeCountryCompany] AS
 	(
@@ -783,16 +815,14 @@ BEGIN
 			[Wg],
 			MIN([CurrencyReinsurance]) AS [Currencyid]
 		FROM
-			[ProjectCalculator].[Reinsurance]
+			[ProjectCalculator].[GetReinsurance](@projectItemIds)
 		GROUP BY
 			[Wg]
 	)
 	UPDATE 
-		[ProjectCalculator].[Project]
+		[ProjectCalculator].[ProjectItem]
 	SET
-		[IsCalculated] = 1,
-
-		[Availability_Value] = [NotCalculatedProjects].[Availability_Value_New],
+		[Availability_Value] = [CalculatingProjectItems].[Availability_Value_New],
 
 		[AvailabilityFee_AverageContractDuration] = [AvailabilityFeeCountryCompany].[AverageContractDuration],
 		[AvailabilityFee_StockValueFj] = [AvailabilityFeeCountryCompany].[StockValueFj],
@@ -824,56 +854,63 @@ BEGIN
 		[Reinsurance_Flatfee] = [ReinsuranceFlatfee].[Y],
 		[Reinsurance_UpliftFactor] = [ReinsuranceUpliftFactor].[Y]
 	FROM
-		[ProjectCalculator].[NotCalculatedProjects]
+		#CalculatingProjectItems AS [CalculatingProjectItems]
 	LEFT JOIN
 		[AvailabilityFeeCountryCompany] ON 
-			[NotCalculatedProjects].[CountryId] = [AvailabilityFeeCountryCompany].[Country] AND
-			[NotCalculatedProjects].[WgId] = [AvailabilityFeeCountryCompany].[Wg]
+			[CalculatingProjectItems].[CountryId] = [AvailabilityFeeCountryCompany].[Country] AND
+			[CalculatingProjectItems].[WgId] = [AvailabilityFeeCountryCompany].[Wg]
 	LEFT JOIN
 		[Hardware].[RoleCodeHourlyRates] ON 
-			[NotCalculatedProjects].[CountryId] = [RoleCodeHourlyRates].[Country] AND
+			[CalculatingProjectItems].[CountryId] = [RoleCodeHourlyRates].[Country] AND
 			[AvailabilityFeeCountryCompany].[RoleCodeId] = [RoleCodeHourlyRates].[RoleCode]
 	LEFT JOIN
 		[Hardware].[FieldServiceLocation] ON 
-			[NotCalculatedProjects].[CountryId] = [FieldServiceLocation].[Country] AND
-			[NotCalculatedProjects].[WgId] = [FieldServiceLocation].[Wg] AND
-			[NotCalculatedProjects].[ServiceLocationId] = [FieldServiceLocation].[ServiceLocation]
+			[CalculatingProjectItems].[CountryId] = [FieldServiceLocation].[Country] AND
+			[CalculatingProjectItems].[WgId] = [FieldServiceLocation].[Wg] AND
+			[CalculatingProjectItems].[ServiceLocationId] = [FieldServiceLocation].[ServiceLocation]
 	LEFT JOIN 
-		#PerformanceRate AS [PerformanceRate] ON [PerformanceRate].[ProjectId] = [NotCalculatedProjects].[Id]
+		#PerformanceRate AS [PerformanceRate] ON [PerformanceRate].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#TimeAndMaterialShare AS [TimeAndMaterialShare] ON [TimeAndMaterialShare].[ProjectId] = [NotCalculatedProjects].[Id]
+		#TimeAndMaterialShare AS [TimeAndMaterialShare] ON [TimeAndMaterialShare].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		[ProjectCalculator].[InterpolatedOohUpliftFactor] ON [InterpolatedOohUpliftFactor].[ProjectId] = [NotCalculatedProjects].[Id]
+		[ProjectCalculator].[GetInterpolatedOohUpliftFactor](@projectItemIds) AS [InterpolatedOohUpliftFactor] ON [InterpolatedOohUpliftFactor].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#ExpressDelivery AS [ExpressDelivery] ON [ExpressDelivery].[ProjectId] = [NotCalculatedProjects].[Id]
+		#ExpressDelivery AS [ExpressDelivery] ON [ExpressDelivery].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#HighAvailabilityHandling AS [HighAvailabilityHandling] ON [HighAvailabilityHandling].[ProjectId] = [NotCalculatedProjects].[Id]
+		#HighAvailabilityHandling AS [HighAvailabilityHandling] ON [HighAvailabilityHandling].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#ReturnDeliveryFactory AS [ReturnDeliveryFactory] ON [ReturnDeliveryFactory].[ProjectId] = [NotCalculatedProjects].[Id]
+		#ReturnDeliveryFactory AS [ReturnDeliveryFactory] ON [ReturnDeliveryFactory].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#StandardDelivery AS [StandardDelivery] ON [StandardDelivery].[ProjectId] = [NotCalculatedProjects].[Id]
+		#StandardDelivery AS [StandardDelivery] ON [StandardDelivery].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN 
-		#StandardHandling AS [StandardHandling] ON [StandardHandling].[ProjectId] = [NotCalculatedProjects].[Id]
+		#StandardHandling AS [StandardHandling] ON [StandardHandling].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#TaxiCourierDelivery AS [TaxiCourierDelivery] ON [TaxiCourierDelivery].[ProjectId] = [NotCalculatedProjects].[Id]
+		#TaxiCourierDelivery AS [TaxiCourierDelivery] ON [TaxiCourierDelivery].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#Markup AS [Markup] ON [Markup].[ProjectId] = [NotCalculatedProjects].[Id] 
+		#Markup AS [Markup] ON [Markup].[ProjectItemId] = [CalculatingProjectItems].[Id] 
 	LEFT JOIN
-		#MarkupFactor AS [MarkupFactor] ON [MarkupFactor].[ProjectId] = [NotCalculatedProjects].[Id] 
+		#MarkupFactor AS [MarkupFactor] ON [MarkupFactor].[ProjectItemId] = [CalculatingProjectItems].[Id] 
 	LEFT JOIN
-		#ProlongationMarkup AS [ProlongationMarkup] ON [ProlongationMarkup].[ProjectId] = [NotCalculatedProjects].[Id] 
+		#ProlongationMarkup AS [ProlongationMarkup] ON [ProlongationMarkup].[ProjectItemId] = [CalculatingProjectItems].[Id] 
 	LEFT JOIN
-		#ProlongationMarkupFactor AS [ProlongationMarkupFactor] ON [ProlongationMarkupFactor].[ProjectId] = [NotCalculatedProjects].[Id] 
+		#ProlongationMarkupFactor AS [ProlongationMarkupFactor] ON [ProlongationMarkupFactor].[ProjectItemId] = [CalculatingProjectItems].[Id] 
 	LEFT JOIN
-		[Reinsurance_Currency] ON [NotCalculatedProjects].[WgId] = [Reinsurance_Currency].[Wg]
+		[Reinsurance_Currency] ON [CalculatingProjectItems].[WgId] = [Reinsurance_Currency].[Wg]
 	LEFT JOIN
-		#ReinsuranceFlatfee AS [ReinsuranceFlatfee] ON [ReinsuranceFlatfee].[ProjectId] = [NotCalculatedProjects].[Id]
+		#ReinsuranceFlatfee AS [ReinsuranceFlatfee] ON [ReinsuranceFlatfee].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	LEFT JOIN
-		#ReinsuranceUpliftFactor AS [ReinsuranceUpliftFactor] ON [ReinsuranceUpliftFactor].[ProjectId] = [NotCalculatedProjects].[Id]
+		#ReinsuranceUpliftFactor AS [ReinsuranceUpliftFactor] ON [ReinsuranceUpliftFactor].[ProjectItemId] = [CalculatingProjectItems].[Id]
 	WHERE
-		[Project].[Id] = [NotCalculatedProjects].[Id] AND
+		[ProjectItem].[Id] = [CalculatingProjectItems].[Id] AND
 		[RoleCodeHourlyRates].[Deactivated] = 0 AND
 		[FieldServiceLocation].[DeactivatedDateTime] IS NULL
+
+	DROP TABLE #CalculatingProjectItems
+	DROP TABLE #FieldServiceReactionTimeType
+	DROP TABLE #LogisticsCosts
+	DROP TABLE #MarkupOtherCosts
+	DROP TABLE #ReinsuranceDuration
+	DROP TABLE #ReinsuranceReactionTimeAvailability
 
 	DROP TABLE #PerformanceRate
 	DROP TABLE #TimeAndMaterialShare

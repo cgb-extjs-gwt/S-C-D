@@ -2,13 +2,15 @@
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.Core.Enums;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class ProjectCalculatorService : DomainService<Project>, IProjectCalculatorService
+    public class ProjectService : DomainService<Project>, IProjectService
     {
         private const int MinutesInHour = 60;
         private const int MinutesInDay = MinutesInHour * 24;
@@ -19,28 +21,39 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private static readonly PeriodNameBuilder periodNameBuilder = new PeriodNameBuilder();
         private static readonly PeriodService periodService = new PeriodService();
 
+        private readonly IProjectRepository projectRepository;
+        private readonly IUserService userService;
         private readonly IDomainService<Wg> wgService;
         private readonly IDomainService<Country> countryService;
         private readonly IDomainService<ReactionType> reactionTypeService;
         private readonly IDomainService<ServiceLocation> serviceLocationService;
 
-        public ProjectCalculatorService(
+        public ProjectService(
             IRepositorySet repositorySet, 
+            IProjectRepository projectRepository,
+            IUserService userService,
             IDomainService<Wg> wgService,
             IDomainService<Country> countryService,
             IDomainService<ReactionType> reactionTypeService,
-            IDomainService<ServiceLocation> serviceLocationService) 
+            IDomainService<ServiceLocation> serviceLocationService)
             : base(repositorySet)
         {
+            this.projectRepository = projectRepository;
+            this.userService = userService;
             this.wgService = wgService;
             this.countryService = countryService;
             this.reactionTypeService = reactionTypeService;
             this.serviceLocationService = serviceLocationService;
         }
 
-        public ProjectCalculatorData GetProjectCalculatorData()
+        public IQueryable<ProjectItem> GetProjectItems(long projectId)
         {
-            return new ProjectCalculatorData
+            return this.projectRepository.GetProjectItems(projectId);
+        }
+
+        public ProjectItemEditData GetProjectItemEditData()
+        {
+            return new ProjectItemEditData
             {
                 Wgs = this.wgService.GetAll().Where(wg => wg.WgType == WgType.Por).ToArray(),
                 Countries = this.countryService.GetAll().Where(country => country.IsMaster).ToArray(),
@@ -51,25 +64,56 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public void SaveWithInterpolation(Project[] projects)
+        public override IQueryable<Project> GetAll()
         {
-            foreach (var project in projects)
-            {
-                project.IsCalculated = true;
-            }
-
-            this.Save(projects);
-
-            this.repositorySet.ExecuteProc("[ProjectCalculator].[InterpolateProjects]");
+            return base.GetAll().Include(project => project.User);
         }
 
-        protected override void InnerSave(Project item)
+        public override void Save(Project item)
         {
-            item.Availability.Name = item.Availability.ToString();
-            item.Duration.Name = periodNameBuilder.GetPeriodName(item.Duration.Months * MinutesInMonth, item.Duration.PeriodType);
-            item.ReactionTime.Name = periodNameBuilder.GetPeriodName(item.ReactionTime.Minutes, item.ReactionTime.PeriodType);
+            base.Save(item);
 
-            base.InnerSave(item);
+            this.Interpolate(new[] { item });
+        }
+
+        public override void Save(IEnumerable<Project> items)
+        {
+            base.Save(items);
+
+            this.Interpolate(items);
+        }
+
+        protected override void InnerSave(Project project)
+        {
+            if (this.projectRepository.IsNewItem(project))
+            {
+                project.CreationDate = DateTime.UtcNow;
+                project.UserId = this.userService.GetCurrentUser().Id;
+            }
+
+            if (project.ProjectItems != null)
+            {
+                foreach (var projectItem in project.ProjectItems)
+                {
+                    projectItem.Availability.Name = projectItem.Availability.ToString();
+                    projectItem.Duration.Name = periodNameBuilder.GetPeriodName(projectItem.Duration.Months * MinutesInMonth, projectItem.Duration.PeriodType);
+                    projectItem.ReactionTime.Name = periodNameBuilder.GetPeriodName(projectItem.ReactionTime.Minutes, projectItem.ReactionTime.PeriodType);
+                }
+            }
+
+            base.InnerSave(project);
+        }
+
+        private void Interpolate(IEnumerable<Project> projects)
+        {
+            var projectItemIds =
+                projects.Where(project => project.ProjectItems != null)
+                        .SelectMany(project => project.ProjectItems)
+                        .Where(projectItem => !projectItem.IsCalculated)
+                        .Select(projectItem => projectItem.Id)
+                        .ToArray();
+
+            this.projectRepository.Interpolate(projectItemIds);
         }
 
         private class PeriodInfo

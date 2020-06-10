@@ -64,6 +64,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SetDeleteState(item);
         }
 
+        public virtual void Delete(IEnumerable<long> ids)
+        {
+            foreach (var id in ids)
+            {
+                this.Delete(id);
+            }
+        }
+
+        public bool IsNewItem<TItem>(TItem item) where TItem : class, IIdentifiable
+        {
+            return item.Id == default(long);
+        }
+
         protected void SetAddOrUpdateState<TItem>(TItem item) where TItem : class, IIdentifiable
         {
             if (item != null)
@@ -102,11 +115,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     entry.State = EntityState.Deleted;
                 }                  
             }
-        }
-
-        protected bool IsNewItem<TItem>(TItem item) where TItem : class, IIdentifiable
-        {
-            return item.Id == default(long);
         }
 
         protected void AddOrUpdate<TItem>(TItem item) where TItem : class, IIdentifiable

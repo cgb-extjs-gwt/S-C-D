@@ -16,13 +16,17 @@ CREATE FUNCTION [Hardware].[GetCalcMemberYear] (
     @pro            dbo.ListID readonly,
     @lastid         bigint,
     @limit          int,
-	@isProjectCalculator bit = 0
+	@projectItemId  BIGINT = NULL
 )
 RETURNS TABLE 
 AS
 RETURN 
 (
-	WITH ProjCalc AS 
+	WITH IsProjCalc AS 
+	(
+		SELECT CASE WHEN @projectItemId IS NULL THEN 0 ELSE 1 END AS IsProjCalc 
+	),
+	ProjCalc AS 
 	(
 		SELECT 
 			std.*,
@@ -34,77 +38,79 @@ RETURN
 			m.Sla,
             m.SlaHash,
 
-			--case when @isProjectCalculator = 1 then Project.CountryId else m.CountryId end as CountryId,
-			--case when @isProjectCalculator = 1 then Project.WgId else m.WgId end as WgId,
+			--case when @projectItemId IS NOT NULL then ProjectItem.CountryId else m.CountryId end as CountryId,
+			--case when @projectItemId IS NOT NULL then ProjectItem.WgId else m.WgId end as WgId,
 			
-			case when @isProjectCalculator = 1 then Project.Id else m.Id end as Id,
-			case when @isProjectCalculator = 1 then Project.ReactionTypeId else m.ReactionTypeId end as ReactionTypeId,
-			case when @isProjectCalculator = 1 then Project.ServiceLocationId else m.ServiceLocationId end as ServiceLocationId,
-			case when @isProjectCalculator = 0 then m.AvailabilityId end as AvailabilityId,
-			case when @isProjectCalculator = 1 then Project.Availability_Name else av.[Name] end as [Availability],
-			case when @isProjectCalculator = 0 then m.DurationId end as DurationId,
-			case when @isProjectCalculator = 1 then 0 else dur.IsProlongation end as DurationIsProlongation,
-			case when @isProjectCalculator = 1 then Project.Duration_Name else dur.[Name] end as Duration,
-			case when @isProjectCalculator = 1 then Project.Duration_Months else dur.[Value] * 12 end as DurationMonths,
-			case when @isProjectCalculator = 0 then m.ReactionTimeId end as ReactionTimeId,
-			case when @isProjectCalculator = 1 then Project.ReactionTime_Name else rtime.[Name] end as ReactionTime,
-			case when @isProjectCalculator = 1
-				 then Project.Reinsurance_Flatfee * ISNULL(1 + Reinsurance_UpliftFactor / 100, 1) / ExchangeRate.[Value]
+			case when @projectItemId IS NOT NULL then ProjectItem.Id else m.Id end as Id,
+			case when @projectItemId IS NOT NULL then ProjectItem.ReactionTypeId else m.ReactionTypeId end as ReactionTypeId,
+			case when @projectItemId IS NOT NULL then ProjectItem.ServiceLocationId else m.ServiceLocationId end as ServiceLocationId,
+			case when @projectItemId IS NULL then m.AvailabilityId end as AvailabilityId,
+			case when @projectItemId IS NOT NULL then ProjectItem.Availability_Name else av.[Name] end as [Availability],
+			case when @projectItemId IS NULL then m.DurationId end as DurationId,
+			case when @projectItemId IS NOT NULL then 0 else dur.IsProlongation end as DurationIsProlongation,
+			case when @projectItemId IS NOT NULL then ProjectItem.Duration_Name else dur.[Name] end as Duration,
+			case when @projectItemId IS NOT NULL then ProjectItem.Duration_Months else dur.[Value] * 12 end as DurationMonths,
+			case when @projectItemId IS NULL then m.ReactionTimeId end as ReactionTimeId,
+			case when @projectItemId IS NOT NULL then ProjectItem.ReactionTime_Name else rtime.[Name] end as ReactionTime,
+			case when @projectItemId IS NOT NULL
+				 then ProjectItem.Reinsurance_Flatfee * ISNULL(1 + Reinsurance_UpliftFactor / 100, 1) / ExchangeRate.[Value]
 				 else case when @approved = 0 then r.Cost else r.Cost_approved end
 			end as Cost,
-			case when @isProjectCalculator = 1 or afEx.id is not null then std.Fee else 0 end as AvailabilityFee,
+			case when @projectItemId IS NOT NULL or afEx.id is not null then std.Fee else 0 end as AvailabilityFee,
 
 			case when @approved = 0 then fsw.RepairTime else fsw.RepairTime_Approved end as RepairTime,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_LabourCost, fsl.LabourCost, fsl.LabourCost_Approved) AS LabourCost,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TravelCost, fsl.TravelCost, fsl.TravelCost_Approved) AS TravelCost,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TravelTime, fsl.TravelTime, fsl.TravelTime_Approved) AS TravelTime,
-			--Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_RepairTime, fsc.RepairTime, fsc.RepairTime_Approved) AS RepairTime,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_PerformanceRate, fst.PerformanceRate, fst.PerformanceRate_Approved) AS PerformanceRate,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_TimeAndMaterialShare, fst.TimeAndMaterialShare, fst.TimeAndMaterialShare_Approved) / 100 AS TimeAndMaterialShare_norm,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.FieldServiceCost_OohUpliftFactor, fsa.OohUpliftFactor, fsa.OohUpliftFactor_Approved) AS OohUpliftFactor,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_LabourCost, fsl.LabourCost, fsl.LabourCost_Approved) AS LabourCost,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_TravelCost, fsl.TravelCost, fsl.TravelCost_Approved) AS TravelCost,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_TravelTime, fsl.TravelTime, fsl.TravelTime_Approved) AS TravelTime,
+			--Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, ProjectItem.FieldServiceCost_RepairTime, fsc.RepairTime, fsc.RepairTime_Approved) AS RepairTime,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_PerformanceRate, fst.PerformanceRate, fst.PerformanceRate_Approved) AS PerformanceRate,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_TimeAndMaterialShare, fst.TimeAndMaterialShare, fst.TimeAndMaterialShare_Approved) / 100 AS TimeAndMaterialShare_norm,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_OohUpliftFactor, fsa.OohUpliftFactor, fsa.OohUpliftFactor_Approved) AS OohUpliftFactor,
 
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_StandardHandling, lc.StandardHandling, lc.StandardHandling_Approved) AS StandardHandling,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_HighAvailabilityHandling, lc.HighAvailabilityHandling, lc.HighAvailabilityHandling_Approved) AS HighAvailabilityHandling,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_StandardDelivery, lc.StandardDelivery, lc.StandardDelivery_Approved) AS StandardDelivery,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ExpressDelivery, lc.ExpressDelivery, lc.ExpressDelivery_Approved) AS ExpressDelivery,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_TaxiCourierDelivery, lc.TaxiCourierDelivery, lc.TaxiCourierDelivery_Approved) AS TaxiCourierDelivery,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.LogisticsCosts_ReturnDeliveryFactory, lc.ReturnDeliveryFactory, lc.ReturnDeliveryFactory_Approved) AS ReturnDeliveryFactory,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.LogisticsCosts_StandardHandling, lc.StandardHandling, lc.StandardHandling_Approved) AS StandardHandling,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.LogisticsCosts_HighAvailabilityHandling, lc.HighAvailabilityHandling, lc.HighAvailabilityHandling_Approved) AS HighAvailabilityHandling,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.LogisticsCosts_StandardDelivery, lc.StandardDelivery, lc.StandardDelivery_Approved) AS StandardDelivery,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.LogisticsCosts_ExpressDelivery, lc.ExpressDelivery, lc.ExpressDelivery_Approved) AS ExpressDelivery,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.LogisticsCosts_TaxiCourierDelivery, lc.TaxiCourierDelivery, lc.TaxiCourierDelivery_Approved) AS TaxiCourierDelivery,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.LogisticsCosts_ReturnDeliveryFactory, lc.ReturnDeliveryFactory, lc.ReturnDeliveryFactory_Approved) AS ReturnDeliveryFactory,
 
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_Markup, moc.Markup, moc.Markup_Approved) AS Markup,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_MarkupFactor, moc.MarkupFactor, moc.MarkupFactor_Approved) / 100 AS MarkupFactor,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_ProlongationMarkup, moc.ProlongationMarkup, moc.ProlongationMarkup_Approved) AS ProlongationMarkup,
-			Hardware.CalcByProjectFlag(@isProjectCalculator, @approved, Project.MarkupOtherCosts_ProlongationMarkupFactor, moc.ProlongationMarkupFactor, moc.ProlongationMarkupFactor_Approved) / 100 AS ProlongationMarkupFactor
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.MarkupOtherCosts_Markup, moc.Markup, moc.Markup_Approved) AS Markup,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.MarkupOtherCosts_MarkupFactor, moc.MarkupFactor, moc.MarkupFactor_Approved) / 100 AS MarkupFactor,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.MarkupOtherCosts_ProlongationMarkup, moc.ProlongationMarkup, moc.ProlongationMarkup_Approved) AS ProlongationMarkup,
+			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.MarkupOtherCosts_ProlongationMarkupFactor, moc.ProlongationMarkupFactor, moc.ProlongationMarkupFactor_Approved) / 100 AS ProlongationMarkupFactor
 
-		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg, @isProjectCalculator) std 
+		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg, @projectItemId) std 
 
-		LEFT JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on @isProjectCalculator = 0 and std.CountryId = m.CountryId and std.WgId = m.WgId
+		CROSS JOIN IsProjCalc
 
-		LEFT JOIN Dependencies.Availability av on @isProjectCalculator = 0 and av.Id = m.AvailabilityId
+		LEFT JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on @projectItemId IS NULL and std.CountryId = m.CountryId and std.WgId = m.WgId
 
-		LEFT JOIN Dependencies.Duration dur on @isProjectCalculator = 0 and dur.id = m.DurationId
+		LEFT JOIN Dependencies.Availability av on @projectItemId IS NULL and av.Id = m.AvailabilityId
 
-		LEFT JOIN Dependencies.ReactionTime rtime on @isProjectCalculator = 0 and rtime.Id = m.ReactionTimeId
+		LEFT JOIN Dependencies.Duration dur on @projectItemId IS NULL and dur.id = m.DurationId
 
-		LEFT JOIN Admin.AvailabilityFee afEx on @isProjectCalculator = 0 and afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
+		LEFT JOIN Dependencies.ReactionTime rtime on @projectItemId IS NULL and rtime.Id = m.ReactionTimeId
 
-		LEFT JOIN ProjectCalculator.Project ON @isProjectCalculator = 1 AND Project.CountryId = std.CountryId AND Project.WgId = std.WgId
+		LEFT JOIN Admin.AvailabilityFee afEx on @projectItemId IS NULL and afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-		LEFT JOIN Hardware.ReinsuranceCalc r on @isProjectCalculator = 0 AND r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
+		LEFT JOIN ProjectCalculator.ProjectItem ON ProjectItem.Id = @projectItemId AND ProjectItem.CountryId = std.CountryId AND ProjectItem.WgId = std.WgId
+
+		LEFT JOIN Hardware.ReinsuranceCalc r on @projectItemId IS NULL AND r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
 		--LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
 		--LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 		--LEFT JOIN Hardware.UpliftFactor ON UpliftFactor.Country = m.CountryId AND UpliftFactor.Wg = m.WgId AND UpliftFactor.[Availability] = m.AvailabilityId
 
 		LEFT JOIN Hardware.FieldServiceWg fsw on fsw.Wg = std.WgId and fsw.DeactivatedDateTime is null
-		LEFT JOIN Hardware.FieldServiceLocation fsl on @isProjectCalculator = 0 and fsl.Country = m.CountryId and fsl.Wg = m.WgId and fsl.ServiceLocation = m.ServiceLocationId and fsl.DeactivatedDateTime is null
-		LEFT JOIN Hardware.FieldServiceReactionTimeType fst on @isProjectCalculator = 0 and fst.Country = m.CountryId and fst.Wg = m.WgId and fst.ReactionTimeType = m.ReactionTime_ReactionType and fst.DeactivatedDateTime is null
-		LEFT JOIN Hardware.FieldServiceAvailability fsa on @isProjectCalculator = 0 and fsa.Country = m.CountryId and fsa.Wg = m.WgId and fsa.[Availability] = m.AvailabilityId and fsa.DeactivatedDateTime is null
+		LEFT JOIN Hardware.FieldServiceLocation fsl on @projectItemId IS NULL and fsl.Country = m.CountryId and fsl.Wg = m.WgId and fsl.ServiceLocation = m.ServiceLocationId and fsl.DeactivatedDateTime is null
+		LEFT JOIN Hardware.FieldServiceReactionTimeType fst on @projectItemId IS NULL and fst.Country = m.CountryId and fst.Wg = m.WgId and fst.ReactionTimeType = m.ReactionTime_ReactionType and fst.DeactivatedDateTime is null
+		LEFT JOIN Hardware.FieldServiceAvailability fsa on @projectItemId IS NULL and fsa.Country = m.CountryId and fsa.Wg = m.WgId and fsa.[Availability] = m.AvailabilityId and fsa.DeactivatedDateTime is null
 
 		LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType and lc.Deactivated = 0
 
 		LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Country = m.CountryId AND moc.Wg = m.WgId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability and moc.Deactivated = 0
 
-		LEFT JOIN [References].ExchangeRate on @isProjectCalculator = 1 and Project.Reinsurance_CurrencyId = ExchangeRate.CurrencyId
+		LEFT JOIN [References].ExchangeRate on @projectItemId IS NOT NULL and ProjectItem.Reinsurance_CurrencyId = ExchangeRate.CurrencyId
 	)
     SELECT    m.rownum
             , m.Id
@@ -376,7 +382,7 @@ RETURN
 
     LEFT JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    LEFT JOIN Hardware.ManualCost man on @isProjectCalculator = 0 and man.PortfolioId = m.Id
+    LEFT JOIN Hardware.ManualCost man on @projectItemId IS NULL and man.PortfolioId = m.Id
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 

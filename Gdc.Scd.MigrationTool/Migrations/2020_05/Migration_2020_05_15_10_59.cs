@@ -15,7 +15,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
         private readonly IDomainService<Availability> availabilityService;
 		private readonly IDomainService<ReactionTime> reactionTimeService;
 		private readonly IRepositorySet repositorySet;
-		private readonly IProjectCalculatorService projectCalculatorService;
+		private readonly IProjectService projectService;
 
 		public string Description => "Project Calculator";
 
@@ -25,18 +25,18 @@ namespace Gdc.Scd.MigrationTool.Migrations
             IDomainService<Availability> availabilityService,
 			IDomainService<ReactionTime> reactionTimeService,
 			IRepositorySet repositorySet,
-			IProjectCalculatorService projectCalculatorService)
+			IProjectService projectService)
         {
             this.availabilityService = availabilityService;
 			this.reactionTimeService = reactionTimeService;
             this.repositorySet = repositorySet;
-			this.projectCalculatorService = projectCalculatorService;
+			this.projectService = projectService;
         }
 
         public void Execute()
         {
 			this.ExecuteDmlScript();
-			this.UpdateAvailabilityValue();
+			//this.UpdateAvailabilityValue();
 			this.UpdateReactionTimeMinutes();
 
 			throw new NotImplementedException();
@@ -56,17 +56,17 @@ namespace Gdc.Scd.MigrationTool.Migrations
 			//});
 		}
 
-		private void UpdateAvailabilityValue()
-		{
-			var availability24x7 = this.availabilityService.GetAll().First(x => x.Name == "24x7");
+		//private void UpdateAvailabilityValue()
+		//{
+		//	var availability24x7 = this.availabilityService.GetAll().First(x => x.Name == "24x7");
 
-			availability24x7.Value =
-				this.projectCalculatorService.GetAvailabilityValue(
-					new DayHour { Day = DayOfWeek.Monday, Hour = 0 },
-					new DayHour { Day = DayOfWeek.Sunday, Hour = 23 });
+		//	availability24x7.Value =
+		//		this.projectService.GetAvailabilityValue(
+		//			new DayHour { Day = DayOfWeek.Monday, Hour = 0 },
+		//			new DayHour { Day = DayOfWeek.Sunday, Hour = 23 });
 
-			this.availabilityService.Save(availability24x7);
-		}
+		//	this.availabilityService.Save(availability24x7);
+		//}
 
 		private void UpdateReactionTimeMinutes()
 		{
