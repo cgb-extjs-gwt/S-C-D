@@ -75,6 +75,10 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         this.innerGrid.save();
     }
 
+    public getStore() {
+        return this.store
+    }
+
     protected init() {
         const { columns = [] } = this.props;        
         

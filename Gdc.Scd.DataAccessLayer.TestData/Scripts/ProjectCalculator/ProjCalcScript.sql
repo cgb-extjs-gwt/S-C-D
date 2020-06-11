@@ -87,6 +87,7 @@ CREATE TABLE [ProjectCalculator].[ProjectItem](
 	[LogisticsCosts_StandardDelivery] [float] NULL,
 	[LogisticsCosts_StandardHandling] [float] NULL,
 	[LogisticsCosts_TaxiCourierDelivery] [float] NULL,
+	[MarkupOtherCosts_Markup] [float] NULL,
 	[MarkupOtherCosts_MarkupFactor] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkup] [float] NULL,
 	[MarkupOtherCosts_ProlongationMarkupFactor] [float] NULL,
@@ -414,3 +415,23 @@ UPDATE [Dependencies].[Availability] SET [Value] = [ProjectCalculator].[CalcAvai
 UPDATE [Dependencies].[ReactionType] SET [Coeff] = -1  WHERE [Name] = 'none'
 UPDATE [Dependencies].[ReactionType] SET [Coeff] = 100 WHERE [Name] = 'response'
 UPDATE [Dependencies].[ReactionType] SET [Coeff] = 200 WHERE [Name] = 'recovery'
+
+DECLARE @projectCalculatorPermission NVARCHAR(MAX) = 'ProjectCalculator'
+
+IF NOT EXISTS (SELECT * FROM [dbo].[Permission] WHERE [Name] = @projectCalculatorPermission)
+BEGIN
+	DECLARE @permissionIds TABLE([Id] BIGINT)
+
+	INSERT INTO [dbo].[Permission]([Name]) 
+	OUTPUT INSERTED.[Id] INTO @permissionIds 
+	VALUES (@projectCalculatorPermission)
+	
+	INSERT INTO [dbo].[RolePermission]([RoleId], [PermissionId])
+	SELECT
+		[Id] AS [RoleId],
+		(SELECT TOP 1 * FROM @permissionIds) AS [PermissionId]
+	FROM
+		[dbo].[Role]
+	WHERE
+		[Name] = 'SCD Admin'
+END

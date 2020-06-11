@@ -33,7 +33,7 @@ namespace Gdc.Scd.Core.Entities.ProjectCalculator
         public DurationProjCalc Duration { get; set; }
 
         [NotMapped]
-        public bool IsCalculated { get; set; }
+        public bool IsRecalculation { get; set; }
 
         public List<AfrProjCalc> Afrs { get; set; }
 

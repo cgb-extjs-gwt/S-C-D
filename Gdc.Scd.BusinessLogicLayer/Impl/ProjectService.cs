@@ -27,6 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private readonly IDomainService<Country> countryService;
         private readonly IDomainService<ReactionType> reactionTypeService;
         private readonly IDomainService<ServiceLocation> serviceLocationService;
+        private readonly IDomainService<Currency> currencyService;
 
         public ProjectService(
             IRepositorySet repositorySet, 
@@ -55,13 +56,35 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             return new ProjectItemEditData
             {
-                Wgs = this.wgService.GetAll().Where(wg => wg.WgType == WgType.Por).ToArray(),
-                Countries = this.countryService.GetAll().Where(country => country.IsMaster).ToArray(),
-                ReactionTypes = this.reactionTypeService.GetAll().ToArray(),
-                ServiceLocations = this.serviceLocationService.GetAll().ToArray(),
+                Wgs = GetWgs(),
+                Countries = this.countryService.GetAll().Where(country => country.IsMaster).Select(GetNamedId).ToArray(),
+                ReactionTypes = this.reactionTypeService.GetAll().Select(GetNamedId).ToArray(),
+                ServiceLocations = this.serviceLocationService.GetAll().Select(GetNamedId).ToArray(),
+                ReinsuranceCurrencies = this.currencyService.GetAll().ToArray(),
                 ReactionTimePeriods = periodService.GetPeriods(PeriodType.Minutes, PeriodType.Hours),
-                DurationPeriods = periodService.GetPeriods(PeriodType.Months, PeriodType.Years)
+                DurationPeriods = periodService.GetPeriods(PeriodType.Months, PeriodType.Years),
             };
+
+            NamedId[] GetWgs()
+            {
+                return
+                    this.wgService.GetAll()
+                                  .Include(wg => wg.Sog)
+                                  .Where(wg => wg.WgType == WgType.Por)
+                                  .ToArray()
+                                  .Select(wg => 
+                                  {
+                                      var sog = wg.Sog == null ? string.Empty : $"({wg.Sog.Name})";
+
+                                      return new NamedId(wg.Id, $"{wg.Name} {sog}");
+                                  })
+                                  .ToArray();
+            }
+
+            NamedId GetNamedId(NamedId item)
+            {
+                return new NamedId(item.Id, item.Name);
+            }
         }
 
         public override IQueryable<Project> GetAll()
@@ -109,7 +132,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var projectItemIds =
                 projects.Where(project => project.ProjectItems != null)
                         .SelectMany(project => project.ProjectItems)
-                        .Where(projectItem => !projectItem.IsCalculated)
+                        .Where(projectItem => !projectItem.IsRecalculation)
                         .Select(projectItem => projectItem.Id)
                         .ToArray();
 

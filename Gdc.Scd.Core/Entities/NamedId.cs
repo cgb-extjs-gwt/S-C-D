@@ -9,5 +9,15 @@ namespace Gdc.Scd.Core.Entities
 
         [MustCompare(true, IsIgnoreCase = true)]
         public virtual string Name { get; set; }
+
+        public NamedId()
+        { 
+        }
+
+        public NamedId(long id, string name)
+        {
+            this.Id = id;
+            this.Name = name;
+        }
     }
 }

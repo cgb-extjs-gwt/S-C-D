@@ -5,6 +5,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { CostImportState } from "../../CostImport/States/CostImportState";
 import { ApprovalCostElementsLayoutState } from "../../Approval/States/ApprovalState";
 import { OwnApprovalCostElementsLayoutState } from "../../CostOwnApproval/States/OwnApprovalState";
+import { ProjectCalculatorState } from "../../ProjectCalculator/States/ProjectCalculatorState";
 
 export interface Role {
     name: string
@@ -31,10 +32,11 @@ export interface AppData {
 export interface CommonState {
     app: AppState
     pages: {
-        costEditor: CostEditorState,
-        costApproval: ApprovalCostElementsLayoutState,
-        ownCostApproval: OwnApprovalCostElementsLayoutState,
+        costEditor: CostEditorState
+        costApproval: ApprovalCostElementsLayoutState
+        ownCostApproval: OwnApprovalCostElementsLayoutState
         tableView: TableViewState
         costImport: CostImportState
+        projectCalculator: ProjectCalculatorState
     }
 }

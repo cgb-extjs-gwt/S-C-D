@@ -21,3 +21,5 @@ export const ADMIN = 'Admin';
 export const CALC_RESULT_HDD_SERVICE_COST_NOT_APPROVED = "CalcResultHddServiceCostNotApproved";
 
 export const CALC_RESULT_SOFTWARE_SERVICE_COST_NOT_APPROVED = "CalcResultSoftwareServiceCostNotApproved";
+
+export const PROJECT_CALCULATOR = 'ProjectCalculator';
