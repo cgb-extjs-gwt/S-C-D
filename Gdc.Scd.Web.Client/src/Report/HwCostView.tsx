@@ -1,4 +1,4 @@
-﻿import { Button, CheckColumn, Column, Container, Grid, NumberColumn, Panel, Toolbar } from "@extjs/ext-react";
+﻿import { Button, CheckColumn, Column, Container, Grid, NumberColumn, Panel, Toolbar, TextCell, NumberCell, GridCell } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
@@ -14,6 +14,7 @@ import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
+import { LinkColumn } from "./Components/LinkColumn";
 
 const SELECTED_FIELD = 'selected';
 
@@ -105,7 +106,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             { name: 'roLocalServiceStandardWarranty', calculate: readonly('LocalServiceStandardWarranty') },
             { name: 'roLocalServiceStandardWarrantyManual', calculate: readonly('LocalServiceStandardWarrantyManual') },
-            { name: 'roLocalServiceStandardWarrantyWithRisk', calculate: readonly('LocalServiceStandardWarrantyWithRisk')},
+            { name: 'roLocalServiceStandardWarrantyWithRisk', calculate: readonly('LocalServiceStandardWarrantyWithRisk') },
 
             { name: 'roCredits', calculate: readonly('Credits') },
             { name: 'roFieldServiceCost', calculate: readonly('FieldServiceCost') },
@@ -155,11 +156,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('calc', 'gethwcost')
+               // read: buildMvcUrl('calc', 'gethwcost')
+                read: 'http://localhost:11167/scd/Content/data.json'
             },
-            actionMethods: {
-                read: 'POST'
-            },
+            //actionMethods: {
+            //    read: 'POST'
+            //},
             reader: {
                 type: 'json',
                 rootProperty: 'items',
@@ -243,6 +245,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.init();
     }
 
+    public componentDidMount() {
+        document.querySelector('.data-calc').addEventListener('click', this.onMoreDetails);
+    }
+
     public render() {
         let canEditTC: boolean = false;
         let canEditListPrice: boolean = false;
@@ -289,7 +295,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         ...selectable
                     }}
                     shadow
-                    cls="grid-paging-no-count grid-small-head"
+                    cls="grid-paging-no-count grid-small-head data-calc"
                 >
 
                     { /*dependencies*/}
@@ -325,7 +331,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <NumberColumn text="Service TC (calc)" dataIndex="roServiceTC" />
+                        <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="view-tc"  />
                         <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
                         <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
@@ -410,6 +416,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     setExtensible = extensible => {
         this.setState({ extensible });
     };
+
+    private onMoreDetails = (e) => {
+        let target = e.target;
+        let action = target.getAttribute('data-action');
+        if (!action) {
+            return;
+        }
+        console.log('onMoreDetails', action);
+    }
+
     private onSelectionChange = (grid, records, selecting, selection) => {
         let message = '??',
             firstRowIndex,

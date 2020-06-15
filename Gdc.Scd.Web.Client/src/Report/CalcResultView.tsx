@@ -23,39 +23,7 @@ export class CalcResultView extends React.Component<CalcResultViewProps> {
                         <HwCostView approved={false} />
                     </Container>
 
-                    <Container title="Hardware<br>service costs<br>(approved)" layout="fit">
-                        <HwCostView approved={true} />
-                    </Container>
 
-                    {
-                        isVisibleHddNotApproved &&
-                        <Container title="Hdd retention<br>service costs" layout="fit">
-                            <HddCostView approved={false} />
-                        </Container>
-                    }
-
-                    <Container title="Hdd retention<br>service costs<br>(approved)" layout="fit">
-                        <HddCostView approved={true} />
-                    </Container>
-
-                    {
-                        isVisibleSwNotApproved &&
-                        <Container title="Software &amp; Solution<br>service costs" layout="fit" >
-                            <SwCostView approved={false} />
-                        </Container>
-                    }
-
-                    <Container title="Software &amp; Solution<br>service costs<br>(approved)" layout="fit">
-                        <SwCostView approved={true} />
-                    </Container>
-
-                    <Container title="Software &amp; Solution<br>proactive cost" layout="fit">
-                        <SwProactiveCostView approved={false} />
-                    </Container>
-
-                    <Container title="Software &amp; Solution<br>proactive cost<br>(approved)" layout="fit">
-                        <SwProactiveCostView approved={true} />
-                    </Container>
 
                 </TabPanel>
 
