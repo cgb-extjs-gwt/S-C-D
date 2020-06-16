@@ -23,6 +23,7 @@ export class LinkColumn extends React.Component<LinkColumnProps, any> {
 
     private renderer(value: any, row: any): string {
         let rnd = this.props.renderer || emptyRenderer;
-        return '<a class="lnk underline" data-action="' + this.props.dataAction + '" title="more details">' + rnd(value, row) + '</a>';
+        let title = this.props.linkTooltip || '';
+        return '<a class="lnk underline" data-rowid="'+ row.get('Id') +'" data-action="' + this.props.dataAction + '">' + rnd(value, row) + '</a>';
     }
 }
