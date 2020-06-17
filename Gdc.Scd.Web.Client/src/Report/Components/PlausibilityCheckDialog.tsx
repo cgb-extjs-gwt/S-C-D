@@ -1,27 +1,21 @@
-﻿import * as React from "react";
-import { Dialog, Container, Grid, Column, TextColumn, GridCell } from "@extjs/ext-react";
-import { emptyRenderer } from "./GridRenderer";
-import { getFromUri } from "../../Common/Services/Ajax";
+﻿import { Dialog } from "@extjs/ext-react";
+import * as React from "react";
+import { Accordion } from "../../Common/Components/Accordion";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { getFromUri } from "../../Common/Services/Ajax";
 
 export interface PlausibilityCheckProps {
 
 }
 
-function mandatoryRenderer(val, row) {
-    return val ? '<span class="red">*</span>' : ' ';
-}
-
 export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckProps, any> {
-
-    private grid: Grid & any;
 
     public state: any = {
         onlyMissing: false
     };
 
     public componentDidMount() {
-        let p = getFromUri('http://localhost:11167/scd/Content/fake/cost-block.json').then(x => this.setState({ data: x }));
+        let p = getFromUri('http://localhost:11167/scd/Content/fake/service-tc.json').then(x => this.setState({ data: x }));
         handleRequest(p);
     }
 
@@ -43,17 +37,28 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             width="75%"
             height="90%"
             title="Plausibility check"
+            scrollable={true}
         >
 
-
-            <div className="plausi-box">
+            <div className="plausi-box wide">
                 <div className="plausi-box-left">
                     <h1>{d.name}</h1>
-                    <h3>
-                        FSP:GA3S60Z00MES8B: Germany, ACD, 9x5, 4 years, no Reaction, Bring-In, 3 years STDW, no Proactive SLA
-                    </h3>
+                    <p>
+                        <span className="sla">
+                            {d.fsp}:&nbsp;
+                            {d.country},&nbsp;
+                            {d.wg},&nbsp;
+                            {d.availability},&nbsp;
+                            {d.duration},&nbsp;
+                            {d.reactionTime === 'none' && d.reactionType === 'none' ? 'no Reaction' : d.reactionTime + ' ' + d.reactionType},&nbsp;
+                            {d.serviceLocation},&nbsp;
+                            {d.stdWarranty} {d.stdWarranty > 1 ? 'years' : 'year'} STDW
+                        </span>
+                        <br />
+                        {d.proActiveSla === 'none' ? 'no Proactive SLA' : d.proActiveSla}
+                    </p>
                 </div>
-                <h3 className="plausi-box-right">1500 RUB(500 EUR)</h3>
+                <h1 className="plausi-box-right">{this.priceStr(d.value, d.exchangeRate, d.currency)}</h1>
             </div>
 
             <a className="lnk underline" onClick={this.onShowMissing}>
@@ -61,45 +66,110 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             </a>
             <br />
 
-            <table className="plausi-tbl">
-                <tr>
-                    <th></th>
-                    <th>Cost element</th>
-                    <th>Value</th>
-                    <th>Dependency</th>
-                    <th>Level</th>
-                </tr>
-            </table>
+            {this.renderBlocks(d.costBlocks)}
 
         </Dialog>;
+    }
 
-            //<Grid
-            //    ref={x => this.grid = x}
-            //    store={this.store}
-            //    width="100%"
-            //    height="100%"
-            //    columnLines={true}
-            //>
+    private renderBlocks = (items: Array<any>) => {
 
-            //    <Column text="&nbsp" dataIndex="mandatory" renderer={mandatoryRenderer}>
-            //        <GridCell encodeHtml={false} />
-            //    </Column>
-            //    <Column flex="1" text="Cost element" dataIndex="name" />
-            //    <Column flex="1" text="Value" dataIndex="value" renderer={emptyRenderer} />
-            //    <Column flex="1" text="Dependency" dataIndex="dependency" renderer={emptyRenderer} />
-            //    <Column flex="1" text="Level" dataIndex="level" />
+        if (!items) {
+            return null;
+        }
 
-            //</Grid>
+        if (items.length > 1) {
+            return items.map(this.renderBlock);
+        }
+
+        return this.renderElements(items[0].costElements);
+    }
+
+    private renderBlock = (d, i) => {
+
+        let cls = this.state.onlyMissing && d.value ? 'plausi-accordion hidden' : 'plausi-accordion';
+
+        if (!d.value) {
+            cls += ' missing';
+        }
+
+        let sdata = this.state.data;
+        let title = <div className="plausi-box">
+            <div className="plausi-box-left">{d.name}</div>
+            <div className="plausi-box-right plausi-box-right2">{this.priceStr(d.value, sdata.exchangeRate, sdata.currency)}</div>
+        </div>;
+
+        return <div className={cls} key={i}>
+            <Accordion title={title}>
+                {this.renderElements(d.costElements)}
+            </Accordion>
+        </div>
+    }
+
+    private renderElements = (elems: Array<any>) => {
+        if (elems) {
+            return <table className="plausi-tbl">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th className="w40">Cost element</th>
+                        <th className="w20">Value</th>
+                        <th className="w20">Dependency</th>
+                        <th>Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {elems.map(this.renderElementRow)}
+                </tbody>
+            </table>;
+        }
+    }
+
+    private renderElementRow = (d, i) => {
+
+        let cls;
+
+        if (this.state.onlyMissing && d.value) {
+            cls = 'hidden';
+        }
+
+        if (d.mandatory && !d.value) {
+            cls = 'missing';
+        }
+
+        let mandatory;
+        if (d.mandatory) {
+            mandatory = '*';
+        }
+
+        return <tr key={i} className={cls}>
+            <td>{mandatory}</td>
+            <td>{d.name}</td>
+            <td>{d.value}</td>
+            <td>{d.dependency}</td>
+            <td>{d.level}</td>
+        </tr>;
     }
 
     private onShowMissing = () => {
         let missing = !this.state.onlyMissing;
         this.setState({ onlyMissing: missing });
-        //
-        //this.store.clearFilter();
-        //if (missing) {
-        //    this.store.filterBy(x => x.data.value === null || x.data.value === undefined);
-        //}
     }
 
+    private priceStr(value, exchangeRate, currency): string {
+        let result: string;
+        if (value) {
+            result = this.asMoney((value / exchangeRate), currency);
+            if (currency !== 'EUR') {
+                result += '(' + this.asMoney(value, 'EUR') + ')';
+            }
+        }
+        else {
+            result = 'N/A';
+        }
+        return result;
+    }
+
+    private asMoney(value: number, cur: string): string {
+        return typeof value === 'number' ? Ext.util.Format.number(value, '0.00') + ' ' + cur : '';
+    }
 }
