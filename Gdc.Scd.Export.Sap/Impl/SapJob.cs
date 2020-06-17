@@ -8,6 +8,7 @@ namespace Gdc.Scd.Export.Sap.Impl
     public class SapJob : IJob
     {
         private readonly IManualCostExportService manualCostExportService;
+        public const string JobName = "SapJob";
 
         public SapJob()
         {
