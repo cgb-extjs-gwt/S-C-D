@@ -10,25 +10,22 @@ export interface PlausibilityCheckProps {
 
 export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckProps, any> {
 
+    private wnd: Dialog & any;
+
     public state: any = {
         onlyMissing: false
     };
 
-    public componentDidMount() {
-        let p = getFromUri('http://localhost:11167/scd/Content/fake/service-tc.json').then(x => this.setState({ data: x }));
+    public show(id: number) {
+        let p = getFromUri('http://localhost:11167/scd/Content/fake/service-tc.json').then(this.onLoad);
         handleRequest(p);
     }
 
     public render() {
-
         let d = this.state.data;
-
-        if (!d) {
-            return null;
-        }
-
         return <Dialog
-            displayed={true}
+            ref={this.wndRef}
+            displayed={false}
             closable
             closeAction="hide"
             draggable={false}
@@ -39,7 +36,21 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             title="Plausibility check"
             scrollable={true}
         >
+            {d && this.renderBody(d)}
+        </Dialog>;
+    }
 
+    private wndRef = x => {
+        this.wnd = x;
+    }
+
+    private onLoad = (x) => {
+        this.setState({ data: x });
+        this.wnd.show();
+    }
+
+    private renderBody(d) {
+        return <div>
             <h1 className="plausi-box wide">
                 <span className="plausi-box-left">{d.name}</span>
                 <span className="plausi-box-right no-wrap">{this.priceStr(d.value, d.exchangeRate, d.currency)}</span>
@@ -70,8 +81,7 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             <br />
 
             {this.renderBlocks(d.costBlocks)}
-
-        </Dialog>;
+        </div>;
     }
 
     private renderBlocks = (items: Array<any>) => {

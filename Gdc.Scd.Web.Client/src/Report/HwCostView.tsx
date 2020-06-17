@@ -29,6 +29,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private filter: HwCostFilter;
 
+    private plausiWnd: PlausibilityCheckDialog;
+
     private currency: string;
 
     private exchangeRate: number;
@@ -157,7 +159,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-               // read: buildMvcUrl('calc', 'gethwcost')
+                // read: buildMvcUrl('calc', 'gethwcost')
                 read: 'http://localhost:11167/scd/Content/fake/data.json'
             },
             //actionMethods: {
@@ -268,139 +270,136 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             moneyRndr = this.euroMoneyRenderer;
         }
 
-        return (
-            <Container layout="fit">
+        return <Container layout="fit">
 
-                <Panel {...this.props} docked="right" scrollable={true} >
-                    <HwCostFilter
-                        ref={this.filterRef}
-                        onChange={this.onFilterChange}
-                        checkAccess={!this.props.approved} />
+            <Panel {...this.props} docked="right" scrollable={true} >
+                <HwCostFilter
+                    ref={this.filterRef}
+                    onChange={this.onFilterChange}
+                    checkAccess={!this.props.approved} />
 
-                    <HwReleasePanel
-                        onRelease={this.releaseSelected}
-                        onReleaseAll={this.releaseAll}
-                        checkAccess={!this.props.approved}
-                        hidden={this.state.hideReleaseButton}
-                        disabled={!this.state.disableSaveButton} />
-                </Panel>
+                <HwReleasePanel
+                    onRelease={this.releaseSelected}
+                    onReleaseAll={this.releaseAll}
+                    checkAccess={!this.props.approved}
+                    hidden={this.state.hideReleaseButton}
+                    disabled={!this.state.disableSaveButton} />
+            </Panel>
 
-                <Grid
-                    ref={this.gridRef}
-                    store={this.store}
-                    width="100%"
-                    platformConfig={this.pluginCfg}
-                    onSelectionChange={this.onSelectionChange}
-                    selectable={{
-                        extensible,
-                        ...selectable
-                    }}
-                    shadow
-                    cls="grid-paging-no-count grid-small-head data-calc"
-                >
+            <Grid
+                ref={this.gridRef}
+                store={this.store}
+                width="100%"
+                platformConfig={this.pluginCfg}
+                onSelectionChange={this.onSelectionChange}
+                selectable={{
+                    extensible,
+                    ...selectable
+                }}
+                shadow
+                cls="grid-paging-no-count grid-small-head data-calc"
+            >
 
-                    { /*dependencies*/}
+                { /*dependencies*/}
 
-                    <Column
-                        isHeaderGroup={true}
-                        text="Dependencies"
-                        dataIndex=""
-                        cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
+                <Column
+                    isHeaderGroup={true}
+                    text="Dependencies"
+                    dataIndex=""
+                    cls="calc-cost-result-green"
+                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} width="50" hidden={!this.approved()} />
-                        <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer} minWidth="180" />
-                        <Column text="SOG" width="50" dataIndex="roSog" renderer={emptyRenderer} />
-                        <Column text="WG" width="50" dataIndex="roWg" />
-                        <Column text="Avail." width="50" dataIndex="roAvailability" />
-                        <Column text="Duration" dataIndex="roDuration" />
-                        <Column text="Reaction type" maxWidth="85" dataIndex="roReactionType" />
-                        <Column text="Reaction time" maxWidth="85" dataIndex="roReactionTime" />
-                        <Column text="Service location" dataIndex="ServiceLocation" renderer={locationRenderer} />
-                        <Column text="ProActive SLA" dataIndex="roProActiveSla" />
-                        <Column text="STDW duration" dataIndex="roStdWarranty" renderer={yearRenderer} />
-                        <Column text="STDW Service Location" dataIndex="roStdWarrantyLocation" renderer={locationRenderer} />
+                    <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} width="50" hidden={!this.approved()} />
+                    <Column text="FSP code" dataIndex="roFsp" renderer={stringRenderer} minWidth="180" />
+                    <Column text="SOG" width="50" dataIndex="roSog" renderer={emptyRenderer} />
+                    <Column text="WG" width="50" dataIndex="roWg" />
+                    <Column text="Avail." width="50" dataIndex="roAvailability" />
+                    <Column text="Duration" dataIndex="roDuration" />
+                    <Column text="Reaction type" maxWidth="85" dataIndex="roReactionType" />
+                    <Column text="Reaction time" maxWidth="85" dataIndex="roReactionTime" />
+                    <Column text="Service location" dataIndex="ServiceLocation" renderer={locationRenderer} />
+                    <Column text="ProActive SLA" dataIndex="roProActiveSla" />
+                    <Column text="STDW duration" dataIndex="roStdWarranty" renderer={yearRenderer} />
+                    <Column text="STDW Service Location" dataIndex="roStdWarrantyLocation" renderer={locationRenderer} />
 
-                    </Column>
+                </Column>
 
-                    { /*Resulting costs*/}
+                { /*Resulting costs*/}
 
-                    <Column
-                        isHeaderGroup={true}
-                        text="Final results"
-                        dataIndex=""
-                        cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                <Column
+                    isHeaderGroup={true}
+                    text="Final results"
+                    dataIndex=""
+                    cls="calc-cost-result-yellow"
+                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="view-tc" linkTooltip="more details" />
-                        <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
+                    <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="view-tc" linkTooltip="more details" />
+                    <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
-                        <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
-                        <NumberColumn text="Service TP (manual)" dataIndex="roServiceTPManual" />
-                        <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
+                    <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
+                    <NumberColumn text="Service TP (manual)" dataIndex="roServiceTPManual" />
+                    <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
 
-                        <NumberColumn text="Local STDW (TP) external" dataIndex="roLocalServiceStandardWarrantyWithRisk" />
+                    <NumberColumn text="Local STDW (TP) external" dataIndex="roLocalServiceStandardWarrantyWithRisk" />
 
-                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
-                        <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
+                    <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
+                    <NumberColumn text="Dealer discount %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
+                    <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
-                        <Column text="Change user" minWidth="60" maxWidth="90" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
-                        <Column text="Change date" dataIndex="roChangeDate" renderer={ddMMyyyyRenderer} />
+                    <Column text="Change user" minWidth="60" maxWidth="90" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                    <Column text="Change date" dataIndex="roChangeDate" renderer={ddMMyyyyRenderer} />
 
-                        <Column text="Release user" minWidth="60" maxWidth="90" dataIndex="ReleaseUserCalc" renderer={emptyRenderer} />
-                        <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
+                    <Column text="Release user" minWidth="60" maxWidth="90" dataIndex="ReleaseUserCalc" renderer={emptyRenderer} />
+                    <Column text="Release date" dataIndex="roReleaseDate" renderer={ddMMyyyyRenderer} />
 
-                    </Column>
+                </Column>
 
-                    <Column
-                        isHeaderGroup={true}
-                        text="Intermediate calculation results"
-                        dataIndex=""
-                        cls="calc-cost-result-brown"
-                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                <Column
+                    isHeaderGroup={true}
+                    text="Intermediate calculation results"
+                    dataIndex=""
+                    cls="calc-cost-result-brown"
+                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
-                        <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
-                        <NumberColumn text="Credits" dataIndex="roCredits" />
-                        <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
-                        <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
-                        <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} />
-                        <NumberColumn text="ProActive (calc)" dataIndex="roProActive" />
+                    <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
+                    <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
+                    <NumberColumn text="Credits" dataIndex="roCredits" />
+                    <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
+                    <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
+                    <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} />
+                    <NumberColumn text="ProActive (calc)" dataIndex="roProActive" />
 
-                    </Column>
+                </Column>
 
-                    {/*cost block results*/}
+                {/*cost block results*/}
 
-                    <Column
-                        isHeaderGroup={true}
-                        text="Cost block results"
-                        dataIndex=""
-                        cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                <Column
+                    isHeaderGroup={true}
+                    text="Cost block results"
+                    dataIndex=""
+                    cls="calc-cost-result-blue"
+                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
-                        <NumberColumn text="Service support cost" dataIndex="roServiceSupportCost" />
-                        <NumberColumn text="Logistic cost" dataIndex="roLogistic" />
-                        <NumberColumn text="Avail. fee" dataIndex="roAvailabilityFee" />
-                        <NumberColumn text="Reinsurance" dataIndex="roReinsurance" />
-                        <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
-                        <NumberColumn text="Material cost iW period" dataIndex="roMaterialW" />
-                        <NumberColumn text="Material cost OOW period" dataIndex="roMaterialOow" />
+                    <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
+                    <NumberColumn text="Service support cost" dataIndex="roServiceSupportCost" />
+                    <NumberColumn text="Logistic cost" dataIndex="roLogistic" />
+                    <NumberColumn text="Avail. fee" dataIndex="roAvailabilityFee" />
+                    <NumberColumn text="Reinsurance" dataIndex="roReinsurance" />
+                    <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
+                    <NumberColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" />
+                    <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
+                    <NumberColumn text="Material cost iW period" dataIndex="roMaterialW" />
+                    <NumberColumn text="Material cost OOW period" dataIndex="roMaterialOow" />
 
-                    </Column>
+                </Column>
 
-                </Grid>
+            </Grid>
 
-                {this.toolbar()}
+            {this.toolbar()}
 
+            <PlausibilityCheckDialog ref={this.plausiWndRef} />
 
-                <PlausibilityCheckDialog />
-
-            </Container>
-        );
+        </Container>
     }
 
     private filterRef = (x) => {
@@ -409,6 +408,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private gridRef = (x) => {
         this.grid = x;
+    }
+
+    private plausiWndRef = (x) => {
+        this.plausiWnd = x;
     }
 
     toggleSelectable = field => {
@@ -429,6 +432,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
         let rowID = target.getAttribute('data-rowid');
         console.log('onMoreDetails', action, rowID);
+
+        this.plausiWnd.show(rowID);
     }
 
     private onSelectionChange = (grid, records, selecting, selection) => {
