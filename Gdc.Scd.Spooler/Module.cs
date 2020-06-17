@@ -58,6 +58,9 @@ namespace Gdc.Scd.Spooler
 
             if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(SfabJob.JobName))
                 Bind<IJob>().To<SfabJob>().InSingletonScope();
+
+            if (!Config.RunOnlyJobs.Any() || Config.RunOnlyJobs.Contains(SapJob.JobName))
+                Bind<IJob>().To<SapJob>().InSingletonScope();
         }
     }
 }
