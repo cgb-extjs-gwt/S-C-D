@@ -40,10 +40,10 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             scrollable={true}
         >
 
-            <div className="plausi-box wide">
-                <h1 className="plausi-box-left">{d.name}</h1>
-                <h1 className="plausi-box-right no-wrap">{this.priceStr(d.value, d.exchangeRate, d.currency)}</h1>
-            </div>
+            <h1 className="plausi-box wide">
+                <span className="plausi-box-left">{d.name}</span>
+                <span className="plausi-box-right no-wrap">{this.priceStr(d.value, d.exchangeRate, d.currency)}</span>
+            </h1>
 
             <div className="plausi-box wide">
                 <div className="plausi-box-left">
