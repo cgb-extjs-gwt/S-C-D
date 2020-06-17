@@ -65,6 +65,10 @@
     display: none;
 }
 
+.no-wrap {
+    white-space: nowrap;
+}
+
 .w10 {
     width: 10%;
 }
@@ -327,21 +331,17 @@
     display: flex;
 }
 
-.plausi-box.wide {
-    padding: 10px 0;
-}
-
 .plausi-box-left {
     flex: 3;
 }
 
-.plausi-box.wide .plausi-box-left {
-    padding-right: 15px;
+.plausi-box.wide {
     padding-left: 15px;
 }
 
 .plausi-box-left p {
     font-size: 14px;
+    margin-top: 0;
 }
 
 .plausi-box-left .sla {

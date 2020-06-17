@@ -41,8 +41,12 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
         >
 
             <div className="plausi-box wide">
+                <h1 className="plausi-box-left">{d.name}</h1>
+                <h1 className="plausi-box-right no-wrap">{this.priceStr(d.value, d.exchangeRate, d.currency)}</h1>
+            </div>
+
+            <div className="plausi-box wide">
                 <div className="plausi-box-left">
-                    <h1>{d.name}</h1>
                     <p>
                         <span className="sla">
                             {d.fsp}:&nbsp;
@@ -58,7 +62,6 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
                         {d.proActiveSla === 'none' ? 'no Proactive SLA' : d.proActiveSla}
                     </p>
                 </div>
-                <h1 className="plausi-box-right">{this.priceStr(d.value, d.exchangeRate, d.currency)}</h1>
             </div>
 
             <a className="lnk underline" onClick={this.onShowMissing}>
@@ -160,7 +163,7 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
         if (value) {
             result = this.asMoney((value / exchangeRate), currency);
             if (currency !== 'EUR') {
-                result += '(' + this.asMoney(value, 'EUR') + ')';
+                result += ' (' + this.asMoney(value, 'EUR') + ')';
             }
         }
         else {
