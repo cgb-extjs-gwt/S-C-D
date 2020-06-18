@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Export.Sap.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Export.Sap.Interfaces;
 using Gdc.Scd.Spooler.Core.Entities;
 using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
@@ -13,7 +14,6 @@ namespace Gdc.Scd.Export.Sap.Impl
         public SapJob()
         {
             var kernel = Module.CreateKernel();
-
             this.manualCostExportService = kernel.Get<IManualCostExportService>();
         }
 
