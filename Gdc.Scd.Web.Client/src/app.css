@@ -389,6 +389,10 @@
     background: #c11414;
 }
 
+.plausi-accordion .accordion {
+    padding: 10px 12px;
+}
+
 @media (min-width: 700px) {
     .portfolio-edit-container > div {
         width: 50%;

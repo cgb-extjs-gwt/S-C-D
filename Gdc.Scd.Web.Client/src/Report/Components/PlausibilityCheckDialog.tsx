@@ -13,16 +13,18 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
     private wnd: Dialog & any;
 
     public state: any = {
-        onlyMissing: false
+        onlyMissing: false,
+        model: null
     };
 
     public show(id: number) {
+        this.setModel(null);
         let p = getFromUri('http://localhost:11167/scd/Content/fake/service-tc.json').then(this.onLoad);
         handleRequest(p);
     }
 
     public render() {
-        let d = this.state.data;
+        let m = this.state.model;
         return <Dialog
             ref={this.wndRef}
             displayed={false}
@@ -36,7 +38,7 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             title="Plausibility check"
             scrollable={true}
         >
-            {d && this.renderBody(d)}
+            {m && this.renderBody(m)}
         </Dialog>;
     }
 
@@ -44,8 +46,12 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
         this.wnd = x;
     }
 
+    private setModel(m) {
+        this.setState({ onlyMissing: false, model: m });
+    }
+
     private onLoad = (x) => {
-        this.setState({ data: x });
+        this.setModel(x);
         this.wnd.show();
     }
 
@@ -105,10 +111,10 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
             cls += ' missing';
         }
 
-        let sdata = this.state.data;
+        let smodel = this.state.model;
         let title = <div className="plausi-box">
             <div className="plausi-box-left">{d.name}</div>
-            <div className="plausi-box-right plausi-box-right2">{this.priceStr(d.value, sdata.exchangeRate, sdata.currency)}</div>
+            <div className="plausi-box-right plausi-box-right2">{this.priceStr(d.value, smodel.exchangeRate, smodel.currency)}</div>
         </div>;
 
         return <div className={cls} key={i}>
