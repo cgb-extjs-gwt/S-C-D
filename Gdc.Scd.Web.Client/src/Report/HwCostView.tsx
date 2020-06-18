@@ -333,10 +333,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     cls="calc-cost-result-yellow"
                     defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                    <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="view-tc" />
+                    <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="tc" />
                     <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
-                    <LinkColumn text="Service TP (calc)" dataIndex="roServiceTP" renderer={moneyRndr} dataAction="view-tp" />
+                    <LinkColumn text="Service TP (calc)" dataIndex="roServiceTP" renderer={moneyRndr} dataAction="tp" />
                     <NumberColumn text="Service TP (manual)" dataIndex="roServiceTPManual" />
                     <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
 
@@ -361,13 +361,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     cls="calc-cost-result-brown"
                     defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                    <LinkColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" renderer={moneyRndr} dataAction="view-stdw" />
+                    <LinkColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" renderer={moneyRndr} dataAction="stdw" />
                     <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} renderer={moneyRndr} />
-                    <LinkColumn text="Credits" dataIndex="roCredits" renderer={moneyRndr} dataAction="view-credit" />
-                    <LinkColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" renderer={moneyRndr} dataAction="view-reactive-tc" />
-                    <LinkColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" renderer={moneyRndr} dataAction="view-reactive-tp" />
+                    <LinkColumn text="Credits" dataIndex="roCredits" renderer={moneyRndr} dataAction="credit" />
+                    <LinkColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" renderer={moneyRndr} dataAction="reactive-tc" />
+                    <LinkColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" renderer={moneyRndr} dataAction="reactive-tp" />
                     <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} renderer={moneyRndr} />
-                    <LinkColumn text="ProActive (calc)" dataIndex="roProActive" renderer={moneyRndr} dataAction="view-proactive" />
+                    <LinkColumn text="ProActive (calc)" dataIndex="roProActive" renderer={moneyRndr} dataAction="proactive" />
 
                 </Column>
 
@@ -380,16 +380,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     cls="calc-cost-result-blue"
                     defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                    <LinkColumn text="Field service cost" dataIndex="roFieldServiceCost" renderer={moneyRndr} dataAction="view-field-service" />
-                    <LinkColumn text="Service support cost" dataIndex="roServiceSupportCost" renderer={moneyRndr} dataAction="view-service-support" />
-                    <LinkColumn text="Logistic cost" dataIndex="roLogistic" renderer={moneyRndr} dataAction="view-logistic" />
-                    <LinkColumn text="Avail. fee" dataIndex="roAvailabilityFee" renderer={moneyRndr} dataAction="view-availability-fee" />
-                    <LinkColumn text="Reinsurance" dataIndex="roReinsurance" renderer={moneyRndr} dataAction="view-reinsurance" />
-                    <LinkColumn text="Other direct cost" dataIndex="roOtherDirect" renderer={moneyRndr} dataAction="view-other" />
-                    <LinkColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" renderer={moneyRndr} dataAction="view-tax" />
-                    <LinkColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" renderer={moneyRndr} dataAction="view-tax-oow" />
-                    <LinkColumn text="Material cost iW period" dataIndex="roMaterialW" renderer={moneyRndr} dataAction="view-material" />
-                    <LinkColumn text="Material cost OOW period" dataIndex="roMaterialOow" renderer={moneyRndr} dataAction="view-material-oow" />
+                    <LinkColumn text="Field service cost" dataIndex="roFieldServiceCost" renderer={moneyRndr} dataAction="field-service" />
+                    <LinkColumn text="Service support cost" dataIndex="roServiceSupportCost" renderer={moneyRndr} dataAction="service-support" />
+                    <LinkColumn text="Logistic cost" dataIndex="roLogistic" renderer={moneyRndr} dataAction="logistic" />
+                    <LinkColumn text="Avail. fee" dataIndex="roAvailabilityFee" renderer={moneyRndr} dataAction="availability-fee" />
+                    <LinkColumn text="Reinsurance" dataIndex="roReinsurance" renderer={moneyRndr} dataAction="reinsurance" />
+                    <LinkColumn text="Other direct cost" dataIndex="roOtherDirect" renderer={moneyRndr} dataAction="other" />
+                    <LinkColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" renderer={moneyRndr} dataAction="tax" />
+                    <LinkColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" renderer={moneyRndr} dataAction="tax-oow" />
+                    <LinkColumn text="Material cost iW period" dataIndex="roMaterialW" renderer={moneyRndr} dataAction="material" />
+                    <LinkColumn text="Material cost OOW period" dataIndex="roMaterialOow" renderer={moneyRndr} dataAction="material-oow" />
 
                 </Column>
 
@@ -431,9 +431,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             return;
         }
         let rowID = target.getAttribute('data-rowid');
-        console.log('onMoreDetails', action, rowID);
-
-        this.plausiWnd.show(rowID);
+        if (rowID) {
+            this.plausiWnd.show(rowID, action);
+        }
     }
 
     private onSelectionChange = (grid, records, selecting, selection) => {

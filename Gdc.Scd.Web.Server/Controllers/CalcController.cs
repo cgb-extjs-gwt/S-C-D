@@ -154,6 +154,13 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.NotFoundContentAsync();
         }
 
+        [HttpGet]
+        public object Details(long id, string what)
+        {
+            var fn = System.Web.HttpContext.Current.Server.MapPath("~/Content/fake/service-tc.json");
+            return this.JsonContent(System.IO.File.ReadAllText(fn));
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;

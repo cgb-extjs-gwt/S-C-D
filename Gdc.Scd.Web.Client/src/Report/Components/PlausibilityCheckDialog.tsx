@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Accordion } from "../../Common/Components/Accordion";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
-import { getFromUri } from "../../Common/Services/Ajax";
+import { get } from "../../Common/Services/Ajax";
 
 export interface PlausibilityCheckProps {
 
@@ -17,9 +17,9 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
         model: null
     };
 
-    public show(id: number) {
+    public show(id: number, what: string) {
         this.setModel(null);
-        let p = getFromUri('http://localhost:11167/scd/Content/fake/service-tc.json').then(this.onLoad);
+        let p = get('calc', 'details', { id, what }).then(this.onLoad);
         handleRequest(p);
     }
 
