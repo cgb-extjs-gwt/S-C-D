@@ -59,7 +59,7 @@ namespace Gdc.Scd.Export.Sap.Enitities
         {
             get
             {
-                var val =  PriceDb.ToString("N2");
+                var val =  PriceDb.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
 
                 if (val.Length < 14)
                 {
