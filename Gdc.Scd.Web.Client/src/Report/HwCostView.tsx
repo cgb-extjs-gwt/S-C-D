@@ -361,13 +361,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     cls="calc-cost-result-brown"
                     defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                    <LinkColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" renderer={moneyRndr} />
+                    <LinkColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" renderer={moneyRndr} dataAction="view-stdw" />
                     <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} renderer={moneyRndr} />
-                    <LinkColumn text="Credits" dataIndex="roCredits" renderer={moneyRndr} />
-                    <LinkColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" renderer={moneyRndr} />
-                    <LinkColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" renderer={moneyRndr} />
+                    <LinkColumn text="Credits" dataIndex="roCredits" renderer={moneyRndr} dataAction="view-credit" />
+                    <LinkColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" renderer={moneyRndr} dataAction="view-reactive-tc" />
+                    <LinkColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" renderer={moneyRndr} dataAction="view-reactive-tp" />
                     <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} renderer={moneyRndr} />
-                    <LinkColumn text="ProActive (calc)" dataIndex="roProActive" renderer={moneyRndr} />
+                    <LinkColumn text="ProActive (calc)" dataIndex="roProActive" renderer={moneyRndr} dataAction="view-proactive" />
 
                 </Column>
 
@@ -380,16 +380,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     cls="calc-cost-result-blue"
                     defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                    <LinkColumn text="Field service cost" dataIndex="roFieldServiceCost" renderer={moneyRndr} />
-                    <LinkColumn text="Service support cost" dataIndex="roServiceSupportCost" renderer={moneyRndr} />
-                    <LinkColumn text="Logistic cost" dataIndex="roLogistic" renderer={moneyRndr} />
-                    <LinkColumn text="Avail. fee" dataIndex="roAvailabilityFee" renderer={moneyRndr} />
-                    <LinkColumn text="Reinsurance" dataIndex="roReinsurance" renderer={moneyRndr} />
-                    <LinkColumn text="Other direct cost" dataIndex="roOtherDirect" renderer={moneyRndr} />
-                    <LinkColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" renderer={moneyRndr} />
-                    <LinkColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" renderer={moneyRndr} />
-                    <LinkColumn text="Material cost iW period" dataIndex="roMaterialW" renderer={moneyRndr} />
-                    <LinkColumn text="Material cost OOW period" dataIndex="roMaterialOow" renderer={moneyRndr} />
+                    <LinkColumn text="Field service cost" dataIndex="roFieldServiceCost" renderer={moneyRndr} dataAction="view-field-service" />
+                    <LinkColumn text="Service support cost" dataIndex="roServiceSupportCost" renderer={moneyRndr} dataAction="view-service-support" />
+                    <LinkColumn text="Logistic cost" dataIndex="roLogistic" renderer={moneyRndr} dataAction="view-logistic" />
+                    <LinkColumn text="Avail. fee" dataIndex="roAvailabilityFee" renderer={moneyRndr} dataAction="view-availability-fee" />
+                    <LinkColumn text="Reinsurance" dataIndex="roReinsurance" renderer={moneyRndr} dataAction="view-reinsurance" />
+                    <LinkColumn text="Other direct cost" dataIndex="roOtherDirect" renderer={moneyRndr} dataAction="view-other" />
+                    <LinkColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" renderer={moneyRndr} dataAction="view-tax" />
+                    <LinkColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" renderer={moneyRndr} dataAction="view-tax-oow" />
+                    <LinkColumn text="Material cost iW period" dataIndex="roMaterialW" renderer={moneyRndr} dataAction="view-material" />
+                    <LinkColumn text="Material cost OOW period" dataIndex="roMaterialOow" renderer={moneyRndr} dataAction="view-material-oow" />
 
                 </Column>
 
