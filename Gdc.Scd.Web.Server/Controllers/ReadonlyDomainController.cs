@@ -31,7 +31,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             return this.ctrl.GetBy(start, limit, sort, filter);
         }
 
-        public virtual Task<T> Get(long id)
+        public virtual T Get(long id)
         {
             return this.ctrl.Get(id);
         }

@@ -353,10 +353,24 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
   }
 
   private getReferenceEditorOptions(column: ColumnInfo) {
-    const options = Array.from(column.referenceItems.values()).map(item => ({
+    let options = Array.from(column.referenceItems.values()).map(item => ({
       text: item.name,
       value: item.id
     }));
+
+    options = options.sort((item1, item2) => {
+      let result = 0
+
+      if (item1.text < item2.text){
+        result = -1;
+      }
+
+      if (item1.text > item2.text){
+        result = 1;
+      }
+
+      return result;
+    })
 
     return [
       { text: '(none)', value: undefined },

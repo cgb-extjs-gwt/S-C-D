@@ -23,10 +23,6 @@ export interface ProjectListProps extends ProjectListActions {
     selectedProject: Project
 }
 
-// export interface ProjectListState {
-//     selectedItem: Model<Project>
-// }
-
 export class ProjectList extends React.PureComponent<ProjectListProps> {
     private store: Store<Project>
     private selectable = { mode: 'single' }
@@ -35,18 +31,16 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
         super(prop)
 
         this.store = this.createStore(prop.url)
-        // this.state = {
-        //     selectedItem: null
-        // }
     }
 
     public render() {
+        const disabled = !this.props.selectedProject;
+
         return (
-            <Grid 
+            <Grid  
                 store={this.store} 
                 selectable={this.selectable} 
                 onSelect={this.onSelect} 
-                onDeselect={this.onDeselect}
                 masked={{ xtype: "loadmask" }}
                 emptyText="No projects is available..."
                 columnLines={true} 
@@ -59,8 +53,8 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
 
                 <Toolbar layout="hbox" docked="top">
                     <Button text="Add" handler={this.onAdd} flex={1}/>
-                    <Button text="Edit" handler={this.onEdit} flex={1}/>
-                    <Button text="Delete" handler={this.onDelete} flex={1}/>
+                    <Button text="Edit" handler={this.onEdit} flex={1} disabled={disabled}/>
+                    <Button text="Delete" handler={this.onDelete} flex={1} disabled={disabled}/>
                 </Toolbar>  
             </Grid>
         )
@@ -98,18 +92,10 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
         return user && user.name
     }
 
-    // private onSelect = (grid, selecteItems: Model<Project>[]) => {
-    //     this.setState({ selectedItem: selecteItems[0] })
-    // }
-
-    // private onDeselect = (grid, selecteItems: Model<Project>[]) => {
-    //     this.setState({ selectedItem: null })
-    // }
-
-    private onSelect = (grid, selectedItems: Model<Project>[]) => {
+    private onSelect = (grid, selectedItem: Model<Project>) => {
         const { onSelectProject } = this.props;
 
-        onSelectProject && onSelectProject(selectedItems[0].data)
+        onSelectProject && onSelectProject(selectedItem.data)
     }
 
     private onAdd = () => {
@@ -125,8 +111,16 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
     }
 
     private onDelete = () => {
-        const { onDelete, selectedProject } = this.props;
+        Ext.Msg.confirm(
+            'Delete Project', 
+            'Do you want to delete the project?',
+            (buttonId: string) => {
+                if (buttonId == 'yes') {
+                    const { onDelete, selectedProject } = this.props;
 
-        onDelete && onDelete(this.store, selectedProject)
+                    onDelete && onDelete(this.store, selectedProject)
+                }
+            }
+        );
     }
 }

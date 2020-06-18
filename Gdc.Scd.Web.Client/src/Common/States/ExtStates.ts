@@ -24,6 +24,7 @@ export interface Store<T=any> {
     getProxy()
     reload()
     getModifiedRecords(): Model<T>[]
+    getData(): Model<T>[]
     commitChanges()
     rejectChanges()
     on(eventName: string, fn: Function, scope)

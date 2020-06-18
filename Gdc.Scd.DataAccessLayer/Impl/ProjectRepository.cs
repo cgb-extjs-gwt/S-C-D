@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +15,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             : base(repositorySet)
         {
             this.projectItemRepository = repositorySet.GetRepository<ProjectItem>();
+        }
+
+        public override Project Get(long id)
+        {
+            return
+                base.GetAll()
+                    .Where(project => project.Id == id)
+                    .Include(project => project.User)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.Availability)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.ReactionTime)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.Duration)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.FieldServiceCost)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.Reinsurance)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.MarkupOtherCosts)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.LogisticsCosts)
+                    .Include(project => project.ProjectItems).ThenInclude(projectItem => projectItem.AvailabilityFee)
+                    .FirstOrDefault();
         }
 
         public IQueryable<ProjectItem> GetProjectItems(long projectId)

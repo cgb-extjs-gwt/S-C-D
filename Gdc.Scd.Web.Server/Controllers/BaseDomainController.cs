@@ -46,9 +46,9 @@ namespace Gdc.Scd.Web.Server.Controllers
             };
         }
 
-        public virtual Task<T> Get(long id)
+        public virtual T Get(long id)
         {
-            return this.domainService.GetAll().Where(x => x.Id == id).GetFirstOrDefaultAsync();
+            return this.domainService.Get(id);
         }
 
         [HttpPost]

@@ -22,12 +22,13 @@ import { ReportListViewContainer } from "../../Report/ReportListViewContainer";
 import { PortfolioPivotGrid } from "../../PortfolioPivotGrid/Components/PortfolioPivotGrid";
 import { ImportFromExcelContainer } from "../../TableView/Components/ImportFromExcelContainer";
 import { ProjectListContainer } from "../../ProjectCalculator/Components/ProjectListContainer";
+import { ProjectEditorContainder } from "../../ProjectCalculator/Components/ProjectEditorContainder";
 
 export const Paths = {
     tableView: '/table-view',
     tableViewImport: '/table-view-import',
     projectCalculatorList: '/project-calculator/list',
-    projectCalculatorEdit: '/project-calculator/edit:id'
+    projectCalculatorEdit: '/project-calculator/edit'
 }
 
 interface RouteMenuItem extends RouteItem {
@@ -57,6 +58,7 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
     { path: Paths.projectCalculatorList, text: 'Project Calculator', iconCls: 'x-fa fa-laptop', component: ProjectListContainer, isMenuItem: true, permission: Permissions.PROJECT_CALCULATOR },
+    { path: `${Paths.projectCalculatorEdit}/:id`, text: 'Edit Project', component: ProjectEditorContainder, permission: Permissions.PROJECT_CALCULATOR, exact: true },
     {
         path: '/admin', 
         text: 'Admin', 

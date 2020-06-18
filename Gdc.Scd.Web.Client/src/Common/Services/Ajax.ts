@@ -73,8 +73,14 @@ export const buildMvcUrl = (controller: string, action: string, params?: { [key:
     return url;
 }   
 
-export const buildComponentUrl = (componentPath: string) => {
+export const buildComponentUrl = (componentPath: string, params?: { [key: string]: any }) => {
     let url = `${APP_URL}${componentPath}`;
+
+    if (params) {
+        const urlParams = Ext.urlEncode(params, true);
+
+        url = Ext.urlAppend(url, urlParams);
+    }
 
     return url;
 }   

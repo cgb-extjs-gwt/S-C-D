@@ -12,13 +12,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class ProjectService : DomainService<Project>, IProjectService
     {
-        private const int MinutesInHour = 60;
-        private const int MinutesInDay = MinutesInHour * 24;
-        private const int MinutesInWeek = MinutesInDay * 7;
-        private const int MinutesInMonth = MinutesInDay * 30;
-        private const int MinutesInYear = MinutesInMonth * 12;
-
-        private static readonly PeriodNameBuilder periodNameBuilder = new PeriodNameBuilder();
+        private static readonly PeriodConverter periodConverter = new PeriodConverter();
         private static readonly PeriodService periodService = new PeriodService();
 
         private readonly IProjectRepository projectRepository;
@@ -36,7 +30,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IDomainService<Wg> wgService,
             IDomainService<Country> countryService,
             IDomainService<ReactionType> reactionTypeService,
-            IDomainService<ServiceLocation> serviceLocationService)
+            IDomainService<ServiceLocation> serviceLocationService,
+            IDomainService<Currency> currencyService)
             : base(repositorySet)
         {
             this.projectRepository = projectRepository;
@@ -45,6 +40,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.countryService = countryService;
             this.reactionTypeService = reactionTypeService;
             this.serviceLocationService = serviceLocationService;
+            this.currencyService = currencyService;
         }
 
         public IQueryable<ProjectItem> GetProjectItems(long projectId)
@@ -87,6 +83,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
+        public override Project Get(long id)
+        {
+            var project = base.Get(id);
+
+            foreach (var projectItem in project.ProjectItems)
+            {
+                projectItem.Duration.Value = periodConverter.Convert(
+                    projectItem.Duration.Months,
+                    PeriodType.Months,
+                    projectItem.Duration.PeriodType);
+
+                if (projectItem.ReactionTime.Minutes.HasValue)
+                {
+                    projectItem.ReactionTime.Value = periodConverter.Convert(
+                        projectItem.ReactionTime.Minutes.Value,
+                        PeriodType.Minutes,
+                        projectItem.ReactionTime.PeriodType.Value);
+                }
+            }
+
+            return project;
+        }
+
         public override IQueryable<Project> GetAll()
         {
             return base.GetAll().Include(project => project.User);
@@ -119,8 +138,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 foreach (var projectItem in project.ProjectItems)
                 {
                     projectItem.Availability.Name = projectItem.Availability.ToString();
-                    projectItem.Duration.Name = periodNameBuilder.GetPeriodName(projectItem.Duration.Months * MinutesInMonth, projectItem.Duration.PeriodType);
-                    projectItem.ReactionTime.Name = periodNameBuilder.GetPeriodName(projectItem.ReactionTime.Minutes, projectItem.ReactionTime.PeriodType);
+                    projectItem.Duration.Name = periodConverter.GetPeriodName(projectItem.Duration.Months, PeriodType.Months, projectItem.Duration.PeriodType);
+                    projectItem.ReactionTime.Name = periodConverter.GetPeriodName(projectItem.ReactionTime.Minutes, PeriodType.Minutes, projectItem.ReactionTime.PeriodType);
+
+                    if (projectItem.Duration.Value.HasValue)
+                    {
+                        projectItem.Duration.Months = periodConverter.Convert(
+                            projectItem.Duration.Value.Value,
+                            projectItem.Duration.PeriodType,
+                            PeriodType.Months);
+                    }
+
+                    if (projectItem.ReactionTime.Value.HasValue)
+                    {
+                        projectItem.ReactionTime.Minutes = periodConverter.Convert(
+                            projectItem.Duration.Value.Value,
+                            projectItem.Duration.PeriodType,
+                            PeriodType.Minutes);
+                    }
                 }
             }
 
@@ -141,40 +176,63 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private class PeriodInfo
         {
-            public int Devider { get; }
+            public int Minutes { get; }
 
             public string Caption { get; }
 
             public PeriodInfo(int devider, string caption)
             {
-                this.Devider = devider;
+                this.Minutes = devider;
                 this.Caption = caption;
             }
         }
 
-        private class PeriodNameBuilder
+        private class PeriodConverter
         {
+            private const int MinutesInHour = 60;
+            private const int MinutesInDay = MinutesInHour * 24;
+            private const int MinutesInWeek = MinutesInDay * 7;
+            private const int MinutesInMonth = MinutesInDay * 30;
+            private const int MinutesInYear = MinutesInMonth * 12;
+
             private readonly Dictionary<PeriodType, PeriodInfo> periodInfos = new Dictionary<PeriodType, PeriodInfo>
             {
                 [PeriodType.Minutes] = new PeriodInfo(1, "mins"),
+                [PeriodType.Hours] = new PeriodInfo(MinutesInHour, "hours"),
                 [PeriodType.Days] = new PeriodInfo(MinutesInDay, "days"),
                 [PeriodType.Weeks] = new PeriodInfo(MinutesInWeek, "weeks"),
                 [PeriodType.Months] = new PeriodInfo(MinutesInMonth, "months"),
                 [PeriodType.Years] = new PeriodInfo(MinutesInYear, "years"),
             };
 
-            public string GetPeriodName(int minutes, PeriodType periodType)
+            public int Convert(int value, PeriodType sourceType, PeriodType targetType)
             {
-                var periodInfo = this.periodInfos[periodType];
+                var source = this.periodInfos[sourceType];
+                var target = this.periodInfos[targetType];
 
-                return $"{minutes / periodInfo.Devider} {periodInfo.Caption}";
+                return this.Convert(value, source, target);
             }
 
-            public string GetPeriodName(int? minutes, PeriodType? periodType)
+            public string GetPeriodName(int value, PeriodType sourceType, PeriodType targetType)
             {
-                return minutes.HasValue
-                    ? this.GetPeriodName(minutes.Value, periodType.Value)
+                var source = this.periodInfos[sourceType];
+                var target = this.periodInfos[targetType];
+
+                var convertedValue = this.Convert(value, source, target);
+
+                return $"{convertedValue} {target.Caption}";
+            }
+
+            public string GetPeriodName(int? value, PeriodType? sourceType, PeriodType? targetType)
+            {
+                return value.HasValue
+                    ? this.GetPeriodName(value.Value, sourceType, targetType)
                     : "none";
+            }
+
+            private int Convert(int value, PeriodInfo source, PeriodInfo target)
+            {
+                return value * source.Minutes / target.Minutes;
             }
         }
 

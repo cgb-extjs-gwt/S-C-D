@@ -20,14 +20,14 @@ export enum PeriodType {
 }
 
 export interface DayHour {
-    day: DayOfWeek
-    hour: number
+    day?: DayOfWeek
+    hour?: number
 }
 
 export interface AvailabilityProjCalc {
     start: DayHour
     end: DayHour
-    value: number
+    value?: number
 }
 
 export interface ReactionTimeProjCalc {
@@ -37,19 +37,19 @@ export interface ReactionTimeProjCalc {
 }
 
 export interface DurationProjCalc {
-    months: number
-    periodType: PeriodType
+    months?: number
+    periodType?: PeriodType
     value?: number
 }
 
 export interface ProjectItem {
     id: number
-    wgId: number
-    countryId: number
+    wgId?: number
+    countryId?: number
     availability: AvailabilityProjCalc
     reactionTime: ReactionTimeProjCalc
-    reactionTypeId: number
-    serviceLocationId: number
+    reactionTypeId?: number
+    serviceLocationId?: number
     duration: DurationProjCalc
     isRecalculation: boolean
     onsiteHourlyRates?: number
@@ -64,7 +64,7 @@ export interface ProjectItem {
     reinsurance: {
         flatfee?: number
         upliftFactor?: number
-        currencyId: number
+        currencyId?: number
     }
     markupOtherCosts: {
         markup?: number
