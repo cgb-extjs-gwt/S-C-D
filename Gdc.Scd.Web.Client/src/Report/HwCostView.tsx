@@ -333,10 +333,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     cls="calc-cost-result-yellow"
                     defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                    <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="view-tc" linkTooltip="more details" />
+                    <LinkColumn text="Service TC (calc)" dataIndex="roServiceTC" renderer={moneyRndr} dataAction="view-tc" />
                     <NumberColumn text="Service TC (manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
-                    <NumberColumn text="Service TP (calc)" dataIndex="roServiceTP" />
+                    <LinkColumn text="Service TP (calc)" dataIndex="roServiceTP" renderer={moneyRndr} dataAction="view-tp" />
                     <NumberColumn text="Service TP (manual)" dataIndex="roServiceTPManual" />
                     <NumberColumn text="Service TP (released)" dataIndex="roServiceTP_Released" />
 
@@ -359,15 +359,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     text="Intermediate calculation results"
                     dataIndex=""
                     cls="calc-cost-result-brown"
-                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                    <NumberColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" />
-                    <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
-                    <NumberColumn text="Credits" dataIndex="roCredits" />
-                    <NumberColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" />
-                    <NumberColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" />
-                    <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} />
-                    <NumberColumn text="ProActive (calc)" dataIndex="roProActive" />
+                    <LinkColumn text="Local STDW (calc)" dataIndex="roLocalServiceStandardWarranty" renderer={moneyRndr} />
+                    <NumberColumn text="Local STDW (manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} renderer={moneyRndr} />
+                    <LinkColumn text="Credits" dataIndex="roCredits" renderer={moneyRndr} />
+                    <LinkColumn text="ReActive TC (calc)" dataIndex="roReActiveTC" renderer={moneyRndr} />
+                    <LinkColumn text="ReActive TP (calc)" dataIndex="roReActiveTP" renderer={moneyRndr} />
+                    <NumberColumn text="ReActive TP (manual)" dataIndex="ReActiveTPManual" editable={canEditTC} renderer={moneyRndr} />
+                    <LinkColumn text="ProActive (calc)" dataIndex="roProActive" renderer={moneyRndr} />
 
                 </Column>
 
@@ -378,18 +378,18 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     text="Cost block results"
                     dataIndex=""
                     cls="calc-cost-result-blue"
-                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+                    defaults={{ align: 'center', minWidth: 40, cls: "x-text-el-wrap" }}>
 
-                    <NumberColumn text="Field service cost" dataIndex="roFieldServiceCost" />
-                    <NumberColumn text="Service support cost" dataIndex="roServiceSupportCost" />
-                    <NumberColumn text="Logistic cost" dataIndex="roLogistic" />
-                    <NumberColumn text="Avail. fee" dataIndex="roAvailabilityFee" />
-                    <NumberColumn text="Reinsurance" dataIndex="roReinsurance" />
-                    <NumberColumn text="Other direct cost" dataIndex="roOtherDirect" />
-                    <NumberColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" />
-                    <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" />
-                    <NumberColumn text="Material cost iW period" dataIndex="roMaterialW" />
-                    <NumberColumn text="Material cost OOW period" dataIndex="roMaterialOow" />
+                    <LinkColumn text="Field service cost" dataIndex="roFieldServiceCost" renderer={moneyRndr} />
+                    <LinkColumn text="Service support cost" dataIndex="roServiceSupportCost" renderer={moneyRndr} />
+                    <LinkColumn text="Logistic cost" dataIndex="roLogistic" renderer={moneyRndr} />
+                    <LinkColumn text="Avail. fee" dataIndex="roAvailabilityFee" renderer={moneyRndr} />
+                    <LinkColumn text="Reinsurance" dataIndex="roReinsurance" renderer={moneyRndr} />
+                    <LinkColumn text="Other direct cost" dataIndex="roOtherDirect" renderer={moneyRndr} />
+                    <LinkColumn text="Tax &amp; Duties iW period" dataIndex="roTaxAndDutiesW" renderer={moneyRndr} />
+                    <LinkColumn text="Tax &amp; Duties OOW period" dataIndex="roTaxAndDutiesOow" renderer={moneyRndr} />
+                    <LinkColumn text="Material cost iW period" dataIndex="roMaterialW" renderer={moneyRndr} />
+                    <LinkColumn text="Material cost OOW period" dataIndex="roMaterialOow" renderer={moneyRndr} />
 
                 </Column>
 
