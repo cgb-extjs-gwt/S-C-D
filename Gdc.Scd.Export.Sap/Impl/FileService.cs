@@ -3,14 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Export.Sap.Interfaces;
 
 namespace Gdc.Scd.Export.Sap.Impl
 {
     public class FileService : IFileService
     {
+        protected ILogger Logger;
+
+        public FileService(ILogger logger)
+        {
+            this.Logger = logger;
+        }
+
         public string CreateFileOnServer(List<ReleasedData> sapUploadDatas, int fileNumber)
         {
             var fileName = Config.SapFileName + "." + fileNumber.ToString("0000");
@@ -85,7 +92,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                 {
                     result = false;
                     var msg = string.Format("net copy file: ERROR : '{0}'", errCode);
-                    //Log.Error(msg);
+                    Logger.Error(msg);
                 }
             }
             catch (Exception ex)
@@ -94,7 +101,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                 var msg = string.Format(
                     "Error occured when try to send file '{0}' from dir='{1}' to host='{2}' with params='{3}' ",
                     filename, Config.ExportDirectory, Config.ExportHost, Config.Admission);
-                //Log.Error(ex, msg);
+                    Logger.Error(ex, msg);
 
             }
 
@@ -113,18 +120,18 @@ namespace Gdc.Scd.Export.Sap.Impl
                     Arguments = filenameFrom + " " + pathTo + "!" + filenameTo + " " + additionalParams
                 }
             };
-            //Log.Info("net copy file: sending " + filenameFrom + "...");
-            //Log.Info("net copy file: startcode=" + proc.Start() + "...");
-            //Log.Info("net copy file: waiting...");
+            Logger.Info("net copy file: sending " + filenameFrom + "...");
+            Logger.Info("net copy file: startcode=" + proc.Start() + "...");
+            Logger.Info("net copy file: waiting...");
             proc.WaitForExit(30000);
 
             if (proc.ExitCode != 0)
             {
-                //Log.Info("net copy file: ERROR " + proc.ExitCode);
+                Logger.Info("net copy file: ERROR " + proc.ExitCode);
             }
             else
             {
-                //Log.Info("net copy file: ok");
+                Logger.Info("net copy file: ok");
             }
 
             return proc.ExitCode;
