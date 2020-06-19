@@ -70,3 +70,12 @@ export interface Position {
     left?: string | number
     right?: string | number
 }
+
+export interface SelectionCellInfo {
+    columnIndex: number
+}
+
+export interface SelectionGridInfo {
+    startCell: SelectionCellInfo
+    endCell: SelectionCellInfo
+}

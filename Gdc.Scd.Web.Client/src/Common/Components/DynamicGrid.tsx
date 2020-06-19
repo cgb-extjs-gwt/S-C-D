@@ -8,7 +8,8 @@ import {
   SelectField,
   Toolbar,
   Button,
-  Container
+  Container,
+  ContainerField
 } from "@extjs/ext-react";
 import {
   ColumnInfo,
@@ -17,7 +18,7 @@ import {
   ColumnFilter
 } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
-import { Model, StoreOperation, Store } from "../States/ExtStates";
+import { Model, StoreOperation, Store, SelectionGridInfo } from "../States/ExtStates";
 import { ReactNode } from "react-redux";
 import {
   DynamicGridProps,
@@ -179,7 +180,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     grid,
     records: Model[],
     selecting: boolean,
-    selectionInfo
+    selectionInfo: SelectionGridInfo
   ) => {
     const { onSelectionChange } = this.props;
 
@@ -240,6 +241,12 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
             case ColumnType.Text:
               editor = <TextField />;
+              break;
+
+            case ColumnType.Button:
+              editor = <ContainerField inputElement={{setStyle: () =>{}}}>
+                <Button text="(edit...)" handler={column.buttonHandler} centered={true} border={true}/>
+              </ContainerField> 
               break;
           }
         }
@@ -342,6 +349,14 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             case ColumnType.Text:
               columnOption.editor = {
                 xtype: "textfield"
+              };
+              break;
+
+            case ColumnType.Button:
+              columnOption.editor = {
+                xtype: "button",
+                text: "(edit...)",
+                handler: column.buttonHandler
               };
               break;
           }

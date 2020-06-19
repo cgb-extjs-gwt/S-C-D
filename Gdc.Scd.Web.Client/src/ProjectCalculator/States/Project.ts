@@ -27,7 +27,6 @@ export interface DayHour {
 export interface AvailabilityProjCalc {
     start: DayHour
     end: DayHour
-    value?: number
 }
 
 export interface ReactionTimeProjCalc {
@@ -46,7 +45,7 @@ export interface ProjectItem {
     id: number
     wgId?: number
     countryId?: number
-    availability: AvailabilityProjCalc
+    availability?: AvailabilityProjCalc
     reactionTime: ReactionTimeProjCalc
     reactionTypeId?: number
     serviceLocationId?: number

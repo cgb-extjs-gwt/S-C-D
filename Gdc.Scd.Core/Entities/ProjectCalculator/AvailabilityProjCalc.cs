@@ -12,7 +12,7 @@
 
         public override string ToString()
         {
-            return $"{this.Start.Day} - {this.End.Day} ({this.Start.Hour}:00-{this.End.Hour}:00)";
+            return $"{this.Start.Day} - {this.End.Day} ({this.Start.Hour}:00-{this.End.Hour + 1}:00)";
         }
     }
 }
