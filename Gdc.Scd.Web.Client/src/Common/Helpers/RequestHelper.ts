@@ -1,15 +1,25 @@
-import { shomMask, hideMask } from "./MaskHelper";
+import { showMask, hideMask } from "./MaskHelper";
+
+let requestCount = 0
 
 export const handleRequest = (promise: Promise<any>) => {
-    shomMask();
+    if (requestCount == 0) {
+        showMask();
+    }
 
-    return promise
+    requestCount++;
 
-        .then(() => hideMask()) //fix, there is strange bug with hide musk, may be it's a bug with typescript compilation/optimization
+    return promise.then(() => {
+                        requestCount--;
 
-        .catch(error => {
-            hideMask();
-            Ext.Msg.alert('Error', 'Request failed');
-            console.error(error);
-        });
+                        if (requestCount == 0) {
+                            hideMask();
+                        }
+                   }) 
+                   .catch(error => {
+                        requestCount--;
+                        hideMask();
+                        Ext.Msg.alert('Error', 'Request failed');
+                        console.error(error);
+                   });
 }

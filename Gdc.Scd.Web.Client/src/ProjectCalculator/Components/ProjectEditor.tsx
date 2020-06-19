@@ -1,18 +1,15 @@
 import * as React from "react";
-import { Container, FormPanel, TextField, Grid, Column, Toolbar, Button, DatePickerField } from "@extjs/ext-react";
+import { FormPanel, TextField, Toolbar, Button } from "@extjs/ext-react";
 import { Project, ProjectItem } from "../States/Project";
-import { Store } from "../../Common/States/ExtStates";
-import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { ProjectItemEditData } from "../States/ProjectCalculatorState";
-import { NamedId } from "../../Common/States/CommonStates";
-import { DynamicGrid } from "../../Common/Components/DynamicGrid";
-import { LocalDynamicGrid } from "../../Common/Components/LocalDynamicGrid";
 import { ProjectItemsGrid } from "./ProjectItemsGrid";
+import { Model, StoreOperation } from "../../Common/States/ExtStates";
 
 export interface ProjectEditorActions {
     onInit?()
     onBackToList?(project: Project)
     onSave?(project: Project)
+    onUpdateProjectItems?(records: Model<ProjectItem>[], operation: StoreOperation, dataIndex: string)
 }
 
 export interface ProjectEditorProps extends ProjectEditorActions {
@@ -25,10 +22,8 @@ export interface ProjectEditorState {
 }
 
 export class ProjectEditor extends React.PureComponent<ProjectEditorProps, ProjectEditorState> {
-    // private form
     private projectItemGrid: ProjectItemsGrid
     private projectNameField
-    // private projectItemStore: Store<ProjectItem> = this.createProjectItemStore()
 
     constructor(props: ProjectEditorProps) {
         super(props);
@@ -51,13 +46,19 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
             <FormPanel layout="vbox">
                 {/* <DatePickerField label="Creation date" value={project.creationDate} readOnly={true}/> */}
                 <TextField label="User" value={project.user && project.user.name} readOnly={true}/>
-                <TextField ref={this.setProjectNameFieldRef} label="Project name" value={project.name} onChange={this.onProjectChanged}/>
+                <TextField 
+                    ref={this.setProjectNameFieldRef} 
+                    label="Project name" 
+                    value={project.name} 
+                    required
+                    onChange={this.onProjectChanged}
+                />
                 
                 <ProjectItemsGrid 
                     ref={this.setProjectItemsGrid} 
                     projectItemEditData={this.props.projectItemEditData}
                     projectItems={project.projectItems || []}
-                    onUpdateRecord={this.onProjectChanged}
+                    onUpdateRecordSet={this.onUpdateProjectItems}
                 />
 
                 <Toolbar layout="hbox" docked="bottom">
@@ -68,10 +69,6 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
         )
     }
 
-    // private setFormRef = form => {
-    //     this.form = form
-    // }
-
     private setProjectItemsGrid = grid => {
         this.projectItemGrid = grid;
     }
@@ -80,8 +77,26 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
         this.projectNameField = field;
     }
 
+    private setSaveButtonDisabled = () => {
+        this.setState({ 
+            saveButtonDisabled: !this.isValidProject() 
+        })
+    }
+
     private onProjectChanged = () => {
-        this.setState({ saveButtonDisabled: false })
+        this.setSaveButtonDisabled();
+    }
+
+    private onUpdateProjectItems = (
+        records: Model<ProjectItem>[], 
+        operation: StoreOperation, 
+        dataIndex: string
+    ) => {
+        this.setSaveButtonDisabled();
+
+        const { onUpdateProjectItems } = this.props;
+
+        onUpdateProjectItems && onUpdateProjectItems(records, operation, dataIndex);
     }
 
     private onBackToList = (project: Project) => {
@@ -111,5 +126,29 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
             name: this.projectNameField.getValue(),
             projectItems: this.projectItemGrid.getEditedProjectItems()
         } as Project
+    }
+
+    private isValidProject = () => {
+        const project = this.getEditedProject();
+
+        return (
+            project.name &&
+            project.projectItems &&
+            project.projectItems.every(projectItem => (
+                projectItem.wgId &&
+                projectItem.countryId &&
+                projectItem.availability &&
+                projectItem.availability.start &&
+                projectItem.availability.start.day != null &&
+                projectItem.availability.start.hour != null &&
+                projectItem.availability.end.day != null &&
+                projectItem.availability.end.hour != null &&
+                projectItem.reactionTypeId &&
+                projectItem.serviceLocationId &&
+                projectItem.duration &&
+                projectItem.duration.value != null &&
+                projectItem.duration.periodType != null
+            ))
+        );
     }
 }

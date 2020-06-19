@@ -4,13 +4,13 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { ColumnType, ColumnInfo } from "../../Common/States/ColumnInfo";
 import { ProjectItemEditData } from "../States/ProjectCalculatorState";
 import { LocalDynamicGrid } from "../../Common/Components/LocalDynamicGrid";
-import { StoreUpdateEventFn, Store, Model, StoreOperation } from "../../Common/States/ExtStates";
+import { Store, Model, StoreOperation } from "../../Common/States/ExtStates";
 import { Container, Toolbar, Button, Dialog } from "@extjs/ext-react";
-import { buildReferenceColumnRendered, buildGetReferenceNameFn } from "../../Common/Helpers/GridHeper";
+import { buildGetReferenceNameFn } from "../../Common/Helpers/GridHeper";
 import { AvailabilityEditor } from "./AvailabilityEditor";
 
 export interface ProjectItemsGridActions {
-    onUpdateRecord?: StoreUpdateEventFn<ProjectItem>
+    onUpdateRecordSet?(records: Model<ProjectItem>[], operation: StoreOperation, dataIndex: string)
 }
 
 export interface ProjectItemsGridProps extends ProjectItemsGridActions {
@@ -39,7 +39,8 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
     }
 
     public componentWillUpdate(nextProps: ProjectItemsGridProps) {
-        if (this.props.projectItemEditData != nextProps.projectItemEditData) {
+        if (this.props.projectItemEditData != nextProps.projectItemEditData ||
+            (!this.columnInfos && this.props.projectItemEditData)) {
             this.columnInfos = this.buildColumnInfos(nextProps.projectItemEditData);
         }
     }
@@ -73,7 +74,7 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                         flex={1}
                         columns={this.columnInfos}
                         getSaveToolbar={this.getToolbar}
-                        onUpdateRecord={this.onUpdateRecord}
+                        onUpdateRecordSet={this.onUpdateRecordSet}
                         onSelectionChange={this.onSelectionChange}
                     />
                 }
@@ -106,14 +107,18 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
     }
 
     public getEditedProjectItems = () => {
-        const projectItems : ProjectItem[] = [];
+        let projectItems : ProjectItem[] = null;
 
-        this.grid.getStore().each(record => {
-            projectItems.push({ 
-                ...record.data, 
-                id: record.data.id < 0 ? 0 : record.data.id,    
+        if (this.grid) {
+            projectItems = [];
+
+            this.grid.getStore().each(record => {
+                projectItems.push({ 
+                    ...record.data, 
+                    id: record.data.id < 0 ? 0 : record.data.id,    
+                });
             });
-        });
+        }
 
         return projectItems;
     }
@@ -170,16 +175,14 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
         return <div/>
     }
 
-    private onUpdateRecord = (
-        store: Store<ProjectItem>, 
-        record: Model<ProjectItem>, 
+    private onUpdateRecordSet = (
+        records: Model<ProjectItem>[], 
         operation: StoreOperation, 
-        modifiedFieldNames: string[], 
-        details
+        dataIndex: string
     ) => {
-        const { onUpdateRecord } = this.props;
+        const { onUpdateRecordSet: onUpdateRecord } = this.props;
 
-        onUpdateRecord && onUpdateRecord(store, record, operation, modifiedFieldNames, details);
+        onUpdateRecord && onUpdateRecord(records, operation, dataIndex);
     }
 
     private buildColumnInfos(projectItemEditData: ProjectItemEditData) {

@@ -49,7 +49,7 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
             >
                 <DateColumn text="CreationDate" dataIndex={DataIndexes.creationDate} format="Y-m-d H:i:s" flex={1}/>
                 <Column text="Name" dataIndex={DataIndexes.name} flex={1}/>
-                <Column text="User" dataIndex={DataIndexes.name} renderer={this.userRenderer} flex={1}/>
+                <Column text="User" dataIndex={DataIndexes.user} renderer={this.userRenderer} flex={1}/>
 
                 <Toolbar layout="hbox" docked="top">
                     <Button text="Add" handler={this.onAdd} flex={1}/>
