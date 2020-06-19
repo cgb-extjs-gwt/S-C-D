@@ -226,7 +226,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             public string GetPeriodName(int? value, PeriodType? sourceType, PeriodType? targetType)
             {
                 return value.HasValue
-                    ? this.GetPeriodName(value.Value, sourceType, targetType)
+                    ? this.GetPeriodName(value.Value, sourceType.Value, targetType.Value)
                     : "none";
             }
 
