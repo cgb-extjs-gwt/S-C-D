@@ -58,9 +58,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var projectArray = projects.ToArray();
             var itemsUpdateProjects = projectArray.Where(project => project.ProjectItems != null).ToArray();
-            var projectItems = itemsUpdateProjects.SelectMany(project => project.ProjectItems).ToArray();
 
-            this.SetAddOrUpdateStateCollection(projectItems);
+            this.SetAddOrUpdateStateCollection(itemsUpdateProjects.SelectMany(project => project.ProjectItems));
 
             var oldProjects = itemsUpdateProjects.Where(project => !this.IsNewItem(project)).ToArray();
             var oldProjectItemIds =

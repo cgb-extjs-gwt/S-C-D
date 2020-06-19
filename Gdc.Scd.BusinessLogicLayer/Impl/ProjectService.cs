@@ -167,7 +167,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var projectItemIds =
                 projects.Where(project => project.ProjectItems != null)
                         .SelectMany(project => project.ProjectItems)
-                        .Where(projectItem => !projectItem.IsRecalculation)
+                        .Where(projectItem => projectItem.IsRecalculation)
                         .Select(projectItem => projectItem.Id)
                         .ToArray();
 
