@@ -152,8 +152,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     if (projectItem.ReactionTime.Value.HasValue)
                     {
                         projectItem.ReactionTime.Minutes = periodConverter.Convert(
-                            projectItem.Duration.Value.Value,
-                            projectItem.Duration.PeriodType,
+                            projectItem.ReactionTime.Value.Value,
+                            projectItem.ReactionTime.PeriodType.Value,
                             PeriodType.Minutes);
                     }
                 }

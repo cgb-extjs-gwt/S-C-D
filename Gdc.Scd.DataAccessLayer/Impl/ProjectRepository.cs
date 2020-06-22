@@ -44,7 +44,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Interpolate(long[] projectItemIds)
         {
-            var projectItemIdsParam = DbParameterBuilder.CreateListID("projectItemIds", projectItemIds);
+            var projectItemIdsParam = DbParameterBuilder.CreateListID("@projectItemIds", projectItemIds);
 
             this.repositorySet.ExecuteProc("[ProjectCalculator].[InterpolateProjects]", projectItemIdsParam);
         }
@@ -58,8 +58,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var projectArray = projects.ToArray();
             var itemsUpdateProjects = projectArray.Where(project => project.ProjectItems != null).ToArray();
-
-            this.SetAddOrUpdateStateCollection(itemsUpdateProjects.SelectMany(project => project.ProjectItems));
 
             var oldProjects = itemsUpdateProjects.Where(project => !this.IsNewItem(project)).ToArray();
             var oldProjectItemIds =
@@ -79,7 +77,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             this.projectItemRepository.Delete(deleteProjectItemIds);
 
-            base.Save(projectArray);
+            foreach (var project in projectArray)
+            {
+                base.Save(project);
+            }
+
+            this.SetAddOrUpdateStateCollection(itemsUpdateProjects.SelectMany(project => project.ProjectItems));
         }
 
         public override void Delete(long id)
