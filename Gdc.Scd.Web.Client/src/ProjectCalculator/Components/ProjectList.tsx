@@ -54,7 +54,7 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
                 <Toolbar layout="hbox" docked="top">
                     <Button text="Add" handler={this.onAdd} flex={1}/>
                     <Button text="Edit" handler={this.onEdit} flex={1} disabled={disabled}/>
-                    <Button text="Delete" handler={this.onDelete} flex={1} disabled={disabled}/>
+                    <Button text="Delete" handler={this.onDelete} flex={1} disabled={disabled}/>                                        
                 </Toolbar>  
             </Grid>
         )
@@ -117,8 +117,11 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
             (buttonId: string) => {
                 if (buttonId == 'yes') {
                     const { onDelete, selectedProject } = this.props;
+                    const record = this.store.getById(selectedProject.id);
 
-                    onDelete && onDelete(this.store, selectedProject)
+                    this.store.remove(record);
+
+                    onDelete && onDelete(this.store, selectedProject);
                 }
             }
         );
