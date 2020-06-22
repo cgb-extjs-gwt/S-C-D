@@ -12,7 +12,7 @@ export const getProjectItemEditData = () => get<ProjectItemEditData>(PROJECT_CON
 
 export const getProject = (id: number) => get<Project>(PROJECT_CONTROLLER_NAME, 'Get', { id })
 
-export const  deleteProject = (id: number) => deleteItem(PROJECT_CONTROLLER_NAME, 'Delete', { id })
+export const deleteProject = (id: number) => deleteItem(PROJECT_CONTROLLER_NAME, 'Delete', { id })
 
 export const saveProject = (project: Project) => post<Project>(PROJECT_CONTROLLER_NAME, 'Save', project)
 

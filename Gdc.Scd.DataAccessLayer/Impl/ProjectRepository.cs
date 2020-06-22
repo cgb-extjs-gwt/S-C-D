@@ -92,6 +92,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public override void Delete(IEnumerable<long> ids)
         {
+            foreach (var id in ids)
+            {
+                base.Delete(id);
+            }
+
             var projectItemIds =
                     this.GetProjectItems(ids)
                         .Select(projectItem => projectItem.Id);
