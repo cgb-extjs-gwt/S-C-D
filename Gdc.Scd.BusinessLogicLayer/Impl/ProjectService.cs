@@ -111,18 +111,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return base.GetAll().Include(project => project.User);
         }
 
-        public override void Save(Project item)
+        public Project SaveWithInterpolation(Project item)
         {
-            base.Save(item);
-
+            this.Save(item);
             this.Interpolate(new[] { item });
-        }
 
-        public override void Save(IEnumerable<Project> items)
-        {
-            base.Save(items);
+            item = this.Get(item.Id);
 
-            this.Interpolate(items);
+            return item;
         }
 
         protected override void InnerSave(Project project)

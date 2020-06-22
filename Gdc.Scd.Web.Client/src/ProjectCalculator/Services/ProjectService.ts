@@ -15,3 +15,6 @@ export const getProject = (id: number) => get<Project>(PROJECT_CONTROLLER_NAME, 
 export const  deleteProject = (id: number) => deleteItem(PROJECT_CONTROLLER_NAME, 'Delete', { id })
 
 export const saveProject = (project: Project) => post<Project>(PROJECT_CONTROLLER_NAME, 'Save', project)
+
+export const saveProjectWhithInterpolation = (project: Project) => post<Project, Project>(PROJECT_CONTROLLER_NAME, 'SaveWithInterpolation', project)
+

@@ -8,5 +8,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         IQueryable<ProjectItem> GetProjectItems(long projectId);
 
         ProjectItemEditData GetProjectItemEditData();
+
+        Project SaveWithInterpolation(Project item);
     }
 }

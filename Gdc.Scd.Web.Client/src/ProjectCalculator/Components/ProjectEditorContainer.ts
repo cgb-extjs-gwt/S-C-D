@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import { CommonState } from "../../Layout/States/AppStates";
 import { ProjectEditor, ProjectEditorProps, ProjectEditorActions } from "./ProjectEditor";
-import { getProject, saveProject } from "../Services/ProjectService";
+import { getProject, saveProjectWhithInterpolation } from "../Services/ProjectService";
 import { selectProject } from "../Actions/ProjectCalculatorActions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { Paths } from "../../Layout/Components/LayoutContainer";
@@ -39,7 +39,9 @@ export const ProjectEditorContainer = connect<ProjectEditorProps, ProjectEditorA
         },
         onSave: project => {
             handleRequest(
-                saveProject(project)
+                saveProjectWhithInterpolation(project).then(
+                    updatedProject => dispatch(selectProject(updatedProject))
+                )
             );
         },
         onUpdateProjectItems: (records, operation, dataIndex) => {

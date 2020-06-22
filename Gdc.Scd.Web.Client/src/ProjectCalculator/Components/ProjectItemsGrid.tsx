@@ -55,8 +55,10 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
 
             if (this.grid) {
                 const projectItems = this.props.projectItems || [];
+                const store: Store<ProjectItem> = this.grid.getStore();
 
-                this.grid.getStore().loadData(projectItems);
+                store.removeAll();
+                store.loadData(projectItems);
             }
         }
     }

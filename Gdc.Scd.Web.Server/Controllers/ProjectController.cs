@@ -29,5 +29,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         {
             return this.projectService.GetProjectItems(projectId).ToArray();
         }
+
+        [HttpPost]
+        public virtual Project SaveWithInterpolation([FromBody]Project item)
+        {
+            return this.projectService.SaveWithInterpolation(item);
+        }
     }
 }
