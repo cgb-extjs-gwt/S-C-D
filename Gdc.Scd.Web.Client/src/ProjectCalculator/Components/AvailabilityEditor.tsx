@@ -162,7 +162,7 @@ export class AvailabilityEditor extends React.PureComponent<AvailabilityEditorPr
         if (availability) {
             const { start, end } = availability;
 
-            if (start.day <= day && day <= end.day) {
+            if (start && end && start.day <= day && day <= end.day) {
                 if (hour == start.hour || hour == end.hour + 1) {
                     borderTop = borderStyle;
                 } 

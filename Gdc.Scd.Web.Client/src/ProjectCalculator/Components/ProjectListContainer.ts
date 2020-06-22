@@ -23,12 +23,16 @@ export const ProjectListContainer = connect<ProjectListProps, ProjectListActions
             dispatch(selectProject(selectedProject));
         },
         onAdd: () => {
-            goToEdit(history, { 
+            const newProject: Project = { 
                 id: 0, 
                 name: null,
                 user: null,
                 projectItems: []
-            });
+            };
+
+            dispatch(selectProject(newProject));
+
+            goToEdit(history, newProject);
         },
         onEdit: (store, selectedProject) => {
             goToEdit(history, selectedProject);

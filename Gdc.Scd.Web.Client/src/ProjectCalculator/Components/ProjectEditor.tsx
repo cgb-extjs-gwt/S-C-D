@@ -45,7 +45,7 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
         return (
             <FormPanel layout="vbox">
                 {/* <DatePickerField label="Creation date" value={project.creationDate} readOnly={true}/> */}
-                <TextField label="User" value={project.user && project.user.name} readOnly={true}/>
+                {/* <TextField label="User" value={project.user && project.user.name} readOnly={true}/> */}
                 <TextField 
                     ref={this.setProjectNameFieldRef} 
                     label="Project name" 
@@ -58,6 +58,8 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
                     ref={this.setProjectItemsGrid} 
                     projectItemEditData={this.props.projectItemEditData}
                     projectItems={project.projectItems || []}
+                    onAddRecord={this.setSaveButtonDisabled}
+                    onRemoveRecord={this.setSaveButtonDisabled}
                     onUpdateRecordSet={this.onUpdateProjectItems}
                 />
 
@@ -141,6 +143,7 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
                 projectItem.availability.start &&
                 projectItem.availability.start.day != null &&
                 projectItem.availability.start.hour != null &&
+                projectItem.availability.end &&
                 projectItem.availability.end.day != null &&
                 projectItem.availability.end.hour != null &&
                 projectItem.reactionTypeId &&

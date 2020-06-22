@@ -10,6 +10,8 @@ import { buildGetReferenceNameFn } from "../../Common/Helpers/GridHeper";
 import { AvailabilityEditor } from "./AvailabilityEditor";
 
 export interface ProjectItemsGridActions {
+    onAddRecord?(store: Store<ProjectItem>, records: Model<ProjectItem>[])
+    onRemoveRecord?(store: Store<ProjectItem>, records: Model<ProjectItem>[])
     onUpdateRecordSet?(records: Model<ProjectItem>[], operation: StoreOperation, dataIndex: string)
 }
 
@@ -26,11 +28,14 @@ export interface ProjectItemsGridState {
 export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps, ProjectItemsGridState> {
     private columnInfos: ColumnInfo<ProjectItem>[]
     private grid: LocalDynamicGrid<ProjectItem>
-    private availabilityEditor: AvailabilityEditor
     private fakeId = 0
     
     constructor(props: ProjectItemsGridProps) {
         super(props)
+
+        if (props.projectItemEditData) {
+            this.columnInfos = this.buildColumnInfos(props.projectItemEditData);
+        }
 
         this.state = {
             selectedItems: [],
@@ -38,9 +43,8 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
         }
     }
 
-    public componentWillUpdate(nextProps: ProjectItemsGridProps) {
-        if (this.props.projectItemEditData != nextProps.projectItemEditData ||
-            (!this.columnInfos && this.props.projectItemEditData)) {
+    public componentWillReceiveProps(nextProps: ProjectItemsGridProps) {
+        if (this.props.projectItemEditData != nextProps.projectItemEditData) {
             this.columnInfos = this.buildColumnInfos(nextProps.projectItemEditData);
         }
     }
@@ -65,7 +69,7 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
             <Container layout="vbox" flex={1}>
                 <Toolbar layout="hbox" docked="top">
                     <Button text="Add" handler={this.add} flex={1}/>
-                    <Button text="Delete" handler={this.delete} flex={1} disabled={!!selecttedItem}/>
+                    <Button text="Delete" handler={this.delete} flex={1} disabled={!selecttedItem}/>
                 </Toolbar>  
                 {
                     this.columnInfos &&
@@ -74,6 +78,8 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                         flex={1}
                         columns={this.columnInfos}
                         getSaveToolbar={this.getToolbar}
+                        onAddRecord={this.onAddRecord}
+                        onRemoveRecord={this.onRemoveRecord}
                         onUpdateRecordSet={this.onUpdateRecordSet}
                         onSelectionChange={this.onSelectionChange}
                     />
@@ -95,7 +101,6 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                         onClose={this.hideAvailabilityEditor}
                     >
                         <AvailabilityEditor 
-                            ref={this.setAvailabilityEditorRef}
                             availability={selecttedItem.data.availability} 
                             onSave={this.saveAvailability}
                             onClose={this.hideAvailabilityEditor}
@@ -142,7 +147,10 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
         const projectItem: ProjectItem = { 
             id: --this.fakeId,
             isRecalculation: true,
-            availability: null,
+            availability: {
+                start: null,
+                end: null
+            },
             duration: {},
             reactionTime: {},
             availabilityFee: {},
@@ -167,10 +175,6 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
         this.grid = grid
     }
 
-    private setAvailabilityEditorRef = editor => {
-        this.availabilityEditor = editor
-    }
-
     private getToolbar() {
         return <div/>
     }
@@ -183,6 +187,18 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
         const { onUpdateRecordSet: onUpdateRecord } = this.props;
 
         onUpdateRecord && onUpdateRecord(records, operation, dataIndex);
+    }
+
+    private onAddRecord = (store, records) => {
+        const { onAddRecord } = this.props;
+
+        onAddRecord && onAddRecord(store, records);
+    }
+
+    private onRemoveRecord = (store, records) => {
+        const { onRemoveRecord } = this.props;
+
+        onRemoveRecord && onRemoveRecord(store, records);
     }
 
     private buildColumnInfos(projectItemEditData: ProjectItemEditData) {
@@ -250,16 +266,22 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                     me.showAvailabilityEditor();
                 },
                 rendererFn: (value, record, dataIndex, cell) => {
-                    let name: string
+                    let name: string = ' ';
 
                     const { availability } = record.data;
 
-                    if (setRequiredStyle(availability, cell)){
-                        name = ' '
+                    if (availability) {
+                        const { start, end } = availability;
+
+                        if (start && end) {
+                            name = `${DayOfWeek[start.day]} - ${DayOfWeek[end.day]} (${start.hour}:00-${end.hour + 1}:00)`;
+
+                            setRequiredStyle(false, cell);
+                        } else {
+                            setRequiredStyle(true, cell);
+                        }
                     } else {
-                        const { start, end } = availability
-                        
-                        name = `${DayOfWeek[start.day]} - ${DayOfWeek[end.day]} (${start.hour}:00-${end.hour + 1}:00)`;
+                        setRequiredStyle(true, cell);
                     }
 
                     return name;
@@ -267,22 +289,18 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
             }
         }
 
-        function setRequiredStyle(value, cell): boolean {
-            const isAcitve = value == null;
-
+        function setRequiredStyle(isAcitve: boolean, cell) {
             if (cell) {
                 cell.setStyle({ 
                     background: isAcitve ? 'rgba(194, 6, 6, 1)' : null
                 });
             }
-
-            return isAcitve;
         }
 
         function buildColumn(dataIndex: string, title: string, isRequired = false, isEditable = true, width = null): ColumnInfo<ProjectItem> {
             const nullValueRenderer = value => value == null ? ' ' : value;
             const requiredRenderer = (value, record, dataIndex, cell) => {
-                setRequiredStyle(value, cell);
+                setRequiredStyle(value == null, cell);
 
                 return nullValueRenderer(value)
             }
