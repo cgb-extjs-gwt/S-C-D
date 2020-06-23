@@ -39,6 +39,9 @@ export const ProjectListContainer = connect<ProjectListProps, ProjectListActions
         },
         onDelete: (store, selectedProject) => {
             deleteProject(selectedProject.id)
+        },
+        onReportClick: (reportName, project) => {
+            history.push(buildComponentUrl(`${Paths.projectCalculatorReport}/${reportName}/${project.id}`));
         }
     })
 )(ProjectList)

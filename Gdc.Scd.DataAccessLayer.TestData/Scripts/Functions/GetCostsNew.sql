@@ -16,7 +16,7 @@ CREATE FUNCTION [Hardware].[GetCostsNew](
     @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int,
-	@projectItemId  BIGINT = NULL
+	@projectId  BIGINT = NULL
 )
 RETURNS TABLE 
 AS
@@ -109,7 +109,7 @@ RETURN
 			 , m.ChangeDate
 			 , m.ChangeUserName
 			 , m.ChangeUserEmail
-        from [Hardware].[GetCostsYear](@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit, @projectItemId) m
+        from [Hardware].[GetCostsYear](@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit, @projectId) m
 		group by 
 			   m.rownum
 			 , m.Id

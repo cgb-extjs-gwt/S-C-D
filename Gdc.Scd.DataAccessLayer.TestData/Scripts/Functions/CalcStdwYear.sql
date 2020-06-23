@@ -8,7 +8,7 @@ CREATE FUNCTION [Hardware].[CalcStdwYear](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
     @wg             dbo.ListID READONLY,
-	@projectItemId  BIGINT = NULL
+	@projectId  BIGINT = NULL
 )
 RETURNS @tbl TABLE  (
           CountryId                         bigint
@@ -179,11 +179,11 @@ BEGIN
 		FROM
 			Afr
 		LEFT JOIN 
-			ProjectCalculator.ProjectItem ON ProjectItem.Id = @projectItemId AND Afr.WgId = ProjectItem.WgId
+			ProjectCalculator.ProjectItem ON ProjectItem.ProjectId = @projectId AND Afr.WgId = ProjectItem.WgId
 		LEFT JOIN
 			ProjectCalculator.Afr AS afp ON ProjectItem.Id = afp.ProjectItemId AND Afr.Months = afp.Months
 		WHERE
-			@projectItemId IS NULL OR (Afr.Months <= ProjectItem.Duration_Months AND Afr.IsProlongation = 0 AND afp.Id IS NULL)
+			@projectId IS NULL OR (Afr.Months <= ProjectItem.Duration_Months AND Afr.IsProlongation = 0 AND afp.Id IS NULL)
 		UNION ALL
 		SELECT
 			ProjectItem.WgId, 
@@ -193,7 +193,7 @@ BEGIN
 		FROM
 			ProjectCalculator.Afr
 		INNER JOIN	
-			ProjectCalculator.ProjectItem ON ProjectItem.Id = @projectItemId AND Afr.ProjectItemId = ProjectItem.Id
+			ProjectCalculator.ProjectItem ON ProjectItem.ProjectId = @projectId AND Afr.ProjectItemId = ProjectItem.Id
 	)
 	, WgCte as (
         select wg.Id as WgId
@@ -247,7 +247,7 @@ BEGIN
         LEFT JOIN [References].Currency cur on cur.Id = c.CurrencyId
         LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         LEFT JOIN Hardware.TaxAndDuties tax on tax.Country = c.Id and tax.Deactivated = 0
-        where exists(select * from @cnt where id = c.Id)
+        where not exists(select * from @cnt) or exists(select * from @cnt where id = c.Id)
     )
     , WgCnt as (
         select c.*, wg.*

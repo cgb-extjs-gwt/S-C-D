@@ -1,12 +1,15 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.ProjectCalculator;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -22,6 +25,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private readonly IDomainService<ReactionType> reactionTypeService;
         private readonly IDomainService<ServiceLocation> serviceLocationService;
         private readonly IDomainService<Currency> currencyService;
+        private readonly IReportService reportService;
 
         public ProjectService(
             IRepositorySet repositorySet, 
@@ -31,7 +35,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IDomainService<Country> countryService,
             IDomainService<ReactionType> reactionTypeService,
             IDomainService<ServiceLocation> serviceLocationService,
-            IDomainService<Currency> currencyService)
+            IDomainService<Currency> currencyService,
+            IReportService reportService)
             : base(repositorySet)
         {
             this.projectRepository = projectRepository;
@@ -41,6 +46,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.reactionTypeService = reactionTypeService;
             this.serviceLocationService = serviceLocationService;
             this.currencyService = currencyService;
+            this.reportService = reportService;
         }
 
         public IQueryable<ProjectItem> GetProjectItems(long projectId)
@@ -119,6 +125,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             item = this.Get(item.Id);
 
             return item;
+        }
+
+        public async Task<ReportData> GetReportData(long reportId, long projectId, ReportFilterCollection filter, int start, int limit)
+        {
+            var aditionalParams = new Dictionary<string, object>
+            {
+                ["projectId"] = projectId
+            };
+
+            return await this.reportService.GetJsonArrayData(reportId, filter, start, limit, aditionalParams);
+        }
+
+        public async Task<ReportExportData> GetReportExportData(long reportId, long projectId, ReportFilterCollection filter)
+        {
+            var aditionalParams = new Dictionary<string, object>
+            {
+                ["projectId"] = projectId
+            };
+
+            return await this.reportService.Excel(reportId, filter, aditionalParams);
         }
 
         protected override void InnerSave(Project project)

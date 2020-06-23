@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, Column, DateColumn, Toolbar, Button } from "@extjs/ext-react";
+import { Grid, Column, DateColumn, Toolbar, Button, Menu, MenuItem } from "@extjs/ext-react";
 import { Store, Model } from "../../Common/States/ExtStates";
 import { Project } from "../States/Project";
 import { NamedId } from "../../Common/States/CommonStates";
@@ -16,6 +16,7 @@ export interface ProjectListActions {
     onDelete?(store: Store<Project>, selectedProject: Project)
     onInit?()
     onSelectProject?(selectedProject: Project)
+    onReportClick?(reportName: string, selectedProject: Project)
 }
 
 export interface ProjectListProps extends ProjectListActions {
@@ -24,13 +25,17 @@ export interface ProjectListProps extends ProjectListActions {
 }
 
 export class ProjectList extends React.PureComponent<ProjectListProps> {
-    private store: Store<Project>
-    private selectable = { mode: 'single' }
+    private readonly store: Store<Project>
+    private readonly selectable = { mode: 'single' }
+    private readonly reportMenuDefaults
 
     constructor(prop: ProjectListProps) {
         super(prop)
 
-        this.store = this.createStore(prop.url)
+        this.store = this.createStore(prop.url);
+        this.reportMenuDefaults = {
+            handler: this.onReportClick
+        }
     }
 
     public render() {
@@ -54,7 +59,13 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
                 <Toolbar layout="hbox" docked="top">
                     <Button text="Add" handler={this.onAdd} flex={1}/>
                     <Button text="Edit" handler={this.onEdit} flex={1} disabled={disabled}/>
-                    <Button text="Delete" handler={this.onDelete} flex={1} disabled={disabled}/>                                        
+                    <Button text="Delete" handler={this.onDelete} flex={1} disabled={disabled}/>      
+
+                    <Button text="Reports" disabled={disabled}>
+                        <Menu defaults={this.reportMenuDefaults}>
+                            <MenuItem text="LOCAP reports (for a specific country)" value="Project-Calc-Locap" />
+                        </Menu>
+                    </Button>                                  
                 </Toolbar>  
             </Grid>
         )
@@ -64,6 +75,12 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
         const { onInit } = this.props;
 
         onInit && onInit();
+    }
+
+    private onReportClick = ({ value }) => {
+        const { selectedProject, onReportClick } = this.props;
+
+        onReportClick && onReportClick(value, selectedProject);
     }
 
     private createStore(url: string): Store<Project> {

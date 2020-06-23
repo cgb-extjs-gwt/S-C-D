@@ -16,7 +16,7 @@ CREATE FUNCTION [Hardware].[GetCalcMemberYear] (
     @pro            dbo.ListID readonly,
     @lastid         bigint,
     @limit          int,
-	@projectItemId  BIGINT = NULL
+	@projectId  BIGINT = NULL
 )
 RETURNS TABLE 
 AS
@@ -24,7 +24,7 @@ RETURN
 (
 	WITH IsProjCalc AS 
 	(
-		SELECT CASE WHEN @projectItemId IS NULL THEN 0 ELSE 1 END AS IsProjCalc 
+		SELECT CASE WHEN @projectId IS NULL THEN 0 ELSE 1 END AS IsProjCalc 
 	),
 	ProjCalc AS 
 	(
@@ -38,25 +38,25 @@ RETURN
 			m.Sla,
             m.SlaHash,
 
-			--case when @projectItemId IS NOT NULL then ProjectItem.CountryId else m.CountryId end as CountryId,
-			--case when @projectItemId IS NOT NULL then ProjectItem.WgId else m.WgId end as WgId,
+			--case when @projectId IS NOT NULL then ProjectItem.CountryId else m.CountryId end as CountryId,
+			--case when @projectId IS NOT NULL then ProjectItem.WgId else m.WgId end as WgId,
 			
-			case when @projectItemId IS NOT NULL then ProjectItem.Id else m.Id end as Id,
-			case when @projectItemId IS NOT NULL then ProjectItem.ReactionTypeId else m.ReactionTypeId end as ReactionTypeId,
-			case when @projectItemId IS NOT NULL then ProjectItem.ServiceLocationId else m.ServiceLocationId end as ServiceLocationId,
-			case when @projectItemId IS NULL then m.AvailabilityId end as AvailabilityId,
-			case when @projectItemId IS NOT NULL then ProjectItem.Availability_Name else av.[Name] end as [Availability],
-			case when @projectItemId IS NULL then m.DurationId end as DurationId,
-			case when @projectItemId IS NOT NULL then 0 else dur.IsProlongation end as DurationIsProlongation,
-			case when @projectItemId IS NOT NULL then ProjectItem.Duration_Name else dur.[Name] end as Duration,
-			case when @projectItemId IS NOT NULL then ProjectItem.Duration_Months else dur.[Value] * 12 end as DurationMonths,
-			case when @projectItemId IS NULL then m.ReactionTimeId end as ReactionTimeId,
-			case when @projectItemId IS NOT NULL then ProjectItem.ReactionTime_Name else rtime.[Name] end as ReactionTime,
-			case when @projectItemId IS NOT NULL
+			case when @projectId IS NOT NULL then ProjectItem.Id else m.Id end as Id,
+			case when @projectId IS NOT NULL then ProjectItem.ReactionTypeId else m.ReactionTypeId end as ReactionTypeId,
+			case when @projectId IS NOT NULL then ProjectItem.ServiceLocationId else m.ServiceLocationId end as ServiceLocationId,
+			case when @projectId IS NULL then m.AvailabilityId end as AvailabilityId,
+			case when @projectId IS NOT NULL then ProjectItem.Availability_Name else av.[Name] end as [Availability],
+			case when @projectId IS NULL then m.DurationId end as DurationId,
+			case when @projectId IS NOT NULL then 0 else dur.IsProlongation end as DurationIsProlongation,
+			case when @projectId IS NOT NULL then ProjectItem.Duration_Name else dur.[Name] end as Duration,
+			case when @projectId IS NOT NULL then ProjectItem.Duration_Months else dur.[Value] * 12 end as DurationMonths,
+			case when @projectId IS NULL then m.ReactionTimeId end as ReactionTimeId,
+			case when @projectId IS NOT NULL then ProjectItem.ReactionTime_Name else rtime.[Name] end as ReactionTime,
+			case when @projectId IS NOT NULL
 				 then ProjectItem.Reinsurance_Flatfee * ISNULL(1 + Reinsurance_UpliftFactor / 100, 1) / ExchangeRate.[Value]
 				 else case when @approved = 0 then r.Cost else r.Cost_approved end
 			end as Cost,
-			case when @projectItemId IS NOT NULL or afEx.id is not null then std.Fee else 0 end as AvailabilityFee,
+			case when @projectId IS NOT NULL or afEx.id is not null then std.Fee else 0 end as AvailabilityFee,
 
 			case when @approved = 0 then fsw.RepairTime else fsw.RepairTime_Approved end as RepairTime,
 			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.FieldServiceCost_LabourCost, fsl.LabourCost, fsl.LabourCost_Approved) AS LabourCost,
@@ -79,38 +79,38 @@ RETURN
 			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.MarkupOtherCosts_ProlongationMarkup, moc.ProlongationMarkup, moc.ProlongationMarkup_Approved) AS ProlongationMarkup,
 			Hardware.CalcByProjectFlag(IsProjCalc, @approved, ProjectItem.MarkupOtherCosts_ProlongationMarkupFactor, moc.ProlongationMarkupFactor, moc.ProlongationMarkupFactor_Approved) / 100 AS ProlongationMarkupFactor
 
-		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg, @projectItemId) std 
+		FROM Hardware.CalcStdwYear(@approved, @cnt, @wg, @projectId) std 
 
 		CROSS JOIN IsProjCalc
 
-		LEFT JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on @projectItemId IS NULL and std.CountryId = m.CountryId and std.WgId = m.WgId
+		LEFT JOIN Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m on @projectId IS NULL and std.CountryId = m.CountryId and std.WgId = m.WgId
 
-		LEFT JOIN Dependencies.Availability av on @projectItemId IS NULL and av.Id = m.AvailabilityId
+		LEFT JOIN Dependencies.Availability av on @projectId IS NULL and av.Id = m.AvailabilityId
 
-		LEFT JOIN Dependencies.Duration dur on @projectItemId IS NULL and dur.id = m.DurationId
+		LEFT JOIN Dependencies.Duration dur on @projectId IS NULL and dur.id = m.DurationId
 
-		LEFT JOIN Dependencies.ReactionTime rtime on @projectItemId IS NULL and rtime.Id = m.ReactionTimeId
+		LEFT JOIN Dependencies.ReactionTime rtime on @projectId IS NULL and rtime.Id = m.ReactionTimeId
 
-		LEFT JOIN Admin.AvailabilityFee afEx on @projectItemId IS NULL and afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
+		LEFT JOIN Admin.AvailabilityFee afEx on @projectId IS NULL and afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-		LEFT JOIN ProjectCalculator.ProjectItem ON ProjectItem.Id = @projectItemId AND ProjectItem.CountryId = std.CountryId AND ProjectItem.WgId = std.WgId
+		LEFT JOIN ProjectCalculator.ProjectItem ON ProjectItem.ProjectId = @projectId AND ProjectItem.CountryId = std.CountryId AND ProjectItem.WgId = std.WgId
 
-		LEFT JOIN Hardware.ReinsuranceCalc r on @projectItemId IS NULL AND r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
+		LEFT JOIN Hardware.ReinsuranceCalc r on @projectId IS NULL AND r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
 		--LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
 		--LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 		--LEFT JOIN Hardware.UpliftFactor ON UpliftFactor.Country = m.CountryId AND UpliftFactor.Wg = m.WgId AND UpliftFactor.[Availability] = m.AvailabilityId
 
 		LEFT JOIN Hardware.FieldServiceWg fsw on fsw.Wg = std.WgId and fsw.DeactivatedDateTime is null
-		LEFT JOIN Hardware.FieldServiceLocation fsl on @projectItemId IS NULL and fsl.Country = m.CountryId and fsl.Wg = m.WgId and fsl.ServiceLocation = m.ServiceLocationId and fsl.DeactivatedDateTime is null
-		LEFT JOIN Hardware.FieldServiceReactionTimeType fst on @projectItemId IS NULL and fst.Country = m.CountryId and fst.Wg = m.WgId and fst.ReactionTimeType = m.ReactionTime_ReactionType and fst.DeactivatedDateTime is null
-		LEFT JOIN Hardware.FieldServiceAvailability fsa on @projectItemId IS NULL and fsa.Country = m.CountryId and fsa.Wg = m.WgId and fsa.[Availability] = m.AvailabilityId and fsa.DeactivatedDateTime is null
+		LEFT JOIN Hardware.FieldServiceLocation fsl on @projectId IS NULL and fsl.Country = m.CountryId and fsl.Wg = m.WgId and fsl.ServiceLocation = m.ServiceLocationId and fsl.DeactivatedDateTime is null
+		LEFT JOIN Hardware.FieldServiceReactionTimeType fst on @projectId IS NULL and fst.Country = m.CountryId and fst.Wg = m.WgId and fst.ReactionTimeType = m.ReactionTime_ReactionType and fst.DeactivatedDateTime is null
+		LEFT JOIN Hardware.FieldServiceAvailability fsa on @projectId IS NULL and fsa.Country = m.CountryId and fsa.Wg = m.WgId and fsa.[Availability] = m.AvailabilityId and fsa.DeactivatedDateTime is null
 
 		LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType and lc.Deactivated = 0
 
 		LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Country = m.CountryId AND moc.Wg = m.WgId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability and moc.Deactivated = 0
 
-		LEFT JOIN [References].ExchangeRate on @projectItemId IS NOT NULL and ProjectItem.Reinsurance_CurrencyId = ExchangeRate.CurrencyId
+		LEFT JOIN [References].ExchangeRate on @projectId IS NOT NULL and ProjectItem.Reinsurance_CurrencyId = ExchangeRate.CurrencyId
 	)
     SELECT    m.rownum
             , m.Id
@@ -382,7 +382,7 @@ RETURN
 
     LEFT JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    LEFT JOIN Hardware.ManualCost man on @projectItemId IS NULL and man.PortfolioId = m.Id
+    LEFT JOIN Hardware.ManualCost man on @projectId IS NULL and man.PortfolioId = m.Id
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 
