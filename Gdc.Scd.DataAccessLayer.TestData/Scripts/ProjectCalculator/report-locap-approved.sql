@@ -1,13 +1,16 @@
 USE [SCD_2]
 
-IF OBJECT_ID('[ProjectCalculator].[spLocapReport]') IS NOT NULL
-  DROP PROCEDURE [ProjectCalculator].[spLocapReport]
+IF OBJECT_ID('ProjectCalculator.spLocapApproved') IS NOT NULL
+  DROP PROCEDURE [ProjectCalculator].[spLocapApproved];
 GO
 
-CREATE PROCEDURE [ProjectCalculator].[spLocapReport]
+CREATE PROCEDURE [ProjectCalculator].[spLocapApproved]
 (
     @cnt          bigint,
     @wg           dbo.ListID readonly,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
     @reactiontype bigint,
     @loc          bigint,
     @lastid       bigint,
@@ -16,18 +19,18 @@ CREATE PROCEDURE [ProjectCalculator].[spLocapReport]
 )
 AS
 BEGIN
-	EXEC [Report].[spLocap] @cnt, @wg, NULL, NULL, NULL, @reactiontype, @loc, @lastid, @limit, @projectId 
+	EXEC [Report].[spLocapApproved] @cnt, @wg, NULL, NULL, NULL, @reactiontype, @loc, @lastid, @limit, @projectId 
 END
 GO
 
-DECLARE @reportName NVARCHAR(MAX) = 'Project-Calc-Locap'
+DECLARE @reportName NVARCHAR(MAX) = 'Project-Calc-Locap-Approved'
 DECLARE @reportId BIGINT = (SELECT [Id] FROM [Report].[Report] WHERE [Name] = @reportName)
 
 IF @reportId IS NULL
 BEGIN
 	INSERT INTO [Report].[Report]([CountrySpecific], [HasFreesedVersion], [Name], [SqlFunc], [Title])
 	VALUES
-		(1, 1, @reportName, 'ProjectCalculator.spLocapReport', 'LOCAP reports (for a specific country)')
+		(1, 1, @reportName, 'ProjectCalculator.spLocapReport', 'LOCAP reports(approved)')
 
 	SET @reportId = (SELECT [Id] FROM [Report].[Report] WHERE [Name] = @reportName)
 END
@@ -58,7 +61,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ReleaseDate', 'Release date', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Approved', 'Service TP (Approved)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ReleaseDate', 'Release date', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
@@ -88,10 +93,11 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('usercountry', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wgsog', 1), 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontype', 0), 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
+

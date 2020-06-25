@@ -64,6 +64,7 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
                     <Button text="Reports" disabled={disabled}>
                         <Menu defaults={this.reportMenuDefaults}>
                             <MenuItem text="LOCAP reports (for a specific country)" value="Project-Calc-Locap" />
+                            <MenuItem text="LOCAP reports(approved)" value="Project-Calc-Locap-Approved" />
                         </Menu>
                     </Button>                                  
                 </Toolbar>  
