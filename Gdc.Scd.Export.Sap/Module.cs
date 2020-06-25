@@ -1,4 +1,5 @@
-﻿ using Gdc.Scd.DataAccessLayer.Helpers;
+﻿ using Gdc.Scd.Core.Interfaces;
+ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.Export.Sap.Enitities;
 using Gdc.Scd.Export.Sap.Impl;
 using Gdc.Scd.Export.Sap.Interfaces;
@@ -10,6 +11,8 @@ namespace Gdc.Scd.Export.Sap
     {
         public override void Load()
         {
+            this.Bind<ILogger>().To<Import.Core.Impl.Logger>().InSingletonScope();
+
             this.Bind<ISapExportLogService>().To<SapExportLogService>().InSingletonScope();
             this.Bind<IManualCostExportService>().To<ManualCostExportService>().InSingletonScope();
 
