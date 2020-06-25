@@ -1,16 +1,13 @@
 USE [SCD_2]
 
-IF OBJECT_ID('ProjectCalculator.spLocapApproved') IS NOT NULL
-  DROP PROCEDURE [ProjectCalculator].[spLocapApproved];
+IF OBJECT_ID('ProjectCalculator.spLocapApprovedReport') IS NOT NULL
+  DROP PROCEDURE [ProjectCalculator].[spLocapApprovedReport];
 GO
 
-CREATE PROCEDURE [ProjectCalculator].[spLocapApproved]
+CREATE PROCEDURE [ProjectCalculator].[spLocapApprovedReport]
 (
     @cnt          bigint,
     @wg           dbo.ListID readonly,
-    @av           bigint,
-    @dur          bigint,
-    @reactiontime bigint,
     @reactiontype bigint,
     @loc          bigint,
     @lastid       bigint,
@@ -30,7 +27,7 @@ IF @reportId IS NULL
 BEGIN
 	INSERT INTO [Report].[Report]([CountrySpecific], [HasFreesedVersion], [Name], [SqlFunc], [Title])
 	VALUES
-		(1, 1, @reportName, 'ProjectCalculator.spLocapReport', 'LOCAP reports(approved)')
+		(1, 1, @reportName, 'ProjectCalculator.spLocapApprovedReport', 'LOCAP reports(approved)')
 
 	SET @reportId = (SELECT [Id] FROM [Report].[Report] WHERE [Name] = @reportName)
 END
