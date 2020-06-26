@@ -4,6 +4,11 @@ using Gdc.Scd.Spooler.Core.Entities;
 using Gdc.Scd.Spooler.Core.Interfaces;
 using Ninject;
 using System;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities.Calculation;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Export.Sap.Enitities;
 
 namespace Gdc.Scd.Export.Sap.Impl
 {
@@ -17,7 +22,9 @@ namespace Gdc.Scd.Export.Sap.Impl
         {
             var kernel = Module.CreateKernel();
             logger = kernel.Get<ILogger>();
-            this.manualCostExportService = kernel.Get<IManualCostExportService>();
+            this.manualCostExportService = new ManualCostExportService(kernel.Get<IRepository<HardwareManualCost>>(),
+                kernel.Get<IRepository<User>>(), kernel.Get<IDomainService<SapTable>>(), kernel.Get<ISapExportLogService>(),
+                kernel.Get<IRepositorySet>(), logger);
 
             logger.Info(SapLogConstants.INITIALIZATION_END);
         }
@@ -38,10 +45,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             
         }
 
-        public string WhoAmI()
-        {
-            return "SapJob";
-        }
+        public string WhoAmI() => JobName;
 
         public static OperationResult<bool> Result(bool ok)
         {
