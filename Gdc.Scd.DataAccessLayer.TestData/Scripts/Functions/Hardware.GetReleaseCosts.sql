@@ -25,7 +25,7 @@ RETURN
              , r.Cost_approved as Cost
         from Hardware.ReinsuranceCalc r
 
-        JOIN Dependencies.ReactionTime_Avalability ta on ta.Id = r.ReactionTimeAvailability and ta.IsDisabled = 0
+        JOIN Dependencies.ReactionTime_Avalability ta on ta.Id = r.ReactionTimeAvailability 
 
         where r.Duration = (select id from Dependencies.Duration where IsProlongation = 1 and Value = 1)
     )
@@ -176,6 +176,7 @@ RETURN
          , m.Credits
 
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ReActiveTP
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) + m.ProActiveOrZero as ServiceTP
 
          , m.ServiceTC1
@@ -196,6 +197,7 @@ RETURN
          , m.DealerDiscount
          , m.DealerPrice
          , m.ServiceTCManual
+         , m.ReActiveTPManual 
          , m.ReActiveTPManual + m.ProActiveOrZero as ServiceTPManual
          , m.ServiceTP_Released
 
@@ -206,4 +208,3 @@ RETURN
        from CostCte6 m
 )
 go
-

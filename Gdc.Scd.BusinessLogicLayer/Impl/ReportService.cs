@@ -27,7 +27,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public ReportService(
                 IRepositorySet repositorySet,
-                ISapUploadRepository sapUploadRepository,
                 IUserService userService
             )
         {
