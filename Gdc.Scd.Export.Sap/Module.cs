@@ -3,7 +3,8 @@
 using Gdc.Scd.Export.Sap.Enitities;
 using Gdc.Scd.Export.Sap.Impl;
 using Gdc.Scd.Export.Sap.Interfaces;
-using Gdc.Scd.Spooler.Core;
+ using Gdc.Scd.Import.Core.Impl;
+ using Gdc.Scd.Spooler.Core;
 
 namespace Gdc.Scd.Export.Sap
 {
@@ -11,13 +12,12 @@ namespace Gdc.Scd.Export.Sap
     {
         public override void Load()
         {
-            this.Bind<ILogger>().To<Import.Core.Impl.Logger>().InSingletonScope();
-
-            this.Bind<ISapExportLogService>().To<SapExportLogService>().InSingletonScope();
-            this.Bind<IManualCostExportService>().To<ManualCostExportService>().InSingletonScope();
-
             this.Kernel.RegisterEntity<SapExportLog>();
             this.Kernel.RegisterEntity<SapTable>();
+
+            this.Bind<ILogger>().To<Logger>().InSingletonScope();
+            this.Bind<ISapExportLogService>().To<SapExportLogService>().InSingletonScope();
+            this.Bind<IManualCostExportService>().To<ManualCostExportService>().InSingletonScope();
         }
     }
 }

@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Export.Sap.Dto;
 using Gdc.Scd.Export.Sap.Interfaces;
 
 namespace Gdc.Scd.Export.Sap.Impl
@@ -18,10 +20,18 @@ namespace Gdc.Scd.Export.Sap.Impl
             this.Logger = logger;
         }
 
-        public string CreateFileOnServer(List<ReleasedData> sapUploadDatas, int fileNumber)
+        public string CreateFileOnServer(List<ReleasedData> releasedData, int fileNumber)
         {
             var fileName = Config.SapFileName + "." + fileNumber.ToString("0000");
             var writePath = Config.ExportDirectory.EndsWith("\\") ? Config.ExportDirectory : Config.ExportDirectory + "\\";
+
+            var sapUploadDatas = releasedData
+                .GroupBy(sp => new
+                {
+                    sp.SapTable, sp.CostCondition, sp.VariableKey, sp.ValidTo, sp.ValidFrom, sp.Price, sp.CurrencyName
+                }).Select(rel => rel.FirstOrDefault()).Select(r =>
+                    new FileData(r.SapTable, r.CostCondition, r.VariableKey, r.ValidTo, r.ValidFrom, r.Price,
+                        r.CurrencyName));
 
             using (StreamWriter sw = new StreamWriter(writePath + fileName, false, System.Text.Encoding.Default))
             {
@@ -48,14 +58,13 @@ namespace Gdc.Scd.Export.Sap.Impl
 
         private string CreateTextFromConfig(string template)
         {
-            string pattern = @"(?<=\[)[^]]*(?=\])";
+            string pattern = Config.RegExpConfig;  //@"(?<=\[)[^]]*(?=\])"; 
             // Create a Regex  
             Regex rg = new Regex(pattern);
 
             // Get all matches  
             MatchCollection matchedFields = rg.Matches(template);
-
-            // Print all matched authors  
+ 
             for (int count = 0; count < matchedFields.Count; count++)
             {
                 template = template.Replace("[" + matchedFields[count].Value + "]",
@@ -65,16 +74,15 @@ namespace Gdc.Scd.Export.Sap.Impl
             return template;
         }
 
-        private string CreateTextFromDto(string template, ReleasedData dto)
+        private string CreateTextFromDto(string template, FileData dto)
         {
-            string pattern = @"(?<=\{)[^}]*(?=\})";
+            string pattern = Config.RegExpClass;  //@"(?<=\{)[^}]*(?=\})";
             // Create a Regex  
             Regex rg = new Regex(pattern);
 
             // Get all matches  
             MatchCollection matchedFields = rg.Matches(template);
-
-            // Print all matched authors  
+  
             for (int count = 0; count < matchedFields.Count; count++)
                 template = template.Replace("{" + matchedFields[count].Value + "}",
                     dto.GetAttribute<string>(matchedFields[count].Value));
@@ -101,7 +109,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                 var msg = string.Format(
                     "Error occured when try to send file '{0}' from dir='{1}' to host='{2}' with params='{3}' ",
                     filename, Config.ExportDirectory, Config.ExportHost, Config.Admission);
-                    Logger.Error(ex, msg);
+                Logger.Error(ex, msg);
 
             }
 
