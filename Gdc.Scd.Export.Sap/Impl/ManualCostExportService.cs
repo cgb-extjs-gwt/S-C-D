@@ -47,10 +47,14 @@ namespace Gdc.Scd.Export.Sap.Impl
 
         public void Export()
         {
+            Logger.Info(SapLogConstants.START_PROCESS);
+
             var lastSapLog = 
                 this.sapLogService.GetAll()
                                   .OrderBy(log => log.UploadDate)
                                   .LastOrDefault();
+
+            Logger.Info(SapLogConstants.SAPLOG_RECEIVED);
 
             if (lastSapLog == null)
             {
@@ -58,7 +62,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             }
             else if (!lastSapLog.IsSend)
             {
-                Logger.Error("Last Sap file wasn't send to SAP");
+                Logger.Error( SapLogConstants.SAPLOG_NOTSENT + lastSapLog.FileNumber);
                 return;
             }
             else if (Enum.TryParse(Config.ExportType, out ExportType exportTypeParam))
@@ -71,6 +75,8 @@ namespace Gdc.Scd.Export.Sap.Impl
             }
 
             this.Do();
+
+            Logger.Info(SapLogConstants.END_PROCESS);
         }
 
         private void Do()
@@ -78,7 +84,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             var locapMergedData = new LocapReportService(repository).Execute(this.StartPeriod);
             if (locapMergedData == null)
             {
-                Logger.Info("No locapMergedData for upload");
+                Logger.Info(SapLogConstants.NODATA_FORUPLOAD);
                 return;
             }
 
@@ -102,7 +108,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                     .LastOrDefault();
             if (lastSapLog != null && lastSapLog.IsSend == false)
             {
-                Logger.Error("ExportPacks: Last Sap file wasn't send to SAP");
+                Logger.Error(SapLogConstants.SAPLOG_PREVNOTSENT + lastSapLog.FileNumber);
                 return false;
             }
 
@@ -129,8 +135,9 @@ namespace Gdc.Scd.Export.Sap.Impl
                 PriceDb = (packType == SapUploadPackType.HW) ? lp.ServiceTP : lp.LocalServiceStdw,
                 ValidFromDt = lp.ReleaseDate ?? (lp.NextSapUploadDate ?? DateTime.Today),
                 ValidToDt = DateTime.MaxValue,
-                SapTable = saptables.FirstOrDefault(s => s.SapSalesOrganization == lp.SapSalesOrganization).Name,
-                SapItemCategory = lp.SapItemCategory
+                SapTable = saptables.FirstOrDefault(s => s.SapSalesOrganization.Equals(lp.SapSalesOrganization, StringComparison.InvariantCultureIgnoreCase))?.Name,
+                SapItemCategory = lp.SapItemCategory,
+                SapUploadPackType = packType
             }).Distinct().ToList();
         }
 
@@ -171,7 +178,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             }
             catch(Exception ex)
             {
-                Logger.Error(ex, "unable to set SapUploadDate in hwManualCosts");
+                Logger.Error(ex, SapLogConstants.HWMANUALCOSTS_CANTUPDATE);
                 transaction?.Rollback();
                 throw;
             }
