@@ -5,16 +5,33 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Export.Sap.Dto;
 using Gdc.Scd.Export.Sap.Interfaces;
 
 namespace Gdc.Scd.Export.Sap.Impl
 {
     public class FileService : IFileService
     {
-        public string CreateFileOnServer(List<ReleasedData> sapUploadDatas, int fileNumber)
+        protected ILogger Logger;
+
+        public FileService(ILogger logger)
+        {
+            this.Logger = logger;
+        }
+
+        public string CreateFileOnServer(List<ReleasedData> releasedData, int fileNumber)
         {
             var fileName = Config.SapFileName + "." + fileNumber.ToString("0000");
             var writePath = Config.ExportDirectory.EndsWith("\\") ? Config.ExportDirectory : Config.ExportDirectory + "\\";
+
+            var sapUploadDatas = releasedData
+                .GroupBy(sp => new
+                {
+                    sp.SapTable, sp.CostCondition, sp.VariableKey, sp.ValidTo, sp.ValidFrom, sp.Price, sp.CurrencyName
+                }).Select(rel => rel.FirstOrDefault()).Select(r =>
+                    new FileData(r.SapTable, r.CostCondition, r.VariableKey, r.ValidTo, r.ValidFrom, r.Price,
+                        r.CurrencyName));
 
             using (StreamWriter sw = new StreamWriter(writePath + fileName, false, System.Text.Encoding.Default))
             {
@@ -41,14 +58,13 @@ namespace Gdc.Scd.Export.Sap.Impl
 
         private string CreateTextFromConfig(string template)
         {
-            string pattern = @"(?<=\[)[^]]*(?=\])";
+            string pattern = Config.RegExpConfig;  //@"(?<=\[)[^]]*(?=\])"; 
             // Create a Regex  
             Regex rg = new Regex(pattern);
 
             // Get all matches  
             MatchCollection matchedFields = rg.Matches(template);
-
-            // Print all matched authors  
+ 
             for (int count = 0; count < matchedFields.Count; count++)
             {
                 template = template.Replace("[" + matchedFields[count].Value + "]",
@@ -58,16 +74,15 @@ namespace Gdc.Scd.Export.Sap.Impl
             return template;
         }
 
-        private string CreateTextFromDto(string template, ReleasedData dto)
+        private string CreateTextFromDto(string template, FileData dto)
         {
-            string pattern = @"(?<=\{)[^}]*(?=\})";
+            string pattern = Config.RegExpClass;  //@"(?<=\{)[^}]*(?=\})";
             // Create a Regex  
             Regex rg = new Regex(pattern);
 
             // Get all matches  
             MatchCollection matchedFields = rg.Matches(template);
-
-            // Print all matched authors  
+  
             for (int count = 0; count < matchedFields.Count; count++)
                 template = template.Replace("{" + matchedFields[count].Value + "}",
                     dto.GetAttribute<string>(matchedFields[count].Value));
@@ -85,7 +100,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                 {
                     result = false;
                     var msg = string.Format("net copy file: ERROR : '{0}'", errCode);
-                    //Log.Error(msg);
+                    Logger.Error(msg);
                 }
             }
             catch (Exception ex)
@@ -94,7 +109,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                 var msg = string.Format(
                     "Error occured when try to send file '{0}' from dir='{1}' to host='{2}' with params='{3}' ",
                     filename, Config.ExportDirectory, Config.ExportHost, Config.Admission);
-                //Log.Error(ex, msg);
+                Logger.Error(ex, msg);
 
             }
 
@@ -113,18 +128,18 @@ namespace Gdc.Scd.Export.Sap.Impl
                     Arguments = filenameFrom + " " + pathTo + "!" + filenameTo + " " + additionalParams
                 }
             };
-            //Log.Info("net copy file: sending " + filenameFrom + "...");
-            //Log.Info("net copy file: startcode=" + proc.Start() + "...");
-            //Log.Info("net copy file: waiting...");
+            Logger.Info("net copy file: sending " + filenameFrom + "...");
+            Logger.Info("net copy file: startcode=" + proc.Start() + "...");
+            Logger.Info("net copy file: waiting...");
             proc.WaitForExit(30000);
 
             if (proc.ExitCode != 0)
             {
-                //Log.Info("net copy file: ERROR " + proc.ExitCode);
+                Logger.Info("net copy file: ERROR " + proc.ExitCode);
             }
             else
             {
-                //Log.Info("net copy file: ok");
+                Logger.Info("net copy file: ok");
             }
 
             return proc.ExitCode;

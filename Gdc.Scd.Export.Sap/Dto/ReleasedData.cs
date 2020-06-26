@@ -4,7 +4,7 @@ using Gdc.Scd.Export.Sap.Dto;
 
 namespace Gdc.Scd.Export.Sap.Enitities
 {
-    public class ReleasedData : FieldGetter
+    public class ReleasedData
     {
         public string SapTable { get; set; }
         public string SapSalesOrg { get; set; }
@@ -59,7 +59,7 @@ namespace Gdc.Scd.Export.Sap.Enitities
         {
             get
             {
-                var val =  PriceDb.ToString("N2");
+                var val = PriceDb.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',');
 
                 if (val.Length < 14)
                 {
