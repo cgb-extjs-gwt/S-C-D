@@ -33,11 +33,11 @@ BEGIN
 
     if not exists(select id from @wg_SOG_Table) return;
 
-    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
+    declare @avTable dbo.ListId;
 
-    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+    declare @durTable dbo.ListId;
 
-    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
+    declare @rtimeTable dbo.ListId;
 
     declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
 
