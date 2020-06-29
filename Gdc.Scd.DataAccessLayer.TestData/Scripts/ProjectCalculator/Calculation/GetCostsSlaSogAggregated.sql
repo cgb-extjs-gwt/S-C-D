@@ -1,10 +1,10 @@
 USE [SCD_2]
 
-IF OBJECT_ID('[Hardware].[GetCostsSlaSogAgregated]') IS NOT NULL
-  DROP FUNCTION [Hardware].[GetCostsSlaSogAgregated];
+IF OBJECT_ID('[Hardware].[GetCostsSlaSogAggregated]') IS NOT NULL
+  DROP FUNCTION [Hardware].[GetCostsSlaSogAggregated];
 go 
 
-CREATE FUNCTION [Hardware].[GetCostsSlaSogAgregated](
+CREATE FUNCTION [Hardware].[GetCostsSlaSogAggregated](
     @approved bit,
     @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
@@ -96,7 +96,7 @@ RETURN
              , m.DealerDiscount
              , m.DealerPrice
 
-        from Hardware.GetCostsNew(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null, @projectId) m
+        from Hardware.GetCostsAggregated(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null, @projectId) m
         join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
         left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )
