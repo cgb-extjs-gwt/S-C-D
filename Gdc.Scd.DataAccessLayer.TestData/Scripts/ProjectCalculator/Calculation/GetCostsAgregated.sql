@@ -1,10 +1,10 @@
 USE [SCD_2]
 
-IF OBJECT_ID('[Hardware].[GetCostsNew]') IS NOT NULL
-    DROP FUNCTION [Hardware].[GetCostsNew]
+IF OBJECT_ID('[Hardware].[GetCostsAgregated]') IS NOT NULL
+    DROP FUNCTION [Hardware].[GetCostsAgregated]
 GO
 
-CREATE FUNCTION [Hardware].[GetCostsNew](
+CREATE FUNCTION [Hardware].[GetCostsAgregated](
     @approved bit,
     @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
@@ -23,11 +23,7 @@ AS
 RETURN 
 (
      WITH CostCte as (
-        select --m.*
-
-             --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ReActiveTC
-             --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ReActiveTP 
-			 
+        select 
 			   m.rownum
 			 , m.Id
 
@@ -79,18 +75,7 @@ RETURN
 			 , m.ReActiveTPManual
 			 , m.ServiceTP_Released
 
-			 --, SUM(m.ServiceTC) as ReActiveTC
 			 , SUM(m.ServiceTP) as ReActiveTP
-			 --, SUM(m.TaxOowForSum) as TaxAndDutiesOow
-			 --, SUM(m.MaterialOowForSum) as MaterialOow
-			 --, SUM(m.FieldServiceCostForSum) as FieldServiceCost
-			 --, SUM(m.LogisticForSum) as Logistic
-			 --, SUM(m.OtherDirectForSum) as OtherDirect
-			 --, SUM(m.LocalServiceStandardWarrantyForSum) as LocalServiceStandardWarranty
-			 --, SUM(m.CreditForSum) as Credits
-			 --, SUM(m.TaxWForSum) as TaxAndDutiesW
-			 --, SUM(m.MatWForSum) as MaterialW
-
 			 , SUM(LocalServiceStandardWarranty) as LocalServiceStandardWarranty
 			 , SUM(m.Credit) as Credits
 			 , SUM(m.ServiceTC) as ReActiveTC
@@ -212,7 +197,6 @@ RETURN
 
          , m.AvailabilityFee * m.Year as AvailabilityFee
          , m.TaxAndDutiesW
-         --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.TaxOow1, m.TaxOow2, m.TaxOow3, m.TaxOow4, m.TaxOow5, m.TaxOow1P) as TaxAndDutiesOow
 		 , m.TaxAndDutiesOow
 
          , m.Reinsurance
@@ -220,14 +204,10 @@ RETURN
          , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
 
          , m.MaterialW
-         --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
 		 , m.MaterialOow
 
-         --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.FieldServiceCost1, m.FieldServiceCost2, m.FieldServiceCost3, m.FieldServiceCost4, m.FieldServiceCost5, m.FieldServiceCost1P) as FieldServiceCost
 		 , m.FieldServiceCost
-         --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.Logistic1, m.Logistic2, m.Logistic3, m.Logistic4, m.Logistic5, m.Logistic1P) as Logistic
 		 , m.Logistic
-         --, Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
 		 , m.OtherDirect
        
          , m.LocalServiceStandardWarranty
@@ -241,20 +221,6 @@ RETURN
          
          , m.ReActiveTP
          , m.ReActiveTP + m.ProActiveOrZero as ServiceTP
-
-         --, m.ServiceTC1
-         --, m.ServiceTC2
-         --, m.ServiceTC3
-         --, m.ServiceTC4
-         --, m.ServiceTC5
-         --, m.ServiceTC1P
-
-         --, m.ServiceTP1
-         --, m.ServiceTP2
-         --, m.ServiceTP3
-         --, m.ServiceTP4
-         --, m.ServiceTP5
-         --, m.ServiceTP1P
 
          , m.ListPrice
          , m.DealerDiscount

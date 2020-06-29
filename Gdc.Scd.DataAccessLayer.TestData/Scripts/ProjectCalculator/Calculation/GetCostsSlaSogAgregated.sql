@@ -1,10 +1,10 @@
 USE [SCD_2]
 
-IF OBJECT_ID('[Hardware].[GetCostsSlaSogNew]') IS NOT NULL
-  DROP FUNCTION [Hardware].[GetCostsSlaSogNew];
+IF OBJECT_ID('[Hardware].[GetCostsSlaSogAgregated]') IS NOT NULL
+  DROP FUNCTION [Hardware].[GetCostsSlaSogAgregated];
 go 
 
-CREATE FUNCTION [Hardware].[GetCostsSlaSogNew](
+CREATE FUNCTION [Hardware].[GetCostsSlaSogAgregated](
     @approved bit,
     @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
