@@ -68,6 +68,7 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
                             <MenuItem text="LOCAP reports detailed" value="Project-Calc-Locap-Detailed" />
                             <MenuItem text="LOCAP reports detailed(approved)" value="Project-Calc-Locap-Detailed-Approved" />
                             <MenuItem text="Contract reports" value="Project-Calc-Contract" />
+                            <MenuItem text="Calculation Parameter Overview reports for HW maintenance cost elements" value="Project-Calc-Param-hw" />
                         </Menu>
                     </Button>                                  
                 </Toolbar>  

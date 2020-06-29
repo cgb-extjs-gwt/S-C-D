@@ -204,5 +204,33 @@ RETURN
 			, m.ChangeDate
 			, m.ChangeUserName
 			, m.ChangeUserEmail
+
+			, m.AFR
+			, m.LabourCost
+			, m.TravelCost
+			, m.PerformanceRate
+			, m.TravelTime
+			, m.RepairTime
+			, m.OnsiteHourlyRates
+			, m.TimeAndMaterialShare_norm
+			, m.OohUpliftFactor
+			, m.TaxW AS TaxAndDutiesW
+			, m.MarkupFactorStandardWarranty
+			, m.MarkupStandardWarranty
+			, m.RiskFactorStandardWarranty
+			, m.RiskStandardWarranty
+			, m.[1stLevelSupportCosts]
+			, m.[2ndLevelSupportCosts]
+			, m.[Sar]
+		    , m.[MaterialCostWarranty]
+			, m.[MaterialCostOow]
+			, m.[StandardHandling]
+			, m.[HighAvailabilityHandling]
+			, m.[StandardDelivery]
+			, m.[ExpressDelivery]
+			, m.[TaxiCourierDelivery]
+			, m.[ReturnDeliveryFactory]
+			, m.[MarkupOtherCost]
+			, m.MarkupFactorOtherCost
     from CostCte6 AS m
 )

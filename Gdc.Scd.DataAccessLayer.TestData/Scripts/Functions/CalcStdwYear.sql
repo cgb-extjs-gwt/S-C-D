@@ -151,9 +151,15 @@ RETURNS @tbl TABLE  (
         
 		, CreditWithoutSar            float
 
-		
-
         --, PRIMARY KEY CLUSTERED(CountryId, WgId)
+
+		, MarkupFactorStandardWarranty float
+		, MarkupStandardWarranty float
+		, [1stLevelSupportCosts] float
+		, [2ndLevelSupportCosts] float
+		, [Sar] float
+		, [MaterialCostWarranty] float
+	    , [MaterialCostOow] float
     )
 AS
 BEGIN
@@ -743,6 +749,14 @@ BEGIN
                --!!!!!!!!!!!!!!!!!!!!!!, CreditsWithoutSar      
 
 			   , CreditWithoutSar
+
+			   , MarkupFactorStandardWarranty
+		       , MarkupStandardWarranty
+			   , [1stLevelSupportCosts]
+			   , [2ndLevelSupportCosts]
+			   , [Sar]
+			   , [MaterialCostWarranty]
+			   , [MaterialCostOow]
         )
     select    m.CountryId                    
             , m.Country                      
@@ -881,6 +895,14 @@ BEGIN
             --    m.mat3 + m.LocalServiceStandardWarranty3WithoutSar +
             --    m.mat4 + m.LocalServiceStandardWarranty4WithoutSar +
             --    m.mat5 + m.LocalServiceStandardWarranty5WithoutSar as CreditWithoutSar 
+
+			, m.MarkupFactorStandardWarranty
+			, m.MarkupStandardWarranty
+			, m.[1stLevelSupportCosts]
+			, m.[2ndLevelSupportCosts]
+			, m.[Sar]
+			, m.[MaterialCostWarranty]
+			, m.[MaterialCostOow]
 
     from CostCte3 m;
 
