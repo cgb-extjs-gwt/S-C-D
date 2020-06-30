@@ -55,6 +55,8 @@ export const ProjectEditorContainer = connect<ProjectEditorProps, ProjectEditorA
                         case 'serviceLocationId':
                         case 'duration.value':    
                         case 'duration.periodType':
+                        case 'reactionTime.value':    
+                        case 'reactionTime.periodType':
                             record.data.isRecalculation = true;
                             break;
                     }

@@ -464,7 +464,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     };
   }
 
-  private replaceNullValue = value => (value ? value : " ");
+  private replaceNullValue = value => (value == null ? ' ' : value);
 
   private onUpdateStore = (
     store: Store,
