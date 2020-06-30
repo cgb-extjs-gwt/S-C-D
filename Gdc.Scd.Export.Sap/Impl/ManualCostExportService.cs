@@ -5,6 +5,7 @@ using Gdc.Scd.Export.Sap.Enitities;
 using Gdc.Scd.Export.Sap.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -134,7 +135,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                 FspCodeWg = (packType == SapUploadPackType.HW) ? lp.FspCode : lp.WgName,
                 PriceDb = (packType == SapUploadPackType.HW) ? lp.ServiceTP : lp.LocalServiceStdw,
                 ValidFromDt = lp.ReleaseDate ?? (lp.NextSapUploadDate ?? DateTime.Today),
-                ValidToDt = DateTime.MaxValue,
+                ValidToDt = DateTime.Parse(Config.MaxDateTime, new CultureInfo("de-DE")),
                 SapTable = saptables.FirstOrDefault(s => s.SapSalesOrganization.Equals(lp.SapSalesOrganization, StringComparison.InvariantCultureIgnoreCase))?.Name,
                 SapItemCategory = lp.SapItemCategory,
                 SapUploadPackType = packType
