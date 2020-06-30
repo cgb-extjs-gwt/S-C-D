@@ -6,7 +6,7 @@ namespace Gdc.Scd.Tests.Util
     public static class JsonHelper
     {
         private static readonly JsonSerializerSettings serializerSettings =
-                new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+                new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver(), Formatting = Formatting.Indented };
 
         public static string AsJson(this object o)
         {
