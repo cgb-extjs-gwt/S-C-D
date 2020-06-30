@@ -405,7 +405,7 @@ BEGIN
 			FROM
 				@xy AS XY
 			LEFT JOIN
-				(' + @xySql + ') AS ResultQuery ON ResultQuery.X ' + @conditionOperator + 'XY.X
+				(' + @xySql + ') AS ResultQuery ON ResultQuery.X ' + @conditionOperator + 'XY.X AND ResultQuery.Y IS NOT NULL
 		  ) AS t
 		  WHERE
 			RowNumber = @skip + 1'
