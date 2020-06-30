@@ -28,6 +28,8 @@ namespace Gdc.Scd.Export.Sap
         public static string FileLine1 => ConfigurationManager.AppSettings["FileLine1"];
         public static string FileLine2 => ConfigurationManager.AppSettings["FileLine2"];
 
+        public static string MaxDateTime => ConfigurationManager.AppSettings["MaxDateTime"];
+
         public static string SapDBUserLogin => ConfigurationManager.AppSettings["SapDBUser"];
 
         public static string RegExpConfig => ConfigurationManager.AppSettings["RegExpConfig"];
