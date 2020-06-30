@@ -543,19 +543,28 @@ BEGIN
 			END AS Y2
 		FROM
 			UseType
+	),
+	Results AS 
+	(
+		SELECT
+			ProjectItemId,
+			X,
+			CASE 
+				WHEN XY.Y IS NOT NULL THEN XY.Y
+				WHEN XY.X1 <> XY.X2 THEN (X - X1)/(X2 - X1) * (Y2 - Y1) + Y1
+			END AS Y
+		FROM
+			XY
 	)
-	SELECT
+	SELECT 
 		ProjectItemId,
 		X,
-		CASE 
-			WHEN XY.Y IS NOT NULL THEN XY.Y
-			WHEN XY.X1 <> XY.X2 THEN (X - X1)/(X2 - X1) * (Y2 - Y1) + Y1
-		END AS Y
-	INTO
-		#InterpolateResults
-	FROM
-		XY
-
+		ROUND(Y, 2) AS Y
+	INTO 
+		#InterpolateResults 
+	FROM 
+		Results
+	
 	IF @tempResultTable IS NULL
 		SELECT * FROM #InterpolateResults
 	ELSE BEGIN
