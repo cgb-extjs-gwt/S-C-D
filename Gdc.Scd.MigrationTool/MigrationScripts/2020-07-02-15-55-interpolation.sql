@@ -1,5 +1,3 @@
-USE [SCD_2]
-
 IF OBJECT_ID('[ProjectCalculator].[InterpolateProjects]') IS NOT NULL
     DROP PROCEDURE [ProjectCalculator].[InterpolateProjects]
 GO

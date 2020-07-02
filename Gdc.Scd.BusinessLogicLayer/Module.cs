@@ -57,7 +57,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Wg>();
-            Kernel.RegisterEntity<Availability>();
             Kernel.RegisterEntity<Year>();
             Kernel.RegisterEntity<Duration>();
             Kernel.RegisterEntity<ReactionType>();

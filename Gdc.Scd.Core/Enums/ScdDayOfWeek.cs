@@ -1,6 +1,6 @@
-﻿namespace Gdc.Scd.Core.Entities.ProjectCalculator
+﻿namespace Gdc.Scd.Core.Entities.Enums
 {
-    public enum DayOfWeek : byte
+    public enum ScdDayOfWeek : byte
     {
         Monday,
         Tuesday,

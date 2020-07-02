@@ -78,6 +78,12 @@ namespace Gdc.Scd.DataAccessLayer
             Kernel.RegisterEntityAsUniqueName<Role>();
             Kernel.RegisterEntityAsUniqueName<Permission>();
             Kernel.RegisterEntity<RolePermission>();
+            Kernel.RegisterEntity<Availability>(
+                builder => 
+                {
+                    builder.OwnsOne(typeof(DayHour), nameof(Availability.Start));
+                    builder.OwnsOne(typeof(DayHour), nameof(Availability.End));
+                });
             Kernel.RegisterEntity<ProjectItem>(
                 builder =>
                 {

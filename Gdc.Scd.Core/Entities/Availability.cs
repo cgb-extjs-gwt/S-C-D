@@ -7,5 +7,9 @@ namespace Gdc.Scd.Core.Entities
     public class Availability : ExternalEntity
     {
         public int Value { get; set; }
+
+        public DayHour Start { get; set; }
+
+        public DayHour End { get; set; }
     }
 }
