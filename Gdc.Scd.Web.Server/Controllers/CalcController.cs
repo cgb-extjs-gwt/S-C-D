@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Web.Server;
@@ -17,13 +18,17 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private readonly ICountryUserService userCountrySrv;
 
+        private readonly CalcDetailService detailService;
+
         public CalcController(
                 ICalculationService calcSrv,
-                ICountryUserService userCountrySrv
+                ICountryUserService userCountrySrv,
+                CalcDetailService detailService
             )
         {
             this.calcSrv = calcSrv;
             this.userCountrySrv = userCountrySrv;
+            this.detailService = detailService;
         }
 
         [HttpPost]
@@ -155,10 +160,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public object Details(long id, string what)
+        public Task<object> Details(long id, string what)
         {
-            var fn = System.Web.HttpContext.Current.Server.MapPath("~/Content/fake/service-tc.json");
-            return this.JsonContent(System.IO.File.ReadAllText(fn));
+            return detailService.GetHwCostDetails(false, id, what);
         }
 
         private bool IsRangeValid(int start, int limit)

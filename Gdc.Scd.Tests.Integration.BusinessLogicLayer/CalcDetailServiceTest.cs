@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.Tests.Util;
+using Ninject;
 using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
@@ -10,18 +11,33 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
 
         private CalcDetailService testing;
 
+        private StandardKernel kernel;
+
+        public CalcDetailServiceTest()
+        {
+            kernel = Module.CreateKernel();
+        }
+
         [SetUp]
         public void Setup()
         {
-            testing = new CalcDetailService();
+            testing = kernel.Get<CalcDetailService>();
         }
 
         [TestCase]
-        public void GetHwCostDetailsTest()
+        public void GetTP_CostDetailsTest()
         {
-            var d = testing.GetHwCostDetails(false, -1, null).Result;
+            var d = testing.GetHwCostDetails(false, 14531504, "tp").Result;
             //
             Save(d, "service-tp.json");
+        }
+
+        [TestCase]
+        public void GetTC_CostDetailsTest()
+        {
+            var d = testing.GetHwCostDetails(false, 14531504, "tc").Result;
+            //
+            Save(d, "service-tс.json");
         }
 
         public static void Save(object data, string fn)

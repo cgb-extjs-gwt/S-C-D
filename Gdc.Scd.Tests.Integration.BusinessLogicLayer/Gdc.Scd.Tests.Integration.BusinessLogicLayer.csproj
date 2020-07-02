@@ -36,13 +36,24 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CalcDetailServiceTest.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Web.Common, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.Common.3.3.1\lib\net45\Ninject.Web.Common.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +64,14 @@
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
       <Project>{785fe9d5-3140-46bf-af1b-eb3764397a44}</Project>
       <Name>Gdc.Scd.BusinessLogicLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
+      <Project>{F587C0F8-3F2F-4F50-9EA2-2D8C74D8330B}</Project>
+      <Name>Gdc.Scd.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
+      <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
+      <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Tests.Util\Gdc.Scd.Tests.Util.csproj">
       <Project>{920e1683-41c8-4c7c-aa52-e976feaa4d2d}</Project>

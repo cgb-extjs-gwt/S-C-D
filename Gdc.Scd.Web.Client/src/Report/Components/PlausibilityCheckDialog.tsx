@@ -66,7 +66,7 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
                 <div className="plausi-box-left">
                     <p>
                         <span className="sla">
-                            {d.fsp}:&nbsp;
+                            {d.fsp ? d.fsp + ': ' : ''}
                             {d.country},&nbsp;
                             {d.wg},&nbsp;
                             {d.availability},&nbsp;
