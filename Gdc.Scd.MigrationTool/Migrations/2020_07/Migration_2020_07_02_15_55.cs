@@ -18,7 +18,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public void Execute()
         {
-			this.repositorySet.ExecuteFromFile("2020-06-29-14-45-tables.sql");
+			this.repositorySet.ExecuteFromFile("2020-07-02-15-55-availability.sql");
             this.repositorySet.ExecuteFromFile("2020-07-02-15-55-interpolation.sql");
         }
     }
