@@ -134,19 +134,8 @@ export class ProjectList extends React.PureComponent<ProjectListProps> {
     }
 
     private onDelete = () => {
-        Ext.Msg.confirm(
-            'Delete Project', 
-            'Do you want to delete the project?',
-            (buttonId: string) => {
-                if (buttonId == 'yes') {
-                    const { onDelete, selectedProject } = this.props;
-                    const record = this.store.getById(selectedProject.id);
+        const { onDelete, selectedProject } = this.props;
 
-                    this.store.remove(record);
-
-                    onDelete && onDelete(this.store, selectedProject);
-                }
-            }
-        );
+        onDelete && onDelete(this.store, selectedProject);
     }
 }

@@ -39,8 +39,8 @@ namespace Gdc.Scd.Web.Server.Controllers
             return this.projectService.SaveWithInterpolation(item);
         }
 
-        [HttpDelete]
-        public override void Delete(long id)
+        [HttpPost]
+        public override void Delete([FromUri]long id)
         {
             base.Delete(id);
         }

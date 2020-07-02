@@ -7,6 +7,7 @@ import { loadProjectItemEditData } from "../Actions/ProjectCalculatorAsyncAction
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { Paths } from "../../Layout/Components/LayoutContainer";
 import { Project } from "../States/Project";
+import { handleRequest } from "../../Common/Helpers/RequestHelper";
 
 const goToEdit = (history, project: Project) => {
     history.push(buildComponentUrl(`${Paths.projectCalculatorEdit}/${project.id}`));
@@ -38,7 +39,21 @@ export const ProjectListContainer = connect<ProjectListProps, ProjectListActions
             goToEdit(history, selectedProject);
         },
         onDelete: (store, selectedProject) => {
-            deleteProject(selectedProject.id)
+            Ext.Msg.confirm(
+                'Delete Project', 
+                'Do you want to delete the project?',
+                (buttonId: string) => {
+                    if (buttonId == 'yes') {
+                        handleRequest(
+                            deleteProject(selectedProject.id).then(() => {
+                                const record = store.getById(selectedProject.id);
+    
+                                store.remove(record);
+                            })
+                        );
+                    }
+                }
+            );
         },
         onReportClick: (reportName, project) => {
             history.push(buildComponentUrl(`${Paths.projectCalculatorReport}/${reportName}/${project.id}`));
