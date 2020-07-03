@@ -150,7 +150,17 @@ export class ProjectEditor extends React.PureComponent<ProjectEditorProps, Proje
                 projectItem.serviceLocationId &&
                 projectItem.duration &&
                 projectItem.duration.value != null &&
-                projectItem.duration.periodType != null
+                projectItem.duration.periodType != null &&
+                (
+                    !projectItem.reactionTime ||
+                    (
+                        projectItem.reactionTime.value != null &&
+                        projectItem.reactionTime.periodType != null
+                    ) || (
+                        projectItem.reactionTime.value == null &&
+                        projectItem.reactionTime.periodType == null
+                    )
+                )
             ))
         );
     }

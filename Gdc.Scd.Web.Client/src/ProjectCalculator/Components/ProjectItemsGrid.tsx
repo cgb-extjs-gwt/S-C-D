@@ -209,10 +209,7 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
             buildReferenceColumn('wgId', 'Wg', projectItemEditData.wgs),
             buildReferenceColumn('countryId', 'Country', projectItemEditData.countries),
             buildAvailabilityColumn(),
-            buildCombinedColumn('reactionTime', 'Reaction Time', [
-                buildNumericColumn('value', 'Value'),
-                buildReferenceColumn('periodType', 'Period', projectItemEditData.reactionTimePeriods, false, true)
-            ]),
+            buildReactionTimeColumn(),
             buildReferenceColumn('reactionTypeId', 'Reaction Type', projectItemEditData.reactionTypes),
             buildReferenceColumn('serviceLocationId', 'Service Location', projectItemEditData.serviceLocations, true, false, 200),
             buildCombinedColumn('duration', 'Duration', [
@@ -299,37 +296,66 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
             }
         }
 
-        function buildColumn(dataIndex: string, title: string, isRequired = false, isEditable = true, width = null): ColumnInfo<ProjectItem> {
-            const nullValueRenderer = value => value == null ? ' ' : value;
-            const requiredRenderer = (value, record, dataIndex, cell) => {
-                setRequiredStyle(value == null, cell);
+        function nullValueRenderer(value) {
+            return value == null ? ' ' : value;
+        }
+
+        function buildRequiredRendererFn(
+            isRequiredActiveFn: (value, record: Model<ProjectItem>, dataIndex, cell) => boolean
+        ) {
+            return (value, record: Model<ProjectItem>, dataIndex, cell) => {
+                const isActive = isRequiredActiveFn(value, record, dataIndex, cell);
+
+                setRequiredStyle(isActive, cell);
 
                 return nullValueRenderer(value)
             }
+        }
 
+        function buildColumn(
+            dataIndex: string, 
+            title: string, 
+            isRequired = false, 
+            isEditable = true, 
+            width = null,
+            isRequiredActiveFn: (value, record: Model<ProjectItem>, dataIndex, cell) => boolean = value => value == null
+            ): ColumnInfo<ProjectItem> {
             return {
                 dataIndex,
                 title,
                 isEditable,
                 width,
-                rendererFn: isRequired ? requiredRenderer : nullValueRenderer
+                rendererFn: isRequired ? buildRequiredRendererFn(isRequiredActiveFn) : nullValueRenderer
             };
         }
 
-        function buildNumericColumn(dataIndex: string, title: string, isRequired = false): ColumnInfo<ProjectItem> {
+        function buildNumericColumn(
+            dataIndex: string, 
+            title: string, 
+            isRequired = false, 
+            isRequiredActiveFn: (value, record: Model<ProjectItem>, dataIndex, cell) => boolean = undefined
+        ): ColumnInfo<ProjectItem> {
             return {
-                ...buildColumn(dataIndex, title, isRequired),
+                ...buildColumn(dataIndex, title, isRequired, true, null, isRequiredActiveFn),
                 type: ColumnType.Numeric
             }
         }
 
-        function buildReferenceColumn(dataIndex: string, title: string, referenceItems: NamedId<number>[], isRequired = true, isNested = false, width = 150): ColumnInfo<ProjectItem> {
+        function buildReferenceColumn(
+            dataIndex: string, 
+            title: string, 
+            referenceItems: NamedId<number>[], 
+            isRequired = true, 
+            isNested = false, 
+            width = 150,
+            isRequiredActiveFn: (value, record: Model<ProjectItem>, dataIndex, cell) => boolean = undefined
+        ): ColumnInfo<ProjectItem> {
             const map = new Map<number, NamedId<number>>();
 
             referenceItems.forEach(item => map.set(item.id, item));
 
             const column = { 
-                ...buildColumn(dataIndex, title, isRequired,)
+                ...buildColumn(dataIndex, title, isRequired, true, null, isRequiredActiveFn)
             };
 
             const referenceColumn: ColumnInfo<ProjectItem> = {
@@ -372,6 +398,26 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                 ...buildColumn(topDataIndex, title),
                 columns
             }
+        }
+
+        function buildReactionTimeColumn() {
+            return buildCombinedColumn('reactionTime', 'Reaction Time', [
+                buildNumericColumn(
+                    'value', 
+                    'Value',
+                    true,
+                    (value, { data: { reactionTime } }: Model<ProjectItem>) => reactionTime && reactionTime.value == null && reactionTime.periodType != null
+                ),
+                buildReferenceColumn(
+                    'periodType', 
+                    'Period', 
+                    projectItemEditData.reactionTimePeriods, 
+                    true, 
+                    true,
+                    150,
+                    (value, { data: { reactionTime } }: Model<ProjectItem>) => reactionTime && reactionTime.value != null && reactionTime.periodType == null
+                )
+            ]);
         }
     }
 }
