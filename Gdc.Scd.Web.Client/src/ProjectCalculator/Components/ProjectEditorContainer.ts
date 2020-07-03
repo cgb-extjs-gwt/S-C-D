@@ -31,9 +31,7 @@ export const ProjectEditorContainer = connect<ProjectEditorProps, ProjectEditorA
             dispatch(loadProjectItemEditData());
         },
         onBackToList: project => {
-            if (project.id == 0) {
-                selectProject(null);
-            }
+            dispatch(selectProject(null));
 
             goToList(history);
         },
