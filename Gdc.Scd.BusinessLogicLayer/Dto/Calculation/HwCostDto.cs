@@ -34,7 +34,7 @@
 
         public double? FieldServiceCost { get; set; }
 
-        public double? ServiceSupport { get; set; }
+        public double? ServiceSupportCost { get; set; }
 
         public double? Logistic { get; set; }
 

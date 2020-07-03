@@ -1,6 +1,7 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.BusinessLogicLayer.Procedures;
+﻿using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -16,7 +17,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<object> GetHwCostDetails(bool approved, long id, string what)
         {
-            HwCostDto model = new GetHwCostById(_repositorySet).Execute(approved, id);
+            var model = new GetHwCostById(_repositorySet).Execute(approved, id);
+            var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
+
+            var fieldServiceCost = new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceCost, CostElements = AsElements(details, "Field Service Cost") };
+            var blocks = new PlausiCostBlock[]
+            {
+                fieldServiceCost,
+                new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportCost, CostElements = AsElements(details, "Service support cost") },
+                new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") },
+                new PlausiCostBlock { Name = "Logistics cost", Value = model.Logistic, CostElements = AsElements(details, "Logistics Cost") },
+                new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") },
+                new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, CostElements = AsElements(details, "ProActive") },
+                new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, CostElements = AsElements(details, "Availability fee") },
+                new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, CostElements = AsElements(details, "Reinsurance") },
+                new PlausiCostBlock { Name = "Local STDW", Value = model.LocalServiceStandardWarranty },
+                new PlausiCostBlock { Name = "Credits", Value = model.Credits },
+                new PlausiCostBlock { Name = "Other", Value = model.OtherDirect }
+            };
 
             var cost = new PlausiCost
             {
@@ -33,43 +51,27 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ServiceLocation = model.ServiceLocation,
                 ProActiveSla = model.ProActiveSla,
                 StdWarranty = model.StdWarranty,
-                StdWarrantyLocation = model.StdWarrantyLocation,
-
-                CostBlocks = new PlausiCostBlock[]
-                {
-                    new PlausiCostBlock {
-                        Name = "Field service cost",
-                        Value = 3.14,
-                        CostElements = new PlausiCostElement[] {
-                            new PlausiCostElement {
-                                Name = "Repair time(MTTR)",
-                                Value = 3.14,
-                                Dependency = (string)null,
-                                Level = "Central",
-                                Mandatory =  true
-                            },
-                            new PlausiCostElement{
-                                Name = "Travel time(MTTR)",
-                                Value = 3.14,
-                                Dependency = "Bring-In Service",
-                                Level = "Germany",
-                                Mandatory =  false
-                            }
-                        }
-                    }
-                }
+                StdWarrantyLocation = model.StdWarrantyLocation
             };
 
             switch (what)
             {
+                case "field-service":
+                    cost.Name = "Field service cost";
+                    cost.Value = model.FieldServiceCost;
+                    cost.CostBlocks = new PlausiCostBlock[] { fieldServiceCost };
+                    break;
+
                 case "tc":
                     cost.Name = "Service TC";
                     cost.Value = model.ServiceTC;
+                    cost.CostBlocks = blocks;
                     break;
 
                 case "tp":
                     cost.Name = "Service TP";
                     cost.Value = model.ServiceTP;
+                    cost.CostBlocks = blocks;
                     break;
 
                 default:
@@ -77,6 +79,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return cost;
+        }
+
+        private IEnumerable<PlausiCostElement> AsElements(List<GetHwCostDetailsById.CostDetailDto> details, string costBlock)
+        {
+            for (var i = 0; i < details.Count; i++)
+            {
+                var x = details[i];
+                if (string.Compare(x.CostBlock, costBlock, true) == 0)
+                {
+                    yield return new PlausiCostElement
+                    {
+                        Name = x.CostElement,
+                        Dependency = x.Dependency,
+                        Value = x.Value,
+                        Mandatory = x.Mandatory,
+                        Level = x.Level
+                    };
+                }
+            }
         }
     }
 
@@ -120,15 +141,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     public class PlausiCostBlock
     {
         public string Name { get; set; }
-        public double Value { get; set; }
-        public PlausiCostElement[] CostElements { get; set; }
+        public double? Value { get; set; }
+        public IEnumerable<PlausiCostElement> CostElements { get; set; }
     }
 
 
     public class PlausiCostElement
     {
         public string Name { get; set; }
-        public double Value { get; set; }
+        public string Value { get; set; }
         public string Dependency { get; set; }
         public string Level { get; set; }
         public bool Mandatory { get; set; }
