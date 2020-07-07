@@ -65,8 +65,6 @@ RETURN
 			 , m.Reinsurance
 			 , m.ProActive
 			 , m.ServiceSupportPerYear
-			 , m.LocalServiceStandardWarrantyManual
-			 , m.LocalServiceStandardWarrantyWithRisk
 			 , m.ProActiveOrZero
 			 , m.ListPrice
 		     , m.DealerDiscount
@@ -86,6 +84,8 @@ RETURN
 			 , SUM(m.OtherDirect) as OtherDirect
 			 , SUM(m.TaxW) as TaxAndDutiesW
 			 , SUM(m.MatW) as MaterialW
+			 , SUM(m.LocalServiceStandardWarrantyManual) as LocalServiceStandardWarrantyManual
+			 , SUM(m.LocalServiceStandardWarrantyWithRisk) as LocalServiceStandardWarrantyWithRisk
 
 			 , m.ReleaseDate
 			 , m.ReleaseUserName
@@ -137,8 +137,6 @@ RETURN
 			 , m.Reinsurance
 			 , m.ProActive
 			 , m.ServiceSupportPerYear
-			 , m.LocalServiceStandardWarrantyManual
-			 , m.LocalServiceStandardWarrantyWithRisk
 			 , m.ProActiveOrZero
 			 , m.ListPrice
 		     , m.DealerDiscount

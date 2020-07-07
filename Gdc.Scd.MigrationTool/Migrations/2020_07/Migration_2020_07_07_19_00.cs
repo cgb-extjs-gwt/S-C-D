@@ -1,10 +1,26 @@
-USE [SCD_2]
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.MigrationTool.Interfaces;
 
-IF OBJECT_ID('[Hardware].[CalcStdwYear]') IS NOT NULL
-    DROP FUNCTION [Hardware].[CalcStdwYear]
-GO
+namespace Gdc.Scd.MigrationTool.Migrations
+{
+    public class Migration_2020_07_07_19_00 : IMigrationAction
+    {
+		private readonly IRepositorySet repositorySet;
 
-CREATE FUNCTION [Hardware].[CalcStdwYear](
+		public string Description => "Project Calculator. Report fix";
+
+        public int Number => 185;
+
+        public Migration_2020_07_07_19_00(IRepositorySet repositorySet)
+        {
+            this.repositorySet = repositorySet;
+        }
+
+        public void Execute()
+        {
+            //[Hardware].[CalcStdwYear]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[CalcStdwYear](
     @approved       bit = 0,
     @cnt            dbo.ListID READONLY,
     @wg             dbo.ListID READONLY,
@@ -300,14 +316,14 @@ BEGIN
 			        when m.StdMonths >= m.Months
 					then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, m.SarCoeff)
                     else 0 
-                 end as LocalServiceStandardWarrantyYear
+                 end as LocalServiceStandardWarranty
 
 			   , case 
 					when m.IsProlongation = 1 then NULL
 					when m.StdMonths >= m.Months
 					then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR, m.tax, m.AFR, m.FeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty, 1)
                     else 0 
-                 end as LocalServiceStandardWarrantyWithoutSarYear
+                 end as LocalServiceStandardWarrantyWithoutSar
         from CostCte2_2 m
     )
     insert into @tbl(
@@ -453,5 +469,249 @@ BEGIN
     from CostCte3 m;
 
     RETURN;
-END
-go
+END");
+
+            //[Hardware].[GetCostsAggregated]
+            this.repositorySet.ExecuteSql(@"
+ALTER FUNCTION [Hardware].[GetCostsAggregated](
+    @approved bit,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
+    @lastid bigint,
+    @limit int,
+	@projectId  BIGINT = NULL
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+     WITH CostCte as (
+        select 
+			   m.rownum
+			 , m.Id
+
+			 --SLA
+			 , m.Fsp
+			 , m.CountryId
+			 , m.Country
+			 , m.CurrencyId
+			 , m.Currency
+			 , m.ExchangeRate
+			 , m.SogId
+			 , m.Sog
+			 , m.WgId
+			 , m.Wg
+			 , m.AvailabilityId
+			 , m.Availability
+			 , m.DurationId
+			 , m.Duration
+			 , m.Year
+			 , m.IsProlongation
+			 , m.ReactionTimeId
+			 , m.ReactionTime
+			 , m.ReactionTypeId
+			 , m.ReactionType
+			 , m.ServiceLocationId
+			 , m.ServiceLocation
+			 , m.ProActiveSlaId
+
+			 , m.ProActiveSla
+
+			 , m.Sla
+			 , m.SlaHash
+
+			 , m.StdWarranty
+			 , m.StdWarrantyLocation
+
+			 --Costs
+			 , m.AvailabilityFee
+			 , m.Reinsurance
+			 , m.ProActive
+			 , m.ServiceSupportPerYear
+			 , m.ProActiveOrZero
+			 , m.ListPrice
+		     , m.DealerDiscount
+			 , m.DealerPrice
+			 , m.ServiceTCManual
+			 , m.ReActiveTPManual
+			 , m.ServiceTP_Released
+
+			 , SUM(m.ServiceTP) as ReActiveTP
+			 , SUM(LocalServiceStandardWarranty) as LocalServiceStandardWarranty
+			 , SUM(m.Credit) as Credits
+			 , SUM(m.ServiceTC) as ReActiveTC
+			 , SUM(m.TaxOow) as TaxAndDutiesOow
+			 , SUM(m.MatOow) as MaterialOow
+			 , SUM(m.FieldServiceCost) as FieldServiceCost
+			 , SUM(m.Logistic) as Logistic
+			 , SUM(m.OtherDirect) as OtherDirect
+			 , SUM(m.TaxW) as TaxAndDutiesW
+			 , SUM(m.MatW) as MaterialW
+			 , SUM(m.LocalServiceStandardWarrantyManual) as LocalServiceStandardWarrantyManual
+			 , SUM(m.LocalServiceStandardWarrantyWithRisk) as LocalServiceStandardWarrantyWithRisk
+
+			 , m.ReleaseDate
+			 , m.ReleaseUserName
+			 , m.ReleaseUserEmail
+
+			 , m.ChangeDate
+			 , m.ChangeUserName
+			 , m.ChangeUserEmail
+        from [Hardware].[GetCostsYear](@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit, @projectId) m
+		group by 
+			   m.rownum
+			 , m.Id
+
+			 --SLA
+			 , m.Fsp
+			 , m.CountryId
+			 , m.Country
+			 , m.CurrencyId
+			 , m.Currency
+			 , m.ExchangeRate
+			 , m.SogId
+			 , m.Sog
+			 , m.WgId
+			 , m.Wg
+			 , m.AvailabilityId
+			 , m.Availability
+			 , m.DurationId
+			 , m.Duration
+			 , m.Year
+			 , m.IsProlongation
+			 , m.ReactionTimeId
+			 , m.ReactionTime
+			 , m.ReactionTypeId
+			 , m.ReactionType
+			 , m.ServiceLocationId
+			 , m.ServiceLocation
+			 , m.ProActiveSlaId
+
+			 , m.ProActiveSla
+
+			 , m.Sla
+			 , m.SlaHash
+
+			 , m.StdWarranty
+			 , m.StdWarrantyLocation
+
+			 --Costs
+			 , m.AvailabilityFee
+			 , m.Reinsurance
+			 , m.ProActive
+			 , m.ServiceSupportPerYear
+			 , m.ProActiveOrZero
+			 , m.ListPrice
+		     , m.DealerDiscount
+			 , m.DealerPrice
+			 , m.ServiceTCManual
+			 , m.ReActiveTPManual
+
+			 , m.ServiceTP_Released
+
+			 , m.ReleaseDate
+			 , m.ReleaseUserName
+			 , m.ReleaseUserEmail
+
+			 , m.ChangeDate
+			 , m.ChangeUserName
+			 , m.ChangeUserEmail
+    )    
+    select m.rownum
+         , m.Id
+
+         --SLA
+
+         , m.Fsp
+         , m.CountryId
+         , m.Country
+         , m.CurrencyId
+         , m.Currency
+         , m.ExchangeRate
+         , m.SogId
+         , m.Sog
+         , m.WgId
+         , m.Wg
+         , m.AvailabilityId
+         , m.Availability
+         , m.DurationId
+         , m.Duration
+         , m.Year
+         , m.IsProlongation
+         , m.ReactionTimeId
+         , m.ReactionTime
+         , m.ReactionTypeId
+         , m.ReactionType
+         , m.ServiceLocationId
+         , m.ServiceLocation
+         , m.ProActiveSlaId
+
+         , m.ProActiveSla
+
+         , m.Sla
+         , m.SlaHash
+
+         , m.StdWarranty
+         , m.StdWarrantyLocation
+
+         --Cost
+
+         , m.AvailabilityFee * m.Year as AvailabilityFee
+         , m.TaxAndDutiesW
+		 , m.TaxAndDutiesOow
+
+         , m.Reinsurance
+         , m.ProActive
+         , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
+
+         , m.MaterialW
+		 , m.MaterialOow
+
+		 , m.FieldServiceCost
+		 , m.Logistic
+		 , m.OtherDirect
+       
+         , m.LocalServiceStandardWarranty
+         , m.LocalServiceStandardWarrantyManual
+		 , m.LocalServiceStandardWarrantyWithRisk
+       
+         , m.Credits
+
+         , m.ReActiveTC
+         , m.ReActiveTC + m.ProActiveOrZero ServiceTC
+         
+         , m.ReActiveTP
+         , m.ReActiveTP + m.ProActiveOrZero as ServiceTP
+
+         , m.ListPrice
+         , m.DealerDiscount
+         , m.DealerPrice
+         , m.ServiceTCManual
+         , m.ReActiveTPManual 
+         , m.ReActiveTPManual + m.ProActiveOrZero as ServiceTPManual
+         
+         , coalesce(m.ServiceTCManual, m.ReactiveTC + m.ProActiveOrZero) as ServiceTCResult
+         , coalesce(m.ReActiveTPManual, m.ReActiveTP) as ReActiveTPResult
+         , coalesce(m.ReActiveTPManual, m.ReActiveTP) + m.ProActiveOrZero as ServiceTPResult
+         , m.ServiceTP_Released
+
+         , m.ReleaseDate
+         , m.ReleaseUserName
+         , m.ReleaseUserEmail
+
+         , m.ChangeDate
+         , m.ChangeUserName
+         , m.ChangeUserEmail
+
+    from CostCte m
+)
+");
+        }
+    }
+}
