@@ -10,11 +10,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     public class ProjectRepository : EntityFrameworkRepository<Project>, IProjectRepository
     {
         private readonly IRepository<ProjectItem> projectItemRepository;
+        private readonly IRepository<AfrProjCalc> afrRepository;
 
         public ProjectRepository(EntityFrameworkRepositorySet repositorySet) 
             : base(repositorySet)
         {
             this.projectItemRepository = repositorySet.GetRepository<ProjectItem>();
+            this.afrRepository = repositorySet.GetRepository<AfrProjCalc>();
         }
 
         public override Project Get(long id)
@@ -75,6 +77,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     .Except(oldProjectItemIds)
                     .ToArray();
 
+            var afrIds =
+                this.projectItemRepository.GetAll()
+                                          .Where(projectItem => deleteProjectItemIds.Contains(projectItem.Id))
+                                          .SelectMany(projectItem => projectItem.Afrs)
+                                          .Select(afr => afr.Id)
+                                          .ToArray();
+
+            this.afrRepository.Delete(afrIds);
             this.projectItemRepository.Delete(deleteProjectItemIds);
 
             foreach (var project in projectArray)
