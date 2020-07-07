@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
 {
-    public class CalcDetailServiceTest
+    public class CalcHwDetailServiceTest
     {
         public const string RESULT_PATH = "Results";
 
@@ -13,7 +13,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
 
         private StandardKernel kernel;
 
-        public CalcDetailServiceTest()
+        public CalcHwDetailServiceTest()
         {
             kernel = Module.CreateKernel();
         }
@@ -27,7 +27,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         [TestCase]
         public void GetFieldServiceCost_CostDetailsTest()
         {
-            var d = testing.GetHwCostDetails(false, 14531504, "field-service").Result;
+            var d = testing.GetHwCostDetails(false, 14531504, "field-service");
             //
             Save(d, "fieldServiceCost.json");
         }
@@ -35,7 +35,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         [TestCase]
         public void GetTP_CostDetailsTest()
         {
-            var d = testing.GetHwCostDetails(false, 14531504, "tp").Result;
+            var d = testing.GetHwCostDetails(false, 14531504, "tp");
             //
             Save(d, "service-tp.json");
         }
@@ -43,7 +43,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         [TestCase]
         public void GetTC_CostDetailsTest()
         {
-            var d = testing.GetHwCostDetails(false, 14531504, "tc").Result;
+            var d = testing.GetHwCostDetails(false, 14531504, "tc");
             //
             Save(d, "service-tс.json");
         }

@@ -160,7 +160,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task<object> Details(long id, string what)
+        public object Details(long id, string what)
         {
             return detailService.GetHwCostDetails(false, id, what);
         }

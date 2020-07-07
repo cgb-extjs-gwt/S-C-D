@@ -35,7 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CalcDetailServiceTest.cs" />
+    <Compile Include="CalcHwDetailServiceTest.cs" />
+    <Compile Include="CalcSwDetailServiceTest.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

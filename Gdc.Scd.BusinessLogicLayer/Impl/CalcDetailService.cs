@@ -15,7 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             _repositorySet = repositorySet;
         }
 
-        public async Task<object> GetHwCostDetails(bool approved, long id, string what)
+        public object GetHwCostDetails(bool approved, long id, string what)
         {
             var model = new GetHwCostById(_repositorySet).Execute(approved, id);
             var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
@@ -71,6 +71,48 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 case "tp":
                     cost.Name = "Service TP";
                     cost.Value = model.ServiceTP;
+                    cost.CostBlocks = blocks;
+                    break;
+
+                default:
+                    throw new System.ArgumentException("what");
+            }
+
+            return cost;
+        }
+
+        public object GetSwCostDetails(bool approved, long id, string what)
+        {
+            var model = new GetSwCostById(_repositorySet).Execute(approved, id);
+            var details = new GetSwCostDetailsById(_repositorySet).Execute(approved, id);
+
+            var cost = new PlausiCost
+            {
+                Fsp = model.Fsp,
+                Sog = model.Sog,
+                Wg = model.SwDigit,
+                Availability = model.Availability,
+                Duration = model.Duration,
+            };
+
+            var blocks = new PlausiCostBlock[]
+            {
+                new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupport, CostElements = AsElements(details, "Service support cost") },
+                new PlausiCostBlock { Name = "SW / SP Maintenance", Value = model.MaintenanceListPrice, CostElements = AsElements(details, "SW / SP Maintenance") }
+            };
+
+
+            switch (what)
+            {
+                case "service-support":
+                    cost.Name = "Service support cost";
+                    cost.Value = model.ServiceSupport;
+                    cost.CostBlocks = blocks;
+                    break;
+
+                case "reinsurance":
+                    cost.Name = "Reinsurance";
+                    cost.Value = model.Reinsurance;
                     cost.CostBlocks = blocks;
                     break;
 
