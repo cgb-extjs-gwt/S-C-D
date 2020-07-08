@@ -27,7 +27,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         [TestCase]
         public void GetCostDetailsTest()
         {
-            var d = testing.GetSwProactiveCostDetails(false, 12478, 1);
+            var d = testing.GetSwProactiveCostDetails(false, 27020, "FSP:G-SW1MD60PRFF0", 2);
             //
             Save(d, "sw-proactive.json");
         }
