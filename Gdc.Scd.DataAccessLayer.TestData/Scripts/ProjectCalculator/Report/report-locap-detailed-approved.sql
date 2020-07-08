@@ -21,17 +21,17 @@ BEGIN
 		insert into @cntTable(id) values(@cnt);
 
     declare @wg_SOG_Table dbo.ListId;
-    insert into @wg_SOG_Table
-    select id
-        from InputAtoms.Wg 
-        where SogId in (
-            select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
-        )
-        and IsSoftware = 0
-        and SogId is not null
-        and DeactivatedDateTime is null;
+    --insert into @wg_SOG_Table
+    --select id
+    --    from InputAtoms.Wg 
+    --    where SogId in (
+    --        select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+    --    )
+    --    and IsSoftware = 0
+    --    and SogId is not null
+    --    and DeactivatedDateTime is null;
 
-    if not exists(select id from @wg_SOG_Table) return;
+    --if not exists(select id from @wg_SOG_Table) return;
 
     declare @avTable dbo.ListId;
 
@@ -113,8 +113,8 @@ BEGIN
                    m.ProActiveSla as ServiceType
 
     from cte2 m
-    INNER JOIN  InputAtoms.Sog sog on sog.id = m.SogId
-    INNER JOIN InputAtoms.Pla pla on pla.Id = sog.PlaId
+    LEFT JOIN  InputAtoms.Sog sog on sog.id = m.SogId
+    LEFT JOIN InputAtoms.Pla pla on pla.Id = sog.PlaId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 END

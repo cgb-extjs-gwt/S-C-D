@@ -395,9 +395,9 @@ BEGIN
 		[Costs]
 	INNER JOIN	
 		[InputAtoms].[Wg] ON [Costs].[WgId] = [Wg].[Id]
-	INNER JOIN
+	LEFT JOIN
 		[InputAtoms].[Sog] ON [Wg].[SogId] = [Sog].[Id]
-	INNER JOIN
+	LEFT JOIN
 		[InputAtoms].[Pla] ON [Wg].[PlaId] = [Pla].[Id]
 	LEFT JOIN
 		[Hardware].[ServiceSupportCostView] ON 
