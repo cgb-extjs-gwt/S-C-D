@@ -123,6 +123,35 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
+        public object GetSwProactiveCostDetails(bool approved, long id, long proslaId)
+        {
+            var model = new
+            {
+                Wg = "a wg here",
+                Sog = "a sog here",
+                Proactive = -0.001
+            };
+
+            var details = new GetSwProactiveCostDetailsById(_repositorySet).Execute(approved, id, proslaId);
+
+            var cost = new PlausiCost
+            {
+                Name = "ProActive",
+                Wg = model.Wg,
+                Sog = model.Sog,
+                Currency = "EUR",
+                ExchangeRate = 1.0,
+                Value = model.Proactive
+            };
+
+            cost.CostBlocks = new PlausiCostBlock[]
+            {
+                new PlausiCostBlock { Name = "ProActive", Value = model.Proactive, CostElements = AsElements(details, "ProActive") }
+            };
+
+            return cost;
+        }
+
         public object GetHddCostDetails(bool approved, long id)
         {
             var repo = this._repositorySet.GetRepository<HddRetentionView>();

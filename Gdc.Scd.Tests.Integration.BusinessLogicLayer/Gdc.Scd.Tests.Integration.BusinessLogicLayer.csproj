@@ -38,6 +38,7 @@
     <Compile Include="CalcHddRetentionDetailServiceTest.cs" />
     <Compile Include="CalcHwDetailServiceTest.cs" />
     <Compile Include="CalcSwDetailServiceTest.cs" />
+    <Compile Include="CalcSwProactiveDetailServiceTest.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
