@@ -99,20 +99,29 @@ export class AvailabilityEditor extends React.PureComponent<AvailabilityEditorPr
         grid,
         records: Model<HourInfo>[],
         selecting: boolean,
-        selectionInfo: SelectionGridInfo
+        { startCell, endCell }: SelectionGridInfo
     )  => {
-        const selectedAvailability: AvailabilityProjCalc = records.length == 0 
-            ? null
-            : {
+        let selectedAvailability: AvailabilityProjCalc = null
+
+        if (records.length != 0) {
+            if (endCell.columnIndex < startCell.columnIndex) {
+                const temp = startCell;
+
+                startCell = endCell;
+                endCell = temp;
+            }
+
+            selectedAvailability = {
                 start: {
+                    day: startCell.columnIndex - 1,
                     hour: records[0].data.hour,
-                    day: selectionInfo.startCell.columnIndex - 1
                 },
                 end: {
+                    day: endCell.columnIndex - 1,
                     hour: records[records.length - 1].data.hour,
-                    day: selectionInfo.endCell.columnIndex - 1
                 }
-            }
+            };
+        }
 
         this.setState({ selectedAvailability });
     }
