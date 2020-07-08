@@ -160,8 +160,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 foreach (var projectItem in project.ProjectItems)
                 {
                     projectItem.Availability.Name = projectItem.Availability.ToString();
-                    projectItem.Duration.Name = periodConverter.GetPeriodName(projectItem.Duration.Months, PeriodType.Months, projectItem.Duration.PeriodType);
-                    projectItem.ReactionTime.Name = periodConverter.GetPeriodName(projectItem.ReactionTime.Minutes, PeriodType.Minutes, projectItem.ReactionTime.PeriodType);
 
                     if (projectItem.Duration.Value.HasValue)
                     {
@@ -178,6 +176,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             projectItem.ReactionTime.PeriodType.Value,
                             PeriodType.Minutes);
                     }
+
+                    projectItem.Duration.Name = periodConverter.GetPeriodName(projectItem.Duration.Months, PeriodType.Months, projectItem.Duration.PeriodType);
+                    projectItem.ReactionTime.Name = periodConverter.GetPeriodName(projectItem.ReactionTime.Minutes, PeriodType.Minutes, projectItem.ReactionTime.PeriodType);
                 }
             }
 
