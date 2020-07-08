@@ -1,8 +1,8 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -119,6 +119,40 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 default:
                     throw new System.ArgumentException("what");
             }
+
+            return cost;
+        }
+
+        public object GetHddCostDetails(bool approved, long id)
+        {
+            var repo = this._repositorySet.GetRepository<HddRetentionView>();
+
+            var model = repo.GetAll()
+                            .Where(x => x.WgId == id)
+                            .Select(x => new
+                            {
+                                Wg = x.Wg,
+                                Sog = x.Sog,
+                                HddRetention = approved ? x.HddRet_Approved : x.HddRet,
+                            })
+                            .First();
+
+            var details = new GetHwHddCostDetailsById(_repositorySet).Execute(approved, id);
+
+            var cost = new PlausiCost
+            {
+                Name = "Hdd retention",
+                Wg = model.Wg,
+                Sog = model.Sog,
+                Currency = "EUR",
+                ExchangeRate = 1.0,
+                Value = model.HddRetention
+            };
+
+            cost.CostBlocks = new PlausiCostBlock[]
+            {
+                new PlausiCostBlock { Name = "Hdd retention", Value = model.HddRetention, CostElements = AsElements(details, "Hdd retention") }
+            };
 
             return cost;
         }
