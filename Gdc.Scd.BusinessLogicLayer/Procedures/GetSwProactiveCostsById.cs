@@ -41,7 +41,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             public string Availability { get; set; }
             public string Year { get; set; }
             public string ProactiveSla { get; set; }
-            public double ProActive { get; set; }
+            public double? ProActive { get; set; }
         }
     }
 }

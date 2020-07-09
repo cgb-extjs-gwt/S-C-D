@@ -16,17 +16,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repositorySet = repositorySet;
         }
 
-        public List<GetHwCostDetailsById.CostDetailDto> Execute(bool approved, long id, long proslaId)
+        public List<GetHwCostDetailsById.CostDetailDto> Execute(bool approved, long id, string fsp)
         {
-            return _repositorySet.ExecuteProc<GetHwCostDetailsById.CostDetailDto>(PROC_NAME, Prepare(approved, id, proslaId));
+            return _repositorySet.ExecuteProc<GetHwCostDetailsById.CostDetailDto>(PROC_NAME, Prepare(approved, id, fsp));
         }
 
-        private static DbParameter[] Prepare(bool approved, long id, long proslaId)
+        private static DbParameter[] Prepare(bool approved, long id, string fsp)
         {
             return new DbParameter[] {
                 new DbParameterBuilder().WithName("@approved").WithValue(approved).Build(),
                 new DbParameterBuilder().WithName("@id").WithValue(id).Build(),
-                new DbParameterBuilder().WithName("@proID").WithValue(proslaId).Build()
+                new DbParameterBuilder().WithName("@fsp").WithValue(fsp).Build()
             };
         }
     }

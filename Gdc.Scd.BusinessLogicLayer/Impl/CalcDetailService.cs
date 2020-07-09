@@ -123,10 +123,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        public object GetSwProactiveCostDetails(bool approved, long id, string fsp, long proslaId)
+        public object GetSwProactiveCostDetails(bool approved, long id, string fsp)
         {
             var model = new GetSwProactiveCostsById(_repositorySet).Execute(approved, id, fsp);
-            var details = new GetSwProactiveCostDetailsById(_repositorySet).Execute(approved, id, proslaId);
+            var details = new GetSwProactiveCostDetailsById(_repositorySet).Execute(approved, id, fsp);
 
             var cost = new PlausiCost
             {
