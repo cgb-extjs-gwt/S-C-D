@@ -25,6 +25,14 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         }
 
         [TestCase]
+        public void GetStdw_CostDetailsTest()
+        {
+            var d = testing.GetStdwDetails(false, 113, 1);
+            //
+            Save(d, "stdw.json");
+        }
+
+        [TestCase]
         public void GetFieldServiceCost_CostDetailsTest()
         {
             var d = testing.GetHwCostDetails(false, 14531504, "field-service");

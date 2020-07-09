@@ -81,6 +81,47 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
+        public object GetStdwDetails(bool approved, long cnt, long wg)
+        {
+            var model = new GetHwStdwById(_repositorySet).Execute(approved, cnt, wg);
+            var details = new GetHwStdwDetailsById(_repositorySet).Execute(approved, cnt, wg);
+
+            var cost = new PlausiCost
+            {
+                Name = "Standard warranty",
+                Fsp = model.StdFsp,
+                Country = model.Country,
+                Wg = model.Wg,
+                Sog = model.Sog,
+
+                Availability = model.Availability,
+                Duration = model.Duration,
+                ReactionTime = model.ReactionTime,
+                ReactionType = model.ReactionType,
+                ServiceLocation = model.ServiceLocation,
+                ProActiveSla = model.ProActiveSla,
+
+                StdWarranty = model.StdWarranty,
+                StdWarrantyLocation = model.StdWarrantyLocation,
+
+                Currency = model.Currency,
+                ExchangeRate = model.ExchangeRate,
+                Value = model.LocalServiceStandardWarranty
+            };
+
+            cost.CostBlocks = new PlausiCostBlock[]
+            {
+                new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceW, CostElements = AsElements(details, "Field Service Cost") },
+                new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportW, CostElements = AsElements(details, "Service support cost") },
+                new PlausiCostBlock { Name = "Logistics cost", Value = model.LogisticW, CostElements = AsElements(details, "Logistics Cost") },
+                new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW, CostElements = AsElements(details, "Tax & duties") },
+                new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, CostElements = AsElements(details, "Markup for standard warranty") },
+                new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, CostElements = AsElements(details, "Availability fee") },
+            };
+
+            return cost;
+        }
+
         public object GetSwCostDetails(bool approved, long id, string what)
         {
             var model = new GetSwCostById(_repositorySet).Execute(approved, id);
@@ -100,7 +141,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupport, CostElements = AsElements(details, "Service support cost") },
                 new PlausiCostBlock { Name = "SW / SP Maintenance", Value = model.MaintenanceListPrice, CostElements = AsElements(details, "SW / SP Maintenance") }
             };
-
 
             switch (what)
             {
@@ -248,7 +288,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public double? Value { get; set; }
         public IEnumerable<PlausiCostElement> CostElements { get; set; }
     }
-
 
     public class PlausiCostElement
     {
