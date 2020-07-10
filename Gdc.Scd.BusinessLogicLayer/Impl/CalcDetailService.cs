@@ -21,19 +21,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
 
             var fieldServiceCost = new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceCost, CostElements = AsElements(details, "Field Service Cost") };
+            var serviceSupportCost = new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportCost, CostElements = AsElements(details, "Service support cost") };
+            var logisticCost = new PlausiCostBlock { Name = "Logistics cost", Value = model.Logistic, CostElements = AsElements(details, "Logistics Cost") };
+            var avFee = new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, CostElements = AsElements(details, "Availability fee") };
+            var reinsurance = new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, CostElements = AsElements(details, "Reinsurance") };
+            var otherDirectCost = new PlausiCostBlock { Name = "Other", Value = model.OtherDirect };
+            var materialCost = new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") };
+            var taxAndDuties = new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") };
+            var proactive = new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, CostElements = AsElements(details, "ProActive") };
+
             var blocks = new PlausiCostBlock[]
             {
                 fieldServiceCost,
-                new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportCost, CostElements = AsElements(details, "Service support cost") },
-                new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") },
-                new PlausiCostBlock { Name = "Logistics cost", Value = model.Logistic, CostElements = AsElements(details, "Logistics Cost") },
-                new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") },
-                new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, CostElements = AsElements(details, "ProActive") },
-                new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, CostElements = AsElements(details, "Availability fee") },
-                new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, CostElements = AsElements(details, "Reinsurance") },
+                serviceSupportCost,
+                materialCost,
+                logisticCost,
+                taxAndDuties,
+                proactive,
+                avFee,
+                reinsurance,
                 new PlausiCostBlock { Name = "Local STDW", Value = model.LocalServiceStandardWarranty },
                 new PlausiCostBlock { Name = "Credits", Value = model.Credits },
-                new PlausiCostBlock { Name = "Other", Value = model.OtherDirect }
+                otherDirectCost
             };
 
             var cost = new PlausiCost
@@ -60,6 +69,66 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     cost.Name = "Field service cost";
                     cost.Value = model.FieldServiceCost;
                     cost.CostBlocks = new PlausiCostBlock[] { fieldServiceCost };
+                    break;
+
+                case "service-support":
+                    cost.Name = "Service support cost";
+                    cost.Value = model.ServiceSupportCost;
+                    cost.CostBlocks = new PlausiCostBlock[] { serviceSupportCost };
+                    break;
+
+                case "logistic":
+                    cost.Name = "Logistic cost";
+                    cost.Value = model.Logistic;
+                    cost.CostBlocks = new PlausiCostBlock[] { logisticCost };
+                    break;
+
+                case "availability-fee":
+                    cost.Name = "Availability fee";
+                    cost.Value = model.AvailabilityFee;
+                    cost.CostBlocks = new PlausiCostBlock[] { avFee };
+                    break;
+
+                case "reinsurance":
+                    cost.Name = "Reinsurance";
+                    cost.Value = model.Reinsurance;
+                    cost.CostBlocks = new PlausiCostBlock[] { reinsurance };
+                    break;
+
+                case "other":
+                    cost.Name = "Other direct cost";
+                    cost.Value = model.OtherDirect;
+                    cost.CostBlocks = new PlausiCostBlock[] { otherDirectCost };
+                    break;
+
+                case "material":
+                    cost.Name = "Material cost iW period";
+                    cost.Value = model.MaterialW;
+                    cost.CostBlocks = new PlausiCostBlock[] { materialCost };
+                    break;
+
+                case "material-oow":
+                    cost.Name = "Material cost OOW period";
+                    cost.Value = model.MaterialOow;
+                    cost.CostBlocks = new PlausiCostBlock[] { materialCost };
+                    break;
+
+                case "tax":
+                    cost.Name = "Tax & Duties iW period";
+                    cost.Value = model.TaxAndDutiesW;
+                    cost.CostBlocks = new PlausiCostBlock[] { taxAndDuties };
+                    break;
+
+                case "tax-oow":
+                    cost.Name = "Tax & Duties OOW period";
+                    cost.Value = model.TaxAndDutiesOow;
+                    cost.CostBlocks = new PlausiCostBlock[] { taxAndDuties };
+                    break;
+
+                case "proactive":
+                    cost.Name = "ProActive";
+                    cost.Value = model.ProActive;
+                    cost.CostBlocks = new PlausiCostBlock[] { proactive };
                     break;
 
                 case "tc":
@@ -107,6 +176,47 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 Currency = model.Currency,
                 ExchangeRate = model.ExchangeRate,
                 Value = model.LocalServiceStandardWarranty
+            };
+
+            cost.CostBlocks = new PlausiCostBlock[]
+            {
+                new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceW, CostElements = AsElements(details, "Field Service Cost") },
+                new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportW, CostElements = AsElements(details, "Service support cost") },
+                new PlausiCostBlock { Name = "Logistics cost", Value = model.LogisticW, CostElements = AsElements(details, "Logistics Cost") },
+                new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW, CostElements = AsElements(details, "Tax & duties") },
+                new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, CostElements = AsElements(details, "Markup for standard warranty") },
+                new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, CostElements = AsElements(details, "Availability fee") },
+            };
+
+            return cost;
+        }
+
+        public object GetStdCreditDetails(bool approved, long cnt, long wg)
+        {
+            var model = new GetHwStdwById(_repositorySet).Execute(approved, cnt, wg);
+            var details = new GetHwStdwDetailsById(_repositorySet).Execute(approved, cnt, wg);
+
+            var cost = new PlausiCost
+            {
+                Name = "Credits",
+                Fsp = model.StdFsp,
+                Country = model.Country,
+                Wg = model.Wg,
+                Sog = model.Sog,
+
+                Availability = model.Availability,
+                Duration = model.Duration,
+                ReactionTime = model.ReactionTime,
+                ReactionType = model.ReactionType,
+                ServiceLocation = model.ServiceLocation,
+                ProActiveSla = model.ProActiveSla,
+
+                StdWarranty = model.StdWarranty,
+                StdWarrantyLocation = model.StdWarrantyLocation,
+
+                Currency = model.Currency,
+                ExchangeRate = model.ExchangeRate,
+                Value = model.Credits
             };
 
             cost.CostBlocks = new PlausiCostBlock[]
