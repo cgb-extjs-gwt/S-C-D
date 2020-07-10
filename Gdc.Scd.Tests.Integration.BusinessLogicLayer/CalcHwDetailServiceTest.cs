@@ -131,6 +131,20 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
             Save(d, "service-tс.json");
         }
 
+        [TestCase]
+        public void GetReactiveTC_CostDetailsTest()
+        {
+            var d = testing.GetHwCostDetails(APPROVED, ID, "reactive-tc");
+            Save(d, "reactive-tc.json");
+        }
+
+        [TestCase]
+        public void GetReactiveTP_CostDetailsTest()
+        {
+            var d = testing.GetHwCostDetails(APPROVED, ID, "reactive-tp");
+            Save(d, "reactive-tp.json");
+        }
+
         public static void Save(object data, string fn)
         {
             StreamUtil.Save(RESULT_PATH, fn, data.AsJson());

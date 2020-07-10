@@ -131,6 +131,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     cost.CostBlocks = new PlausiCostBlock[] { proactive };
                     break;
 
+                case "reactive-tc":
+                    cost.Name = "ReActive TC";
+                    cost.Value = model.ReActiveTC;
+                    cost.CostBlocks = blocks;
+                    break;
+
+                case "reactive-tp":
+                    cost.Name = "ReActive TP";
+                    cost.Value = model.ReActiveTP;
+                    cost.CostBlocks = blocks;
+                    break;
+
                 case "tc":
                     cost.Name = "Service TC";
                     cost.Value = model.ServiceTC;
@@ -365,7 +377,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public string Currency { get; set; }
 
-        public double ExchangeRate { get; set; }
+        public double? ExchangeRate { get; set; }
 
         public string Wg { get; set; }
 
