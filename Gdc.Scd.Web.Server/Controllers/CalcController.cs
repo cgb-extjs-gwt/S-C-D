@@ -171,6 +171,12 @@ namespace Gdc.Scd.Web.Api.Controllers
             return detailService.GetSwCostDetails(approved, id, what);
         }
 
+        [HttpGet]
+        public object SwProactiveDetails(long id, string fsp, bool approved)
+        {
+            return detailService.GetSwProactiveCostDetails(approved, id, fsp);
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;

@@ -303,21 +303,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        public PlausiCost GetSwProactiveCostDetails(bool approved, long id, string fsp)
+        public PlausiCostSw GetSwProactiveCostDetails(bool approved, long id, string fsp)
         {
             var model = new GetSwProactiveCostsById(_repositorySet).Execute(approved, id, fsp);
             var details = new GetSwProactiveCostDetailsById(_repositorySet).Execute(approved, id, fsp);
 
-            var cost = new PlausiCost
+            var cost = new PlausiCostSw
             {
                 Name = "ProActive",
                 Fsp = model.Fsp,
                 Country = model.Country,
-                Wg = model.SwDigit,
+                Digit = model.SwDigit,
                 Sog = model.Sog,
-                Currency = "EUR",
-                ExchangeRate = 1.0,
-                ProActiveSla = model.ProactiveSla,
                 Availability = model.Availability,
                 Duration = model.Year,
                 Value = model.ProActive
@@ -424,7 +421,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
     public class PlausiCostSw
     {
-        public string Name { get; internal set; }
+        public string Name { get;  set; }
+
+        public string Country { get; set; }
 
         public string Fsp { get; set; }
 
