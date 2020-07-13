@@ -18,8 +18,8 @@ export class CalcResultView extends React.Component<CalcResultViewProps> {
 
                 <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
-                    <Container title="Software &amp; Solution<br>proactive cost" layout="fit">
-                        <SwProactiveCostView approved={false} />
+                    <Container title="Hardware<br>service costs" layout="fit">
+                        <HwCostView approved={false} />
                     </Container>
 
                 </TabPanel>

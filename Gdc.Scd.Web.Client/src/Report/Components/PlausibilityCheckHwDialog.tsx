@@ -8,7 +8,7 @@ export interface PlausibilityCheckProps {
 
 }
 
-export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckProps, any> {
+export class PlausibilityCheckHwDialog extends React.Component<PlausibilityCheckProps, any> {
 
     private wnd: Dialog & any;
 

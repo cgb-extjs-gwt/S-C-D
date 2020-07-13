@@ -12,7 +12,7 @@ import { EUR, IRenderer, currencyRenderer, ddMMyyyyRenderer, emptyRenderer, loca
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { LinkColumn } from "./Components/LinkColumn";
-import { PlausibilityCheckDialog } from "./Components/PlausibilityCheckDialog";
+import { PlausibilityCheckHwDialog } from "./Components/PlausibilityCheckHwDialog";
 import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
@@ -29,7 +29,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private filter: HwCostFilter;
 
-    private plausiWnd: PlausibilityCheckDialog;
+    private plausiWnd: PlausibilityCheckHwDialog;
 
     private currency: string;
 
@@ -397,7 +397,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             {this.toolbar()}
 
-            <PlausibilityCheckDialog ref={this.plausiWndRef} />
+            <PlausibilityCheckHwDialog ref={this.plausiWndRef} />
 
         </Container>
     }
