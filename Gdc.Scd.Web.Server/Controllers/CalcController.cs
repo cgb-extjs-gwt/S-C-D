@@ -165,6 +165,12 @@ namespace Gdc.Scd.Web.Api.Controllers
             return detailService.GetHwCostDetails(false, id, what);
         }
 
+        [HttpGet]
+        public object SwDetails(long id, bool approved, string what)
+        {
+            return detailService.GetSwCostDetails(approved, id, what);
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;

@@ -244,16 +244,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        public PlausiCost GetSwCostDetails(bool approved, long id, string what)
+        public PlausiCostSw GetSwCostDetails(bool approved, long id, string what)
         {
             var model = new GetSwCostById(_repositorySet).Execute(approved, id);
             var details = new GetSwCostDetailsById(_repositorySet).Execute(approved, id);
 
-            var cost = new PlausiCost
+            var cost = new PlausiCostSw
             {
                 Fsp = model.Fsp,
                 Sog = model.Sog,
-                Wg = model.SwDigit,
+                Digit = model.SwDigit,
                 Availability = model.Availability,
                 Duration = model.Duration,
             };
@@ -275,6 +275,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 case "reinsurance":
                     cost.Name = "Reinsurance";
                     cost.Value = model.Reinsurance;
+                    cost.CostBlocks = blocks;
+                    break;
+
+                case "transfer":
+                    cost.Name = "Transfer price";
+                    cost.Value = model.TransferPrice;
+                    cost.CostBlocks = blocks;
+                    break;
+
+                case "maintenance":
+                    cost.Name = "Maintenance list price";
+                    cost.Value = model.MaintenanceListPrice;
+                    cost.CostBlocks = blocks;
+                    break;
+
+                case "dealer":
+                    cost.Name = "Dealer reference price";
+                    cost.Value = model.DealerPrice;
                     cost.CostBlocks = blocks;
                     break;
 
@@ -403,6 +421,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public PlausiCostBlock[] CostBlocks { get; set; }
     }
+
+    public class PlausiCostSw
+    {
+        public string Name { get; internal set; }
+
+        public string Fsp { get; set; }
+
+        public string Digit { get; set; }
+
+        public string Sog { get; set; }
+
+        public string Availability { get; set; }
+
+        public string Duration { get; set; }
+
+        public double? Value { get; set; }
+
+        public PlausiCostBlock[] CostBlocks { get; set; }
+    }
+
 
     public class PlausiCostBlock
     {

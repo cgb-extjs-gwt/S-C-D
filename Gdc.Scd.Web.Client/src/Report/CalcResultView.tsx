@@ -27,10 +27,6 @@ export class CalcResultView extends React.Component<CalcResultViewProps> {
                         <SwCostView approved={true} />
                     </Container>
 
-                    <Container title="Software &amp; Solution<br>proactive cost" layout="fit">
-                        <SwProactiveCostView approved={false} />
-                    </Container>
-
                 </TabPanel>
 
             </Container>

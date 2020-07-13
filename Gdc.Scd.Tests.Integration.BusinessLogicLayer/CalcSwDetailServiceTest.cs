@@ -8,7 +8,11 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
     public class CalcSwDetailServiceTest
     {
         public const string RESULT_PATH = "Results";
-
+        
+        private const int ROW_ID = 657;
+        
+        private const bool APPROVED = false;
+        
         private CalcDetailService testing;
 
         private StandardKernel kernel;
@@ -27,17 +31,36 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         [TestCase]
         public void GetServiceSupport_CostDetailsTest()
         {
-            var d = testing.GetSwCostDetails(false, 657, "service-support");
-            //
+            var d = testing.GetSwCostDetails(APPROVED, ROW_ID, "service-support");
             Save(d, "sw-service-support.json");
         }
 
         [TestCase]
         public void GetReinsurance_CostDetailsTest()
         {
-            var d = testing.GetSwCostDetails(false, 657, "reinsurance");
-            //
+            var d = testing.GetSwCostDetails(APPROVED, ROW_ID, "reinsurance");
             Save(d, "sw-Reinsurance.json");
+        }
+
+        [TestCase]
+        public void GetTransfer_CostDetailsTest()
+        {
+            var d = testing.GetSwCostDetails(APPROVED, ROW_ID, "transfer");
+            Save(d, "sw-transfer.json");
+        }
+
+        [TestCase]
+        public void GetMaintenance_CostDetailsTest()
+        {
+            var d = testing.GetSwCostDetails(APPROVED, ROW_ID, "maintenance");
+            Save(d, "sw-maintenance.json");
+        }
+
+        [TestCase]
+        public void GetDealer_CostDetailsTest()
+        {
+            var d = testing.GetSwCostDetails(APPROVED, ROW_ID, "dealer");
+            Save(d, "sw-dealer.json");
         }
 
         public void Save(object data, string fn)
