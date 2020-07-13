@@ -107,7 +107,7 @@ export class PlausibilityCheckDialog extends React.Component<PlausibilityCheckPr
 
         let cls = this.state.onlyMissing && d.value ? 'plausi-accordion hidden' : 'plausi-accordion';
 
-        if (!d.value) {
+        if (d.mandatory && !d.value) {
             cls += ' missing';
         }
 

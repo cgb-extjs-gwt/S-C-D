@@ -15,7 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             _repositorySet = repositorySet;
         }
 
-        public object GetHwCostDetails(bool approved, long id, string what)
+        public PlausiCost GetHwCostDetails(bool approved, long id, string what)
         {
             var model = new GetHwCostById(_repositorySet).Execute(approved, id);
             var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
@@ -23,12 +23,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var fieldServiceCost = new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceCost, CostElements = AsElements(details, "Field Service Cost") };
             var serviceSupportCost = new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportCost, CostElements = AsElements(details, "Service support cost") };
             var logisticCost = new PlausiCostBlock { Name = "Logistics cost", Value = model.Logistic, CostElements = AsElements(details, "Logistics Cost") };
-            var avFee = new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, CostElements = AsElements(details, "Availability fee") };
-            var reinsurance = new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, CostElements = AsElements(details, "Reinsurance") };
+            var avFee = new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, Mandatory = false, CostElements = AsElements(details, "Availability fee") };
+            var reinsurance = new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, Mandatory = false, CostElements = AsElements(details, "Reinsurance") };
             var otherDirectCost = new PlausiCostBlock { Name = "Other", Value = model.OtherDirect };
             var materialCost = new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") };
             var taxAndDuties = new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") };
-            var proactive = new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, CostElements = AsElements(details, "ProActive") };
+            var proactive = new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, Mandatory = false, CostElements = AsElements(details, "ProActive") };
 
             var blocks = new PlausiCostBlock[]
             {
@@ -162,7 +162,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        public object GetStdwDetails(bool approved, long cnt, long wg)
+        public PlausiCost GetStdwDetails(bool approved, long cnt, long wg)
         {
             var model = new GetHwStdwById(_repositorySet).Execute(approved, cnt, wg);
             var details = new GetHwStdwDetailsById(_repositorySet).Execute(approved, cnt, wg);
@@ -196,14 +196,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportW, CostElements = AsElements(details, "Service support cost") },
                 new PlausiCostBlock { Name = "Logistics cost", Value = model.LogisticW, CostElements = AsElements(details, "Logistics Cost") },
                 new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW, CostElements = AsElements(details, "Tax & duties") },
-                new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, CostElements = AsElements(details, "Markup for standard warranty") },
-                new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, CostElements = AsElements(details, "Availability fee") },
+                new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, Mandatory = false, CostElements = AsElements(details, "Markup for standard warranty") },
+                new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, Mandatory = false, CostElements = AsElements(details, "Availability fee") },
             };
 
             return cost;
         }
 
-        public object GetStdCreditDetails(bool approved, long cnt, long wg)
+        public PlausiCost GetStdCreditDetails(bool approved, long cnt, long wg)
         {
             var model = new GetHwStdwById(_repositorySet).Execute(approved, cnt, wg);
             var details = new GetHwStdwDetailsById(_repositorySet).Execute(approved, cnt, wg);
@@ -237,14 +237,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportW, CostElements = AsElements(details, "Service support cost") },
                 new PlausiCostBlock { Name = "Logistics cost", Value = model.LogisticW, CostElements = AsElements(details, "Logistics Cost") },
                 new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW, CostElements = AsElements(details, "Tax & duties") },
-                new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, CostElements = AsElements(details, "Markup for standard warranty") },
-                new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, CostElements = AsElements(details, "Availability fee") },
+                new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, Mandatory = false, CostElements = AsElements(details, "Markup for standard warranty") },
+                new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, Mandatory = false, CostElements = AsElements(details, "Availability fee") },
             };
 
             return cost;
         }
 
-        public object GetSwCostDetails(bool approved, long id, string what)
+        public PlausiCost GetSwCostDetails(bool approved, long id, string what)
         {
             var model = new GetSwCostById(_repositorySet).Execute(approved, id);
             var details = new GetSwCostDetailsById(_repositorySet).Execute(approved, id);
@@ -285,7 +285,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        public object GetSwProactiveCostDetails(bool approved, long id, string fsp)
+        public PlausiCost GetSwProactiveCostDetails(bool approved, long id, string fsp)
         {
             var model = new GetSwProactiveCostsById(_repositorySet).Execute(approved, id, fsp);
             var details = new GetSwProactiveCostDetailsById(_repositorySet).Execute(approved, id, fsp);
@@ -313,7 +313,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        public object GetHddCostDetails(bool approved, long id)
+        public PlausiCost GetHddCostDetails(bool approved, long id)
         {
             var repo = this._repositorySet.GetRepository<HddRetentionView>();
 
@@ -408,7 +408,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         public string Name { get; set; }
         public double? Value { get; set; }
+        public bool Mandatory { get; set; }
         public IEnumerable<PlausiCostElement> CostElements { get; set; }
+        public PlausiCostBlock()
+        {
+            this.Mandatory = true;
+        }
     }
 
     public class PlausiCostElement
