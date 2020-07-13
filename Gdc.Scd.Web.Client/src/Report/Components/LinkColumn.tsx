@@ -6,6 +6,7 @@ export interface LinkColumnProps extends ColumnProps {
     renderer?: IRenderer;
     dataAction?: string;
     linkTooltip?: string;
+    rowID?: string;
 }
 
 export class LinkColumn extends React.Component<LinkColumnProps, any> {
@@ -26,7 +27,7 @@ export class LinkColumn extends React.Component<LinkColumnProps, any> {
         let a = [];
         a.push('<a class="lnk underline"');
 
-        let rowid = row.get('Id');
+        let rowid = row.get(this.props.rowID || 'Id');
         if (rowid) {
             a.push('data-rowid="' + rowid + '"');
         }

@@ -23,8 +23,8 @@ export class CalcResultView extends React.Component<CalcResultViewProps> {
                 <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
 
-                    <Container title="Software &amp; Solution<br>service costs<br>(approved)" layout="fit">
-                        <SwCostView approved={true} />
+                    <Container title="Hdd retention<br>service costs<br>(approved)" layout="fit">
+                        <HddCostView approved={true} />
                     </Container>
 
                 </TabPanel>
