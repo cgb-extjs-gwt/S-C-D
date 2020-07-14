@@ -3,7 +3,7 @@ import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
-import { post } from "../Common/Services/Ajax";
+import { post, buildMvcUrl } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
@@ -159,12 +159,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                // read: buildMvcUrl('calc', 'gethwcost')
-                read: 'http://localhost:11167/scd/Content/fake/data.json'
+                read: buildMvcUrl('calc', 'gethwcost')
             },
-            //actionMethods: {
-            //    read: 'POST'
-            //},
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
