@@ -2,8 +2,8 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Entities;
 using Gdc.Scd.Web.Server.Impl;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -38,7 +38,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             try
             {
                 var excel = await service.Excel(data.Report, data.AsFilterCollection(this.countryService));
-                return this.ExcelContent(excel.data, excel.fileName);
+                return this.ExcelContent(excel.Data, excel.FileName);
             }
             catch
             {
@@ -50,7 +50,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         public Task<HttpResponseMessage> Export([FromUri]long id, [FromBody]ReportFormData data)
         {
             return service.Excel(id, data.AsFilterCollection())
-                          .ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
+                          .ContinueWith(x => this.ExcelContent(x.Result.Data, x.Result.FileName));
         }
 
         //TODO: realize user/country user access level validation
@@ -58,7 +58,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         public Task<HttpResponseMessage> ExportByName([FromBody]ReportFormData data)
         {
             return service.Excel(data.Report, data.AsFilterCollection())
-                            .ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
+                            .ContinueWith(x => this.ExcelContent(x.Result.Data, x.Result.FileName));
         }
 
         [HttpGet]
@@ -88,7 +88,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                 return null;
             }
             return service.GetJsonArrayData(id, data.AsFilterCollection(), data.Start, data.Limit)
-                          .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
+                          .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
         }
 
         [HttpPost]
@@ -100,67 +100,6 @@ namespace Gdc.Scd.Web.Server.Controllers
         private static bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
-        }
-
-        public class ReportFormData
-        {
-            public long Id { get; set; }
-
-            public int Start { get; set; }
-
-            public int Limit { get; set; }
-
-            public string Report { get; set; }
-
-            public string Filter { get; set; }
-
-            public ReportFilterCollection AsFilterCollection()
-            {
-                IList<KeyValuePair<string, object>> pairs = new List<KeyValuePair<string, object>>();
-
-                var jo = JObject.Parse(Filter);
-
-                foreach (var o in jo)
-                {
-                    object val = null;
-
-                    var token = o.Value;
-
-                    switch (token.Type)
-                    {
-                        case JTokenType.Array:
-                            val = token.ToObject<long[]>();
-                            break;
-
-                        case JTokenType.Integer:
-                            val = token.ToObject<long>();
-                            break;
-
-                        case JTokenType.Float:
-                            val = token.ToObject<double>();
-                            break;
-
-                        case JTokenType.String:
-                            var str = token.ToObject<string>();
-                            if (!string.IsNullOrEmpty(str))
-                            {
-                                val = str;
-                            }
-                            break;
-
-                        case JTokenType.Boolean:
-                            val = token.ToObject<bool>();
-                            break;
-                    }
-
-                    if (val != null)
-                    {
-                        pairs.Add(new KeyValuePair<string, object>(o.Key, val));
-                    }
-                }
-
-                return new ReportFilterCollection(pairs);
-            }
         }
 
         public class ReportParameter

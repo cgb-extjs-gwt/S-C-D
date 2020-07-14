@@ -24,6 +24,7 @@ export interface Store<T=any> {
     getProxy()
     reload()
     getModifiedRecords(): Model<T>[]
+    getData(): Model<T>[]
     commitChanges()
     rejectChanges()
     on(eventName: string, fn: Function, scope)
@@ -68,4 +69,13 @@ export interface Position {
     bottom?: string | number
     left?: string | number
     right?: string | number
+}
+
+export interface SelectionCellInfo {
+    columnIndex: number
+}
+
+export interface SelectionGridInfo {
+    startCell: SelectionCellInfo
+    endCell: SelectionCellInfo
 }

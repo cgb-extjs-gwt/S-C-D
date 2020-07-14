@@ -8,7 +8,8 @@ import {
   SelectField,
   Toolbar,
   Button,
-  Container
+  Container,
+  ContainerField
 } from "@extjs/ext-react";
 import {
   ColumnInfo,
@@ -17,7 +18,7 @@ import {
   ColumnFilter
 } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
-import { Model, StoreOperation, Store } from "../States/ExtStates";
+import { Model, StoreOperation, Store, SelectionGridInfo } from "../States/ExtStates";
 import { ReactNode } from "react-redux";
 import {
   DynamicGridProps,
@@ -179,7 +180,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     grid,
     records: Model[],
     selecting: boolean,
-    selectionInfo
+    selectionInfo: SelectionGridInfo
   ) => {
     const { onSelectionChange } = this.props;
 
@@ -240,6 +241,12 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
             case ColumnType.Text:
               editor = <TextField />;
+              break;
+
+            case ColumnType.Button:
+              editor = <ContainerField inputElement={{setStyle: () =>{}}}>
+                <Button text="(edit...)" handler={column.buttonHandler} centered={true} border={true}/>
+              </ContainerField> 
               break;
           }
         }
@@ -344,6 +351,14 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                 xtype: "textfield"
               };
               break;
+
+            case ColumnType.Button:
+              columnOption.editor = {
+                xtype: "button",
+                text: "(edit...)",
+                handler: column.buttonHandler
+              };
+              break;
           }
         }
         break;
@@ -353,15 +368,34 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
   }
 
   private getReferenceEditorOptions(column: ColumnInfo) {
-    const options = Array.from(column.referenceItems.values()).map(item => ({
+    let options = Array.from(column.referenceItems.values()).map(item => ({
       text: item.name,
       value: item.id
     }));
 
-    return [
-      { text: '(none)', value: undefined },
-      ...options
-    ]
+    options = options.sort((item1, item2) => {
+      let result = 0
+
+      if (item1.text < item2.text){
+        result = -1;
+      }
+
+      if (item1.text > item2.text){
+        result = 1;
+      }
+
+      return result;
+    })
+
+    const result = [];
+
+    if (!column.disableNone) {
+      result.push({ text: '(none)', value: undefined });
+    }
+
+    result.push(...options);
+
+    return result;
   }
 
   private onColumnMenuCreated = (grid, column, menu) => {
@@ -435,7 +469,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     };
   }
 
-  private replaceNullValue = value => (value ? value : " ");
+  private replaceNullValue = value => (value == null ? ' ' : value);
 
   private onUpdateStore = (
     store: Store,

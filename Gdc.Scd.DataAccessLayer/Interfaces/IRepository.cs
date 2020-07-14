@@ -19,10 +19,14 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         void Delete(long id);
 
+        void Delete(IEnumerable<long> ids);
+
         void DeleteAll();
 
         void DisableTrigger();
 
         void EnableTrigger();
+
+        bool IsNewItem<TItem>(TItem item) where TItem : class, IIdentifiable;
     }
 }

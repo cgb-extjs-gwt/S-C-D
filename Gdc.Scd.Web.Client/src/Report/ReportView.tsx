@@ -5,7 +5,7 @@ import { AutoGridModel } from "./Model/AutogridModel";
 import { IReportService } from "./Services/IReportService";
 import { ReportFactory } from "./Services/ReportFactory";
 
-export class ReportView extends React.Component<any, AutoGridModel> {
+export class ReportView<T=any> extends React.Component<T, AutoGridModel> {
 
     private name: string;
 

@@ -1,16 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Meta.Constants;
+﻿using Gdc.Scd.Core.Meta.Constants;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
     [Table("Availability", Schema = MetaConstants.DependencySchema)]
     public class Availability : ExternalEntity
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public override long Id
-        {
-            get => base.Id;
-            set => base.Id = value;
-        }
+        public int Value { get; set; }
+
+        public DayHour Start { get; set; }
+
+        public DayHour End { get; set; }
     }
 }

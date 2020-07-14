@@ -88,5 +88,7 @@
         public const string ExchangeRateTable = "ExchangeRate";
 
         public const string ProActiveSlaTableName = "ProActiveSla";
+
+        public const string ProjectCalculatorSchema = "ProjectCalculator";
     }
 }

@@ -27,5 +27,7 @@
         public const string CalcResultHddServiceCostNotApproved = "CalcResultHddServiceCostNotApproved";
 
         public const string CalcResultSoftwareServiceCostNotApproved = "CalcResultSoftwareServiceCostNotApproved";
+
+        public const string ProjectCalculator = "ProjectCalculator";
     }
 }

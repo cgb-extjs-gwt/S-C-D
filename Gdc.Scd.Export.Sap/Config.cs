@@ -29,5 +29,8 @@ namespace Gdc.Scd.Export.Sap
         public static string FileLine2 => ConfigurationManager.AppSettings["FileLine2"];
 
         public static string SapDBUserLogin => ConfigurationManager.AppSettings["SapDBUser"];
+
+        public static string RegExpConfig => ConfigurationManager.AppSettings["RegExpConfig"];
+        public static string RegExpClass => ConfigurationManager.AppSettings["RegExpClass"];
     }
 }

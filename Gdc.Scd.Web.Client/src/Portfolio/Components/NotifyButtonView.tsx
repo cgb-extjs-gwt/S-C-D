@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button, Container, Dialog } from "@extjs/ext-react";
 import { NotifyGrid, NotifyGridProps, NotifyGridActions } from "./NotifyGrid";
-import { shomMask, hideMask } from "../../Common/Helpers/MaskHelper";
+import { showMask, hideMask } from "../../Common/Helpers/MaskHelper";
 import { NamedId } from "../../Common/States/CommonStates";
 import { Store } from "../../Common/States/ExtStates";
 
@@ -62,7 +62,7 @@ export class NotifyButtonView extends React.PureComponent<NotifyButtonProps, Not
     }
 
     public showDialogMask() {
-        shomMask(this.dialog);
+        showMask(this.dialog);
     }
 
     public hideDialogMask() {

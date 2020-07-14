@@ -12,6 +12,7 @@ import { COST_APPROVAL_PAGE } from "./CostApproval/Constants/CostApprovalConstan
 import { costApprovalReducer } from "./CostApproval/Reducers/CostApprovalReducer";
 import { OWN_COST_APPROVAL_PAGE } from "./CostOwnApproval/Constants/CostOwnApprovalConstants";
 import { costOwnApprovalReducer } from "./CostOwnApproval/Reducers/CostOwnApprovalReducer";
+import { projectCalculatorReducer } from "./ProjectCalculator/Reducers/ProjectCalculatorReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -31,7 +32,8 @@ export const storeFactory = () => {
             [COST_APPROVAL_PAGE]: costApprovalReducer,
             [OWN_COST_APPROVAL_PAGE]: costOwnApprovalReducer,
             tableView: tableViewReducer,
-            costImport: costImportReducer
+            costImport: costImportReducer,
+            projectCalculator: projectCalculatorReducer
         })
     });
 

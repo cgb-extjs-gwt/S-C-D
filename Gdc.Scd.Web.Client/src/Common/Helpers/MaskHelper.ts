@@ -2,7 +2,7 @@ import { ROOT_LAYOUT_ID } from "../../Layout/Components/Layout";
 
 const getLayout = () => (<any>Ext.getCmp(ROOT_LAYOUT_ID));
 
-export const shomMask = (cmp=getLayout()) => {
+export const showMask = (cmp=getLayout()) => {
     cmp && cmp.setMasked({ xtype: "loadmask" });
 }
 

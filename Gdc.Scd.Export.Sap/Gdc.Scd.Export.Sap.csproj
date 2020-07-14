@@ -71,6 +71,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="Dto\ConditionType.cs" />
     <Compile Include="Dto\FieldGetter.cs" />
+    <Compile Include="Dto\FileData.cs" />
     <Compile Include="Dto\LocapMergedData.cs" />
     <Compile Include="Dto\ExportType.cs" />
     <Compile Include="Dto\ReleasedData.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Impl\FileService.cs" />
+    <Compile Include="SapLogConstants.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -105,6 +107,10 @@
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
       <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
+      <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
+      <Name>Gdc.Scd.Import.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Import.Por.Core\Gdc.Scd.Import.Por.Core.csproj">
       <Project>{2C7950F5-92EA-4A0C-A620-3C473BC21097}</Project>

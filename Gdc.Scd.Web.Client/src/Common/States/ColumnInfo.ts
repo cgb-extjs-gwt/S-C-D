@@ -5,7 +5,8 @@ export enum ColumnType {
     Text,
     CheckBox,
     Numeric,
-    Reference
+    Reference,
+    Button
 }
 
 export interface FilterItem {
@@ -25,12 +26,14 @@ export interface ColumnInfo<T=any> {
     type?: ColumnType
     isEditable?: boolean
     referenceItems?: Map<number, NamedId<number>>
+    disableNone?: boolean
     isInvisible?: boolean
     filter?: ColumnFilter
     extensible?: boolean
     flex?: number
     columns?: ColumnInfo<T>[]
     width?: string | number
+    buttonHandler?(dataIndex: string)
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     rendererFn?(value, record: Model<T>, dataIndex: string, cell): any

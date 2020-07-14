@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
+using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
@@ -57,7 +58,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Wg>();
-            Kernel.RegisterEntity<Availability>();
             Kernel.RegisterEntity<Year>();
             Kernel.RegisterEntity<Duration>();
             Kernel.RegisterEntity<ReactionType>();
@@ -109,6 +109,12 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ReportFilter>();
             Kernel.RegisterEntity<ReportPart>();
             Kernel.RegisterEntity<JobsSchedule>();
+
+            /*---------Project Calculator----------*/
+            Kernel.RegisterEntity<Project>();
+            Kernel.RegisterEntity<AfrProjCalc>();
+            Kernel.RegisterEntity<AvailabilityWeight>();
+            Bind<IProjectService, IDomainService<Project>, ProjectService>().To<ProjectService>().InScdRequestScope();
         }
     }
 }

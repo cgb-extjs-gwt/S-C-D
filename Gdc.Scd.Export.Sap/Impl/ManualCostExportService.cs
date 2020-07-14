@@ -1,15 +1,12 @@
-﻿using ClosedXML.Excel;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.Export.Sap.Enitities;
 using Gdc.Scd.Export.Sap.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Sap.Dto;
 
@@ -17,6 +14,7 @@ namespace Gdc.Scd.Export.Sap.Impl
 {
     public class ManualCostExportService : IManualCostExportService
     {
+        protected ILogger Logger;
         private readonly IDomainService<SapTable> sapTableService;
         private readonly IFileService fileService;
         private readonly IRepository<HardwareManualCost> hwManualRepo;
@@ -33,24 +31,30 @@ namespace Gdc.Scd.Export.Sap.Impl
             IRepository<User> userRepo,
             IDomainService<SapTable> sapTableService,
             ISapExportLogService sapLogService,
-            IRepositorySet repo)
+            IRepositorySet repo,
+            ILogger logger)
         {
             this.hwManualRepo = hwManualRepo;
             this.userRepo = userRepo;
             this.sapTableService = sapTableService;
             this.sapLogService = sapLogService;
             this.repository = repo;
-            this.fileService = new FileService();
-
+            this.Logger = logger;
+            this.fileService = new FileService(this.Logger);
             this.ExportType = ExportType.Partial;
+            
         }
 
         public void Export()
         {
+            Logger.Info(SapLogConstants.START_PROCESS);
+
             var lastSapLog = 
                 this.sapLogService.GetAll()
                                   .OrderBy(log => log.UploadDate)
                                   .LastOrDefault();
+
+            Logger.Info(SapLogConstants.SAPLOG_RECEIVED);
 
             if (lastSapLog == null)
             {
@@ -58,7 +62,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             }
             else if (!lastSapLog.IsSend)
             {
-                //Log.Error(msg);
+                Logger.Error( SapLogConstants.SAPLOG_NOTSENT + lastSapLog.FileNumber);
                 return;
             }
             else if (Enum.TryParse(Config.ExportType, out ExportType exportTypeParam))
@@ -71,6 +75,8 @@ namespace Gdc.Scd.Export.Sap.Impl
             }
 
             this.Do();
+
+            Logger.Info(SapLogConstants.END_PROCESS);
         }
 
         private void Do()
@@ -78,7 +84,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             var locapMergedData = new LocapReportService(repository).Execute(this.StartPeriod);
             if (locapMergedData == null)
             {
-                //Log.Info(msg);
+                Logger.Info(SapLogConstants.NODATA_FORUPLOAD);
                 return;
             }
 
@@ -102,7 +108,7 @@ namespace Gdc.Scd.Export.Sap.Impl
                     .LastOrDefault();
             if (lastSapLog != null && lastSapLog.IsSend == false)
             {
-                //Log.Error(msg);
+                Logger.Error(SapLogConstants.SAPLOG_PREVNOTSENT + lastSapLog.FileNumber);
                 return false;
             }
 
@@ -129,8 +135,9 @@ namespace Gdc.Scd.Export.Sap.Impl
                 PriceDb = (packType == SapUploadPackType.HW) ? lp.ServiceTP : lp.LocalServiceStdw,
                 ValidFromDt = lp.ReleaseDate ?? (lp.NextSapUploadDate ?? DateTime.Today),
                 ValidToDt = DateTime.MaxValue,
-                SapTable = saptables.FirstOrDefault(s => s.SapSalesOrganization == lp.SapSalesOrganization).Name,
-                SapItemCategory = lp.SapItemCategory
+                SapTable = saptables.FirstOrDefault(s => s.SapSalesOrganization.Equals(lp.SapSalesOrganization, StringComparison.InvariantCultureIgnoreCase))?.Name,
+                SapItemCategory = lp.SapItemCategory,
+                SapUploadPackType = packType
             }).Distinct().ToList();
         }
 
@@ -171,7 +178,7 @@ namespace Gdc.Scd.Export.Sap.Impl
             }
             catch(Exception ex)
             {
-                //Log.Error(ex, msg);
+                Logger.Error(ex, SapLogConstants.HWMANUALCOSTS_CANTUPDATE);
                 transaction?.Rollback();
                 throw;
             }

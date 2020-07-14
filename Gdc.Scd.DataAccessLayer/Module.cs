@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
+using Gdc.Scd.Core.Entities.ProjectCalculator;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
@@ -56,6 +57,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IPortfolioPivotGridQueryBuilder>().To<PortfolioPivotGridQueryBuilder>().InSingletonScope();
             Bind<IPortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>, IRepository<PrincipalPortfolio>>().To<PortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>>().InScdRequestScope();
             Bind<IPortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>, IRepository<LocalPortfolio>>().To<PortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>>().InScdRequestScope();
+            Bind<IProjectRepository, IRepository<Project>>().To<ProjectRepository>().InScdRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
@@ -76,6 +78,28 @@ namespace Gdc.Scd.DataAccessLayer
             Kernel.RegisterEntityAsUniqueName<Role>();
             Kernel.RegisterEntityAsUniqueName<Permission>();
             Kernel.RegisterEntity<RolePermission>();
+            Kernel.RegisterEntity<Availability>(
+                builder => 
+                {
+                    builder.OwnsOne(typeof(DayHour), nameof(Availability.Start));
+                    builder.OwnsOne(typeof(DayHour), nameof(Availability.End));
+                });
+            Kernel.RegisterEntity<ProjectItem>(
+                builder =>
+                {
+                    var availabilityBuilder = builder.OwnsOne(typeof(AvailabilityProjCalc), nameof(ProjectItem.Availability));
+
+                    availabilityBuilder.OwnsOne(typeof(DayHour), nameof(AvailabilityProjCalc.Start));
+                    availabilityBuilder.OwnsOne(typeof(DayHour), nameof(AvailabilityProjCalc.End));
+
+                    builder.OwnsOne(typeof(ReactionTimeProjCalc), nameof(ProjectItem.ReactionTime));
+                    builder.OwnsOne(typeof(DurationProjCalc), nameof(ProjectItem.Duration));
+                    builder.OwnsOne(typeof(FieldServiceCostProjCalc), nameof(ProjectItem.FieldServiceCost));
+                    builder.OwnsOne(typeof(ReinsuranceProjCalc), nameof(ProjectItem.Reinsurance));
+                    builder.OwnsOne(typeof(MarkupOtherCostsProjCalc), nameof(ProjectItem.MarkupOtherCosts));
+                    builder.OwnsOne(typeof(LogisticsCostsProjCalc), nameof(ProjectItem.LogisticsCosts));
+                    builder.OwnsOne(typeof(AvailabilityFeeProjCalc), nameof(ProjectItem.AvailabilityFee));
+                });
         }
 
         private bool IsModifiable(IRequest arg)

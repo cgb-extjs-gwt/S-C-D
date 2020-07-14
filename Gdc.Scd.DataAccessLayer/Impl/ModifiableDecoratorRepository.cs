@@ -19,12 +19,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Delete(long id)
         {
-            var item = Get(id);
-            if (item != null)
-            {
-                item.DeactivatedDateTime = DateTime.Now;
-                Save(item);
-            }
+            this.Delete(new[] { id });
         }
 
         public void DeleteAll()
@@ -74,12 +69,30 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private static void Timestamp(T item)
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             if (item.Id == 0)
             {
                 item.CreatedDateTime = now;
             }
             item.ModifiedDateTime = now;
+        }
+
+        public void Delete(IEnumerable<long> ids)
+        {
+            var deactivatedDateTime = DateTime.UtcNow;
+            var items = this.GetAll().Where(item => ids.Contains(item.Id)).ToArray();
+
+            foreach (var item in items)
+            {
+                item.DeactivatedDateTime = deactivatedDateTime;
+            }
+
+            this.Save(items);
+        }
+
+        public bool IsNewItem<TItem>(TItem item) where TItem : class, IIdentifiable
+        {
+            return this.origin.IsNewItem(item);
         }
     }
 }

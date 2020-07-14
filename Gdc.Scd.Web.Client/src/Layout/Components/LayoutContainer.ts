@@ -21,10 +21,16 @@ import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
 import { ReportListViewContainer } from "../../Report/ReportListViewContainer";
 import { PortfolioPivotGrid } from "../../PortfolioPivotGrid/Components/PortfolioPivotGrid";
 import { ImportFromExcelContainer } from "../../TableView/Components/ImportFromExcelContainer";
+import { ProjectListContainer } from "../../ProjectCalculator/Components/ProjectListContainer";
+import { ProjectEditorContainer } from "../../ProjectCalculator/Components/ProjectEditorContainer";
+import { ProjectReportContainer } from "../../ProjectCalculator/Components/ProjectReportContainer";
 
 export const Paths = {
     tableView: '/table-view',
-    tableViewImport: '/table-view-import'
+    tableViewImport: '/table-view-import',
+    projectCalculatorList: '/project-calculator/list',
+    projectCalculatorEdit: '/project-calculator/edit',
+    projectCalculatorReport: '/project-calculator/report'
 }
 
 interface RouteMenuItem extends RouteItem {
@@ -53,6 +59,9 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
+    { path: Paths.projectCalculatorList, text: 'Project Calculator', iconCls: 'x-fa fa-laptop', component: ProjectListContainer, isMenuItem: true, permission: Permissions.PROJECT_CALCULATOR },
+    { path: `${Paths.projectCalculatorEdit}/:id`, text: 'Edit Project', component: ProjectEditorContainer, permission: Permissions.PROJECT_CALCULATOR, exact: true },
+    { path: `${Paths.projectCalculatorReport}/:name/:projectId`, text: 'Report', component: ProjectReportContainer, permission: Permissions.PROJECT_CALCULATOR, exact: true },
     {
         path: '/admin', 
         text: 'Admin', 

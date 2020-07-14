@@ -255,6 +255,7 @@
     <Compile Include="Migrations\2020_04\Migration_2020_04_17_13_23.cs" />
     <Compile Include="Migrations\2020_04\Migration_2020_04_17_15_11.cs" />
     <Compile Include="Migrations\2020_05\Migration_2020_05_15_10_14.cs" />
+    <Compile Include="Migrations\2020_06\Migration_2020_06_29_14_45.cs" />
     <Compile Include="Migrations\2020_05\Migration_2020_05_18_19_19.cs" />
     <Compile Include="Migrations\2020_05\Migration_2020_05_22_17_28.cs" />
     <Compile Include="Migrations\2020_05\Migration_2020_05_25_12_39.cs" />
@@ -265,6 +266,9 @@
     <Compile Include="Migrations\2020_06\Migration_2020_06_04_19_19.cs" />
     <Compile Include="Migrations\2020_06\Migration_2020_06_04_20_20.cs" />
     <Compile Include="Migrations\2020_06\Migration_2020_06_09_02_00.cs" />
+    <Compile Include="Migrations\2020_07\Migration_2020_07_08_11_00.cs" />
+    <Compile Include="Migrations\2020_07\Migration_2020_07_07_19_00.cs" />
+    <Compile Include="Migrations\2020_07\Migration_2020_07_02_15_55.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -317,6 +321,24 @@
     <Content Include="MigrationScripts\2020-06-04-16-22.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="MigrationScripts\2020-06-29-14-45-calculation.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-06-29-14-45-interpolation.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-06-29-14-45-reports.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-06-29-14-45-tables.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-07-02-15-55-availability.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="MigrationScripts\2020-07-02-15-55-interpolation.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_new.xml" />
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_10_14_57_old.xml" />
     <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_04_20_11_42_old.xml" />

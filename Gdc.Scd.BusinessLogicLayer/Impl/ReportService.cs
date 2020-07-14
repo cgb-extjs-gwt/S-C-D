@@ -9,7 +9,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
@@ -27,7 +26,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public ReportService(
                 IRepositorySet repositorySet,
-                ISapUploadRepository sapUploadRepository,
                 IUserService userService
             )
         {
@@ -35,17 +33,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.userService = userService;
         }
 
-        public Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
+        public Task<ReportExportData> Excel(long reportId, ReportFilterCollection filter, IDictionary<string, object> additionalParams = null)
         {
-            return Excel(GetSchemas().GetSchema(reportId), filter);
+            return Excel(GetSchemas().GetSchema(reportId), filter, additionalParams);
         }
 
-        public Task<(Stream data, string fileName)> Excel(string reportName, ReportFilterCollection filter)
+        public Task<ReportExportData> Excel(string reportName, ReportFilterCollection filter, IDictionary<string, object> additionalParams = null)
         {
-            return Excel(GetSchemas().GetSchema(reportName), filter);
+            return Excel(GetSchemas().GetSchema(reportName), filter, additionalParams);
         }
 
-        private async Task<(Stream data, string fileName)> Excel(ReportSchema r, ReportFilterCollection filter)
+        private async Task<ReportExportData> Excel(ReportSchema r, ReportFilterCollection filter, IDictionary<string, object> additionalParams = null)
         {
             using (var multi = new GetReport.MultiSheetReport(repositorySet))
             {
@@ -53,6 +51,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var schema = r.AsSchemaDto();
                 var fn = FileNameHelper.Excel(schema.Name);
                 var parameters = r.FillParameters(filter, userService.GetCurrentUser());
+
+                parameters = this.GetParameters(parameters, additionalParams);
+
                 await multi.ExecuteExcelAsync(schema, func, parameters);
 
                 var schemas = GetSchemas();
@@ -65,19 +66,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     await multi.ExecuteExcelAsync(schema, func, parameters);
                 }
 
-                return (multi.GetData(), fn);
+                return new ReportExportData
+                {
+                    Data = multi.GetData(),
+                    FileName = fn
+                };
             }
         }
 
-        public async Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
+        public async Task<ReportData> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit, IDictionary<string, object> additionalParams = null)
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
             var parameters = r.FillParameters(filter, userService.GetCurrentUser());
 
+            parameters = this.GetParameters(parameters, additionalParams);
+
             var d = await new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit + 1, parameters);
 
-            return (d.json, d.total < limit ? start + d.total : start + limit + 1);
+            return new ReportData
+            {
+                Json = d.json,
+                Total = d.total < limit ? start + d.total : start + limit + 1
+            };
         }
 
         public ReportDto[] GetReports()
@@ -93,6 +104,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public ReportSchemaDto GetSchema(string reportName)
         {
             return GetSchemas().GetSchemaDto(reportName);
+        }
+
+        private DbParameter[] GetParameters(DbParameter[] parameters, IDictionary<string, object> aditionalParams)
+        {
+            if (aditionalParams != null)
+            {
+                var aditParams = aditionalParams.Select(param => DbParameterBuilder.Create(param.Key, param.Value));
+
+                parameters = parameters.Concat(aditParams).ToArray();
+            }
+
+            return parameters;
         }
 
         private ReportSchemaCollection GetSchemas()

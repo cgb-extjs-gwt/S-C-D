@@ -16,6 +16,8 @@ interface FilterDataItem {
 }
 
 export interface LocalDynamicGridActions<T=any> {
+    onAddRecord?(store: Store<T>, records: Model<T>[])
+    onRemoveRecord?(store: Store<T>, records: Model<T>[])
     onUpdateRecord?: StoreUpdateEventFn<T>
     onUpdateRecordSet? (records: Model<T>[], operation: StoreOperation, dataIndex: string)
     onLoadData?(store: Store<T>, records: Model<T>[], filterStores: Map<string, Store<FilterItem>>)
@@ -28,6 +30,8 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     private readonly dataStoreEvents = {
         load: this.onDataStoreLoad,
         update: this.onDataStoreUpdate,
+        add: this.onDataStoreAdd,
+        remove: this.onDataStoreRemove
     };
 
     private store: Store<TData>
@@ -73,6 +77,10 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     public save = () => {
         this.innerGrid.save();
+    }
+
+    public getStore() {
+        return this.store
     }
 
     protected init() {
@@ -186,6 +194,18 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
             this.updatedRecords.push(record);
         }
+    }
+
+    private onDataStoreAdd(store, records) {
+        const { onAddRecord } = this.props;
+
+        onAddRecord && onAddRecord(store, records);
+    }
+
+    private onDataStoreRemove(store, records) {
+        const { onRemoveRecord } = this.props;
+
+        onRemoveRecord && onRemoveRecord(store, records);
     }
 
     private initFilterData(visibleColumns: ColumnInfo[]) {
