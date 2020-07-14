@@ -362,7 +362,8 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                 ...column,
                 referenceItems: map,
                 type: ColumnType.Reference,
-                width
+                width,
+                disableNone: isRequired,
             }
 
             if (isNested) {
@@ -412,7 +413,7 @@ export class ProjectItemsGrid extends React.PureComponent<ProjectItemsGridProps,
                     'periodType', 
                     'Period', 
                     projectItemEditData.reactionTimePeriods, 
-                    true, 
+                    false, 
                     true,
                     150,
                     (value, { data: { reactionTime } }: Model<ProjectItem>) => reactionTime && reactionTime.value != null && reactionTime.periodType == null

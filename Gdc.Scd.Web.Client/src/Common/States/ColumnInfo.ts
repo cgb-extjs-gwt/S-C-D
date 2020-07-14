@@ -26,6 +26,7 @@ export interface ColumnInfo<T=any> {
     type?: ColumnType
     isEditable?: boolean
     referenceItems?: Map<number, NamedId<number>>
+    disableNone?: boolean
     isInvisible?: boolean
     filter?: ColumnFilter
     extensible?: boolean

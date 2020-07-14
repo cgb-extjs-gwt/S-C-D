@@ -387,10 +387,15 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
       return result;
     })
 
-    return [
-      { text: '(none)', value: undefined },
-      ...options
-    ]
+    const result = [];
+
+    if (!column.disableNone) {
+      result.push({ text: '(none)', value: undefined });
+    }
+
+    result.push(...options);
+
+    return result;
   }
 
   private onColumnMenuCreated = (grid, column, menu) => {
