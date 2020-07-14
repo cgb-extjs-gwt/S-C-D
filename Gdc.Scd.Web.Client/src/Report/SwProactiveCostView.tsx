@@ -22,6 +22,8 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     private plausiWnd: PlausibilityCheckSwProactiveDialog;
 
+    private clsID: string;
+
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         pageSize: 25,
@@ -52,10 +54,12 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     }
 
     public componentDidMount() {
-        document.querySelector('.data-calc').addEventListener('click', this.onMoreDetails);
+        document.querySelector('.' + this.clsID).addEventListener('click', this.onMoreDetails);
     }
 
     public render() {
+        let cls = 'grid-paging-no-count grid-small-head ' + this.clsID;
+
         return (
             <Container layout="fit">
 
@@ -71,7 +75,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginCfg}
-                    cls="grid-paging-no-count grid-small-head data-calc"
+                    cls={cls}
                 >
 
                     { /*dependencies*/}
@@ -116,6 +120,8 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     }
 
     private init() {
+        this.clsID = 'pro-data-calc-' + (this.approved() ? '1' : '0') + new Date().getTime();
+        //
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);

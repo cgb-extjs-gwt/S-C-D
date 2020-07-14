@@ -46,12 +46,16 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private pluginCfg: any;
 
+    private clsID: string;
+
     public constructor(props: CalcCostProps) {
         super(props);
         this.init();
     }
 
     public render() {
+        let cls = 'grid-paging-no-count grid-small-head ' + this.clsID;
+
         return (
             <Container layout="fit">
 
@@ -61,7 +65,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginCfg}
-                    cls="grid-paging-no-count grid-small-head data-calc">
+                    cls={cls}>
 
                     { /*dependencies*/}
 
@@ -111,10 +115,12 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as SwCostFilter;
         this.plausiWnd = this.refs.plausiWndRef as PlausibilityCheckSwDialog;
-        document.querySelector('.data-calc').addEventListener('click', this.onMoreDetails);
+        document.querySelector('.' + this.clsID).addEventListener('click', this.onMoreDetails);
     }
 
     private init() {
+        this.clsID = 'sw-data-calc-' + (this.approved() ? '1' : '0') + new Date().getTime();
+        //
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
