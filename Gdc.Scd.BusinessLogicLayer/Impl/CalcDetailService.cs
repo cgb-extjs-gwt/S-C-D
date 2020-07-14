@@ -2,6 +2,7 @@
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,167 +19,103 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public PlausiCost GetHwCostDetails(bool approved, long id, string what)
         {
+            Func<PlausiCostWrap, PlausiCost> fn;
+
             if (what == "stdw")
             {
                 return this.GetStdwDetails(approved, id);
             }
 
-            if (what == "credit")
+            else if (what == "credit")
             {
                 return this.GetStdCreditDetails(approved, id);
             }
 
-            var model = new GetHwCostById(_repositorySet).Execute(approved, id);
-            var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
-
-            var fieldServiceCost = new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceCost, CostElements = AsElements(details, "Field Service Cost") };
-            var serviceSupportCost = new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportCost, CostElements = AsElements(details, "Service support cost") };
-            var logisticCost = new PlausiCostBlock { Name = "Logistics cost", Value = model.Logistic, CostElements = AsElements(details, "Logistics Cost") };
-            var avFee = new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, Mandatory = false, CostElements = AsElements(details, "Availability fee") };
-            var reinsurance = new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, Mandatory = false, CostElements = AsElements(details, "Reinsurance") };
-            var otherDirectCost = new PlausiCostBlock { Name = "Other", Value = model.OtherDirect };
-            var materialCost = new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") };
-            var taxAndDuties = new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") };
-            
-            var proactive = new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, Mandatory = false, CostElements = AsElements(details, "ProActive") };
-            var reactiveTС = new PlausiCostBlock { Name = "ReActive TC", Value = model.ReActiveTC };
-            var reactiveTP = new PlausiCostBlock { Name = "ReActive TP", Value = model.ReActiveTP };
-
-            var blocks = new List<PlausiCostBlock>(16)
+            else if (what == "field-service")
             {
-                fieldServiceCost,
-                serviceSupportCost,
-                materialCost,
-                logisticCost,
-                taxAndDuties,
-                avFee,
-                reinsurance,
-                new PlausiCostBlock { Name = "Local STDW", Value = model.LocalServiceStandardWarranty },
-                new PlausiCostBlock { Name = "Credits", Value = model.Credits },
-                otherDirectCost
-            };
-
-            var cost = new PlausiCost
-            {
-                Fsp = model.Fsp,
-                Country = model.Country,
-                Currency = model.Currency,
-                ExchangeRate = model.ExchangeRate,
-                Sog = model.Sog,
-                Wg = model.Wg,
-                Availability = model.Availability,
-                Duration = model.Duration,
-                ReactionTime = model.ReactionTime,
-                ReactionType = model.ReactionType,
-                ServiceLocation = model.ServiceLocation,
-                ProActiveSla = model.ProActiveSla,
-                StdWarranty = model.StdWarranty,
-                StdWarrantyLocation = model.StdWarrantyLocation
-            };
-
-            switch (what)
-            {
-                case "field-service":
-                    cost.Name = "Field service cost";
-                    cost.Value = model.FieldServiceCost;
-                    cost.CostBlocks = new PlausiCostBlock[] { fieldServiceCost };
-                    break;
-
-                case "service-support":
-                    cost.Name = "Service support cost";
-                    cost.Value = model.ServiceSupportCost;
-                    cost.CostBlocks = new PlausiCostBlock[] { serviceSupportCost };
-                    break;
-
-                case "logistic":
-                    cost.Name = "Logistic cost";
-                    cost.Value = model.Logistic;
-                    cost.CostBlocks = new PlausiCostBlock[] { logisticCost };
-                    break;
-
-                case "availability-fee":
-                    cost.Name = "Availability fee";
-                    cost.Value = model.AvailabilityFee;
-                    cost.CostBlocks = new PlausiCostBlock[] { avFee };
-                    break;
-
-                case "reinsurance":
-                    cost.Name = "Reinsurance";
-                    cost.Value = model.Reinsurance;
-                    cost.CostBlocks = new PlausiCostBlock[] { reinsurance };
-                    break;
-
-                case "other":
-                    cost.Name = "Other direct cost";
-                    cost.Value = model.OtherDirect;
-                    cost.CostBlocks = new PlausiCostBlock[] { otherDirectCost };
-                    break;
-
-                case "material":
-                    cost.Name = "Material cost iW period";
-                    cost.Value = model.MaterialW;
-                    cost.CostBlocks = new PlausiCostBlock[] { materialCost };
-                    break;
-
-                case "material-oow":
-                    cost.Name = "Material cost OOW period";
-                    cost.Value = model.MaterialOow;
-                    cost.CostBlocks = new PlausiCostBlock[] { materialCost };
-                    break;
-
-                case "tax":
-                    cost.Name = "Tax & Duties iW period";
-                    cost.Value = model.TaxAndDutiesW;
-                    cost.CostBlocks = new PlausiCostBlock[] { taxAndDuties };
-                    break;
-
-                case "tax-oow":
-                    cost.Name = "Tax & Duties OOW period";
-                    cost.Value = model.TaxAndDutiesOow;
-                    cost.CostBlocks = new PlausiCostBlock[] { taxAndDuties };
-                    break;
-
-                case "proactive":
-                    cost.Name = "ProActive";
-                    cost.Value = model.ProActive;
-                    cost.CostBlocks = new PlausiCostBlock[] { proactive };
-                    break;
-
-                case "reactive-tc":
-                    cost.Name = "ReActive TC";
-                    cost.Value = model.ReActiveTC;
-                    cost.CostBlocks = blocks;
-                    break;
-
-                case "reactive-tp":
-                    cost.Name = "ReActive TP";
-                    cost.Value = model.ReActiveTP;
-                    cost.CostBlocks = blocks;
-                    break;
-
-                case "tc":
-                    cost.Name = "Service TC";
-                    cost.Value = model.ServiceTC;
-                    blocks.Add(proactive);
-                    blocks.Add(reactiveTС);
-                    blocks.Add(reactiveTP);
-                    cost.CostBlocks = blocks;
-                    break;
-
-                case "tp":
-                    cost.Name = "Service TP";
-                    cost.Value = model.ServiceTP;
-                    blocks.Add(proactive);
-                    blocks.Add(reactiveTС);
-                    blocks.Add(reactiveTP);
-                    cost.CostBlocks = blocks;
-                    break;
-
-                default:
-                    throw new System.ArgumentException("what");
+                fn = x => x.FieldServiceCost;
             }
 
-            return cost;
+            else if (what == "service-support")
+            {
+                fn = x => x.ServiceSupportCost;
+            }
+
+            else if (what == "logistic")
+            {
+                fn = x => x.LogisticCost;
+            }
+
+            else if (what == "availability-fee")
+            {
+                fn = x => x.AvailabilityFee;
+            }
+
+            else if (what == "reinsurance")
+            {
+                fn = x => x.Reinsurance;
+            }
+
+            else if (what == "other")
+            {
+                fn = x => x.OtherCost;
+            }
+
+            else if (what == "material")
+            {
+                fn = x => x.MaterialCost;
+            }
+
+            else if (what == "material-oow")
+            {
+                fn = x => x.MaterialCostOow;
+            }
+
+            else if (what == "tax")
+            {
+                fn = x => x.Tax;
+            }
+
+            else if (what == "tax-oow")
+            {
+                fn = x => x.TaxOow;
+            }
+
+            else if (what == "proactive")
+            {
+                fn = x => x.Proactive;
+            }
+
+            else if (what == "reactive-tc")
+            {
+                fn = x => x.ReactiveTC;
+            }
+
+            else if (what == "reactive-tp")
+            {
+                fn = x => x.ReactiveTP;
+            }
+
+            else if (what == "tc")
+            {
+                fn = x => x.TC;
+            }
+
+            else if (what == "tp")
+            {
+                fn = x => x.TP;
+            }
+
+            else
+            {
+                throw new ArgumentException("what");
+            }
+
+            var model = new GetHwCostById(_repositorySet).Execute(approved, id);
+            var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
+            var plausi = new PlausiCostWrap(model, details);
+
+            return fn(plausi);
         }
 
         public PlausiCost GetStdwDetails(bool approved, long id)
@@ -228,7 +165,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return cost;
         }
 
-        private PlausiCost GetStdCreditDetails(bool approved, long id)
+        public PlausiCost GetStdCreditDetails(bool approved, long id)
         {
             var p = GetPortfolio(id);
             return this.GetStdCreditDetails(approved, p.Country.Id, p.Wg.Id);
@@ -484,7 +421,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public PlausiCostBlock[] CostBlocks { get; set; }
     }
 
-
     public class PlausiCostBlock
     {
         public string Name { get; set; }
@@ -504,5 +440,284 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public string Dependency { get; set; }
         public string Level { get; set; }
         public bool Mandatory { get; set; }
+    }
+
+    public class PlausiCostWrap
+    {
+        private readonly GetHwCostById.HwCostDto model;
+
+        private readonly List<GetHwCostDetailsById.CostDetailDto> details;
+
+        public PlausiCostWrap(
+                GetHwCostById.HwCostDto model,
+                List<GetHwCostDetailsById.CostDetailDto> details
+            )
+        {
+            this.model = model;
+            this.details = details;
+        }
+
+        public PlausiCost FieldServiceCost
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Field service cost";
+                cost.Value = model.FieldServiceCost;
+                cost.CostBlocks = new PlausiCostBlock[] { fieldServiceCost };
+                return cost;
+            }
+        }
+
+        public PlausiCost ServiceSupportCost
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Service support cost";
+                cost.Value = model.ServiceSupportCost;
+                cost.CostBlocks = new PlausiCostBlock[] { serviceSupportCost };
+                return cost;
+            }
+        }
+
+        public PlausiCost LogisticCost
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Logistic cost";
+                cost.Value = model.Logistic;
+                cost.CostBlocks = new PlausiCostBlock[] { logisticCost };
+                return cost;
+            }
+        }
+
+        public PlausiCost AvailabilityFee
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Availability fee";
+                cost.Value = model.AvailabilityFee;
+                cost.CostBlocks = new PlausiCostBlock[] { avFee };
+                return cost;
+            }
+        }
+
+        public PlausiCost Reinsurance
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Reinsurance";
+                cost.Value = model.Reinsurance;
+                cost.CostBlocks = new PlausiCostBlock[] { reinsurance };
+                return cost;
+            }
+        }
+
+        public PlausiCost OtherCost
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Other direct cost";
+                cost.Value = model.OtherDirect;
+                cost.CostBlocks = new PlausiCostBlock[] { otherDirectCost };
+                return cost;
+            }
+        }
+
+        public PlausiCost MaterialCost
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Material cost iW period";
+                cost.Value = model.MaterialW;
+                cost.CostBlocks = new PlausiCostBlock[] { materialCost };
+                return cost;
+            }
+        }
+
+        public PlausiCost MaterialCostOow
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Material cost OOW period";
+                cost.Value = model.MaterialOow;
+                cost.CostBlocks = new PlausiCostBlock[] { materialCost };
+                return cost;
+            }
+        }
+
+        public PlausiCost Tax
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Tax & Duties iW period";
+                cost.Value = model.TaxAndDutiesW;
+                cost.CostBlocks = new PlausiCostBlock[] { taxAndDuties };
+                return cost;
+            }
+        }
+
+        public PlausiCost TaxOow
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Tax & Duties OOW period";
+                cost.Value = model.TaxAndDutiesOow;
+                cost.CostBlocks = new PlausiCostBlock[] { taxAndDuties };
+                return cost;
+            }
+        }
+
+        public PlausiCost Proactive
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "ProActive";
+                cost.Value = model.ProActive;
+                cost.CostBlocks = new PlausiCostBlock[] { proactive };
+                return cost;
+            }
+        }
+
+        public PlausiCost ReactiveTC
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "ReActive TC";
+                cost.Value = model.ReActiveTC;
+                cost.CostBlocks = blocks;
+                return cost;
+            }
+        }
+
+        public PlausiCost ReactiveTP
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "ReActive TP";
+                cost.Value = model.ReActiveTP;
+                cost.CostBlocks = blocks;
+                return cost;
+            }
+        }
+
+        public PlausiCost TC
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Service TC";
+                cost.Value = model.ServiceTC;
+                blocks.Add(proactive);
+                blocks.Add(reactiveTС);
+                blocks.Add(reactiveTP);
+                cost.CostBlocks = blocks;
+                return cost;
+            }
+        }
+
+        public PlausiCost TP
+        {
+            get
+            {
+                var cost = this.Base;
+                cost.Name = "Service TP";
+                cost.Value = model.ServiceTP;
+                blocks.Add(proactive);
+                blocks.Add(reactiveTС);
+                blocks.Add(reactiveTP);
+                cost.CostBlocks = blocks;
+                return cost;
+            }
+        }
+
+        private PlausiCost Base
+        {
+            get
+            {
+                return new PlausiCost
+                {
+                    Fsp = model.Fsp,
+                    Country = model.Country,
+                    Currency = model.Currency,
+                    ExchangeRate = model.ExchangeRate,
+                    Sog = model.Sog,
+                    Wg = model.Wg,
+                    Availability = model.Availability,
+                    Duration = model.Duration,
+                    ReactionTime = model.ReactionTime,
+                    ReactionType = model.ReactionType,
+                    ServiceLocation = model.ServiceLocation,
+                    ProActiveSla = model.ProActiveSla,
+                    StdWarranty = model.StdWarranty,
+                    StdWarrantyLocation = model.StdWarrantyLocation
+                };
+            }
+        }
+
+        private PlausiCostBlock fieldServiceCost { get { return new PlausiCostBlock { Name = "Field service cost", Value = model.FieldServiceCost, CostElements = AsElements(details, "Field Service Cost") }; } }
+        private PlausiCostBlock serviceSupportCost { get { return new PlausiCostBlock { Name = "Service support cost", Value = model.ServiceSupportCost, CostElements = AsElements(details, "Service support cost") }; } }
+        private PlausiCostBlock logisticCost { get { return new PlausiCostBlock { Name = "Logistics cost", Value = model.Logistic, CostElements = AsElements(details, "Logistics Cost") }; } }
+        private PlausiCostBlock avFee { get { return new PlausiCostBlock { Name = "Availability fee", Value = model.AvailabilityFee, Mandatory = false, CostElements = AsElements(details, "Availability fee") }; } }
+        private PlausiCostBlock reinsurance { get { return new PlausiCostBlock { Name = "Reinsurance", Value = model.Reinsurance, Mandatory = false, CostElements = AsElements(details, "Reinsurance") }; } }
+        private PlausiCostBlock otherDirectCost { get { return new PlausiCostBlock { Name = "Other", Value = model.OtherDirect }; } }
+        private PlausiCostBlock materialCost { get { return new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") }; } }
+        private PlausiCostBlock taxAndDuties { get { return new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") }; } }
+        private PlausiCostBlock Stdw { get { return new PlausiCostBlock { Name = "Local STDW", Value = model.LocalServiceStandardWarranty }; } }
+        private PlausiCostBlock Credits { get { return new PlausiCostBlock { Name = "Credits", Value = model.Credits }; } }
+        private PlausiCostBlock proactive { get { return new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, Mandatory = false, CostElements = AsElements(details, "ProActive") }; } }
+        private PlausiCostBlock reactiveTС { get { return new PlausiCostBlock { Name = "ReActive TC", Value = model.ReActiveTC }; } }
+        private PlausiCostBlock reactiveTP { get { return new PlausiCostBlock { Name = "ReActive TP", Value = model.ReActiveTP }; } }
+
+        private List<PlausiCostBlock> blocks
+        {
+            get
+            {
+                return new List<PlausiCostBlock>(16)
+                {
+                    fieldServiceCost,
+                    serviceSupportCost,
+                    materialCost,
+                    logisticCost,
+                    taxAndDuties,
+                    avFee,
+                    reinsurance,
+                    Stdw,
+                    Credits,
+                    otherDirectCost
+                };
+            }
+        }
+
+        private IEnumerable<PlausiCostElement> AsElements(List<GetHwCostDetailsById.CostDetailDto> details, string costBlock)
+        {
+            for (var i = 0; i < details.Count; i++)
+            {
+                var x = details[i];
+                if (string.Compare(x.CostBlock, costBlock, true) == 0)
+                {
+                    yield return new PlausiCostElement
+                    {
+                        Name = x.CostElement,
+                        Dependency = x.Dependency,
+                        Value = x.Value,
+                        Mandatory = x.Mandatory,
+                        Level = x.Level
+                    };
+                }
+            }
+        }
     }
 }

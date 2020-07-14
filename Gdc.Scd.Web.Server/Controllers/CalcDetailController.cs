@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Web.Server;
@@ -11,19 +12,23 @@ using System.Web.Http;
 namespace Gdc.Scd.Web.Api.Controllers
 {
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Report })]
-    public class CalcController : ApiController
+    public class CalcDetailController : ApiController
     {
         private readonly ICalculationService calcSrv;
 
         private readonly ICountryUserService userCountrySrv;
 
-        public CalcController(
+        private readonly CalcDetailService detailService;
+
+        public CalcDetailController(
                 ICalculationService calcSrv,
-                ICountryUserService userCountrySrv
+                ICountryUserService userCountrySrv,
+                CalcDetailService detailService
             )
         {
             this.calcSrv = calcSrv;
             this.userCountrySrv = userCountrySrv;
+            this.detailService = detailService;
         }
 
         [HttpPost]
@@ -152,6 +157,24 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             return this.NotFoundContentAsync();
+        }
+
+        [HttpGet]
+        public object Details(long id, bool approved, string what)
+        {
+            return detailService.GetHwCostDetails(approved, id, what);
+        }
+
+        [HttpGet]
+        public object SwDetails(long id, bool approved, string what)
+        {
+            return detailService.GetSwCostDetails(approved, id, what);
+        }
+
+        [HttpGet]
+        public object SwProactiveDetails(long id, string fsp, bool approved)
+        {
+            return detailService.GetSwProactiveCostDetails(approved, id, fsp);
         }
 
         private bool IsRangeValid(int start, int limit)
