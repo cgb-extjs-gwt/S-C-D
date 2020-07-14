@@ -64,9 +64,6 @@ begin
 end
 go
 
-use SCD_2;
-go
-
 if OBJECT_ID('Hardware.SpGetCostsByID') is not null
     drop procedure [Hardware].SpGetCostsByID;
 go
