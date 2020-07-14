@@ -160,9 +160,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public object Details(long id, string what)
+        public object Details(long id, bool approved, string what)
         {
-            return detailService.GetHwCostDetails(false, id, what);
+            return detailService.GetHwCostDetails(approved, id, what);
         }
 
         [HttpGet]

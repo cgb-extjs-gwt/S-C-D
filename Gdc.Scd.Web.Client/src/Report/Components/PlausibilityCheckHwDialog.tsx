@@ -4,11 +4,7 @@ import { Accordion } from "../../Common/Components/Accordion";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { get } from "../../Common/Services/Ajax";
 
-export interface PlausibilityCheckProps {
-
-}
-
-export class PlausibilityCheckHwDialog extends React.Component<PlausibilityCheckProps, any> {
+export class PlausibilityCheckHwDialog extends React.Component<any, any> {
 
     private wnd: Dialog & any;
 
@@ -17,9 +13,9 @@ export class PlausibilityCheckHwDialog extends React.Component<PlausibilityCheck
         model: null
     };
 
-    public show(id: number, what: string) {
+    public show(id: number, approved: boolean, what: string) {
         this.setModel(null);
-        let p = get('calc', 'details', { id, what }).then(this.onLoad);
+        let p = get('calc', 'details', { id, approved, what }).then(this.onLoad);
         handleRequest(p);
     }
 

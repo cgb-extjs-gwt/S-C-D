@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Calculation;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public PlausiCost GetHwCostDetails(bool approved, long id, string what)
         {
+            if (what == "stdw")
+            {
+                return this.GetStdwDetails(approved, id);
+            }
+
+            if (what == "credit")
+            {
+                return this.GetStdCreditDetails(approved, id);
+            }
+
             var model = new GetHwCostById(_repositorySet).Execute(approved, id);
             var details = new GetHwCostDetailsById(_repositorySet).Execute(approved, id);
 
@@ -28,16 +39,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var otherDirectCost = new PlausiCostBlock { Name = "Other", Value = model.OtherDirect };
             var materialCost = new PlausiCostBlock { Name = "Material cost", Value = model.MaterialW + model.MaterialOow, CostElements = AsElements(details, "Material cost") };
             var taxAndDuties = new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW + model.TaxAndDutiesOow, CostElements = AsElements(details, "Tax & duties") };
+            
             var proactive = new PlausiCostBlock { Name = "ProActive", Value = model.ProActive, Mandatory = false, CostElements = AsElements(details, "ProActive") };
+            var reactiveTС = new PlausiCostBlock { Name = "ReActive TC", Value = model.ReActiveTC };
+            var reactiveTP = new PlausiCostBlock { Name = "ReActive TP", Value = model.ReActiveTP };
 
-            var blocks = new PlausiCostBlock[]
+            var blocks = new List<PlausiCostBlock>(16)
             {
                 fieldServiceCost,
                 serviceSupportCost,
                 materialCost,
                 logisticCost,
                 taxAndDuties,
-                proactive,
                 avFee,
                 reinsurance,
                 new PlausiCostBlock { Name = "Local STDW", Value = model.LocalServiceStandardWarranty },
@@ -146,12 +159,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 case "tc":
                     cost.Name = "Service TC";
                     cost.Value = model.ServiceTC;
+                    blocks.Add(proactive);
+                    blocks.Add(reactiveTС);
+                    blocks.Add(reactiveTP);
                     cost.CostBlocks = blocks;
                     break;
 
                 case "tp":
                     cost.Name = "Service TP";
                     cost.Value = model.ServiceTP;
+                    blocks.Add(proactive);
+                    blocks.Add(reactiveTС);
+                    blocks.Add(reactiveTP);
                     cost.CostBlocks = blocks;
                     break;
 
@@ -160,6 +179,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return cost;
+        }
+
+        public PlausiCost GetStdwDetails(bool approved, long id)
+        {
+            var p = GetPortfolio(id);
+            return GetStdwDetails(approved, p.Country.Id, p.Wg.Id);
         }
 
         public PlausiCost GetStdwDetails(bool approved, long cnt, long wg)
@@ -201,6 +226,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
 
             return cost;
+        }
+
+        private PlausiCost GetStdCreditDetails(bool approved, long id)
+        {
+            var p = GetPortfolio(id);
+            return this.GetStdCreditDetails(approved, p.Country.Id, p.Wg.Id);
         }
 
         public PlausiCost GetStdCreditDetails(bool approved, long cnt, long wg)
@@ -380,6 +411,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
+
+        public LocalPortfolio GetPortfolio(long id)
+        {
+            return _repositorySet.GetRepository<LocalPortfolio>()
+                                  .GetAll()
+                                  .Where(x => x.Id == id)
+                                  .Select(x => new LocalPortfolio
+                                  {
+                                      Country = new Core.Entities.Country { Id = x.Country.Id },
+                                      Wg = new Core.Entities.Wg { Id = x.Wg.Id }
+                                  })
+                                  .First();
+        }
     }
 
     public class PlausiCost
@@ -416,12 +460,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public double? Value { get; set; }
 
-        public PlausiCostBlock[] CostBlocks { get; set; }
+        public IEnumerable<PlausiCostBlock> CostBlocks { get; set; }
     }
 
     public class PlausiCostSw
     {
-        public string Name { get;  set; }
+        public string Name { get; set; }
 
         public string Country { get; set; }
 

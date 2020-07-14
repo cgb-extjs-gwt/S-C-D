@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 

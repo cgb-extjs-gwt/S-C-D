@@ -34,10 +34,24 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer
         }
 
         [TestCase]
+        public void GetStdw_ById_CostDetailsTest()
+        {
+            var d = testing.GetHwCostDetails(APPROVED, ID, "stdw");
+            Save(d, "stdw_by_id.json");
+        }
+
+        [TestCase]
         public void GetStd_Credit_CostDetailsTest()
         {
             var d = testing.GetStdCreditDetails(APPROVED, 113, 1);
             Save(d, "std-credit.json");
+        }
+
+        [TestCase]
+        public void GetStd_Credit_ById_CostDetailsTest()
+        {
+            var d = testing.GetHwCostDetails(APPROVED, ID, "credit");
+            Save(d, "std-credit_by_id.json");
         }
 
         [TestCase]

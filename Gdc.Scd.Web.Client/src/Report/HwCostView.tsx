@@ -432,7 +432,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
         let rowID = target.getAttribute('data-rowid');
         if (rowID) {
-            this.plausiWnd.show(rowID, action);
+            this.plausiWnd.show(rowID, this.approved(), action);
         }
     }
 
