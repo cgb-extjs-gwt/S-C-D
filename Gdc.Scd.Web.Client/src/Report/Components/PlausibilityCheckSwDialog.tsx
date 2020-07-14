@@ -15,7 +15,7 @@ export class PlausibilityCheckSwDialog extends React.Component<any, any> {
 
     public show(id: number, approved: boolean, what: string) {
         this.setModel(null);
-        let p = get('calc', 'swdetails', { id, approved, what }).then(this.onLoad);
+        let p = get('calcdetail', 'sw', { id, approved, what }).then(this.onLoad);
         handleRequest(p);
     }
 
