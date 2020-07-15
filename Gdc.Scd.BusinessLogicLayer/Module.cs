@@ -24,6 +24,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostEditorService>().To<CostEditorService>().InScdRequestScope();
             Bind<IPortfolioService>().To<PortfolioService>().InScdRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InScdRequestScope();
+            Bind<CalcDetailService>().ToSelf().InScdRequestScope();
             Bind<IHddRetentionService>().To<HddRetentionService>().InScdRequestScope();
             Bind<IReportService>().To<ReportService>().InScdRequestScope();
             Bind<IUserService>().To<UserService>().InScdRequestScope();

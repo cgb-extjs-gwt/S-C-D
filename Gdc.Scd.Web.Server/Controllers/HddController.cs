@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
@@ -13,9 +14,12 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         private readonly IHddRetentionService hdd;
 
-        public HddController(IHddRetentionService hdd)
+        private readonly CalcDetailService detailService;
+
+        public HddController(IHddRetentionService hdd, CalcDetailService detailService)
         {
             this.hdd = hdd;
+            this.detailService = detailService;
         }
 
         [HttpPost]
@@ -38,6 +42,12 @@ namespace Gdc.Scd.Web.Server.Controllers
             {
                 throw this.NotFoundException();
             }
+        }
+
+        [HttpGet]
+        public object Details(long id, bool approved)
+        {
+            return detailService.GetHddCostDetails(approved, id);
         }
 
         [HttpPost]

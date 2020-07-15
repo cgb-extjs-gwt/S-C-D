@@ -35,403 +35,47 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Calculation\AfrTest.cs" />
-    <Compile Include="Calculation\HddRetentionTest.cs" />
-    <Compile Include="Model\AFR.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\AfrYear.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Availability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Availability1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\AvailabilityFee.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\AvailabilityFee1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\AvailabilityFeeCalc.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\CdCsConfiguration.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\CentralContractGroup.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\CentralContractGroup1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ClusterPla.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ClusterPla1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ClusterRegion.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ClusterRegion1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Configuration.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\CostBlockHistory.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Country.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Country1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\CountryGroup.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Currency.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Duration.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\DurationAvailability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Duration_Availability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\EmeiaCountry.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ExchangeRate.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\FieldServiceCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_AFR.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_AvailabilityFee.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_FieldServiceCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_HddRetention.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_InstallBase.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_LogisticsCosts.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_MarkupOtherCosts.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_MarkupStandardWaranty.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_MaterialCostOow.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_MaterialCostOowEmeia.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_MaterialCostWarranty.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_ProActive.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_ProlongationMarkup.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_Reinsurance.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_RoleCodeHourlyRates.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Hardware_ServiceSupportCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\HddRetention.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\HwFspCodeTranslation.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\HwHddFspCodeTranslation.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\HwStandardWarranty.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\InstallBase.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\JobsSchedule.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\LocalPortfolio.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\LogisticsCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ManualCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\MarkupOtherCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\MarkupStandardWaranty.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\MaterialCostOow.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\MaterialCostOowCalc.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\MaterialCostOowEmeia.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\MaterialCostWarranty.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\NonEmeiaCountry.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Permission.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Pla.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Pla1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\PrincipalPortfolio.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ProActive.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ProActiveDigit.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ProActiveSla.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ProActiveSw.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ProlongationMarkup.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTime.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTimeAvailability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTimeType.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTimeTypeAvailability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTime_Avalability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTime_ReactionType.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionTime_ReactionType_Avalability.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReactionType.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Region.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Reinsurance.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReinsuranceYear.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Report.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReportColumn.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReportColumnType.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReportFilter.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ReportFilterType.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Role.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\RoleCode.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\RoleCode1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\RoleCodeHourlyRate.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\RolePermission.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ScdContext.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScdContext.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ScdContext.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ScdContext.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScdContext.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ServiceLocation.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ServiceLocation1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ServiceSupportCost.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Sfab.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Sfab1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SoftwareSolution_ProActiveSw.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SoftwareSolution_SwSpMaintenance.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Sog.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Sog1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SwDigit.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SwDigit1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SwDigitLicense.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SwFspCodeTranslation.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SwLicense.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SwSpMaintenance.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\TaxAndDuty.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\User.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\UserRole.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Wg.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Wg1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Year.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Year1.cs">
-      <DependentUpon>ScdContext.tt</DependentUpon>
-    </Compile>
+    <Compile Include="CalcHddRetentionDetailServiceTest.cs" />
+    <Compile Include="CalcHwDetailServiceTest.cs" />
+    <Compile Include="CalcSwDetailServiceTest.cs" />
+    <Compile Include="CalcSwProactiveDetailServiceTest.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="Ninject.Web.Common, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.Common.3.3.1\lib\net45\Ninject.Web.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
-    <Content Include="App.Debug.config">
-      <DependentUpon>App.config</DependentUpon>
-    </Content>
-    <Content Include="App.Release.config">
-      <DependentUpon>App.config</DependentUpon>
-    </Content>
-    <Content Include="Model\ScdContext.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ScdContext.edmx</DependentUpon>
-      <LastGenOutput>ScdContext.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Model\ScdContext.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ScdContext.edmx</DependentUpon>
-      <LastGenOutput>ScdContext.cs</LastGenOutput>
-    </Content>
-    <EntityDeploy Include="Model\ScdContext.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>ScdContext.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="Model\ScdContext.edmx.diagram">
-      <DependentUpon>ScdContext.edmx</DependentUpon>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
+      <Project>{785fe9d5-3140-46bf-af1b-eb3764397a44}</Project>
+      <Name>Gdc.Scd.BusinessLogicLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
+      <Project>{F587C0F8-3F2F-4F50-9EA2-2D8C74D8330B}</Project>
+      <Name>Gdc.Scd.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
+      <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
+      <Name>Gdc.Scd.DataAccessLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Tests.Util\Gdc.Scd.Tests.Util.csproj">
       <Project>{920e1683-41c8-4c7c-aa52-e976feaa4d2d}</Project>
       <Name>Gdc.Scd.Tests.Util</Name>
