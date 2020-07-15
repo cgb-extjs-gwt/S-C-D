@@ -3,6 +3,7 @@ import * as React from "react";
 import { Accordion } from "../../Common/Components/Accordion";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { get, getFromUri } from "../../Common/Services/Ajax";
+import { priceStr } from "./PlausibilityCheckHwDialog";
 
 export class PlausibilityCheckSwDialog extends React.Component<any, any> {
 
@@ -55,7 +56,7 @@ export class PlausibilityCheckSwDialog extends React.Component<any, any> {
         return <div>
             <h1 className="plausi-box wide">
                 <span className="plausi-box-left">{d.name}</span>
-                <span className="plausi-box-right no-wrap">{this.priceStr(d.value)}</span>
+                <span className="plausi-box-right no-wrap">{priceStr(d.value)}</span>
             </h1>
 
             <div className="plausi-box wide">
@@ -97,14 +98,14 @@ export class PlausibilityCheckSwDialog extends React.Component<any, any> {
 
         let cls = this.state.onlyMissing && d.value ? 'plausi-accordion hidden' : 'plausi-accordion';
 
-        if (d.mandatory && !d.value) {
+        if (d.mandatory && (d.value === undefined || d.value === null)) {
             cls += ' missing';
         }
 
         let smodel = this.state.model;
         let title = <div className="plausi-box">
             <div className="plausi-box-left">{d.name}</div>
-            <div className="plausi-box-right plausi-box-right2">{this.priceStr(d.value)}</div>
+            <div className="plausi-box-right plausi-box-right2">{priceStr(d.value)}</div>
         </div>;
 
         return <div className={cls} key={i}>
@@ -162,20 +163,5 @@ export class PlausibilityCheckSwDialog extends React.Component<any, any> {
     private onShowMissing = () => {
         let missing = !this.state.onlyMissing;
         this.setState({ onlyMissing: missing });
-    }
-
-    private priceStr(value): string {
-        let result: string;
-        if (value) {
-            result = this.asMoney(value, 'EUR');
-        }
-        else {
-            result = 'N/A';
-        }
-        return result;
-    }
-
-    private asMoney(value: number, cur: string): string {
-        return typeof value === 'number' ? Ext.util.Format.number(value, '0.00') + ' ' + cur : '';
     }
 }

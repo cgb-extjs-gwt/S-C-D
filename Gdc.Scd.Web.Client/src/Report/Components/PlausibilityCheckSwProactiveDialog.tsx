@@ -3,6 +3,7 @@ import * as React from "react";
 import { Accordion } from "../../Common/Components/Accordion";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { get, getFromUri } from "../../Common/Services/Ajax";
+import { priceStr } from "./PlausibilityCheckHwDialog";
 
 export class PlausibilityCheckSwProactiveDialog extends React.Component<any, any> {
 
@@ -55,7 +56,7 @@ export class PlausibilityCheckSwProactiveDialog extends React.Component<any, any
         return <div>
             <h1 className="plausi-box wide">
                 <span className="plausi-box-left">{d.name}</span>
-                <span className="plausi-box-right no-wrap">{this.priceStr(d.value)}</span>
+                <span className="plausi-box-right no-wrap">{priceStr(d.value)}</span>
             </h1>
 
             <div className="plausi-box wide">
@@ -138,20 +139,5 @@ export class PlausibilityCheckSwProactiveDialog extends React.Component<any, any
     private onShowMissing = () => {
         let missing = !this.state.onlyMissing;
         this.setState({ onlyMissing: missing });
-    }
-
-    private priceStr(value): string {
-        let result: string;
-        if (value) {
-            result = this.asMoney(value, 'EUR');
-        }
-        else {
-            result = 'N/A';
-        }
-        return result;
-    }
-
-    private asMoney(value: number, cur: string): string {
-        return typeof value === 'number' ? Ext.util.Format.number(value, '0.00') + ' ' + cur : '';
     }
 }

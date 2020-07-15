@@ -4,6 +4,24 @@ import { Accordion } from "../../Common/Components/Accordion";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { get } from "../../Common/Services/Ajax";
 
+export function priceStr(value, exchangeRate = 1, currency = 'EUR'): string {
+    let result: string;
+    if (value !== null && value !== undefined) {
+        result = asMoney((value / exchangeRate), currency);
+        if (currency !== 'EUR') {
+            result += ' (' + asMoney(value, 'EUR') + ')';
+        }
+    }
+    else {
+        result = 'N/A';
+    }
+    return result;
+}
+
+export function asMoney(value: number, cur: string): string {
+    return typeof value === 'number' ? Ext.util.Format.number(value, '0.00') + ' ' + cur : '';
+}
+
 export class PlausibilityCheckHwDialog extends React.Component<any, any> {
 
     private wnd: Dialog & any;
@@ -55,7 +73,7 @@ export class PlausibilityCheckHwDialog extends React.Component<any, any> {
         return <div>
             <h1 className="plausi-box wide">
                 <span className="plausi-box-left">{d.name}</span>
-                <span className="plausi-box-right no-wrap">{this.priceStr(d.value, d.exchangeRate, d.currency)}</span>
+                <span className="plausi-box-right no-wrap">{priceStr(d.value, d.exchangeRate, d.currency)}</span>
             </h1>
 
             <div className="plausi-box wide">
@@ -103,14 +121,14 @@ export class PlausibilityCheckHwDialog extends React.Component<any, any> {
 
         let cls = this.state.onlyMissing && d.value ? 'plausi-accordion hidden' : 'plausi-accordion';
 
-        if (d.mandatory && !d.value) {
+        if (d.mandatory && (d.value === undefined || d.value === null)) {
             cls += ' missing';
         }
 
         let smodel = this.state.model;
         let title = <div className="plausi-box">
             <div className="plausi-box-left">{d.name}</div>
-            <div className="plausi-box-right plausi-box-right2">{this.priceStr(d.value, smodel.exchangeRate, smodel.currency)}</div>
+            <div className="plausi-box-right plausi-box-right2">{priceStr(d.value, smodel.exchangeRate, smodel.currency)}</div>
         </div>;
 
         return <div className={cls} key={i}>
@@ -168,23 +186,5 @@ export class PlausibilityCheckHwDialog extends React.Component<any, any> {
     private onShowMissing = () => {
         let missing = !this.state.onlyMissing;
         this.setState({ onlyMissing: missing });
-    }
-
-    private priceStr(value, exchangeRate, currency): string {
-        let result: string;
-        if (value) {
-            result = this.asMoney((value / exchangeRate), currency);
-            if (currency !== 'EUR') {
-                result += ' (' + this.asMoney(value, 'EUR') + ')';
-            }
-        }
-        else {
-            result = 'N/A';
-        }
-        return result;
-    }
-
-    private asMoney(value: number, cur: string): string {
-        return typeof value === 'number' ? Ext.util.Format.number(value, '0.00') + ' ' + cur : '';
     }
 }
