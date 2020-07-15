@@ -88,8 +88,8 @@ CREATE VIEW [SoftwareSolution].[ProActiveSw] as
 			  when cpss.[DeactivatedDateTime] > ps.[DeactivatedDateTime] then ps.[DeactivatedDateTime]
 			  else cpss.[DeactivatedDateTime]
 			  end as [DeactivatedDateTime]
-		  ,case when cpss.[Deactivated] = 1 or ps.[Deactivated] = 1 then 1
-			  else 0
+		  ,case when cpss.[Deactivated] = 0 or ps.[Deactivated] = 0 then 0
+			  else 1
 			  end as [Deactivated]
 		  ,cpss.[ActualVersion]
 	  FROM [SoftwareSolution].ProActiveSwCPSS cpss
