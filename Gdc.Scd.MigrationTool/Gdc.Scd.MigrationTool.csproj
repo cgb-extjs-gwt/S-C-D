@@ -269,6 +269,7 @@
     <Compile Include="Migrations\2020_07\Migration_2020_07_08_11_00.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_07_19_00.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_02_15_55.cs" />
+    <Compile Include="Migrations\2020_07\Migration_2020_07_14_18_01.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -278,6 +279,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_07_14_18_01_old.xml" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 CS200c SCD2-0 List %28sb%29.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 ESM SCD2-0 List %28sb%29.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\Import Maschlanka SDC V2.0.xlsx" />
@@ -288,6 +290,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DomainConfigs\DomainConfig_2020_07_14_18_01_new.xml" />
     <Content Include="MigrationScripts\2020-04-17-15-11-2.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
