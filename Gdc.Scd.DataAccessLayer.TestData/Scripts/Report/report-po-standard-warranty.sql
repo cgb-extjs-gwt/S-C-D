@@ -79,6 +79,7 @@ RETURN (
             , m.Wg
             , m.WgDescription
             , m.Pla
+            , m.Duration
             , m.ServiceLevel
             , m.ReactionTime
             , m.ReactionType
