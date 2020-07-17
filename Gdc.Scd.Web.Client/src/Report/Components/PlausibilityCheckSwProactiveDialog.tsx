@@ -53,6 +53,23 @@ export class PlausibilityCheckSwProactiveDialog extends React.Component<any, any
     }
 
     private renderBody(d) {
+
+        let html = '';
+
+        if (d.fsp) {
+            html += d.fsp + ': ';
+        }
+
+        html += d.country + ', ' + d.digit;
+
+        if (d.availability) {
+            html += ', ' + d.availability;
+        }
+
+        if (d.duration) {
+            html += ', ' + d.duration;
+        }
+
         return <div>
             <h1 className="plausi-box wide">
                 <span className="plausi-box-left">{d.name}</span>
@@ -62,13 +79,7 @@ export class PlausibilityCheckSwProactiveDialog extends React.Component<any, any
             <div className="plausi-box wide">
                 <div className="plausi-box-left">
                     <p>
-                        <span className="sla">
-                            {d.fsp ? d.fsp + ': ' : ''}
-                            {d.country},&nbsp;
-                            {d.digit},&nbsp;
-                            {d.availability},&nbsp;
-                            {d.duration}
-                        </span>
+                        <span className="sla">{html}</span>
                     </p>
                 </div>
             </div>
