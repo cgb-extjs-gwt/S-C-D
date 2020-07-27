@@ -121,7 +121,7 @@ if OBJECT_ID('Hardware.SpGetCostDetailsByID') is not null
     drop procedure [Hardware].SpGetCostDetailsByID;
 go
 
-create procedure [Hardware].SpGetCostDetailsByID(
+create procedure [Hardware].[SpGetCostDetailsByID](
     @approved       bit , 
     @id             bigint
 )
@@ -137,6 +137,7 @@ begin
     declare @rtypeID bigint;
     declare @rttID bigint;
     declare @rtaID bigint;
+    declare @rttaID bigint;
     declare @locID bigint;
     declare @proID   bigint;
 
@@ -148,6 +149,7 @@ begin
           , @rtypeID = ReactionTypeId
           , @rttID = ReactionTime_ReactionType
           , @rtaID = ReactionTime_Avalability
+          , @rttaID = ReactionTime_ReactionType_Avalability
           , @locID = ServiceLocationId
           , @proID = ProActiveSlaId
     from Portfolio.LocalPortfolio m
@@ -156,10 +158,15 @@ begin
     declare @country nvarchar(64) = (select Name from InputAtoms.Country where id = @cntID);
     declare @central nvarchar(64) = 'Central';
     declare @cur nvarchar(10) = (select Name from [References].Currency c where exists(select * from InputAtoms.Country where id = @cntID and CurrencyId = c.Id));
-    declare @dur nvarchar(64) = (select Name from Dependencies.Duration where Id = @durID);
+
+    declare @dur nvarchar(64);
+    declare @isProlongation bit;
+    select @dur = Name, @isProlongation = IsProlongation from Dependencies.Duration where Id = @durID;
+
     declare @reactionTimeType nvarchar(64) = (select Name from Dependencies.ReactionTimeType where id = @rttID);
     declare @serviceLocation nvarchar(64) = (select Name from Dependencies.ServiceLocation where id = @locID);
     declare @availability nvarchar(64) = (select Name from Dependencies.Availability where id = @avID);
+    declare @reationTimeTypeAv nvarchar(128) = (select Name from Dependencies.ReactionTimeTypeAvailability where id = @rttaID);
 
     --==============================================================================
 
@@ -499,6 +506,32 @@ begin
             insert into @tbl values (0, 'Reinsurance', 'Reinsurance uplift factor', FORMAT(@ReinsuranceUpliftFactor, '') + ' %', '4h 24x7', @central)
         end
 
+    --#### Markup other cost ##############################################################################################################
+
+    declare @MarkupOtherCost                   float;
+    declare @ProlongationMarkupOtherCost       float;
+    declare @MarkupFactorOtherCost             float;
+    declare @ProlongationMarkupFactorOtherCost float;
+
+    select   @MarkupOtherCost = case when @approved = 0 then Markup else Markup_Approved end
+           , @ProlongationMarkupOtherCost = case when @approved = 0 then ProlongationMarkup else ProlongationMarkup_Approved end
+           , @MarkupFactorOtherCost = case when @approved = 0 then MarkupFactor else MarkupFactor_Approved end
+           , @ProlongationMarkupFactorOtherCost = case when @approved = 0 then ProlongationMarkup else ProlongationMarkup_Approved end
+    from Hardware.MarkupOtherCosts moc where moc.Country = @cntID AND moc.Wg = @wgID AND moc.ReactionTimeTypeAvailability = @rttaID and moc.Deactivated = 0;
+
+    if @isProlongation = 0
+        begin
+            insert into @tbl values
+                  (0, 'MarkupOtherCosts', 'Markup factor for other cost (%)', FORMAT(@MarkupFactorOtherCost, '') + ' %', @reationTimeTypeAv, @country)
+                , (0, 'MarkupOtherCosts', 'Markup for other cost', FORMAT(@MarkupOtherCost, '') + ' ' + @cur, @reationTimeTypeAv, @country)
+        end
+    else
+        begin
+            insert into @tbl values
+                  (0, 'MarkupOtherCosts', 'Prolongation markup factor for other cost (%)', FORMAT(@ProlongationMarkupFactorOtherCost, '') + ' %', @reationTimeTypeAv, @country)
+                , (0, 'MarkupOtherCosts', 'Prolongation markup for other cost', FORMAT(@ProlongationMarkupOtherCost, '') + ' ' + @cur, @reationTimeTypeAv, @country)
+        end
+
     --##########################################
 
     select CostBlock, CostElement, Dependency, Level, Value, Mandatory
@@ -546,7 +579,7 @@ if OBJECT_ID('Hardware.SpGetStdwDetailsByID') is not null
     drop procedure [Hardware].SpGetStdwDetailsByID;
 go
 
-create procedure [Hardware].SpGetStdwDetailsByID(
+create procedure [Hardware].[SpGetStdwDetailsByID](
     @approved       bit, 
     @cntID          bigint,
     @wgID           bigint
@@ -694,16 +727,23 @@ begin
         , (1, 'Logistics Cost', 'AFR', cast(@afr4 as nvarchar(64)) + ' %', '4th year', @central)
         , (1, 'Logistics Cost', 'AFR', cast(@afr5 as nvarchar(64)) + ' %', '5th year', @central)
 
-    --#### Tax and duties ###########################################
+    --#### Material cost ###########################################
 
     declare @mat float;
     declare @matOow float;
-    declare @tax float
 
     select @mat = case when @approved = 0 then MaterialCostIw else MaterialCostIw_Approved end
          , @matOow = case when @approved = 0 then MaterialCostOow else MaterialCostOow_Approved end
     from Hardware.MaterialCostWarrantyCalc 
     where Country = @cntID and Wg = @wgID
+
+    insert into @tbl values
+          (1, 'MaterialCost', 'Material cost iW', FORMAT(@mat, '') + ' ' + @cur, null, @country)
+        , (1, 'MaterialCost', 'Material cost OOW', FORMAT(@matOow, '') + ' ' + @cur, null, @country)
+
+    --#### Tax and duties ###########################################
+
+    declare @tax float;
 
     select @tax = case when @approved = 0 then TaxAndDuties else TaxAndDuties_Approved end
     from Hardware.TaxAndDuties where Country = @cntID;

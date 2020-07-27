@@ -2,7 +2,7 @@ if OBJECT_ID('Hardware.SpGetStdwDetailsByID') is not null
     drop procedure [Hardware].SpGetStdwDetailsByID;
 go
 
-create procedure [Hardware].SpGetStdwDetailsByID(
+create procedure [Hardware].[SpGetStdwDetailsByID](
     @approved       bit, 
     @cntID          bigint,
     @wgID           bigint
@@ -150,16 +150,23 @@ begin
         , (1, 'Logistics Cost', 'AFR', cast(@afr4 as nvarchar(64)) + ' %', '4th year', @central)
         , (1, 'Logistics Cost', 'AFR', cast(@afr5 as nvarchar(64)) + ' %', '5th year', @central)
 
-    --#### Tax and duties ###########################################
+    --#### Material cost ###########################################
 
     declare @mat float;
     declare @matOow float;
-    declare @tax float
 
     select @mat = case when @approved = 0 then MaterialCostIw else MaterialCostIw_Approved end
          , @matOow = case when @approved = 0 then MaterialCostOow else MaterialCostOow_Approved end
     from Hardware.MaterialCostWarrantyCalc 
     where Country = @cntID and Wg = @wgID
+
+    insert into @tbl values
+          (1, 'MaterialCost', 'Material cost iW', FORMAT(@mat, '') + ' ' + @cur, null, @country)
+        , (1, 'MaterialCost', 'Material cost OOW', FORMAT(@matOow, '') + ' ' + @cur, null, @country)
+
+    --#### Tax and duties ###########################################
+
+    declare @tax float;
 
     select @tax = case when @approved = 0 then TaxAndDuties else TaxAndDuties_Approved end
     from Hardware.TaxAndDuties where Country = @cntID;
@@ -254,5 +261,3 @@ begin
 
 end
 go
-
-exec Hardware.SpGetStdwDetailsByID 0, 113, 1
