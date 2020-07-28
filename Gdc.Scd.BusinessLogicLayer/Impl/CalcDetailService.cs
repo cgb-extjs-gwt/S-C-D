@@ -648,7 +648,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var cost = this.Base;
                 cost.Name = "Standard warranty";
                 cost.Value = model.LocalServiceStandardWarranty;
-                cost.CostBlocks = this.blocks;
+                cost.CostBlocks = new List<PlausiCostBlock>(16)
+                {
+                    fieldService,
+                    serviceSupportW,
+                    logisticW,
+                    taxAndDutiesW,
+                    markupStandardWarranty,
+                    fee
+                };
 
                 return cost;
             }
@@ -661,7 +669,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var cost = this.Base;
                 cost.Name = "Credits";
                 cost.Value = model.Credits;
-                cost.CostBlocks = this.blocks;
+                cost.CostBlocks = new List<PlausiCostBlock>(16)
+                {
+                    fieldService,
+                    serviceSupportW,
+                    logisticW,
+                    materialW,
+                    taxAndDutiesW,
+                    markupStandardWarranty,
+                    fee
+                };
 
                 return cost;
             }
@@ -700,23 +717,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private PlausiCostBlock taxAndDutiesW { get { return new PlausiCostBlock { Name = "Tax & duties", Value = model.TaxAndDutiesW, CostElements = PlausiCostElement.ElementsFor(details, "Tax & duties") }; } }
         private PlausiCostBlock markupStandardWarranty { get { return new PlausiCostBlock { Name = "Markup for standard warranty", Value = model.MarkupStandardWarranty, Mandatory = false, CostElements = PlausiCostElement.ElementsFor(details, "Markup for standard warranty") }; } }
         private PlausiCostBlock fee { get { return new PlausiCostBlock { Name = "Availability fee", Value = model.Fee, Mandatory = false, CostElements = PlausiCostElement.ElementsFor(details, "Availability fee") }; } }
-
-        private List<PlausiCostBlock> blocks
-        {
-            get
-            {
-                return new List<PlausiCostBlock>(16)
-                {
-                    fieldService,
-                    serviceSupportW,
-                    logisticW,
-                    materialW,
-                    taxAndDutiesW,
-                    markupStandardWarranty,
-                    fee
-                };
-            }
-        }
     }
 
     public class PlausiCostSwWrap
