@@ -1978,7 +1978,7 @@ BEGIN
             , m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
             , m.TaxAndDutiesOrZero * m.matO1P as TaxAndDuties1P
 
-            , m.SarCoeff * m.ServiceSupportPerYear as ServiceSupportPerYear
+            , isnull(m.Sar / 100, 1) * m.ServiceSupportPerYear as ServiceSupportPerYear
             , m.ServiceSupportPerYear as ServiceSupportPerYearWithoutSar
 
             , m.StdDurationValue * m.SarCoeff * m.ServiceSupportPerYear as ServiceSupportCost
