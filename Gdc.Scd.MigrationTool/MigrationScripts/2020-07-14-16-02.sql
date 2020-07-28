@@ -68,7 +68,7 @@ if OBJECT_ID('Hardware.SpGetCostsByID') is not null
     drop procedure [Hardware].SpGetCostsByID;
 go
 
-create procedure [Hardware].SpGetCostsByID(
+create procedure [Hardware].[SpGetCostsByID](
     @approved       bit , 
     @id             bigint
 )
@@ -111,7 +111,7 @@ begin
     declare @prolist dbo.ListID; insert into @prolist(id) values(@proID);
 
     select top(1) * 
-    from Hardware.GetCosts(@approved, @cntlist, @wglist, @avlist, @durlist, @rtimelist, @rtypelist, @loclist, @prolist, null, null)
+    from Hardware.GetCosts2(@approved, @cntlist, null, null, @wglist, @avlist, @durlist, @rtimelist, @rtypelist, @loclist, @prolist, null, null)
     where id = @id;
 
 end
