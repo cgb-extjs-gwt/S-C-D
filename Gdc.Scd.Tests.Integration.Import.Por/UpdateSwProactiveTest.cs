@@ -11,12 +11,24 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         public void SqlBySogTest()
         {
             var wgs = InputAtomHelper.CreateDigit("aa1", "xyz", "abc");
-            var tpl = new UpdateSwProactive(wgs);
+            var tpl = new UpdateSwProActiveSwCPSS(wgs);
             var sql = tpl.BySog();
 
             sql.Has("insert into @dig(id) select id from InputAtoms.SwDigit where Deactivated = 0 and UPPER(name) in ('AA1', 'XYZ', 'ABC')");
             sql.Has("Sog", "Sog not found");
             sql.Has("[Country]", "[Country] not found");
+        }
+
+        [TestCase]
+        public void SqlBySog_ProActiveSwPS_Test()
+        {
+            var wgs = InputAtomHelper.CreateDigit("aa1", "xyz", "abc");
+            var tpl = new UpdateSwProActiveSwPS(wgs);
+            var sql = tpl.BySog();
+
+            sql.Has("insert into @dig(id) select id from InputAtoms.SwDigit where Deactivated = 0 and UPPER(name) in ('AA1', 'XYZ', 'ABC')");
+            sql.Has("Sog", "Sog not found");
+            sql.HasNot("[Country]");
         }
     }
 }

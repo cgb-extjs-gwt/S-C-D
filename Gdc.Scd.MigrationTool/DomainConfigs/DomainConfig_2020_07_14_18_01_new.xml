@@ -968,7 +968,6 @@
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sog</InputLevel>
-                        <InputLevel>SwDigit</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>

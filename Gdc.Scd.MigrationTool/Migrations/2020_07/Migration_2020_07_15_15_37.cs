@@ -9,7 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public string Description => "Fix Std material report, fix Hw overview report";
 
-        public int Number => 188;
+        public int Number => 189;
 
         public Migration_2020_07_15_15_37(IRepositorySet repositorySet)
         {

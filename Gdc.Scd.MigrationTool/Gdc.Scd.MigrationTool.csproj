@@ -270,6 +270,7 @@
     <Compile Include="Migrations\2020_07\Migration_2020_07_08_11_00.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_07_19_00.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_14_16_02.cs" />
+    <Compile Include="Migrations\2020_07\Migration_2020_07_14_18_01.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_15_15_37.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />

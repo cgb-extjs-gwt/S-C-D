@@ -100,7 +100,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateSwProactive(SwDigit[] digits)
         {
-            var tpl = new UpdateSwProactive(digits);
+            var tpl = new UpdateSwProActiveSwCPSS(digits);
             _repo.ExecuteSql(tpl.BySog());
         }
 

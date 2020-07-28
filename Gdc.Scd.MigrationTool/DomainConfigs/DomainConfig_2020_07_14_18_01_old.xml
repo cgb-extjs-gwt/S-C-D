@@ -66,8 +66,6 @@
         <Table Id="AvailabilityFeeWgCountry" Shema="Hardware" Name="AvailabilityFeeWgCountry"/>
         <Table Id="AvailabilityFeeCountryCompany" Shema="Hardware" Name="AvailabilityFeeCountryCompany"/>
         <Table Id="AvailabilityFeeWg" Shema="Hardware" Name="AvailabilityFeeWg"/>
-		<Table Id="ProActiveSwCPSS" Shema="SoftwareSolution" Name="ProActiveSwCPSS"/>
-		<Table Id="ProActiveSwPS" Shema="SoftwareSolution" Name="ProActiveSwPS"/>
     </Tables>
 
   <Blocks>
@@ -919,7 +917,7 @@
                 <Application>SoftwareSolution</Application>
             </Applications>
             <Elements>
-                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -934,7 +932,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -949,7 +947,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="LocalPreparationShcEffort" Caption="Local preparation SHC effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -964,11 +962,10 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_" TableId="ProActiveSwPS">
+                <Element Id="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
                     <InputLevels>
                         <InputLevel>Pla</InputLevel>
                         <InputLevel>Sog</InputLevel>
-                        <InputLevel>SwDigit</InputLevel>
                     </InputLevels>
                     <CostEditor>
                         <Roles>
@@ -978,7 +975,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -993,7 +990,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -1008,7 +1005,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="TravellingTime" Caption="Travelling Time (MTTT) (h)" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
@@ -1023,7 +1020,7 @@
                         </Roles>
                     </CostEditor>
                 </Element>
-                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually" TableId="ProActiveSwCPSS">
+                <Element Id="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
                     <InputLevels>
                         <InputLevel>Country</InputLevel>
                         <InputLevel>Pla</InputLevel>
