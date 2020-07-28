@@ -2,19 +2,18 @@
 
 namespace Gdc.Scd.Import.Por.Core.Scripts
 {
-    public class UpdateSwProactive
+    public class UpdateSwProActiveSwCPSS
     {
         private UpdateCost tpl;
 
-        public UpdateSwProactive(SwDigit[] items)
+        public UpdateSwProActiveSwCPSS(SwDigit[] items)
         {
             this.tpl = new UpdateSwCost(items)
-                            .WithTable("SoftwareSolution.ProActiveSw")
+                            .WithTable("SoftwareSolution.ProActiveSwCPSS")
                             .WithUpdateFields(new string[] {
                                 "LocalRemoteAccessSetupPreparationEffort",
                                 "LocalRegularUpdateReadyEffort",
                                 "LocalPreparationShcEffort",
-                                "CentralExecutionShcReportCost",
                                 "LocalRemoteShcCustomerBriefingEffort",
                                 "LocalOnSiteShcCustomerBriefingEffort",
                                 "TravellingTime",

@@ -148,7 +148,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UpdateSwCost.tt</DependentUpon>
     </Compile>
-    <Compile Include="Scripts\UpdateSwProactive.cs" />
+    <Compile Include="Scripts\UpdateSwProActiveSwCPSS.cs" />
+    <Compile Include="Scripts\UpdateSwProActiveSwPS.cs" />
     <Compile Include="Scripts\UpdateSwSpMaintenance.cs" />
   </ItemGroup>
   <ItemGroup>
