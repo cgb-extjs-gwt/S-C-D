@@ -7,6 +7,7 @@ CREATE FUNCTION Report.PoStandardWarrantyMaterial
     @cnt bigint,
     @wg bigint,
     @av bigint,
+    @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
@@ -23,6 +24,7 @@ RETURN (
               , wg.Name as Wg
               , wg.Description as WgDescription
               , pla.Name as Pla
+              , dur.Name as Duration
               , (dur.Name + ' ' + loc.Name) as ServiceLevel
               , rtime.Name as ReactionTime
               , rtype.Name as ReactionType
@@ -45,7 +47,7 @@ RETURN (
 
               , null as SparesAvailability
 
-        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
         JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
@@ -77,6 +79,7 @@ RETURN (
             , m.Wg
             , m.WgDescription
             , m.Pla
+            , m.Duration
             , m.ServiceLevel
             , m.ReactionTime
             , m.ReactionType
@@ -113,6 +116,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'WgDescription', 'Warranty Group Name', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Pla', 'Pla', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Duration', 'Duration', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceLevel', 'Service Level', 1, 1);
 set @index = @index + 1;
@@ -152,6 +157,8 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wgstandard', 0), 'wg', 'Warranty Group');
 set @index = @index + 1;                                                                        
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('duration', 0), 'dur', 'Duration');
 set @index = @index + 1;                                                                        
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontime', 0), 'reactiontime', 'Reaction time');
 set @index = @index + 1;                                                                        

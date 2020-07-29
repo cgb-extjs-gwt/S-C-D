@@ -2,9 +2,11 @@
   DROP PROCEDURE SoftwareSolution.SpGetProActiveCosts;
 go
 
-CREATE PROCEDURE [SoftwareSolution].[SpGetProActiveCosts]
+create PROCEDURE [SoftwareSolution].[SpGetProActiveCosts]
     @approved bit,
     @cnt dbo.ListID readonly,
+    @fsp nvarchar(255),
+    @hasFsp bit,
     @digit dbo.ListID readonly,
     @av dbo.ListID readonly,
     @year dbo.ListID readonly,
@@ -16,6 +18,8 @@ BEGIN
     SET NOCOUNT ON;
 
     select    m.rownum
+            , m.Id
+            , m.Fsp
             , c.Name as Country               
             , sog.Name as Sog                   
             , d.Name as SwDigit               
@@ -26,7 +30,7 @@ BEGIN
 
             , m.ProActive
 
-    FROM SoftwareSolution.GetProActiveCosts(@approved, @cnt, @digit, @av, @year, @lastid, @limit) m
+    FROM SoftwareSolution.GetProActiveCosts2(@approved, @cnt, @fsp, @hasFsp, @digit, @av, @year, @lastid, @limit) m
     JOIN InputAtoms.Country c on c.id = m.Country
     join InputAtoms.SwDigit d on d.Id = m.SwDigit
     join InputAtoms.Sog sog on sog.Id = d.SogId
@@ -37,5 +41,4 @@ BEGIN
     order by m.rownum;
 
 END
-
 go

@@ -1,10 +1,12 @@
-﻿IF OBJECT_ID('SoftwareSolution.GetProActivePaging') IS NOT NULL
-  DROP FUNCTION SoftwareSolution.GetProActivePaging;
+﻿IF OBJECT_ID('[SoftwareSolution].[GetProActivePaging2]') IS NOT NULL
+  DROP FUNCTION [SoftwareSolution].[GetProActivePaging2];
 go 
 
-CREATE FUNCTION [SoftwareSolution].[GetProActivePaging] (
+CREATE FUNCTION [SoftwareSolution].[GetProActivePaging2] (
      @approved bit,
      @cnt dbo.ListID readonly,
+     @fsp nvarchar(255),
+     @hasFsp bit,
      @digit dbo.ListID readonly,
      @av dbo.ListID readonly,
      @year dbo.ListID readonly,
@@ -46,6 +48,8 @@ BEGIN
 		declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
 		declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
 		declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+
+        if @hasFsp = 0 set @fsp = null;
 
         if @limit > 0
         begin
@@ -101,6 +105,12 @@ BEGIN
                     and (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 				    AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
 					AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+                    and (@fsp is null or fsp.Name like '%' + @fsp + '%')
+                    and case when @hasFsp is null                    then 1 
+                             when @hasFsp = 1 and fsp.Id is not null then 1
+                             when @hasFsp = 0 and fsp.Id is null     then 1
+                             else 0
+                          end = 1
 
             )
             INSERT @tbl
@@ -149,14 +159,18 @@ BEGIN
                 LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
 
 				WHERE pro.Deactivated = 0
-                and (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+                AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 				AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
 				AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
-
+                AND (@fsp is null or fsp.Name like '%' + @fsp + '%')
+                AND case when @hasFsp is null                   then 1 
+                         when @hasFsp = 1 and fsp.Id is not null then 1
+                         when @hasFsp = 0 and fsp.Id is null     then 1
+                         else 0
+                      end = 1
         end
 
     RETURN;
 END
-go
 
-
+GO
