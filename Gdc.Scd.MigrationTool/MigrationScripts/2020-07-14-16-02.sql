@@ -973,45 +973,6 @@ begin
 end
 go
 
-ALTER VIEW [SoftwareSolution].[ProActiveSw] as 
-		SELECT 
-            cpss.Id
-          , cpss.[Country]
-		  ,cpss.[Pla]
-		  ,cpss.[Sog]
-		  ,cpss.[SwDigit]
-		  ,cpss.[LocalRemoteAccessSetupPreparationEffort]
-		  ,cpss.[LocalRegularUpdateReadyEffort]
-		  ,cpss.[LocalPreparationShcEffort]
-		  ,ps.[CentralExecutionShcReportCost]
-		  ,cpss.[LocalRemoteShcCustomerBriefingEffort]
-		  ,cpss.[LocalOnSiteShcCustomerBriefingEffort]
-		  ,cpss.[TravellingTime]
-		  ,cpss.[OnSiteHourlyRate]
-		  ,cpss.[LocalRemoteAccessSetupPreparationEffort_Approved]
-		  ,cpss.[LocalRegularUpdateReadyEffort_Approved]
-		  ,cpss.[LocalPreparationShcEffort_Approved]
-		  ,ps.[CentralExecutionShcReportCost_Approved]
-		  ,cpss.[LocalRemoteShcCustomerBriefingEffort_Approved]
-		  ,cpss.[LocalOnSiteShcCustomerBriefingEffort_Approved]
-		  ,cpss.[TravellingTime_Approved]
-		  ,cpss.[OnSiteHourlyRate_Approved]
-		  ,cpss.[CreatedDateTime]
-		  ,case 
-			  when cpss.[Deactivated] = 1 and ps.[Deactivated] = 0 then cpss.[DeactivatedDateTime]
-			  when cpss.[Deactivated] = 0 and ps.[Deactivated] = 1 then ps.[DeactivatedDateTime]
-			  when cpss.[DeactivatedDateTime] > ps.[DeactivatedDateTime] then ps.[DeactivatedDateTime]
-			  else cpss.[DeactivatedDateTime]
-			  end as [DeactivatedDateTime]
-		  ,case when cpss.[Deactivated] = 1 or ps.[Deactivated] = 1 then 1
-			  else 0
-			  end as [Deactivated]
-		  ,cpss.[ActualVersion]
-	  FROM [SoftwareSolution].ProActiveSwCPSS cpss
-	  inner join [SoftwareSolution].ProActiveSwPS ps on cpss.[Sog] = ps.[Sog] and cpss.[Pla] = ps.[Pla]
-
-GO
-
 ALTER FUNCTION [SoftwareSolution].[GetProActivePaging2] (
      @approved bit,
      @cnt dbo.ListID readonly,
