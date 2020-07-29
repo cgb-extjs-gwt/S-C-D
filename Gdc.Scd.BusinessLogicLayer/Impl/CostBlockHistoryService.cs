@@ -136,7 +136,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private void SetState(CostBlockHistory history, CostBlockHistoryState state, User approveRejectUser, DateTime approveRejectDate)
         {
             history.ApproveRejectDate = approveRejectDate;
-            history.ApproveRejectUser = approveRejectUser;
+            history.ApproveRejectUserId = approveRejectUser?.Id;
             history.State = state;
         }
 
