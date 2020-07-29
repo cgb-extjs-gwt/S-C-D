@@ -13,7 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public override IQueryable<CostBlockHistory> GetAll()
         {
-            return base.GetAll().Include(history => history.EditUser).Include(history => history.ApproveRejectUser);
+            return base.GetAllAsTracking().Include(history => history.EditUser).Include(history => history.ApproveRejectUser);
         }
 
         public override void Save(CostBlockHistory item)
