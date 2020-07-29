@@ -7,12 +7,22 @@ import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
 import { SwProactiveCostFilter } from "./Components/SwProactiveCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
+import { LinkColumn } from "./Components/LinkColumn";
+import { PlausibilityCheckSwProactiveDialog } from "./Components/PlausibilityCheckSwProactiveDialog";
+
+Ext.require([
+    'Ext.grid.plugin.Clipboard'
+]);
 
 export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
     private filter: SwProactiveCostFilter;
+
+    private plausiWnd: PlausibilityCheckSwProactiveDialog;
+
+    private clsID: string;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
@@ -43,7 +53,13 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         this.init();
     }
 
+    public componentDidMount() {
+        document.querySelector('.' + this.clsID).addEventListener('click', this.onMoreDetails);
+    }
+
     public render() {
+        let cls = 'grid-paging-no-count grid-small-head ' + this.clsID;
+
         return (
             <Container layout="fit">
 
@@ -59,7 +75,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginCfg}
-                    cls="grid-paging-no-count grid-small-head"
+                    cls={cls}
                 >
 
                     { /*dependencies*/}
@@ -91,16 +107,21 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="ProActive" dataIndex="ProActive" renderer={moneyRenderer} />
+                        <LinkColumn flex="1" text="ProActive" dataIndex="ProActive" renderer={moneyRenderer} dataAction="proactive" rowID="id" />
 
                     </Column>
 
                 </Grid>
+
+                <PlausibilityCheckSwProactiveDialog ref={this.plausiWndRef} />
+
             </Container>
         );
     }
 
     private init() {
+        this.clsID = 'pro-data-calc-' + (this.approved() ? '1' : '0') + new Date().getTime();
+        //
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
@@ -113,6 +134,14 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     private gridRef = (x) => {
         this.grid = x;
+    }
+
+    private plausiWndRef = (x) => {
+        this.plausiWnd = x;
+    }
+
+    private approved() {
+        return this.props.approved;
     }
 
     private getPluginCfg() {
@@ -144,6 +173,22 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                 }
             }
         };
+    }
+
+    private onMoreDetails = (e) => {
+        let target = e.target;
+        let action = target.getAttribute('data-action');
+        if (action !== 'proactive') {
+            return;
+        }
+        let rowID = target.getAttribute('data-rowid');
+        if (!rowID) {
+            return;
+        }
+        var row = this.store.findRecord('id', rowID);
+        if (row) {
+            this.plausiWnd.show(row.get('Id'), row.get('Fsp'), this.approved());
+        }
     }
 
     private onSearch(filter: SwCostFilterModel) {

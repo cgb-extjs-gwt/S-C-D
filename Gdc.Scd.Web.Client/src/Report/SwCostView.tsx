@@ -7,6 +7,8 @@ import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
 import { SwCostFilter } from "./Components/SwCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
+import { LinkColumn } from "./Components/LinkColumn";
+import { PlausibilityCheckSwDialog } from "./Components/PlausibilityCheckSwDialog";
 
 Ext.require([
     'Ext.grid.plugin.Clipboard'
@@ -17,6 +19,8 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private grid: Grid;
 
     private filter: SwCostFilter;
+
+    private plausiWnd: PlausibilityCheckSwDialog;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
@@ -42,18 +46,26 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private pluginCfg: any;
 
+    private clsID: string;
+
     public constructor(props: CalcCostProps) {
         super(props);
         this.init();
     }
 
     public render() {
+        let cls = 'grid-paging-no-count grid-small-head ' + this.clsID;
+
         return (
             <Container layout="fit">
 
                 <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
-                <Grid ref="grid" store={this.store} width="100%" platformConfig={this.pluginCfg} cls="grid-paging-no-count grid-small-head">
+                <Grid ref="grid"
+                    store={this.store}
+                    width="100%"
+                    platformConfig={this.pluginCfg}
+                    cls={cls}>
 
                     { /*dependencies*/}
 
@@ -83,15 +95,18 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 60, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
-                        <Column text="Service support cost" dataIndex="ServiceSupport" />
-                        <Column text="Reinsurance" dataIndex="Reinsurance" />
-                        <Column text="Transfer price" dataIndex="TransferPrice" />
-                        <Column text="Maintenance list price" dataIndex="MaintenanceListPrice" />
-                        <Column text="Dealer reference price" dataIndex="DealerPrice" />
+                        <LinkColumn flex="1" renderer={moneyRenderer} text="Service support cost" dataIndex="ServiceSupport" dataAction="service-support" />
+                        <LinkColumn flex="1" renderer={moneyRenderer} text="Reinsurance" dataIndex="Reinsurance" dataAction="reinsurance" />
+                        <LinkColumn flex="1" renderer={moneyRenderer} text="Transfer price" dataIndex="TransferPrice" dataAction="transfer" />
+                        <LinkColumn flex="1" renderer={moneyRenderer} text="Maintenance list price" dataIndex="MaintenanceListPrice" dataAction="maintenance" />
+                        <LinkColumn flex="1" renderer={moneyRenderer} text="Dealer reference price" dataIndex="DealerPrice" dataAction="dealer" />
 
                     </Column>
 
                 </Grid>
+
+                <PlausibilityCheckSwDialog ref="plausiWndRef" />
+
             </Container>
         );
     }
@@ -99,15 +114,23 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as SwCostFilter;
+        this.plausiWnd = this.refs.plausiWndRef as PlausibilityCheckSwDialog;
+        document.querySelector('.' + this.clsID).addEventListener('click', this.onMoreDetails);
     }
 
     private init() {
+        this.clsID = 'sw-data-calc-' + (this.approved() ? '1' : '0') + new Date().getTime();
+        //
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad);
         this.pluginCfg = this.getPluginCfg();
+    }
+
+    private approved(): boolean {
+        return this.props.approved;
     }
 
     private getPluginCfg() {
@@ -139,6 +162,18 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                 }
             }
         };
+    }
+
+    private onMoreDetails = (e) => {
+        let target = e.target;
+        let action = target.getAttribute('data-action');
+        if (!action) {
+            return;
+        }
+        let rowID = target.getAttribute('data-rowid');
+        if (rowID) {
+            this.plausiWnd.show(rowID, this.approved(), action);
+        }
     }
 
     private onSearch(filter: SwCostFilterModel) {

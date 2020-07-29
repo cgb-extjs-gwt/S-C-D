@@ -10,6 +10,8 @@ import { ddMMyyyyRenderer, emptyRenderer, moneyRenderer, percentRenderer } from 
 import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 import { ExportService } from "./Services/ExportService";
+import { LinkColumn } from "./Components/LinkColumn";
+import { PlausibilityCheckHddDialog } from "./Components/PlausibilityCheckHddDialog";
 
 Ext.require([
     'Ext.grid.plugin.Clipboard'
@@ -20,6 +22,8 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     private grid: Grid;
 
     private filter: HddCostFilter;
+
+    private plausiWnd: PlausibilityCheckHddDialog;
 
     private store = Ext.create('Ext.data.Store', {
 
@@ -108,6 +112,8 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
 
     private pluginCfg: any;
 
+    private clsID: string;
+
     public constructor(props: CalcCostProps) {
         super(props);
         this.init();
@@ -115,12 +121,15 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
 
     public componentDidMount() {
         new UserCountryService().isAdminUser().then(x => this.setState({ isAdmin: x }));
+        document.querySelector('.' + this.clsID).addEventListener('click', this.onMoreDetails);
     }
 
     public render() {
 
         let canEdit: boolean = this.canEdit();
         let isAdmin: boolean = this.state.isAdmin;
+
+        let cls = 'grid-paging-no-count grid-small-head ' + this.clsID;
 
         return (
             <Container layout="fit">
@@ -138,7 +147,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     width="100%"
                     platformConfig={this.pluginCfg}
                     selectable={this.selectable}
-                    cls="grid-paging-no-count grid-small-head"
+                    cls={cls}
                 >
 
                     { /*dependencies*/}
@@ -166,7 +175,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
-                        <NumberColumn text="HDD retention" dataIndex="readonlyHdd" hidden={!isAdmin} />
+                        <LinkColumn flex="1" renderer={moneyRenderer} text="HDD retention" dataIndex="readonlyHdd" hidden={!isAdmin} dataAction="hdd-retention" rowID="wgId" />
 
                         <NumberColumn text="Transfer price" dataIndex="transferPrice" editable={canEdit} />
                         <NumberColumn text="List price" dataIndex="listPrice" editable={canEdit} />
@@ -182,6 +191,8 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
 
                 {this.toolbar()}
 
+                <PlausibilityCheckHddDialog ref={this.plausiWndRef} />
+
             </Container>
         );
     }
@@ -194,7 +205,13 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         this.grid = x;
     }
 
+    private plausiWndRef = (x) => {
+        this.plausiWnd = x;
+    }
+
     private init() {
+        this.clsID = 'hdd-data-calc-' + (this.approved() ? '1' : '0') + new Date().getTime();
+        //
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
@@ -220,6 +237,18 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     private cancelChanges() {
         this.store.rejectChanges();
         this.toggleToolbar(true);
+    }
+
+    private onMoreDetails = (e) => {
+        let target = e.target;
+        let action = target.getAttribute('data-action');
+        if (action !== 'hdd-retention') {
+            return;
+        }
+        let rowID = target.getAttribute('data-rowid');
+        if (rowID) {
+            this.plausiWnd.show(rowID, this.approved());
+        }
     }
 
     private onSearch(filter: HddCostFilterModel) {

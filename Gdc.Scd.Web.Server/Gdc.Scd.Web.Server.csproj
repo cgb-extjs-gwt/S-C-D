@@ -223,6 +223,7 @@
     <Compile Include="Controllers\ApprovalController.cs" />
     <Compile Include="Controllers\BaseDomainController.cs" />
     <Compile Include="Controllers\CalcController.cs" />
+    <Compile Include="Controllers\CalcDetailController.cs" />
     <Compile Include="Controllers\CostEditorController.cs" />
     <Compile Include="Controllers\Admin\CountryManagementController.cs" />
     <Compile Include="Controllers\Dict\AvailabilityController.cs" />
