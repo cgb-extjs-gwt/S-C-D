@@ -11,6 +11,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         IQueryable<T> GetAll();
 
+        IQueryable<T> GetAllAsTracking();
+
         Task<IEnumerable<T>> GetAllAsync();
 
         void Save(T item);

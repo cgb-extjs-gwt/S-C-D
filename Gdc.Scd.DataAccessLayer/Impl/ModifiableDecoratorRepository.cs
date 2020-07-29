@@ -47,6 +47,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return origin.GetAll().Where(x => !x.DeactivatedDateTime.HasValue);
         }
 
+        public virtual IQueryable<T> GetAllAsTracking()
+        {
+            return origin.GetAllAsTracking().Where(x => !x.DeactivatedDateTime.HasValue);
+        }
         public virtual Task<IEnumerable<T>> GetAllAsync()
         {
             return GetAll().GetAsync().ContinueWith(x => (IEnumerable<T>)x.Result);

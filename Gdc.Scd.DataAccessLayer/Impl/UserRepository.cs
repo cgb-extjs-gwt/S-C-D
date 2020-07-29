@@ -15,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public IQueryable<User> GetAllWithRoles()
         {
             return
-                this.GetAll()
+                this.GetAllAsTracking()
                     .Include(user => user.UserRoles)
                     .ThenInclude(userRole => userRole.Role)
                     .ThenInclude(role => role.RolePermissions)

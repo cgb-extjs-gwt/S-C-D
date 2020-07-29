@@ -29,6 +29,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return this.repositorySet.Set<T>().AsNoTracking();
         }
 
+        public virtual IQueryable<T> GetAllAsTracking()
+        {
+            return this.repositorySet.Set<T>();
+        }
+
         public Task<IEnumerable<T>> GetAllAsync()
         {
             return this.repositorySet.Set<T>()
