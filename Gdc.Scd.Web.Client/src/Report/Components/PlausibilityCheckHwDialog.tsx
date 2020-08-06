@@ -7,7 +7,7 @@ import { get } from "../../Common/Services/Ajax";
 export function priceStr(value, exchangeRate = 1, currency = 'EUR'): string {
     let result: string;
     if (value !== null && value !== undefined) {
-        result = asMoney((value / exchangeRate), currency);
+        result = asMoney(value * exchangeRate, currency);
         if (currency !== 'EUR') {
             result += ' (' + asMoney(value, 'EUR') + ')';
         }

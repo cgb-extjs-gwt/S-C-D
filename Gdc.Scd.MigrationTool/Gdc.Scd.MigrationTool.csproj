@@ -271,6 +271,7 @@
     <Compile Include="Migrations\2020_07\Migration_2020_07_07_19_00.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_14_16_02.cs" />
     <Compile Include="Migrations\2020_07\Migration_2020_07_15_15_37.cs" />
+    <Compile Include="Migrations\2020_07\Migration_2020_07_29_17_03.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -342,6 +343,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2020-07-15-15-37.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2020-07-29-17-03.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="MigrationScripts\2020-07-02-15-55-interpolation.sql">
