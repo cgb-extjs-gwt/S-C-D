@@ -1,6 +1,3 @@
-USE [SCD_2]
-GO
-
 if OBJECT_ID('[Report].[spProActive_Full_KPG]') is not null
     drop procedure [Report].[spProActive_Full_KPG];
 go

@@ -16,4 +16,3 @@ END
 
 go
 
---exec Portfolio.spLocalPortfoplio_KPG 'germany'
