@@ -58,6 +58,25 @@ BEGIN
 
     where c.Id = @cnt;
 
+    declare @warranty_groups table (
+          Id bigint not null primary key
+        , Name nvarchar(255)
+        , Pla nvarchar(255)
+        , Sog nvarchar(255)
+        , SogDescription nvarchar(255)
+    );
+
+    insert into @warranty_groups
+    select    wg.Id
+            , wg.Name as Wg
+            , pla.Name as Pla
+            , sog.Name as Sog
+            , sog.Description
+    from InputAtoms.Wg wg 
+    inner join InputAtoms.Sog sog on sog.id = wg.SogId
+    left join InputAtoms.Pla pla on pla.Id = wg.PlaId
+    where wg.Deactivated = 0 and wg.IsSoftware = 0;
+
     with cte as (
         select m.*
 
@@ -106,6 +125,7 @@ BEGIN
             
             , m.Fsp
             , wg.Name as Wg
+            , wg.Pla as PLA
 
             , loc.Name as ServiceLocation
             , rtime.Name as ReactionTime
@@ -130,7 +150,7 @@ BEGIN
 
     INNER JOIN @countries c on c.Id = m.CountryId
 
-    INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+    INNER JOIN @warranty_groups wg on wg.id = m.WgId
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -174,6 +194,9 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Availability', 'Availability', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ProActiveSla', 'ProActive SLA', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PLA', 'PLA', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Duration', 'Service Period', 1, 1);
