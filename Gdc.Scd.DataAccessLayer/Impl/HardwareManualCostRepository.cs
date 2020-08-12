@@ -14,6 +14,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             item.ChangeUserId = item.ChangeUser.Id;
             item.ChangeDate = DateTime.Now;
 
+            this.SetAddOrUpdateState(item.LocalPortfolio);
             this.SetAddOrUpdateState(item.ChangeUser);
 
             base.Save(item);
