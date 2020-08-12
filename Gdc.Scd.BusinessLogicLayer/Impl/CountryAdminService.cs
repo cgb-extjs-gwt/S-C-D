@@ -165,7 +165,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var countryDict = countries.ToDictionary(c => c.CountryId);
             var keys = countryDict.Select(d => d.Key).ToList();
-            var countriesToUpdate = _countryRepo.GetAll().Where(c => keys.Contains(c.Id));
+            var countriesToUpdate = _countryRepo.GetAllAsTracking().Where(c => keys.Contains(c.Id));
             var currencies = SelectCurrencies(countries);
 
             foreach (var country in countriesToUpdate)
