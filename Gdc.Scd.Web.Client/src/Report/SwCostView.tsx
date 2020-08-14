@@ -3,12 +3,13 @@ import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
+import { clipboardConfig } from "./Components/GridExts";
 import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
+import { LinkColumn } from "./Components/LinkColumn";
+import { PlausibilityCheckSwDialog } from "./Components/PlausibilityCheckSwDialog";
 import { SwCostFilter } from "./Components/SwCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
-import { LinkColumn } from "./Components/LinkColumn";
-import { PlausibilityCheckSwDialog } from "./Components/PlausibilityCheckSwDialog";
 
 Ext.require([
     'Ext.grid.plugin.Clipboard'
@@ -134,17 +135,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private getPluginCfg() {
-        let clipboardCfg = {
-            formats: {
-                text: { put: 'noPut' }
-            },
-            noPut: function () { }
-        };
         return {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: clipboardCfg
+                    clipboard: clipboardConfig.readonly
                 },
                 selectable: {
                     rows: true,
@@ -158,7 +153,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
             '!desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: clipboardCfg
+                    clipboard: clipboardConfig.readonly
                 }
             }
         };

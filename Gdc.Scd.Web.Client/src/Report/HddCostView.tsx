@@ -5,13 +5,13 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { setFloatOrEmpty, readonly } from "./Components/GridExts";
+import { clipboardConfig, readonly, setFloatOrEmpty } from "./Components/GridExts";
 import { ddMMyyyyRenderer, emptyRenderer, moneyRenderer, percentRenderer } from "./Components/GridRenderer";
 import { HddCostFilter } from "./Components/HddCostFilter";
-import { HddCostFilterModel } from "./Model/HddCostFilterModel";
-import { ExportService } from "./Services/ExportService";
 import { LinkColumn } from "./Components/LinkColumn";
 import { PlausibilityCheckHddDialog } from "./Components/PlausibilityCheckHddDialog";
+import { HddCostFilterModel } from "./Model/HddCostFilterModel";
+import { ExportService } from "./Services/ExportService";
 
 Ext.require([
     'Ext.grid.plugin.Clipboard'
@@ -270,44 +270,30 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     }
 
     private readPluginConf() {
-        let clipboardCfg = {
-            formats: {
-                text: { put: 'noPut' }
-            },
-            noPut: function () { }
-        };
         return {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: clipboardCfg
+                    clipboard: clipboardConfig.readonly
                 }
             },
             '!desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: clipboardCfg
+                    clipboard: clipboardConfig.readonly
                 }
             }
         };
     }
 
     private editPluginConf() {
-        let cb = {
-            formats: {
-                text: {
-                    get: 'getTextData',
-                    put: 'putTextData'
-                }
-            }
-        };
         return {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
                     gridcellediting: true,
                     selectionreplicator: true,
-                    clipboard: cb
+                    clipboard: clipboardConfig.text
                 },
                 selectable: {
                     cells: true,
@@ -320,7 +306,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
             '!desktop': {
                 plugins: {
                     gridpagingtoolbar: true,
-                    clipboard: cb,
+                    clipboard: clipboardConfig.text,
                     grideditable: true
                 }
             }
