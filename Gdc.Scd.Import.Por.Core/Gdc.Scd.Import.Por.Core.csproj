@@ -133,7 +133,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UpdateCost.tt</DependentUpon>
     </Compile>
+    <Compile Include="Scripts\UpdateFieldServiceAvailability.cs" />
     <Compile Include="Scripts\UpdateFieldServiceCost.cs" />
+    <Compile Include="Scripts\UpdateFieldServiceLocation.cs" />
+    <Compile Include="Scripts\UpdateFieldServiceReactionTimeType.cs" />
+    <Compile Include="Scripts\UpdateFieldServiceWg.cs" />
     <Compile Include="Scripts\UpdateLogisticCost.cs" />
     <Compile Include="Scripts\UpdateMarkupOtherCosts.cs" />
     <Compile Include="Scripts\UpdateMarkupStandardWaranty.cs" />
