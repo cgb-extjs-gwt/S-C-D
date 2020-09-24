@@ -50,14 +50,27 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public virtual void UpdateFieldServiceCost(Wg[] wgs)
         {
-            //var tpl = new UpdateFieldServiceCost(wgs);
-            //_repo.ExecuteSql(tpl.ByCentralContractGroup());
-            //_repo.ExecuteSql(tpl.ByPla());
+            var tpl = new UpdateFieldServiceAvailability(wgs);
+            _repo.ExecuteSql(tpl.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl.ByPla());
+
+            var tpl1 = new UpdateFieldServiceLocation(wgs);
+            _repo.ExecuteSql(tpl1.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl1.ByPla());
+
+            var tpl2 = new UpdateFieldServiceReactionTimeType(wgs);
+            _repo.ExecuteSql(tpl2.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl2.ByPla());
+
+            var tpl3 = new UpdateFieldServiceWg(wgs);
+            _repo.ExecuteSql(tpl3.ByCentralContractGroup());
+            _repo.ExecuteSql(tpl3.ByPla());
+
             //_repo.ExecuteSql(ReadText("UpdateFieldServiceCost.sql"));
 
-            var costBlocks = this.meta.CostBlocks.GetSome(MetaConstants.HardwareSchema, "FieldServiceCost");
+            //var costBlocks = this.meta.CostBlocks.GetSome(MetaConstants.HardwareSchema, "FieldServiceCost");
 
-            this.costBlockService.UpdateByCoordinates(costBlocks);
+            //this.costBlockService.UpdateByCoordinates(costBlocks);
         }
 
         public virtual void UpdateLogisticsCost(Wg[] wgs)
