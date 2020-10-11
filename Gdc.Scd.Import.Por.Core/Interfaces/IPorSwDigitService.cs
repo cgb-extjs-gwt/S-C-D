@@ -8,8 +8,8 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
 {
     public interface IPorSwDigitService
     {
-        (bool ok, List<SwDigit> added, List<SwDigit> inserted) UploadSwDigits(IDictionary<string, SCD2_SW_Overview> swInfo, IEnumerable<Sog> sogs, 
-            DateTime modifiedDateTime, List<UpdateQueryOption> updateOptions);
+        (bool ok, List<SwDigit> added) UploadSwDigits(IDictionary<string, SCD2_SW_Overview> swInfo, IEnumerable<Sog> sogs,
+     DateTime modifiedDateTime, List<UpdateQueryOption> updateOptions);
 
         bool Deactivate(IDictionary<string, SCD2_SW_Overview> swInfo, DateTime modifiedDateTime);
     }

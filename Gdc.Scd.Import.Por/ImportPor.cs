@@ -18,7 +18,6 @@ namespace Gdc.Scd.Import.Por
         protected List<Wg> newWgs;
 
         protected List<SwDigit> newDigits;
-       // protected List<SwDigit> updatedDigits;
 
         protected string[] softwareServiceTypes;
         protected string[] proactiveServiceTypes;
@@ -66,7 +65,7 @@ namespace Gdc.Scd.Import.Por
             //todo uncomment
 
             //STEP 3: UPLOAD SOFTWARE DIGITS 
-            //UploadSwDigit();
+            UploadSwDigit();
 
             //STEP 6: UPLOAD FSP CODES AND TRANSLATIONS
             //UploadFsp();
@@ -87,7 +86,7 @@ namespace Gdc.Scd.Import.Por
              //UpdateHwCosts();
 
             //STEP 12: UPDATE SOFTWARE COST BLOCK ELEMENTS BY SOG
-           // UpdateSwCosts();
+            UpdateSwCosts();
 
             log.Info(ImportConstantMessages.END_PROCESS);
         }
@@ -122,27 +121,6 @@ namespace Gdc.Scd.Import.Por
             step++;
         }
 
-        //protected virtual void UploadSwDigit()
-        //{
-        //    var porSoftware = friese.GetSw();
-        //    var swInfo = FormatDataHelper.FillSwInfo(porSoftware);
-        //    var (rebuildRelationships, addedDigits, updatedDigits) = por.UploadSoftwareDigits(porSoftware, swInfo, step);
-        //    this.newDigits = addedDigits;
-        //    this.updatedDigits = updatedDigits;
-        //    step++;
-
-        //    STEP 4: UPLOAD SOFTWARE LICENCE
-        //    var swLicensesInfo = swInfo.SwLicenses.Select(sw => sw.Value).ToList();
-        //    rebuildRelationships = rebuildRelationships && por.UploadSoftwareLicense(swLicensesInfo, step);
-        //    step++;
-
-        //    STEP 5: REBUILD RELATIONSHIPS BETWEEN SOFTWARE LICENSES AND DIGITS
-        //    if (rebuildRelationships)
-        //    {
-        //        por.RebuildSoftwareInfo(porSoftware, step);
-        //        step++;
-        //    }
-        //}
 
         protected virtual void UploadSwDigit()
         {
@@ -254,7 +232,6 @@ namespace Gdc.Scd.Import.Por
         protected virtual void UpdateSwCosts()
         {
             por.UpdateCostBlocksBySog(step, this.newDigits);
-            por.ActivateCostBlocksBySog(step, this.updatedDigits);
             step++;
         }
     }

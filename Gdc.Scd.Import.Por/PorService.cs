@@ -115,22 +115,8 @@ namespace Gdc.Scd.Import.Por
                 success = WgService.DeactivateWgs(wgs, DateTime.Now) && WgService.ChangeWgTypeToLogistic(wgs);
 
             Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
-            //
             return added;
         }
-
-
-        //public virtual (bool ok, List<SwDigit> added, List<SwDigit> newSwDigit) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, SwHelperModel swInfo, int step)
-        //{
-        //    Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
-        //    var (success, newItems, updatedItems) = SwDigitService.UploadSwDigits(swInfo.SwDigits, GetSog(), DateTime.Now, UpdateQueryOptions);
-        //    if (success)
-        //    {
-        //        success = SwDigitService.Deactivate(swInfo.SwDigits, DateTime.Now);
-        //    }
-        //    Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
-        //    return (success, newItems, updatedItems);
-        //}
         public virtual (bool ok, List<SwDigit> added) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, SwHelperModel swInfo, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
@@ -268,22 +254,7 @@ namespace Gdc.Scd.Import.Por
                 Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
             }
         }
-        public virtual void ActivateCostBlocksBySog(int step, List<SwDigit> updatedDigits)
-        {
-            try
-            {
-                Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_START, step);
-
-                CostBlockUpdateService.ActivateBySog(updatedDigits.ToArray());
-
-                Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_END);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
-            }
-        }
-
+        
         public virtual void UpdateCostBlocksBySog(int step, List<SwDigit> newDigits)
         {
             try

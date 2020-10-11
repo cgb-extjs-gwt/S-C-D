@@ -109,7 +109,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     }
                 }
             }
-
             this.Save(batch);
             return (batch, novice);
         }
