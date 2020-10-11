@@ -86,12 +86,12 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         public static Wg[] CreateWg()
         {
             return new Wg[] {
-                new Wg { Name = "TC4" },
-                new Wg { Name = "S40" },
-                new Wg { Name = "S55" },
-                new Wg { Name = "VSH" },
-                new Wg { Name = "MN1" },
-                new Wg { Name = "MN4" }
+                new Wg { Name = "S67" },
+                new Wg { Name = "S68" },
+                //new Wg { Name = "S55" },
+                //new Wg { Name = "VSH" },
+                //new Wg { Name = "MN1" },
+                //new Wg { Name = "MN4" }
             };
         }
 

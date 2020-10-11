@@ -18,5 +18,6 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             sql.Has("Sog", "Sog not found");
             sql.Has("[Country]", "[Country] not found");
         }
+
     }
 }

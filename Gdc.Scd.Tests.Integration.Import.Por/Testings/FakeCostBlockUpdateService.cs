@@ -12,6 +12,11 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
 
         public Action OnUpdateBySog;
 
+        public void ActivateBySog(SwDigit[] list)
+        {
+            throw new NotImplementedException();
+        }
+
         public void UpdateByPla(Wg[] wgs)
         {
             if (error != null)

@@ -18,7 +18,16 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             )
         {
             this.repository.DisableTrigger();
-
+            foreach (var digit in digits)
+            { 
+                var updateDigit = swSpMaintenance.Where(x => x.SwDigitId == digit.Id 
+                && x.DeactivatedDateTime != null);
+                foreach (var updateValue in updateDigit)
+                {
+                    updateValue.DeactivatedDateTime = null;
+                }
+                this.repository.Save(updateDigit.ToList());
+            }
             var newDigits = digits.Where(x => x.CreatedDateTime.Date == DateTime.Today);
 
             foreach (var digit in newDigits)
@@ -48,15 +57,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     maintenance.InstalledBaseSog = approvedInstallBase;
                     maintenance.InstalledBaseSog_Approved = approvedInstallBase;
                 }
-
                 this.repository.Save(maintenanceList);
             }
-
             this.repositorySet.Sync();
             this.repository.EnableTrigger();
-
             return true;
-
         }
 
         private bool AllValuesEqual(IEnumerable<double?> values)

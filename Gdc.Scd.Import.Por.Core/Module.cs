@@ -32,7 +32,7 @@ namespace Gdc.Scd.Import.Por.Core
             Bind<IHwFspCodeTranslationService<HwFspCodeDto>>().To<PorHwFspCodeTranslationService>();
             Bind<IHwFspCodeTranslationService<HwHddFspCodeDto>>().To<PorHddHwFspCodeCodeTranslationService>();
             Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
-            Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
+            Bind<IPorDigitProActiveService>().To<PorDigitProActiveService>();
             Bind<ICostBlockUpdateService>().To<CostBlockUpdateService>();
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));

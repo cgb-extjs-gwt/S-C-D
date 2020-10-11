@@ -34,16 +34,18 @@ namespace Gdc.Scd.Import.Por
         public virtual ImportService<SwLicense> LicenseService { get; }
         public virtual DomainService<ProActiveDigit> ProActiveDigitService { get; }
         public virtual DomainService<SwSpMaintenance> SwSpMaintenanceDomainService { get; }
+        public virtual DomainService<ProActiveSw> ProActiveSwDomainService { get; }
         public virtual IPorSogService SogService { get; }
         public virtual IPorWgService WgService { get; }
         public virtual IPorSwDigitService SwDigitService { get; }
         public virtual IPorSwSpMaintenaceService SwSpMaintenanceService { get; }
+        public virtual IPorSwProActiveService PorSwProActiveService { get; }
         public virtual IPorSwLicenseService SwLicenseService { get; }
         public virtual IPorSwDigitLicenseService SwLicenseDigitService { get; }
         public virtual IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; }
         public virtual IHwFspCodeTranslationService<HwHddFspCodeDto> HardwareHddService { get; }
         public virtual ISwFspCodeTranslationService SoftwareService { get; }
-        public virtual IPorSwProActiveService SoftwareProactiveService { get; }
+        public virtual IPorDigitProActiveService SoftwareProactiveService { get; }
         public virtual ICostBlockService CostBlockService { get; }
         public virtual List<UpdateQueryOption> UpdateQueryOptions { get; }
 
@@ -81,7 +83,7 @@ namespace Gdc.Scd.Import.Por
             HardwareService = kernel.Get<IHwFspCodeTranslationService<HwFspCodeDto>>();
             HardwareHddService = kernel.Get<IHwFspCodeTranslationService<HwHddFspCodeDto>>();
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
-            SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
+            SoftwareProactiveService = kernel.Get<IPorDigitProActiveService>();
             CostBlockService = kernel.Get<ICostBlockService>();
             CostBlockUpdateService = kernel.Get<ICostBlockUpdateService>();
             SwSpMaintenanceService = kernel.Get<IPorSwSpMaintenaceService>();
@@ -118,6 +120,17 @@ namespace Gdc.Scd.Import.Por
         }
 
 
+        //public virtual (bool ok, List<SwDigit> added, List<SwDigit> newSwDigit) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, SwHelperModel swInfo, int step)
+        //{
+        //    Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
+        //    var (success, newItems, updatedItems) = SwDigitService.UploadSwDigits(swInfo.SwDigits, GetSog(), DateTime.Now, UpdateQueryOptions);
+        //    if (success)
+        //    {
+        //        success = SwDigitService.Deactivate(swInfo.SwDigits, DateTime.Now);
+        //    }
+        //    Logger.Info(ImportConstantMessages.UPLOAD_ENDS, step);
+        //    return (success, newItems, updatedItems);
+        //}
         public virtual (bool ok, List<SwDigit> added) UploadSoftwareDigits(List<SCD2_SW_Overview> porSoftware, SwHelperModel swInfo, int step)
         {
             Logger.Info(ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
@@ -224,6 +237,22 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
+        public virtual void ActivateProActiveSw(int step)
+        {
+            try
+            {
+                Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_START, step);
+
+                PorSwProActiveService.ActivateProActiveSw(DigitService.GetAllActive().ToList(), ProActiveSwDomainService.GetAll().ToList());
+
+                Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_END);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
+            }
+        }
+
         public virtual void UpdateCostBlocksByPla(int step, List<Wg> newWgs)
         {
             try
@@ -233,6 +262,21 @@ namespace Gdc.Scd.Import.Por
                 CostBlockUpdateService.UpdateByPla(newWgs.ToArray());
 
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_BY_PLA_END);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ImportConstantMessages.UNEXPECTED_ERROR);
+            }
+        }
+        public virtual void ActivateCostBlocksBySog(int step, List<SwDigit> updatedDigits)
+        {
+            try
+            {
+                Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_START, step);
+
+                CostBlockUpdateService.ActivateBySog(updatedDigits.ToArray());
+
+                Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_END);
             }
             catch (Exception ex)
             {

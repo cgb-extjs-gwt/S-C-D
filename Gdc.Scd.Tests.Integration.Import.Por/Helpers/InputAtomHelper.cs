@@ -1,4 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
+using System;
+using System.Collections.Generic;
 
 namespace Gdc.Scd.Tests.Integration.Import.Por.Helpers
 {
@@ -32,6 +34,21 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Helpers
                 arr[i] = new SwDigit { Name = names[i] };
             }
             return arr;
+        }
+
+        public static SwDigit CreateSwDigit(string[] swDigit, ICollection<SwDigitLicense> swDigitLicense)
+        {
+
+            bool convert = (long.TryParse(swDigit[2], out long sogId));
+            if (swDigit.Length == 0)
+            {
+                throw new System.ArgumentException();
+            }
+            if (convert)
+            {
+                return new SwDigit { Name = swDigit[0], Description = swDigit[1], ModifiedDateTime = DateTime.Now, SogId=sogId, SwDigitLicenses= swDigitLicense};
+            }
+            else throw new System.ArgumentException();
         }
     }
 }

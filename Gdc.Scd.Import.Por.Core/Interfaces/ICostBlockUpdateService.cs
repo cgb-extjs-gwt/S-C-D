@@ -6,5 +6,6 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
     {
         void UpdateByPla(Wg[] wgs);
         void UpdateBySog(SwDigit[] list);
+        void ActivateBySog(SwDigit[] list);
     }
 }

@@ -26,5 +26,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             return this.repository.GetAll();
         }
+        public virtual IQueryable<T> GetAllAsTracking()
+        {
+            return this.repository.GetAllAsTracking();
+        }
     }
 }

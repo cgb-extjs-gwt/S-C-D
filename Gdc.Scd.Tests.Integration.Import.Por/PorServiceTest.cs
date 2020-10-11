@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Import.Por;
+using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Tests.Integration.Import.Por.Testings;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
@@ -12,6 +13,7 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         private FakeLogger fakeLogger;
 
         private FakeCostBlockUpdateService fakeCostBlockUpdateService;
+        private FrieseClient friese;
 
         [SetUp]
         public void Setup()
@@ -67,5 +69,50 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             Assert.IsTrue(fakeLogger.IsError);
             Assert.AreEqual("POR Import completed unsuccessfully. Please find details below.", fakeLogger.Message);
         }
+        [TestCase]
+        public void ActivateSwDigit()
+        {
+            //this.fakeCostBlockUpdateService.OnUpdateByPla = () =>
+            //{
+            //    Assert.IsTrue(fakeLogger.IsInfo);
+            //    Assert.AreEqual("STEP -1: Activating swDigit by sog started...", fakeLogger.Message);
+            //};
+
+            var scd2_SW_Overview = friese.GetSw();
+            var testSCD2_SW_Overview = new SCD2_SW_Overview
+            {
+                WG = "E0B",
+                WG_Definition = "ETERNUS SF with AMF",
+                PLA = "X86 / IA SERVER",
+                Software_Lizenz_Digit = "OR",
+                Software_Lizenz_Beschreibung = "ETSF8 MA for FC-Switch",
+                Service_Code = "FSP:G-SW16K60PRV0H",
+                Service_Description = "7840 upg lic,WAN traffic rate 10Gbps.",
+                Service_Code_Requester = "Wolfgang Dörr",
+                Software_Lizenz = "N'D:LEXTSUG1-01-M-L",
+                Software_Lizenz_Benennung = "VMW VSAN 7 STD DT 100CCU w/o SP-5yr",
+                Service_Code_Status = "50",
+                Service_Short_Description = "SP 5y TS Sub & Upgr,9x5,4h Rm Rt ",
+                Proactive = "",
+                SCD_Relevant = "x",
+                ID = 7000,
+                SOG_Code = "E0B",
+                SOG = "ETERNUS SF with AMF",
+                ServiceFabGrp = "FS8236",
+                SCD_ServiceType = "Software Service"
+            };
+            scd2_SW_Overview.Add(testSCD2_SW_Overview);
+            List<SwDigit> added= this.UploadSoftwareDigits(scd2_SW_Overview, FormatDataHelper.FillSwInfo(scd2_SW_Overview), 1).added;
+            this.UpdateCostBlocksBySog(5, added);
+        }
+
+        public void DeactivateSwDigit()
+        {
+            var scd2_SW_Overview = friese.GetSw();
+            this.UploadSoftwareDigits(scd2_SW_Overview, FormatDataHelper.FillSwInfo(scd2_SW_Overview), 1);
+            List<SwDigit> added = this.UploadSoftwareDigits(scd2_SW_Overview, FormatDataHelper.FillSwInfo(scd2_SW_Overview), 1).added;
+            this.UpdateCostBlocksBySog(5, added);
+        }
+        //todo you are here
     }
 }

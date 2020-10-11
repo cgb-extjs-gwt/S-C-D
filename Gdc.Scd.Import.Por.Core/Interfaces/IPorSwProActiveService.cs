@@ -1,9 +1,10 @@
-﻿using Gdc.Scd.Import.Por.Core.Dto;
+﻿using Gdc.Scd.Core.Entities;
+using System.Collections.Generic;
 
 namespace Gdc.Scd.Import.Por.Core.Interfaces
 {
     public interface IPorSwProActiveService
     {
-        bool UploadSwProactiveInfo(SwProActiveDto model);
+        bool ActivateProActiveSw(IEnumerable<SwDigit> digits, IEnumerable<ProActiveSw> proActiveSw);
     }
 }

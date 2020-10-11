@@ -79,6 +79,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     item.CreatedDateTime = modifiedDate;
                     item.ModifiedDateTime = modifiedDate;
                     batch.Add(item);
+                   //todo uncoment batch for new data
                     novice.Add(item);
                 }
 

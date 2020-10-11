@@ -21,12 +21,12 @@ namespace Gdc.Scd.Import.Por.Core.Scripts
 
         public string ByCentralContractGroup()
         {
-            return tpl.WithDeps(new string[] { "CentralContractGroup", "RepairTime" }).Build();
+            return tpl.WithDeps(new string[] { "CentralContractGroup" }).Build();
         }
 
         public string ByPla()
         {
-            return tpl.WithDeps(new string[] { "Pla", "RepairTime" }).Build();
+            return tpl.WithDeps(new string[] { "Pla" }).Build();
         }
     }
 }

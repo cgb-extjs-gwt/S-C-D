@@ -12,6 +12,8 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
 
         public UpdateCostTest() : base(new NamedId[1]) { }
 
+        
+
         [TestCase]
         public void SqlByPlaTest()
         {

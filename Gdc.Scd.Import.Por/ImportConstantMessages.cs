@@ -24,5 +24,8 @@
 
         public const string UPDATE_SW_COSTS_BY_SOG_START = "STEP {0}: Updating software cost block by sog started...";
         public const string UPDATE_SW_COSTS_BY_SOG_END = "Software cost block by sog updated.";
+
+        public const string ACTIVATE_SW_PROACTIVE_STATUS_START = "STEP {0}: Activating Pro Active SW status of new digits started..."; //todo correct this
+        public const string ACTIVATE_SW_PROACTIVE_STATUS_END = "Pro Active SW status of new digits activated.";
     }
 }

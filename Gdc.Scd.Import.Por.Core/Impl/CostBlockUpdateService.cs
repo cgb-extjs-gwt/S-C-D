@@ -47,6 +47,16 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             UpdateSwProactive(digits);
             UpdateSwSpMaintenance(digits);
         }
+        public void ActivateBySog(SwDigit[]digits)
+        {
+            if (digits == null || digits.Length == 0)
+            {
+                return;
+            }
+
+            UpdateSwProactive(digits);
+            UpdateSwSpMaintenance(digits);
+        }
 
         public virtual void UpdateFieldServiceCost(Wg[] wgs)
         {
@@ -114,6 +124,17 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public virtual void UpdateSwProactive(SwDigit[] digits)
         {
             var tpl = new UpdateSwProactive(digits);
+            _repo.ExecuteSql(tpl.BySog());
+        }
+        public virtual void ActivateSwProactive(SwDigit[] digits)
+        {
+            var tpl = new ActivateSwProactive(digits);
+            _repo.ExecuteSql(tpl.BySog());
+            //todo come back here
+        }
+        public virtual void ActivateSwSpMaintenance(SwDigit[] digits)
+        {
+            var tpl = new ActiateSwSpMaintenance(digits);
             _repo.ExecuteSql(tpl.BySog());
         }
 

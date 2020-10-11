@@ -104,25 +104,35 @@
     <Compile Include="Impl\PorModifiableDecoratorRepository.cs" />
     <Compile Include="Impl\PorSogService.cs" />
     <Compile Include="Impl\PorSwDigitLicenseService.cs" />
+    <Compile Include="Impl\PorSwProActiveService.cs" />
     <Compile Include="Impl\PorSwSpMaintenanceService.cs" />
     <Compile Include="Impl\PorSwDigitService.cs" />
     <Compile Include="Impl\PorSwFspCodeTranslationService.cs" />
     <Compile Include="Impl\PorSwLicenseService.cs" />
-    <Compile Include="Impl\PorSwProActiveService.cs" />
+    <Compile Include="Impl\PorDigitProActiveService.cs" />
     <Compile Include="Impl\PorWgService.cs" />
     <Compile Include="Interfaces\ICostBlockUpdateService.cs" />
     <Compile Include="Interfaces\IDataImporter.cs" />
     <Compile Include="Interfaces\IHwFspCodeTranslationService.cs" />
     <Compile Include="Interfaces\IPorSogService.cs" />
     <Compile Include="Interfaces\IPorSwDigitLicenseService.cs" />
+    <Compile Include="Interfaces\IPorSwProActiveService.cs" />
     <Compile Include="Interfaces\IPorSwSpMaintenaceService.cs" />
     <Compile Include="Interfaces\IPorSwDigitService.cs" />
     <Compile Include="Interfaces\IPorSwLicenseService.cs" />
-    <Compile Include="Interfaces\IPorSwProActiveService.cs" />
+    <Compile Include="Interfaces\IPorDigitProActiveService.cs" />
     <Compile Include="Interfaces\IPorWgService.cs" />
     <Compile Include="Interfaces\ISwFspCodeTranslationService.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scripts\ActivateCost.cs" />
+    <Compile Include="Scripts\ActivateCost1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ActivateCost.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\ActivateSwProactive.cs" />
+    <Compile Include="Scripts\ActivateSwSpMaintenance.cs" />
     <Compile Include="Scripts\UpdateCost.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -178,6 +188,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>FrieseModel.edmx</DependentUpon>
       <LastGenOutput>FrieseModel.cs</LastGenOutput>
+    </Content>
+    <Content Include="Scripts\ActivateCost.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ActivateCost1.cs</LastGenOutput>
     </Content>
     <Content Include="Scripts\UpdateCost.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
