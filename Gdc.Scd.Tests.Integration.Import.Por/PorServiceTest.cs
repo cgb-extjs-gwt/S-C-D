@@ -72,13 +72,9 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
         [TestCase]
         public void ActivateSwDigit()
         {
-            //this.fakeCostBlockUpdateService.OnUpdateByPla = () =>
-            //{
-            //    Assert.IsTrue(fakeLogger.IsInfo);
-            //    Assert.AreEqual("STEP -1: Activating swDigit by sog started...", fakeLogger.Message);
-            //};
-
-            var scd2_SW_Overview = friese.GetSw();
+            //new ImportPorJob().Output();
+           // var scd2_SW_Overview = friese.GetSw();
+            List<SCD2_SW_Overview> scd2_SW_Overview=new List<SCD2_SW_Overview>();
             var testSCD2_SW_Overview = new SCD2_SW_Overview
             {
                 WG = "E0B",
@@ -105,9 +101,10 @@ namespace Gdc.Scd.Tests.Integration.Import.Por
             List<SwDigit> added= this.UploadSoftwareDigits(scd2_SW_Overview, FormatDataHelper.FillSwInfo(scd2_SW_Overview), 1).added;
             this.UpdateCostBlocksBySog(5, added);
         }
-
+        [TestCase]
         public void DeactivateSwDigit()
         {
+            new ImportPorJob().Output();
             var scd2_SW_Overview = friese.GetSw();
             this.UploadSoftwareDigits(scd2_SW_Overview, FormatDataHelper.FillSwInfo(scd2_SW_Overview), 1);
             List<SwDigit> added = this.UploadSoftwareDigits(scd2_SW_Overview, FormatDataHelper.FillSwInfo(scd2_SW_Overview), 1).added;

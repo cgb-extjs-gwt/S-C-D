@@ -125,8 +125,6 @@
     <Compile Include="Interfaces\ISwFspCodeTranslationService.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scripts\ActivateSwProactive.cs" />
-    <Compile Include="Scripts\ActivateSwSpMaintenance.cs" />
     <Compile Include="Scripts\UpdateCost.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

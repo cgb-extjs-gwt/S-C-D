@@ -72,17 +72,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 var dbItem = dbItems.FirstOrDefault(i => i.Name.Equals(item.Name,
                                                             StringComparison.OrdinalIgnoreCase));
-
                 //new item
                 if (dbItem == null)
                 {
                     item.CreatedDateTime = modifiedDate;
                     item.ModifiedDateTime = modifiedDate;
                     batch.Add(item);
-                   //todo uncoment batch for new data
                     novice.Add(item);
                 }
-
                 //item already exists in the database
                 else
                 {
@@ -96,7 +93,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         item.CopyModifiedValues(dbItem, modifiedDate);
                         batch.Add(dbItem);
                     }
-
                     //check if it is active in the database
                     else
                     {

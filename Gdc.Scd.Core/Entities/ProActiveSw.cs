@@ -10,7 +10,7 @@ namespace Gdc.Scd.Core.Entities
     {
         public long Id { get; set; }
         [Column("Country")]
-        public string Country { get; set; }
+        public long? Country { get; set; }
 
         [Column("Pla")]
         public long? PlaId { get; set; }

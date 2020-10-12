@@ -67,12 +67,11 @@ namespace Gdc.Scd.Import.Por
             CountryGroupService = kernel.Get<DomainService<CountryGroup>>();
             ProActiveDigitService = kernel.Get<DomainService<ProActiveDigit>>();
             SwSpMaintenanceDomainService = kernel.Get<DomainService<SwSpMaintenance>>();
-
+            ProActiveSwDomainService = kernel.Get<DomainService<ProActiveSw>>();
             SogDomainService = kernel.Get<ImportService<Sog>>();
             WgDomainService = kernel.Get<ImportService<Wg>>();
             DigitService = kernel.Get<ImportService<SwDigit>>();
             LicenseService = kernel.Get<ImportService<SwLicense>>();
-
 
             //SERVICES
             SogService = kernel.Get<IPorSogService>();
@@ -87,6 +86,7 @@ namespace Gdc.Scd.Import.Por
             CostBlockService = kernel.Get<ICostBlockService>();
             CostBlockUpdateService = kernel.Get<ICostBlockUpdateService>();
             SwSpMaintenanceService = kernel.Get<IPorSwSpMaintenaceService>();
+            PorSwProActiveService = kernel.Get<IPorSwProActiveService>();
 
             UpdateQueryOptions = new List<UpdateQueryOption>();
         }

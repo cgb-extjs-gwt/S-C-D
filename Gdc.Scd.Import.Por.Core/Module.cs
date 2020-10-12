@@ -26,6 +26,7 @@ namespace Gdc.Scd.Import.Por.Core
             Bind<IPorSogService>().To<PorSogService>();
             Bind<IPorWgService>().To<PorWgService>();
             Bind<IPorSwDigitService>().To<PorSwDigitService>();
+            Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
             Bind<IPorSwSpMaintenaceService>().To<PorSwSpMaintenanceService>();
             Bind<IPorSwLicenseService>().To<PorSwLicenseService>();
             Bind<IPorSwDigitLicenseService>().To<PorSwDigitLicenseService>();

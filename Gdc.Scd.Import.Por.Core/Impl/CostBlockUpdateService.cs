@@ -126,18 +126,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             var tpl = new UpdateSwProactive(digits);
             _repo.ExecuteSql(tpl.BySog());
         }
-        public virtual void ActivateSwProactive(SwDigit[] digits)
-        {
-            var tpl = new ActivateSwProactive(digits);
-            _repo.ExecuteSql(tpl.BySog());
-            //todo come back here
-        }
-        public virtual void ActivateSwSpMaintenance(SwDigit[] digits)
-        {
-            var tpl = new ActiateSwSpMaintenance(digits);
-            _repo.ExecuteSql(tpl.BySog());
-        }
-
         protected virtual string ReadText(string fn)
         {
             var assembly = Assembly.GetExecutingAssembly();

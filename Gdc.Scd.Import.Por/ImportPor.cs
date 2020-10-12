@@ -57,7 +57,7 @@ namespace Gdc.Scd.Import.Por
             step = 1;
 
             //STEP 1: UPLOADING SOGs
-            //UploadSog();
+            UploadSog();
 
             //STEP 2: UPLOAD WGs
             // UploadWg();
@@ -65,7 +65,7 @@ namespace Gdc.Scd.Import.Por
             //todo uncomment
 
             //STEP 3: UPLOAD SOFTWARE DIGITS 
-            UploadSwDigit();
+            //UploadSwDigit();
 
             //STEP 6: UPLOAD FSP CODES AND TRANSLATIONS
             //UploadFsp();

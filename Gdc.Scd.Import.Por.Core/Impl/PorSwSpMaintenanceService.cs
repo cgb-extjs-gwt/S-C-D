@@ -14,19 +14,22 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public bool Update2ndLevelSupportCosts(
                 IEnumerable<SwDigit> digits,
-                IEnumerable<SwSpMaintenance> swSpMaintenance
-            )
+                IEnumerable<SwSpMaintenance> swSpMaintenance)
         {
             this.repository.DisableTrigger();
+
             foreach (var digit in digits)
-            { 
-                var updateDigit = swSpMaintenance.Where(x => x.SwDigitId == digit.Id 
-                && x.DeactivatedDateTime != null);
-                foreach (var updateValue in updateDigit)
+            {
+                var updateDigits = swSpMaintenance.Where(x => x.SwDigitId == digit.Id
+                && x.DeactivatedDateTime != null).ToList();
+                if (updateDigits.Count != 0)
                 {
-                    updateValue.DeactivatedDateTime = null;
+                    foreach (var updateDigit in updateDigits)
+                    {
+                        updateDigit.DeactivatedDateTime = null;
+                    }
+                    this.repository.Save(updateDigits);
                 }
-                this.repository.Save(updateDigit.ToList());
             }
             var newDigits = digits.Where(x => x.CreatedDateTime.Date == DateTime.Today);
 
