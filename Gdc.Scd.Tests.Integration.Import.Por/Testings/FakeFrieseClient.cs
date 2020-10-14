@@ -20,11 +20,11 @@ namespace Gdc.Scd.Tests.Integration.Import.Por.Testings
             return Json<SCD2_ServiceOfferingGroups>("sog.json.txt");
         }
 
-        //public override List<SCD2_SW_Overview> GetSw()
-        //{
-        //    return Json<SCD2_SW_Overview>("sw.json.txt");
-        //}
-        //todo uncomment
+        public override List<SCD2_SW_Overview> GetSw()
+        {
+            return Json<SCD2_SW_Overview>("sw.json.txt");
+        }
+
 
         protected override List<SCD2_v_SAR_new_codes> LoadFsp()
         {

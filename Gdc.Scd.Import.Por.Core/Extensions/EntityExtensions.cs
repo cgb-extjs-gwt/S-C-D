@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Attributes;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using System;
@@ -92,4 +93,5 @@ namespace Gdc.Scd.Import.Por.Core.Extensions
             return null;
         }
     }
+   
 }

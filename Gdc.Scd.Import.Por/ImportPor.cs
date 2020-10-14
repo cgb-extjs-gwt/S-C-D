@@ -57,33 +57,32 @@ namespace Gdc.Scd.Import.Por
             step = 1;
 
             //STEP 1: UPLOADING SOGs
-            //UploadSog();
+            UploadSog();
 
             //STEP 2: UPLOAD WGs
-            // UploadWg();
+             UploadWg();
 
-            //todo uncomment
 
             //STEP 3: UPLOAD SOFTWARE DIGITS 
-            //UploadSwDigit();
+            UploadSwDigit();
 
             //STEP 6: UPLOAD FSP CODES AND TRANSLATIONS
-            //UploadFsp();
+            UploadFsp();
 
             //STEP 7: PROACTIVE DIGITS UPLOAD
-            //UploadSwProactiveDigit();
+            UploadSwProactiveDigit();
 
             //STEP 8: UPLOAD SOFTWARE
-           // UploadSw();
+            UploadSw();
 
             //STEP 9: UPLOAD COST BLOCKS
-             //UpdateCostBlocks();
+             UpdateCostBlocks();
 
             //STEP 10: UPDATE 2ndLevelSupportCosts
             UpdateServiceSupport();
 
             //STEP 11: UPDATE COST BLOCK ELEMENTS BY PLA
-             //UpdateHwCosts();
+             UpdateHwCosts();
 
             //STEP 12: UPDATE SOFTWARE COST BLOCK ELEMENTS BY SOG
             UpdateSwCosts();

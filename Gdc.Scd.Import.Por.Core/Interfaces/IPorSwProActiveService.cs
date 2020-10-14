@@ -5,6 +5,6 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
 {
     public interface IPorSwProActiveService
     {
-        bool ActivateProActiveSw(IEnumerable<SwDigit> digits, IEnumerable<ProActiveSw> proActiveSw);
+        bool UpdateProActiveSw(IEnumerable<SwDigit> digits, IEnumerable<ProActiveSw> proActiveSw);
     }
 }

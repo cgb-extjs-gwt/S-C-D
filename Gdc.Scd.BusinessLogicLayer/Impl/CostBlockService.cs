@@ -223,6 +223,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IEnumerable<CostBlockEntityMeta> costBlockMetas,
             IEnumerable<UpdateQueryOption> updateOptions = null)
         {
+           costBlockMetas = costBlockMetas.Take(20).ToList();
             foreach (var costBlockMeta in costBlockMetas)
             {
                 this.costBlockRepository.UpdateByCoordinates(costBlockMeta, updateOptions);

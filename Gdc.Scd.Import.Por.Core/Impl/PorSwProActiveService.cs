@@ -12,27 +12,44 @@ namespace Gdc.Scd.Import.Por.Core.Impl
     {
         public PorSwProActiveService(IRepositorySet repositorySet) : base(repositorySet) { }
 
-        public bool ActivateProActiveSw(
+        public bool UpdateProActiveSw(
                 IEnumerable<SwDigit> digits,
                 IEnumerable<ProActiveSw> proActiveSw)
         {
-            this.repository.DisableTrigger();
-            foreach (var digit in digits)
-            {
-                var updateDigits = proActiveSw.Where(x => x.SwDigitId == digit.Id
-                && x.DeactivatedDateTime != null).ToList();
-                if (updateDigits.Count != 0)
-                {
-                    foreach (var updateDigit in updateDigits)
-                    {
-                        updateDigit.DeactivatedDateTime = null;
-                    }
-                    this.repository.Save(updateDigits);
-                }
-            }
+            var activeDigits = digits.Select(x => x.Id).ToList();
+            List<ProActiveSw> itemsToUpdate = ActivateItems(proActiveSw, activeDigits);
+            this.repository.Save(itemsToUpdate);
+            List<ProActiveSw> itemsToDeacivate = DeactivateItems(proActiveSw, activeDigits);
+            this.repository.Save(itemsToDeacivate);
             this.repositorySet.Sync();
             this.repository.EnableTrigger();
             return true;
+        }
+
+        private static List<ProActiveSw> ActivateItems(IEnumerable<ProActiveSw> proActiveSw, List<long> activeDigits)
+        {
+            var itemsToUpdate = proActiveSw
+                                  .Where(f => activeDigits.Contains((long)f.SwDigitId)
+                                            && f.DeactivatedDateTime.HasValue).ToList();
+
+            foreach (var updateDigit in itemsToUpdate)
+            {
+                updateDigit.DeactivatedDateTime = null;
+            }
+
+            return itemsToUpdate;
+        }
+        private static List<ProActiveSw> DeactivateItems(IEnumerable<ProActiveSw> proActiveSw, List<long> activeDigits)
+        {
+            var itemsToDeacivate = proActiveSw
+                                                .Where(f => !activeDigits.Contains((long)f.SwDigitId)
+                                                          && !f.DeactivatedDateTime.HasValue).ToList();
+            foreach (var deactivateDigit in itemsToDeacivate)
+            {
+                deactivateDigit.DeactivatedDateTime = DateTime.Now;
+            }
+
+            return itemsToDeacivate;
         }
     }
 }

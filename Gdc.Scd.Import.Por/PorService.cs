@@ -230,7 +230,7 @@ namespace Gdc.Scd.Import.Por
             {
                 Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_START, step);
 
-                PorSwProActiveService.ActivateProActiveSw(DigitService.GetAllActive().ToList(), ProActiveSwDomainService.GetAll().ToList());
+                PorSwProActiveService.UpdateProActiveSw(DigitService.GetAllActive().ToList(), ProActiveSwDomainService.GetAll().ToList());
 
                 Logger.Info(ImportConstantMessages.ACTIVATE_SW_PROACTIVE_STATUS_END);
             }
