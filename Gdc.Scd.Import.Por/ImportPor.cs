@@ -57,7 +57,7 @@ namespace Gdc.Scd.Import.Por
             step = 1;
 
             //STEP 1: UPLOADING SOGs
-            UploadSog();
+            //UploadSog();
 
             //STEP 2: UPLOAD WGs
             // UploadWg();

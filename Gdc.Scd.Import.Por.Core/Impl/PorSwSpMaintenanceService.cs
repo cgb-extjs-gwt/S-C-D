@@ -18,30 +18,37 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         {
             this.repository.DisableTrigger();
 
-            foreach (var digit in digits)
+            var activeDigits =digits.Select(x => x.Id).ToList();
+            var itemsToUpdate = swSpMaintenance
+                                  .Where(f => activeDigits.Contains((long)f.SwDigitId)
+                                            && f.DeactivatedDateTime.HasValue).ToList();
+            var itemsToDeacivate = swSpMaintenance
+                                     .Where(f => !activeDigits.Contains((long)f.SwDigitId)
+                                               && !f.DeactivatedDateTime.HasValue).ToList();
+            foreach (var updateDigit in itemsToUpdate)
             {
-                var updateDigits = swSpMaintenance.Where(x => x.SwDigitId == digit.Id
-                && x.DeactivatedDateTime != null).ToList();
-                if (updateDigits.Count != 0)
-                {
-                    foreach (var updateDigit in updateDigits)
-                    {
-                        updateDigit.DeactivatedDateTime = null;
-                    }
-                    this.repository.Save(updateDigits);
-                }
+                updateDigit.DeactivatedDateTime = null;
             }
-            var newDigits = digits.Where(x => x.CreatedDateTime.Date == DateTime.Today);
+            this.repository.Save(itemsToUpdate);
+            foreach (var deactivateDigit in itemsToDeacivate)
+            {
+                deactivateDigit.DeactivatedDateTime = DateTime.Now;
+            }
+            this.repository.Save(itemsToDeacivate);
+
+            //todo uncomment or comment??? 
+            //var newDigits = digits.Where(x => x.CreatedDateTime.Date == DateTime.Today);
+            var newDigits = digits.Where(x => x.Id== 282);
 
             foreach (var digit in newDigits)
             {
                 var relevantMaintenance = swSpMaintenance
                     .Where(x => x.SogId == digit.SogId
-                                && x.CreatedDateTime.Date != DateTime.Today);
+                                && x.CreatedDateTime.Date != DateTime.Today &&x.DeactivatedDateTime==null);
 
-                var approvedCosts = relevantMaintenance.Select(x => x.SecondLevelSupportCosts_Approved);
+                var approvedCosts = relevantMaintenance.Where(x=>x.SecondLevelSupportCosts_Approved!=null).Select(x => x.SecondLevelSupportCosts_Approved);
+                var approvedInstallBases = relevantMaintenance.Where(x => x.SecondLevelSupportCosts_Approved!= null).Select(x => x.InstalledBaseSog_Approved);
 
-                var approvedInstallBases = relevantMaintenance.Select(x => x.InstalledBaseSog_Approved);
 
                 var approvedCost = AllValuesEqual(approvedCosts)
                     ? approvedCosts.First()

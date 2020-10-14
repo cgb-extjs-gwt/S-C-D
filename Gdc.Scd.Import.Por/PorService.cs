@@ -214,6 +214,7 @@ namespace Gdc.Scd.Import.Por
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_START, step);
 
                 SwSpMaintenanceService.Update2ndLevelSupportCosts(DigitService.GetAllActive().ToList(), SwSpMaintenanceDomainService.GetAll().ToList());
+                
 
                 Logger.Info(ImportConstantMessages.UPDATE_COSTS_END);
             }
